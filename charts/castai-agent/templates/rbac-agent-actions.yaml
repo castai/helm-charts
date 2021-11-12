@@ -54,6 +54,4 @@ subjects:
   - kind: ServiceAccount
     name: castai-agent-actions
     namespace: {{ .Values.namespace }}
-
-
 {{- end }}

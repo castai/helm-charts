@@ -69,5 +69,3 @@ spec:
         configMap:
           name: {{ include "castai-agent.fullname" . }}-autoscaler
       {{- end }}
-
-
