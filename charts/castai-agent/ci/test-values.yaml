@@ -1,0 +1,17 @@
+apiKey: "test"
+apiURL: "test"
+provider: "eks"
+clusterVPA:
+  enabled: false
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 1000m
+    memory: 256Mi
+
+agentActions:
+  enabled: true
+  apiTelemetryURL: "test"
+  clusterID: "test"

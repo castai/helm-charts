@@ -1,0 +1,122 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" . }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+rules:
+  # ---
+  # Required for cost savings estimation features.
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - nodes
+      - replicationcontrollers
+      - persistentvolumeclaims
+      - persistentvolumes
+      - services
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+      - replicasets
+      - daemonsets
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "storage.k8s.io"
+    resources:
+      - storageclasses
+      - csinodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" . }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "castai-agent.serviceAccountName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-agent.serviceAccountName" . }}
+    namespace: {{ .Values.namespace }}
+
+{{- if .Values.clusterVPA.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" . }}
+  namespace: {{ .Values.namespace }}
+rules:
+  # ---
+  # Required for proportional vertical cluster autoscaler to adjust castai-agent requests/limits.
+  # ---
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    resourceNames:
+      - {{ include "castai-agent.fullname" . }}
+    verbs:
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" . }}
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "castai-agent.serviceAccountName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-agent.serviceAccountName" . }}
+    namespace: {{ .Values.namespace }}
+{{- end }}
