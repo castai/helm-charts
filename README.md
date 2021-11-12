@@ -13,7 +13,7 @@ Once Helm is set up properly, add the repo as follows:
 helm repo add castai-helm https://castai.github.io/castai-helm-charts
 ```
 
-You can then run `helm search repo castai` to see the charts.
+You can then run `helm search repo castai-helm` to see the charts.
 
 ## Contributing
 
