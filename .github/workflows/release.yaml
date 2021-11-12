@@ -24,26 +24,6 @@ jobs:
         with:
           version: v3.5.2
 
-      - name: Prepare GPG key
-        run: |
-          gpg_dir=.cr-gpg
-          mkdir "$gpg_dir"
-
-          keyring="$gpg_dir/secring.gpg"
-          base64 -d <<< "$GPG_KEY_BASE64" > "$keyring"
-
-          echo "CR_KEYRING=$keyring" >> "$GITHUB_ENV"
-        env:
-          GPG_KEY_BASE64: "${{ secrets.GPG_KEY_BASE64 }}"
-
-      - name: Add dependency chart repos
-        run: |
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add kubernetes-dashboard https://kubernetes.github.io/dashboard/
-          helm repo add kedacore https://kedacore.github.io/charts
-          helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
-          helm repo add jetstack https://charts.jetstack.io
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.2.0
         with:
