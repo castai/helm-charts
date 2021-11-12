@@ -1,0 +1,32 @@
+{{- if .Values.clusterVPA.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "castai-agent.fullname" . }}-autoscaler
+  namespace: {{ .Values.namespace }}
+data:
+  # Increase memory requests/limits by 256Mi for every 20 nodes. round_up(nodes/nodes_per_step)*step
+  # For example, for 150 nodes: round_up(150/20)*256Mi=2048Mi
+  castai-agent-autoscaler: |-
+    {
+      "agent": {
+        "requests": {
+          "memory": {
+            "base": "0",
+            "max": "8Gi",
+            "step": "256Mi",
+            "nodesPerStep": 20
+          }
+        },
+        "limits": {
+          "memory": {
+            "base": "0",
+            "max": "8Gi",
+            "step": "256Mi",
+            "nodesPerStep": 20
+          }
+        }
+      }
+    }
+{{- end }}

@@ -1,0 +1,46 @@
+{{- if .Values.agentActions.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: castai-agent-actions
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "castai-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+      {{- with .Values.agentActions.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: castai-agent-actions
+      containers:
+        - name: agent-actions
+          image: "{{ .Values.agentActions.image.repository }}:{{ .Values.agentActions.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.agentActions.image.pullPolicy }}
+          env:
+            - name: API_URL
+              value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+            - name: API_TELEMETRY_URL
+              value: {{ required "apiTelemetryURL must be provided" .Values.agentActions.apiTelemetryURL | quote }}
+            - name: CLUSTER_ID
+              value: {{ required "clusterID must be provided" .Values.agentActions.clusterID | quote }}
+          {{- range $k, $v := .Values.agentActions.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: castai-agent-actions
+          {{- with .Values.agentActions.resources }}
+          resources:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

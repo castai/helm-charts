@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "castai-agent.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "castai-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: castai-agent
+      containers:
+        - name: agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: API_URL
+              value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+            {{- if .Values.provider }}
+            - name: PROVIDER
+              value: {{ .Values.provider | quote }}
+            {{- end }}
+          {{- range $k, $v := .Values.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: {{ include "castai-agent.fullname" . -}}
+          {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
+          {{- if not .Values.clusterVPA.enabled }}
+          resources:
+            {{- .Values.resources | toYaml | nindent 14 }}
+          {{- else }}
+          {{/* we hardcode CPU req/limit for now */}}
+          resources:
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 1000m
+          {{- end }}
+        {{- if .Values.clusterVPA.enabled }}
+        - name: autoscaler
+          image: k8s.gcr.io/cpvpa-amd64:v0.8.3
+          command:
+            - /cpvpa
+            - --target=deployment/{{ include "castai-agent.fullname" . }}
+            - --namespace={{ .Values.namespace }}
+            - --poll-period-seconds=300
+            - --config-file=/etc/config/castai-agent-autoscaler
+          volumeMounts:
+            - mountPath: /etc/config
+              name: autoscaler-config
+        {{- end }}
+      {{- if .Values.clusterVPA.enabled }}
+      volumes:
+      - name: autoscaler-config
+        configMap:
+          name: {{ include "castai-agent.fullname" . }}-autoscaler
+      {{- end }}
+
+
