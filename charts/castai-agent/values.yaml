@@ -45,30 +45,3 @@ apiURL: ""
 # Name of the Kubernetes service provider
 # one of: "eks", "gks", "aks", "kops"
 provider: ""
-
-# Agent actions are responsible for write operations including drain, patch, delete node.
-agentActions:
-  enabled: false
-  apiTelemetryURL: ""
-  clusterID: ""
-  podAnnotations: {}
-  additionalEnv:
-    PPROF_PORT: "6060"
-    LOG_LEVEL: "5"
-  image:
-    repository: castai/agent-actions
-    tag: v0.0.0-alpha2
-    pullPolicy: IfNotPresent
-  resources:
-    requests:
-      cpu: 100m
-    limits:
-      cpu: 500m
-  serviceAccount:
-    # Specifies whether a service account should be created
-    create: true
-    # Annotations to add to the service account
-    annotations: {}
-    # The name of the service account to use.
-    # If not set and create is true, a name is generated using the fullname template
-    name: ""
