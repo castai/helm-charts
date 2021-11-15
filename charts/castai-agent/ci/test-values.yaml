@@ -3,6 +3,9 @@ apiURL: "test"
 provider: "castai"
 namespace: "default"
 createNamespace: false
+additionalEnv:
+  CASTAI_CLUSTER_ID: "c1"
+  CASTAI_ORGANIZATION_ID: "org1"
 clusterVPA:
   enabled: false
 resources:
@@ -12,8 +15,3 @@ resources:
   limits:
     cpu: 1000m
     memory: 256Mi
-
-agentActions:
-  enabled: true
-  apiTelemetryURL: "test"
-  clusterID: "test"
