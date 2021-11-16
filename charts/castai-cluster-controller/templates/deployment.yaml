@@ -21,7 +21,7 @@ spec:
     spec:
       serviceAccountName: castai-cluster-controller
       containers:
-        - name: agent-actions
+        - name: cluster-controller
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
