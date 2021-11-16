@@ -10,7 +10,7 @@ Please refer to Helm's [documentation](https://helm.sh/docs/) to get started.
 Once Helm is set up properly, add the repo as follows:
 
 ```console
-helm repo add castai-helm https://castai.github.io/castai-helm-charts
+helm repo add castai-helm https://castai.github.io/helm-charts
 ```
 
 You can then run `helm search repo castai-helm` to see the charts.
