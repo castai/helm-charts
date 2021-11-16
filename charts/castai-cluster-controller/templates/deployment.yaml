@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: castai-cluster-controller
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "castai-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: castai-cluster-controller
+      containers:
+        - name: agent-actions
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: API_URL
+              value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+            - name: CLUSTER_ID
+              value: {{ required "clusterID must be provided" .Values.clusterID | quote }}
+          {{- range $k, $v := .Values.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+          {{- end }}
+          envFrom:
+            - secretRef:
+                name: castai-cluster-controller
+          {{- with .Values.resources }}
+          resources:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
