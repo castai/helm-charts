@@ -13,7 +13,8 @@ createNamespace: false
 
 image:
   repository: castai/cluster-controller
-  tag: "" # Set using Chart.yaml appVersion field.
+  # Tag is set using Chart.yaml appVersion field.
+  tag: ""
   pullPolicy: IfNotPresent
 
 
