@@ -17,6 +17,7 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
+imagePullSecrets: {}
 
 # Token to be used for authorizing agent access to the API
 apiKey: ""
@@ -36,7 +37,7 @@ resources:
   limits:
     cpu: 500m
 
-
 serviceAccount:
+  create: true
   # Annotations to add to the service account.
   annotations: {}

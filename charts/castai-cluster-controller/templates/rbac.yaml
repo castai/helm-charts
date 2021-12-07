@@ -1,3 +1,4 @@
+{{- if .Values.serviceAccount.create }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -51,6 +52,47 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "events" ]
     verbs: [ "list", "create", "patch" ]
+  # For installing/updating CAST AI components.
+  - apiGroups: [ "rbac.authorization.k8s.io" ]
+    resources: [ "clusterroles", "clusterrolebindings" ]
+    resourceNames: [ "castai-cluster-controller" ]
+    verbs: [ "get", "patch", "update", "delete", "escalate" ]
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: castai-cluster-controller
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+rules:
+  # All these rules are used for updating CAST AI namespace components via auto updates.
+  - apiGroups: [ "apps" ]
+    resources: [ "deployments" ]
+    verbs: [ "get", "list", "create", "update", "delete", "patch" ]
+  - apiGroups: [""]
+    resources: [ "serviceaccounts", "secrets", "configmaps" ]
+    verbs: [ "get", "list", "create", "update", "delete", "patch" ]
+  - apiGroups: [ "rbac.authorization.k8s.io" ]
+    resources: [ "roles" ]
+    verbs: [ "get", "list", "create", "update", "delete", "patch" ]
+  - apiGroups: [ "rbac.authorization.k8s.io" ]
+    resources: [ "rolebindings" ]
+    verbs: [ "get", "list", "patch", "update", "delete" ]
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: castai-cluster-controller
+  namespace: {{ .Values.namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: castai-cluster-controller
+subjects:
+  - kind: ServiceAccount
+    name: castai-cluster-controller
+    namespace: {{ .Values.namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -66,3 +108,4 @@ subjects:
   - kind: ServiceAccount
     name: castai-cluster-controller
     namespace: {{ .Values.namespace }}
+{{- end }}
