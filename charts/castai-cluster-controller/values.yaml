@@ -19,13 +19,16 @@ image:
 
 imagePullSecrets: {}
 
-# Token to be used for authorizing agent access to the API
-apiKey: ""
+castai:
+  # Token to be used for authorizing agent access to the CASTAI API
+  apiKey: ""
 
-# URL to the API server
-apiURL: ""
+  # CASTAI public api url.
+  apiURL: "https://api.cast.ai"
 
-clusterID: ""
+  # CASTAI Cluster unique identifier.
+  clusterID: ""
+
 podAnnotations: {}
 additionalEnv:
   PPROF_PORT: "6060"
