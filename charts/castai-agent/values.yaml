@@ -36,11 +36,11 @@ resources: {}
 additionalEnv:
   PPROF_PORT: "6060"
 
+# URL to the API server
+apiURL: "https://api.cast.ai"
+
 # Token to be used for authorizing agent access to the API
 apiKey: ""
-
-# URL to the API server
-apiURL: ""
 
 # Name of the Kubernetes service provider
 # one of: "eks", "gks", "aks", "kops"
