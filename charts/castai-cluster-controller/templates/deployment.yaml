@@ -19,6 +19,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      priorityClassName: castai-cluster-controller
       serviceAccountName: castai-cluster-controller
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
