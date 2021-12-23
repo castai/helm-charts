@@ -25,7 +25,7 @@ rules:
     verbs: [ "get", "list" ]
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
-    verbs: "get"
+    verbs: [ "get" ]
   # For node draining and patching.
   - apiGroups: [ "" ]
     resources: [ "nodes" ]
@@ -63,7 +63,7 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
     resourceNames: [ "castai-agent" ]
-    verbs: "delete"
+    verbs: [ "delete" ]
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
