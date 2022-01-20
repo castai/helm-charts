@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   castai-agent:
   - apiVersion: v2
+    appVersion: v0.22.7
+    created: "2022-01-20T09:00:09.606023743Z"
+    description: CAST AI agent deployment chart.
+    digest: b7ba6d794ebf286bb7c392ccaed089521bb571091462c6f3396335c453e5fc45
+    name: castai-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-agent-0.13.0/castai-agent-0.13.0.tgz
+    version: 0.13.0
+  - apiVersion: v2
     appVersion: v0.22.6
     created: "2022-01-14T12:27:09.560798514Z"
     description: CAST AI agent deployment chart.
@@ -192,4 +202,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-0.1.0/castai-cluster-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2022-01-14T12:27:09.56096242Z"
+generated: "2022-01-20T09:00:09.606115043Z"
