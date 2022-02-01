@@ -1,4 +1,4 @@
-# Default values for castai-cluster-controller.
+# Default values for castai-azure-spot-handler.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
@@ -22,8 +22,4 @@ additionalEnv:
   PPROF_PORT: "6060"
   LOG_LEVEL: "5"
 
-resources:
-  requests:
-    cpu: 100m
-  limits:
-    cpu: 500m
+resources: {}
