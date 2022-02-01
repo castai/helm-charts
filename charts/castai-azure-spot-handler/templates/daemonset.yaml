@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: castai-azure-spot-handler
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      name: azure-spot-handler
+  template:
+    metadata:
+      labels:
+        name: azure-spot-handler
+    spec:
+      serviceAccount: azure-spot-handler
+      tolerations:
+        - key: kubernetes.azure.com/scalesetpriority
+          operator: Exists
+          effect: NoSchedule
+      nodeSelector:
+        kubernetes.azure.com/scalesetpriority: spot
+      containers:
+        - name: azure-spot-handler
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POLL_INTERVAL_SECONDS
+              value: 3
+            - name: PPROF_PORT
+              value: 6060
+            - name: API_URL
+              value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+            - name: CLUSTER_ID
+              value: {{ required "clusterID must be provided" .Values.clusterID | quote }}
+      terminationGracePeriodSeconds: 30

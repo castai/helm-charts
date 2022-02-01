@@ -1,0 +1,29 @@
+# Default values for castai-cluster-controller.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: "castai-agent"
+
+image:
+  repository: castai/azure-spot-handler
+  # Tag is set using Chart.yaml appVersion field.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+# Token to be used for authorizing agent access to the API
+apiKey: ""
+
+# URL to the API server
+apiURL: ""
+
+clusterID: ""
+podAnnotations: {}
+additionalEnv:
+  PPROF_PORT: "6060"
+  LOG_LEVEL: "5"
+
+resources:
+  requests:
+    cpu: 100m
+  limits:
+    cpu: 500m
