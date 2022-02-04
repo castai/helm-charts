@@ -14,10 +14,10 @@ spec:
     spec:
       serviceAccount: azure-spot-handler
       tolerations:
-          operator: Exists
-          effect: NoSchedule
+          - operator: Exists
+            effect: NoSchedule
       nodeSelector:
-        kubernetes.azure.com/scalesetpriority: spot
+        {{ .Values.nodeSelector.key }}: "{{ .Values.nodeSelector.value }}"
       containers:
         - name: azure-spot-handler
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -26,10 +26,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            - name: POLL_INTERVAL_SECONDS
-              value: 3
-            - name: PPROF_PORT
-              value: 6060
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
             - name: CLUSTER_ID
@@ -40,10 +36,10 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
+                # re-use shared secret from cluster-controller
                 name: castai-cluster-controller
           {{- with .Values.resources }}
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
-
       terminationGracePeriodSeconds: 30

@@ -10,9 +10,6 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
-# Token to be used for authorizing agent access to the API
-apiKey: ""
-
 # URL to the API server
 apiURL: ""
 
@@ -27,3 +24,7 @@ resources: {}
 serviceAccount:
   # Annotations to add to the service account.
   annotations: {}
+
+nodeSelector:
+  key: scheduling.cast.ai/spot
+  value: true
