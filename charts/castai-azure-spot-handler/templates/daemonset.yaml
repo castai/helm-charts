@@ -3,6 +3,8 @@ kind: DaemonSet
 metadata:
   name: castai-azure-spot-handler
   namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
