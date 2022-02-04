@@ -34,8 +34,12 @@ spec:
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
             - name: CLUSTER_ID
               value: {{ required "clusterID must be provided" .Values.clusterID | quote }}
-            {{ - range $k, $v := .Values.additionalEnv }}
+            {{- range $k, $v := .Values.additionalEnv }}
             - name: { { $k } }
               value: "{{ $v }}"
-            {{ - end }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                name: castai-cluster-controller
+          {{- with .Values.resources }}
       terminationGracePeriodSeconds: 30
