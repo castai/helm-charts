@@ -35,7 +35,7 @@ spec:
             - name: CLUSTER_ID
               value: {{ required "clusterID must be provided" .Values.clusterID | quote }}
             {{- range $k, $v := .Values.additionalEnv }}
-            - name: { { $k } }
+            - name: {{ $k }}
               value: "{{ $v }}"
             {{- end }}
           envFrom:

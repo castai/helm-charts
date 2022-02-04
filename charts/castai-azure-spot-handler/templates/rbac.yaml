@@ -15,6 +15,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: castai-azure-spot-handler
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - ""
