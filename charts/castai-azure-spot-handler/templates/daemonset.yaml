@@ -42,4 +42,8 @@ spec:
             - secretRef:
                 name: castai-cluster-controller
           {{- with .Values.resources }}
+          resources:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+
       terminationGracePeriodSeconds: 30
