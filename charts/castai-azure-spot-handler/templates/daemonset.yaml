@@ -14,7 +14,6 @@ spec:
     spec:
       serviceAccount: azure-spot-handler
       tolerations:
-        - key: kubernetes.azure.com/scalesetpriority
           operator: Exists
           effect: NoSchedule
       nodeSelector:
@@ -35,4 +34,8 @@ spec:
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
             - name: CLUSTER_ID
               value: {{ required "clusterID must be provided" .Values.clusterID | quote }}
+            {{ - range $k, $v := .Values.additionalEnv }}
+            - name: { { $k } }
+              value: "{{ $v }}"
+            {{ - end }}
       terminationGracePeriodSeconds: 30
