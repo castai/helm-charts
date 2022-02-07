@@ -10,8 +10,12 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
-# URL to the API server
-apiURL: ""
+castai:
+  # CASTAI public api url.
+  apiURL: "https://api.cast.ai"
+
+  # CASTAI Cluster unique identifier.
+  clusterID: ""
 
 clusterID: ""
 podAnnotations: {}

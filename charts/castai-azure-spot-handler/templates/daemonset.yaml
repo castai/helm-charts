@@ -14,7 +14,7 @@ spec:
       labels:
         name: azure-spot-handler
     spec:
-      serviceAccount: azure-spot-handler
+      serviceAccount: castai-azure-spot-handler
       tolerations:
           - operator: Exists
             effect: NoSchedule
