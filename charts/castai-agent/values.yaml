@@ -45,3 +45,7 @@ apiKey: ""
 # Name of the Kubernetes service provider
 # one of: "eks", "gks", "aks", "kops"
 provider: ""
+
+priorityClass:
+  enabled: true
+  name: system-cluster-critical
