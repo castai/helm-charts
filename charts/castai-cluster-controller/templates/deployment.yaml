@@ -24,6 +24,18 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: "kubernetes.io/os"
+                    operator: In
+                    values: [ "linux" ]
+              - matchExpressions:
+                  - key: "beta.kubernetes.io/os"
+                    operator: In
+                    values: [ "linux" ]
       containers:
         - name: cluster-controller
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -51,8 +63,8 @@ spec:
           {{- end }}
       {{ if (.Values.aks | default dict ).enabled }}
       volumes:
-      - name: waagent
-        hostPath:
-          path: /var/lib/waagent
-          type: Directory
+        - name: waagent
+          hostPath:
+            path: /var/lib/waagent
+            type: Directory
       {{- end }}
