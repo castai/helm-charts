@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: castai-spot-handler
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      name: spot-handler
+  template:
+    metadata:
+      labels:
+        name: spot-handler
+    spec:
+      serviceAccount: castai-spot-handler
+      tolerations:
+          - operator: Exists
+            effect: NoSchedule
+      nodeSelector:
+        {{ .Values.nodeSelector.key }}: "{{ .Values.nodeSelector.value }}"
+      containers:
+        - name: spot-handler
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: API_URL
+              value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+            - name: CLUSTER_ID
+              value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
+            - name: PROVIDER
+              value: {{ required "castai.provider must be provided" .Values.castai.provider | quote }}
+            {{- range $k, $v := .Values.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+            {{- end }}
+          envFrom:
+            - secretRef:
+                # re-use shared secret from cluster-controller
+                name: cluster-controller
+          {{- with .Values.resources }}
+          resources:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+      terminationGracePeriodSeconds: 30
