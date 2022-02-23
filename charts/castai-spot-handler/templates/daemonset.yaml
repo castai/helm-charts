@@ -16,8 +16,8 @@ spec:
     spec:
       serviceAccount: castai-spot-handler
       tolerations:
-          - operator: Exists
-            effect: NoSchedule
+        - operator: Exists
+          effect: NoSchedule
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | trim | nindent 8 }}

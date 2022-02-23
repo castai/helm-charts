@@ -5,4 +5,5 @@ castai:
 
 namespace: default
 
-nodeSelector: {}
+# Kind test cluster doesn't support spot selector.
+nodeSelector: null
