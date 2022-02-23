@@ -33,5 +33,4 @@ serviceAccount:
   annotations: {}
 
 nodeSelector:
-  key: scheduling.cast.ai/spot
-  value: true
+  scheduling.cast.ai/spot: true
