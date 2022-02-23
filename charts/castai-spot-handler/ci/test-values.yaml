@@ -1,0 +1,9 @@
+castai:
+  apiURL: "test"
+  clusterID: "test"
+  provider: "gcp"
+
+namespace: default
+
+# Kind test cluster doesn't support spot selector.
+nodeSelector: null

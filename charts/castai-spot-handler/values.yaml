@@ -1,0 +1,36 @@
+# Default values for castai-spot-handler.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+namespace: "castai-agent"
+
+image:
+  repository: ghcr.io/castai/spot-handler
+  # Tag is set using Chart.yaml appVersion field.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+castai:
+  # CASTAI public api url.
+  apiURL: "https://api.cast.ai"
+
+  # CASTAI Cluster unique identifier.
+  clusterID: ""
+
+  # Cloud provider (azure, gcp)
+  provider: ""
+
+podAnnotations: {}
+additionalEnv:
+  PPROF_PORT: "6060"
+  LOG_LEVEL: "5"
+  POLL_INTERVAL_SECONDS: "3"
+
+resources: {}
+
+serviceAccount:
+  # Annotations to add to the service account.
+  annotations: {}
+
+nodeSelector:
+  scheduling.cast.ai/spot: "true"
