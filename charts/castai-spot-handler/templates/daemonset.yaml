@@ -43,7 +43,7 @@ spec:
           envFrom:
             - secretRef:
                 # re-use shared secret from cluster-controller
-                name: cluster-controller
+                name: castai-cluster-controller
           {{- with .Values.resources }}
           resources:
           {{- toYaml . | nindent 12 }}
