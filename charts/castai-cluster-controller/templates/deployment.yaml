@@ -32,10 +32,20 @@ spec:
                   - key: "kubernetes.io/os"
                     operator: In
                     values: [ "linux" ]
+                  {{ if (.Values.aks | default dict ).enabled }}
+                  - key: "kubernetes.azure.com/mode"
+                    operator: In
+                    values: [ "system" ]
+                  {{- end }}
               - matchExpressions:
                   - key: "beta.kubernetes.io/os"
                     operator: In
                     values: [ "linux" ]
+                  {{ if (.Values.aks | default dict ).enabled }}
+                  - key: "kubernetes.azure.com/mode"
+                    operator: In
+                    values: [ "system" ]
+                  {{- end }}
       containers:
         - name: cluster-controller
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
