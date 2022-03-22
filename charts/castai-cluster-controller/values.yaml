@@ -49,3 +49,7 @@ serviceAccount:
 
 aks:
   enabled: false
+
+priorityClass:
+  enabled: true
+  name: system-cluster-critical

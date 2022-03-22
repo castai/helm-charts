@@ -1,0 +1,17 @@
+{{- if (.Values.priorityClass | default dict).enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ include "castai-agent.fullname" . }}-critical-pods
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+spec:
+  scopeSelector:
+    matchExpressions:
+      - operator: In
+        scopeName: PriorityClass
+        values:
+          # Required to ensure castai-cluster-controller is always running.
+          - system-cluster-critical
+{{- end }}
