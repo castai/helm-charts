@@ -14,8 +14,10 @@ spec:
     metadata:
       labels:
         {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+      annotations:{{ if (.Values.aks | default dict ).enabled }}
+        scheduling.cast.ai/lifecycle: "on-demand"
+      {{- end }}
       {{- with .Values.podAnnotations }}
-      annotations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
