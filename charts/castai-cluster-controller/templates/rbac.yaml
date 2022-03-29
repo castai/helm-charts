@@ -73,7 +73,7 @@ metadata:
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
 rules:
-  # controller can do anything in castai-agent namespace; this is required to fully manage castai components
+  # All these rules are used for updating CAST AI namespace components via auto updates.
   - apiGroups: [ "*" ]
     resources: [ "*" ]
     verbs: [ "*" ]
