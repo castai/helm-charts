@@ -73,7 +73,7 @@ metadata:
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
 rules:
-  # Controller can do anything in castai-agent namespace. This is required to fully manage castai components.
+  # Controller has full access in castai-agent namespace. This is required to fully manage castai components.
   - apiGroups: [ "*" ]
     resources: [ "*" ]
     verbs: [ "*" ]
