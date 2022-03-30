@@ -1,3 +1,4 @@
+{{- if gt (.Values.replicas | int) 1}}
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
@@ -10,3 +11,4 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: castai-cluster-controller
+{{- end}}
