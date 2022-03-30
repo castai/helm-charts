@@ -2,9 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicas: 2
+replicas: 1
 pdbMinAvailable: 1
-leaderElectionEnabled: true
+leaderElectionEnabled: false
 namespace: "castai-agent"
 
 nameOverride: ""
