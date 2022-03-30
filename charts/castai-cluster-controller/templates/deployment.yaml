@@ -6,7 +6,7 @@ metadata:
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
       {{- include "castai-agent.selectorLabels" . | nindent 6 }}
@@ -61,6 +61,17 @@ spec:
               value: {{ required "apiURL must be provided" .Values.castai.apiURL | quote }}
             - name: CLUSTER_ID
               value: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
+          {{- if .Values.leaderElectionEnabled }}
+            - name: LEADER_ELECTION_ENABLED
+              value: "true"
+            - name: LEADER_ELECTION_LOCK_NAME
+              value: "cluster-controller"
+            - name: LEADER_ELECTION_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+          {{- end }}
           {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
