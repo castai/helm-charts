@@ -21,6 +21,10 @@ image:
 
 imagePullSecrets: {}
 
+# Controls `deployment.spec.strategy` field
+updateStrategy:
+  type: RollingUpdate
+
 castai:
   # Token to be used for authorizing agent access to the CASTAI API
   apiKey: ""

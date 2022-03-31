@@ -6,6 +6,8 @@ metadata:
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
 spec:
+  strategy:
+    {{- .Values.updateStrategy | toYaml | nindent 4 }}
   {{- if .Values.leaderElectionEnabled }}
   replicas: {{ .Values.replicas }}
   {{- else}}
@@ -42,7 +44,7 @@ spec:
                   - key: "kubernetes.io/os"
                     operator: In
                     values: [ "linux" ]
-                  {{ if (.Values.aks | default dict ).enabled }}
+                  {{- if (.Values.aks | default dict ).enabled }}
                   - key: "kubernetes.azure.com/mode"
                     operator: In
                     values: [ "system" ]
@@ -51,7 +53,7 @@ spec:
                   - key: "beta.kubernetes.io/os"
                     operator: In
                     values: [ "linux" ]
-                  {{ if (.Values.aks | default dict ).enabled }}
+                  {{- if (.Values.aks | default dict ).enabled }}
                   - key: "kubernetes.azure.com/mode"
                     operator: In
                     values: [ "system" ]
@@ -87,7 +89,7 @@ spec:
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{ if (.Values.aks | default dict ).enabled }}
+          {{- if (.Values.aks | default dict ).enabled }}
           volumeMounts:
             - name: waagent
               mountPath: /var/lib/waagent
@@ -108,7 +110,7 @@ spec:
               path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-      {{ if (.Values.aks | default dict ).enabled }}
+      {{- if (.Values.aks | default dict ).enabled }}
       volumes:
         - name: waagent
           hostPath:
