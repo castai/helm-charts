@@ -6,7 +6,11 @@ metadata:
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.leaderElectionEnabled }}
   replicas: {{ .Values.replicas }}
+  {{- else}}
+  replicas: 1
+  {{- end}}
   selector:
     matchLabels:
       {{- include "castai-agent.selectorLabels" . | nindent 6 }}
@@ -58,9 +62,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: API_URL
-              value: {{ required "apiURL must be provided" .Values.castai.apiURL | quote }}
+              value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
             - name: CLUSTER_ID
-              value: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
+              value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
           {{- if .Values.leaderElectionEnabled }}
             - name: LEADER_ELECTION_ENABLED
               value: "true"
