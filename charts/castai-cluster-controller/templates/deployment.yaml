@@ -88,6 +88,22 @@ spec:
             - name: waagent
               mountPath: /var/lib/waagent
           {{- end }}
+          ports:
+            - containerPort: 6060
+              name: http
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /healthz
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /healthz
+            initialDelaySeconds: 5
+            periodSeconds: 5
       {{ if (.Values.aks | default dict ).enabled }}
       volumes:
         - name: waagent
