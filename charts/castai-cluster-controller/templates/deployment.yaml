@@ -21,6 +21,7 @@ spec:
       labels:
         {{- include "castai-agent.selectorLabels" . | nindent 8 }}
       annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       {{- if (.Values.aks | default dict ).enabled }}
         scheduling.cast.ai/lifecycle: "on-demand"
       {{- end }}
