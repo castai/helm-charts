@@ -6,7 +6,13 @@ metadata:
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
 spec:
+  strategy:
+    {{- .Values.updateStrategy | toYaml | nindent 4 }}
+  {{- if .Values.leaderElectionEnabled }}
   replicas: {{ .Values.replicas }}
+  {{- else}}
+  replicas: 1
+  {{- end}}
   selector:
     matchLabels:
       {{- include "castai-agent.selectorLabels" . | nindent 6 }}
@@ -15,6 +21,7 @@ spec:
       labels:
         {{- include "castai-agent.selectorLabels" . | nindent 8 }}
       annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       {{- if (.Values.aks | default dict ).enabled }}
         scheduling.cast.ai/lifecycle: "on-demand"
       {{- end }}
@@ -38,7 +45,7 @@ spec:
                   - key: "kubernetes.io/os"
                     operator: In
                     values: [ "linux" ]
-                  {{ if (.Values.aks | default dict ).enabled }}
+                  {{- if (.Values.aks | default dict ).enabled }}
                   - key: "kubernetes.azure.com/mode"
                     operator: In
                     values: [ "system" ]
@@ -47,7 +54,7 @@ spec:
                   - key: "beta.kubernetes.io/os"
                     operator: In
                     values: [ "linux" ]
-                  {{ if (.Values.aks | default dict ).enabled }}
+                  {{- if (.Values.aks | default dict ).enabled }}
                   - key: "kubernetes.azure.com/mode"
                     operator: In
                     values: [ "system" ]
@@ -58,9 +65,9 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: API_URL
-              value: {{ required "apiURL must be provided" .Values.castai.apiURL | quote }}
+              value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
             - name: CLUSTER_ID
-              value: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
+              value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
           {{- if .Values.leaderElectionEnabled }}
             - name: LEADER_ELECTION_ENABLED
               value: "true"
@@ -83,12 +90,28 @@ spec:
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{ if (.Values.aks | default dict ).enabled }}
+          {{- if (.Values.aks | default dict ).enabled }}
           volumeMounts:
             - name: waagent
               mountPath: /var/lib/waagent
           {{- end }}
-      {{ if (.Values.aks | default dict ).enabled }}
+          ports:
+            - containerPort: 6060
+              name: http
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /healthz
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /healthz
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      {{- if (.Values.aks | default dict ).enabled }}
       volumes:
         - name: waagent
           hostPath:

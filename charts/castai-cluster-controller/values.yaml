@@ -2,9 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicas: 1
+replicas: 2
 pdbMinAvailable: 1
-leaderElectionEnabled: false
+leaderElectionEnabled: true
 namespace: "castai-agent"
 
 nameOverride: ""
@@ -21,6 +21,10 @@ image:
 
 imagePullSecrets: {}
 
+# Controls `deployment.spec.strategy` field
+updateStrategy:
+  type: Recreate
+
 castai:
   # Token to be used for authorizing agent access to the CASTAI API
   apiKey: ""
@@ -33,7 +37,6 @@ castai:
 
 podAnnotations: {}
 additionalEnv:
-  PPROF_PORT: "6060"
   LOG_LEVEL: "5"
 
 resources:
