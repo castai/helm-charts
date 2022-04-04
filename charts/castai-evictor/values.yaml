@@ -1,0 +1,94 @@
+# Default values for evictor.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+# Specifies whether the Evictor should run in dryRun mode (Read-Only).
+# if true, evictor will just log action(s) it would perform
+# instead of actually performing them.
+dryRun: false
+
+# Specifies whether the Evictor can behave as aggressive
+# if true, evictor will start considering single replica pods
+# as long as they can be scheduled somewhere else.
+aggressiveMode: false
+
+# Specifies whether the Evictor can behave in a scoped manner
+# if true, evictor will only evict nodes that are created by CAST AI
+scopedMode: false
+
+# Specifies the grace period after a node is created before it is considered for eviction
+# The number of minutes a node must exist before it will be considered.
+nodeGracePeriodMinutes: 5
+
+# Specifies leader election parameters
+leaderElection:
+  # Whether to enable leader election
+  enabled: true
+
+# Controls `deployment.spec.strategy` field
+updateStrategy:
+  type: Recreate
+
+image:
+  repository: castai/evictor
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: castai-evictor
+
+serviceAccount:
+  create: true
+  # Specifies whether a service account should be created
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8080
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+nodeSelector: {}
+  # Uncomment line below to force Evictor to run on master nodes (make sure to set up tolerations as well)
+  # node-role.kubernetes.io/master: ''
+
+tolerations: []
+  # uncomment the two lines below to support running on masters as well. If you desire to run ONLY on masters, check nodeSelector as well.
+  # - key: node-role.kubernetes.io/master
+  #  effect: NoSchedule
+
+affinity: {}
+
+# Used to set any additional environment variables
+additionalEnv: {}

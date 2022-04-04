@@ -1,0 +1,75 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "evictor.fullname" . }}
+  labels:
+  {{- include "evictor.labels" . | nindent 4 }}
+rules:
+  # ------------------------------------------------
+  #
+  # ------------------------------------------------
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  # ------------------------------------------------
+  # Finding a suitable node for eviction
+  # ------------------------------------------------
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - update
+  # ------------------------------------------------
+  # List pods to find a suitable node for eviction
+  # and delete a stuck pod from a node
+  # ------------------------------------------------
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  # ------------------------------------------------
+  # Finding out whether it's safe to evict a pod
+  # (it belongs to RS and has replicas)
+  # ------------------------------------------------
+  - apiGroups:
+      - "apps"
+    resources:
+      - replicasets
+    verbs:
+      - get
+  # ------------------------------------------------
+  # Pod eviction
+  # ------------------------------------------------
+  - apiGroups:
+      - ""
+    resources: ["pods/eviction"]
+    verbs: ["create"]
+  # ------------------------------------------------
+  # Leader election
+  # ------------------------------------------------
+  # TODO: We should probably move this to a namespaced role
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - '*'
+
