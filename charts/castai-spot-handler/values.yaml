@@ -22,9 +22,10 @@ castai:
 
 podAnnotations: {}
 additionalEnv:
-  PPROF_PORT: "6060"
   LOG_LEVEL: "5"
   POLL_INTERVAL_SECONDS: "3"
+
+useHostNetwork: true
 
 resources: {}
 
