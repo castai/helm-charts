@@ -88,7 +88,18 @@ tolerations: []
   # - key: node-role.kubernetes.io/master
   #  effect: NoSchedule
 
-affinity: {}
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: "kubernetes.io/os"
+              operator: In
+              values: [ "linux" ]
+        - matchExpressions:
+            - key: "beta.kubernetes.io/os"
+              operator: In
+              values: [ "linux" ]
 
 # Used to set any additional environment variables
 additionalEnv: {}
