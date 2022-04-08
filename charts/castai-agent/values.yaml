@@ -6,7 +6,7 @@ replicaCount: 1
 namespace: "castai-agent"
 
 image:
-  repository: castai/agent
+  repository: us-docker.pkg.dev/castai-hub/library/agent
   pullPolicy: IfNotPresent
 
 nameOverride: ""
