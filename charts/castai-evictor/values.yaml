@@ -95,11 +95,11 @@ affinity:
         - matchExpressions:
             - key: "kubernetes.io/os"
               operator: In
-              values: [ "linux" ]
+              values: ["linux"]
         - matchExpressions:
             - key: "beta.kubernetes.io/os"
               operator: In
-              values: [ "linux" ]
+              values: ["linux"]
 
 # Used to set any additional environment variables
 additionalEnv: {}
