@@ -14,7 +14,7 @@ fullnameOverride: castai-cluster-controller
 createNamespace: false
 
 image:
-  repository: castai/cluster-controller
+  repository: us-docker.pkg.dev/castai-hub/library/cluster-controller
   # Tag is set using Chart.yaml appVersion field.
   tag: ""
   pullPolicy: IfNotPresent
