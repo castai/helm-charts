@@ -20,6 +20,9 @@ spec:
     metadata:
       labels:
         {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       {{- if (.Values.aks | default dict ).enabled }}
