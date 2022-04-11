@@ -9,6 +9,10 @@ resources:
     cpu: 1000m
     memory: 256Mi
 
+podLabels:
+  team: core
+  provider: alibaba
+
 castai:
   clusterID: "test"
   apiKey: "test"
