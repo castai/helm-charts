@@ -5,7 +5,7 @@
 namespace: "castai-agent"
 
 image:
-  repository: ghcr.io/castai/spot-handler
+  repository: us-docker.pkg.dev/castai-hub/library/spot-handler
   # Tag is set using Chart.yaml appVersion field.
   tag: ""
   pullPolicy: IfNotPresent
@@ -22,9 +22,10 @@ castai:
 
 podAnnotations: {}
 additionalEnv:
-  PPROF_PORT: "6060"
   LOG_LEVEL: "5"
   POLL_INTERVAL_SECONDS: "3"
+
+useHostNetwork: true
 
 resources: {}
 
