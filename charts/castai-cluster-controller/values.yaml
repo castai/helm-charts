@@ -56,6 +56,8 @@ serviceAccount:
 
 aks:
   enabled: false
+  nodeSelector:
+    provisioner.cast.ai/aks-init-data: "true"
 
 priorityClass:
   enabled: false
