@@ -1,0 +1,58 @@
+{{- if (.Values.aks | default dict ).enabled }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: castai-aks-init-data
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "castai-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      tolerations:
+        - operator: Exists
+          effect: NoSchedule
+      {{- with .Values.aks.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: aks-init
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: AKS_INIT_DATA
+            value: "true"
+          envFrom:
+            - secretRef:
+                name: castai-cluster-controller
+            - configMapRef:
+                name: castai-cluster-controller
+          volumeMounts:
+            - name: waagent
+              mountPath: /var/lib/waagent
+      volumes:
+        - name: waagent
+          hostPath:
+            path: /var/lib/waagent
+            type: Directory
+{{- end }}
