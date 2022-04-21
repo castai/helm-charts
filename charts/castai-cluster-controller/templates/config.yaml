@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: castai-cluster-controller
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+data:
+  API_URL: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+  CLUSTER_ID: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}

@@ -25,6 +25,7 @@ spec:
         {{- end }}
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
       {{- if (.Values.aks | default dict ).enabled }}
         scheduling.cast.ai/lifecycle: "on-demand"
       {{- end }}
@@ -67,10 +68,6 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: API_URL
-              value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
-            - name: CLUSTER_ID
-              value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
           {{- if .Values.leaderElectionEnabled }}
             - name: LEADER_ELECTION_ENABLED
               value: "true"
@@ -88,6 +85,8 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
+                name: castai-cluster-controller
+            - configMapRef:
                 name: castai-cluster-controller
           {{- with .Values.resources }}
           resources:
