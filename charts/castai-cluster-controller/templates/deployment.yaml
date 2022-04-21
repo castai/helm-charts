@@ -25,7 +25,7 @@ spec:
         {{- end }}
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
-        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
       {{- if (.Values.aks | default dict ).enabled }}
         scheduling.cast.ai/lifecycle: "on-demand"
       {{- end }}
