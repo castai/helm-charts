@@ -103,3 +103,13 @@ affinity:
 
 # Used to set any additional environment variables
 additionalEnv: {}
+
+castai:
+  # Token to be used for authorizing agent access to the CASTAI API
+  apiKey: ""
+
+  # CASTAI public api url.
+  apiURL: "https://api.cast.ai"
+
+  # CASTAI Cluster unique identifier.
+  clusterID: ""
