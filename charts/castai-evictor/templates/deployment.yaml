@@ -56,8 +56,10 @@ spec:
           envFrom:
             - secretRef:
                 name: castai-cluster-controller
+                optional: true
             - configMapRef:
                 name: castai-cluster-controller
+                optional: true
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
