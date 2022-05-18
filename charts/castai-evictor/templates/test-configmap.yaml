@@ -1,0 +1,12 @@
+{{ if .Values.test }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: castai-cluster-controller
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+data:
+  API_URL: {{ required "test.apiURL must be provided" .Values.test.apiURL | quote }}
+  CLUSTER_ID: {{ required "test.clusterID must be provided" .Values.test.clusterID | quote }}
+{{ end }}
