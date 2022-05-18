@@ -43,7 +43,7 @@ rules:
   # For csr approval.
   - apiGroups: [ "certificates.k8s.io" ]
     resources: [ "certificatesigningrequests" ]
-    verbs: [ "get", "list", "delete", "create" ]
+    verbs: [ "get", "list", "delete", "create", "watch" ]
   - apiGroups: [ "certificates.k8s.io" ]
     resources: [ "certificatesigningrequests/approval" ]
     verbs: [ "patch", "update" ]
