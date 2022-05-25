@@ -49,7 +49,7 @@ spec:
                     - key: app.kubernetes.io/name
                       operator: In
                       values:
-                      - castai-cluster-controller
+                      - {{ include "castai-agent.name" . }} 
                 topologyKey: kubernetes.io/hostname
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
