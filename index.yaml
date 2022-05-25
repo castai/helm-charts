@@ -544,6 +544,18 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-0.1.0/castai-cluster-controller-0.1.0.tgz
     version: 0.1.0
   castai-evictor:
+  - annotations:
+      release-date: 2022-05-25T12:15:26
+    apiVersion: v2
+    appVersion: 35a2c6a4ee60ac53e022fa009db53cad251ed842
+    created: "2022-05-25T12:22:50.724872921Z"
+    description: Cluster utilization defragmentation tool
+    digest: 53861edb1389fdd8d1380f6fa818d325f2ab91e939e3b1432e4dcc8d360d65a6
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.14.1/castai-evictor-0.14.1.tgz
+    version: 0.14.1
   - apiVersion: v2
     appVersion: 374b865b3f8a48568bad0d2b86a95d204d99aebd
     created: "2022-05-25T12:10:41.753391274Z"
@@ -725,4 +737,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.2.0/castai-spot-handler-0.2.0.tgz
     version: 0.2.0
-generated: "2022-05-25T12:10:41.753999077Z"
+generated: "2022-05-25T12:22:50.725420832Z"
