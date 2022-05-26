@@ -42,6 +42,15 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       affinity:
+        podAntiAffinity:
+            requiredDuringSchedulingIgnoredDuringExecution:
+              - labelSelector:
+                  matchExpressions:
+                    - key: app.kubernetes.io/name
+                      operator: In
+                      values:
+                      - {{ include "castai-agent.name" . }} 
+                topologyKey: kubernetes.io/hostname
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
