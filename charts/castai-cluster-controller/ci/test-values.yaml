@@ -17,3 +17,7 @@ castai:
   clusterID: "test"
   apiKey: "test"
   apiURL: "test"
+
+tolerations:
+  - key: scheduling.cast.ai/spot
+    operator: Exists

@@ -41,41 +41,26 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml .Values.nodeSelector | indent 8 }}
+      {{- end }}
+      {{- if .Values.affinity }}
       affinity:
-        podAntiAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              - labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                      - {{ include "castai-agent.name" . }} 
-                topologyKey: kubernetes.io/hostname
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: "kubernetes.io/os"
-                    operator: In
-                    values: [ "linux" ]
-                  {{- if (.Values.aks | default dict ).enabled }}
-                  - key: "kubernetes.azure.com/mode"
-                    operator: In
-                    values: [ "system" ]
-                  {{- end }}
-              - matchExpressions:
-                  - key: "beta.kubernetes.io/os"
-                    operator: In
-                    values: [ "linux" ]
-                  {{- if (.Values.aks | default dict ).enabled }}
-                  - key: "kubernetes.azure.com/mode"
-                    operator: In
-                    values: [ "system" ]
-                  {{- end }}
+{{ toYaml .Values.affinity | indent 8 }}
+      {{- end }}
+      securityContext:
+      {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: cluster-controller
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            readOnlyRootFilesystem: true
           env:
           {{- if .Values.leaderElectionEnabled }}
             - name: LEADER_ELECTION_ENABLED
@@ -101,11 +86,6 @@ spec:
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if (.Values.aks | default dict ).enabled }}
-          volumeMounts:
-            - name: waagent
-              mountPath: /var/lib/waagent
-          {{- end }}
           ports:
             - containerPort: 6060
               name: http
@@ -122,10 +102,4 @@ spec:
               path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-      {{- if (.Values.aks | default dict ).enabled }}
-      volumes:
-        - name: waagent
-          hostPath:
-            path: /var/lib/waagent
-            type: Directory
-      {{- end }}
+
