@@ -68,14 +68,16 @@ affinity:
               values:
                 - windows
   podAntiAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
           matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-                - castai-cluster-controller
-        topologyKey: kubernetes.io/hostname
+          - key: app.kubernetes.io/name
+            operator: In
+            values:
+           - castai-cluster-controller
+      topologyKey: kubernetes.io/hostname
 
 securityContext: {}
 
