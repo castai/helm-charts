@@ -41,37 +41,20 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
       affinity:
-        podAntiAffinity:
-            requiredDuringSchedulingIgnoredDuringExecution:
-              - labelSelector:
-                  matchExpressions:
-                    - key: app.kubernetes.io/name
-                      operator: In
-                      values:
-                      - {{ include "castai-agent.name" . }} 
-                topologyKey: kubernetes.io/hostname
-        nodeAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            nodeSelectorTerms:
-              - matchExpressions:
-                  - key: "kubernetes.io/os"
-                    operator: In
-                    values: [ "linux" ]
-                  {{- if (.Values.aks | default dict ).enabled }}
-                  - key: "kubernetes.azure.com/mode"
-                    operator: In
-                    values: [ "system" ]
-                  {{- end }}
-              - matchExpressions:
-                  - key: "beta.kubernetes.io/os"
-                    operator: In
-                    values: [ "linux" ]
-                  {{- if (.Values.aks | default dict ).enabled }}
-                  - key: "kubernetes.azure.com/mode"
-                    operator: In
-                    values: [ "system" ]
-                  {{- end }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+      {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: cluster-controller
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -101,11 +84,6 @@ spec:
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if (.Values.aks | default dict ).enabled }}
-          volumeMounts:
-            - name: waagent
-              mountPath: /var/lib/waagent
-          {{- end }}
           ports:
             - containerPort: 6060
               name: http
@@ -122,10 +100,4 @@ spec:
               path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-      {{- if (.Values.aks | default dict ).enabled }}
-      volumes:
-        - name: waagent
-          hostPath:
-            path: /var/lib/waagent
-            type: Directory
-      {{- end }}
+
