@@ -6,5 +6,14 @@ metadata:
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
 data:
+  {{- if .Values.apiURL }}
+  API_URL: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+  {{- else }}
   API_URL: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+  {{- end }}
+
+  {{- if .Values.clusterID }}
+  CLUSTER_ID: {{ required "clusterID must be provided" .Values.clusterID | quote }}
+  {{- else }}
   CLUSTER_ID: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
+  {{- end }}
