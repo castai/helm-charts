@@ -76,8 +76,8 @@ affinity:
               - key: app.kubernetes.io/name
                 operator: In
                 values:
-              - castai-cluster-controller
-        topologyKey: kubernetes.io/hostname
+                  - castai-cluster-controller
+          topologyKey: kubernetes.io/hostname
 
 securityContext: {}
 
