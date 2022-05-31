@@ -23,6 +23,7 @@ spec:
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
       serviceAccountName: castai-agent
+      automountServiceAccountToken: true
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
