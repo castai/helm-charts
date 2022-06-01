@@ -22,7 +22,7 @@ spec:
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
-      serviceAccountName: castai-agent
+      serviceAccountName: {{ include "castai-agent.serviceAccountName" . }}
       automountServiceAccountToken: true
       affinity:
         nodeAffinity:
