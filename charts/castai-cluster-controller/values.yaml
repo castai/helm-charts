@@ -25,6 +25,7 @@ imagePullSecrets: {}
 updateStrategy:
   type: Recreate
 
+# CAST AI API configuration.
 castai:
   # Token to be used for authorizing agent access to the CASTAI API
   apiKey: ""
@@ -79,13 +80,17 @@ affinity:
                   - castai-cluster-controller
           topologyKey: kubernetes.io/hostname
 
-securityContext: {}
+# Pod security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext:
+  runAsNonRoot: true
 
 serviceAccount:
   create: true
   # Annotations to add to the service account.
   annotations: {}
 
+# For aks we need some extra components (daemon set to collect init data).
 aks:
   enabled: false
   nodeSelector:
