@@ -52,16 +52,16 @@ serviceAccount:
 
 podAnnotations: {}
 
-podSecurityContext: {}
-  # fsGroup: 2000
+podSecurityContext:
+  readOnlyRootFilesystem: true
 
-securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
+# Pod security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext:
+  runAsNonRoot: true
+  fsGroup: 1004
+  runAsGroup: 1004
+  runAsUser: 1004
 
 service:
   type: ClusterIP
@@ -93,13 +93,10 @@ affinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       nodeSelectorTerms:
         - matchExpressions:
-            - key: "kubernetes.io/os"
-              operator: In
-              values: ["linux"]
-        - matchExpressions:
-            - key: "beta.kubernetes.io/os"
-              operator: In
-              values: ["linux"]
+            - key: kubernetes.io/os
+              operator: NotIn
+              values:
+                - windows
 
 # Used to set any additional environment variables
 additionalEnv: {}
