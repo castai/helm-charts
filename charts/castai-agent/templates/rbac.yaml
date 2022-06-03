@@ -79,6 +79,10 @@ rules:
       - get
       - list
       - watch
+  - nonResourceURLs:
+      - "/version"
+    verbs:
+      - "get"
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
