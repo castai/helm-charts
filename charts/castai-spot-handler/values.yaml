@@ -33,5 +33,25 @@ serviceAccount:
   # Annotations to add to the service account.
   annotations: {}
 
+# Pod toleration rules.
+# Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+tolerations:
+  - operator: Exists
+    effect: NoSchedule
+
+# Pod node selector rules.
+# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 nodeSelector:
   scheduling.cast.ai/spot: "true"
+
+# Pod affinity rules.
+# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity: {}
+
+# Pod security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext:
+  runAsNonRoot: true
+  fsGroup: 1003
+  runAsGroup: 1003
+  runAsUser: 1003
