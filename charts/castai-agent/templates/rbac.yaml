@@ -1,3 +1,4 @@
+{{- if .Values.rbac.enabled }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -132,4 +133,5 @@ subjects:
   - kind: ServiceAccount
     name: {{ include "castai-agent.serviceAccountName" . }}
     namespace: {{ .Values.namespace }}
+{{- end }}
 {{- end }}
