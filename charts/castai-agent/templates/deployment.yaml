@@ -68,8 +68,6 @@ spec:
             limits:
               cpu: 1000m
           {{- end }}
-          securityContext:
-            readOnlyRootFilesystem: true
         {{- if .Values.clusterVPA.enabled }}
         - name: autoscaler
           image: k8s.gcr.io/cpvpa-amd64:v0.8.3
@@ -82,8 +80,6 @@ spec:
           volumeMounts:
             - mountPath: /etc/config
               name: autoscaler-config
-          securityContext:
-            readOnlyRootFilesystem: true
         {{- end }}
       {{- if .Values.clusterVPA.enabled }}
       volumes:
