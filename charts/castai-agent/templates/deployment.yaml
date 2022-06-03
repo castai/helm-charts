@@ -67,9 +67,9 @@ spec:
               cpu: 100m
             limits:
               cpu: 1000m
+          {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
-          {{- end }}
         {{- if .Values.clusterVPA.enabled }}
         - name: autoscaler
           image: k8s.gcr.io/cpvpa-amd64:v0.8.3
