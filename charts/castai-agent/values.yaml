@@ -15,7 +15,8 @@ fullnameOverride: castai-agent
 # Specifies whether a namespace should be created
 createNamespace: true
 # Specifies whether RBAC Clusterrole should be created
-createRBAC: true
+rbac:
+  enabled: true
 
 serviceAccount:
   # Specifies whether a service account should be created
