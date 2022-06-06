@@ -1,0 +1,5 @@
+{{ if not .Values.disableNamespaceCheck }}
+{{- if ne .Release.Namespace (include "pod-node-lifecycle.fullname" . ) }}
+  {{ fail (printf "Wrong namespace, expected %q, got: %q" (include "pod-node-lifecycle.fullname" . ) .Release.Namespace) }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,101 @@
+{{- if .Values.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pod-node-lifecycle.fullname" . }}
+  labels:
+  {{- include "pod-node-lifecycle.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "pod-node-lifecycle.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if eq .Values.image.tag "latest" }}
+      {{/* If we're running with `latest` tag, we force k8s to update the pod */}}
+        "trigger-redeploy-hack": {{ now }}
+      {{- end }}
+      labels:
+      {{- include "pod-node-lifecycle.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
+      serviceAccountName: castai-pod-node-lifecycle
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+      {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: WEBHOOK_NAME
+              value: {{ include "pod-node-lifecycle.webhookName" . }}
+            {{- if .Values.telemetry.enabled }}
+            - name: API_URL
+              value: {{ required "api.url must be provided" .Values.api.url | quote }}
+            - name: CLUSTER_ID
+              value: {{ required "api.clusterId must be provided" .Values.api.clusterId }}
+            {{- else }}
+            - name: DISABLE_TELEMETRY
+              value: "true"
+            {{- end }}
+            - name: CONFIG_PATH
+              value: /config/config.yaml
+          envFrom:
+            {{- if .Values.telemetry.enabled }}
+            - secretRef:
+                name: {{ include "pod-node-lifecycle.fullname" . }}-api
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              port: 9091
+              path: /healthz
+          readinessProbe:
+            httpGet:
+              port: 9091
+              path: /readyz
+          volumeMounts:
+            - mountPath: /certs
+              name: certs
+              readOnly: true
+            - mountPath: /config
+              name: cfg
+              readOnly: true
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: certs
+          secret:
+            defaultMode: 420
+            secretName: {{ include "pod-node-lifecycle.certsSecretName" . }}
+        - name: cfg
+          configMap:
+            defaultMode: 420
+            name: {{ include "pod-node-lifecycle.configMapName" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+{{- end }}
+{{- end }}

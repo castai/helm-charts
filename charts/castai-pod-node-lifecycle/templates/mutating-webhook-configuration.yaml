@@ -1,0 +1,60 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "pod-node-lifecycle.webhookName" . }}
+  labels:
+  {{- include "pod-node-lifecycle.labels" . | nindent 4 }}
+webhooks:
+  - name: pod-node-lifecycle.cast.ai
+    failurePolicy: {{ .Values.webhook.failurePolicy | default "Ignore"}}
+    sideEffects: None
+    timeoutSeconds: 1
+    {{/* requires 1.15: https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#matching-requests-objectselector */}}
+    objectSelector:
+      matchExpressions:
+        # We don't want to match ourselves since it would cause a chicken and egg problem:
+        # in order for our pod to come up, the pod would need to be already listening for requests.
+        {{- include "pod-node-lifecycle.exludeSelfLabelSelectors" . | nindent 8 }}
+        # We do so for syncer as well
+        {{- if .Values.syncer.enabled }}
+        {{- include "syncer.exludeSelfLabelSelectors" . | nindent 8 }}
+        {{- end }}
+        # Allow user to label pods to ignore as well
+        - key: pod-node-lifecycle.cast.ai/ignore
+          operator: NotIn
+          values:
+            - "true"
+    namespaceSelector:
+      matchExpressions:
+        - key: pod-node-lifecycle.cast.ai/ignore
+          operator: NotIn
+          values:
+            - "true"
+        # Ignoring own namespace
+        - key: "kubernetes.io/metadata.name"
+          operator: NotIn
+          values:
+            - {{ .Release.Namespace }}
+    rules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+        resources:
+          - pods
+        scope: "*"
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      {{- if .Values.webhook.url }}
+      url: "{{ .Values.webhook.url }}/mutate"
+      {{- else }}
+      service:
+        name: {{ include "pod-node-lifecycle.fullname" . }}
+        namespace: {{ .Release.Namespace }}
+        path: /mutate
+  {{- end }}
+

@@ -1,0 +1,46 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pod-node-lifecycle.fullname" . }}
+  labels:
+  {{- include "pod-node-lifecycle.labels" . | nindent 4 }}
+rules:
+  # ---
+  # Required for basic Webhook functionality
+  # ---
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resourceNames:
+      - {{ include "pod-node-lifecycle.webhookName" . }}
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - get
+      - patch
+      - update
+  # ---
+  # Required for partial spot functionality to call K8s API to get information on parent ReplicaSet and sibling Pods
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "apps"
+    resources:
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
