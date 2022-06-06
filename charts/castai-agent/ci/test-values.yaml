@@ -10,7 +10,7 @@ additionalSecretEnv:
   AWS_ACCESS_KEY_ID: "key"
   AWS_SECRET_ACCESS_KEY: "secret"
 clusterVPA:
-  enabled: false
+  enabled: true
 resources:
   requests:
     cpu: 100m
