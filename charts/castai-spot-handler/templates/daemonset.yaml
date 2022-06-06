@@ -5,6 +5,8 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/host-network: "Spot handler need host network to access instance metadata endpoints for spot interrupts checks."
 spec:
   selector:
     matchLabels:
