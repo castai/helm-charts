@@ -37,6 +37,13 @@ jobs:
       - name: Run chart-testing (lint)
         run: ct lint --config ct.yaml
 
+      - name: Scan repo with kube-linter
+        uses: stackrox/kube-linter-action@v1.0.4
+        with:
+          directory: charts
+          config: kube-linter-config.yaml
+          format: plain
+
       - name: Lint Code Base
         uses: docker://github/super-linter:v3.12.0
         env:
