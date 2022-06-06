@@ -5,6 +5,8 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "This deployment writes to local fs during chart upsert actions."
 spec:
   strategy:
     {{- .Values.updateStrategy | toYaml | nindent 4 }}
@@ -100,6 +102,5 @@ spec:
               path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-          securityContext:
-            readOnlyRootFilesystem: true
+
 
