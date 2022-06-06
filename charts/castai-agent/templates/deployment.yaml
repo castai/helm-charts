@@ -68,6 +68,8 @@ spec:
             limits:
               cpu: 1000m
           {{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
         {{- if .Values.clusterVPA.enabled }}
         - name: autoscaler
           image: k8s.gcr.io/cpvpa-amd64:v0.8.3
@@ -75,11 +77,14 @@ spec:
             - /cpvpa
             - --target=deployment/{{ include "castai-agent.fullname" . }}
             - --namespace={{ .Values.namespace }}
+            - --logtostderr=true
             - --poll-period-seconds=300
             - --config-file=/etc/config/castai-agent-autoscaler
           volumeMounts:
             - mountPath: /etc/config
               name: autoscaler-config
+          securityContext:
+            readOnlyRootFilesystem: true
         {{- end }}
       {{- if .Values.clusterVPA.enabled }}
       volumes:
