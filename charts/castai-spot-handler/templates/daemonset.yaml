@@ -46,7 +46,7 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
-                # re-use shared secret from cluster-controller
+                # Re-use shared secret from cluster-controller.
                 name: castai-cluster-controller
           {{- with .Values.resources }}
           resources:

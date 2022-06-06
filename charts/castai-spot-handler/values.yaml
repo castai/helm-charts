@@ -25,6 +25,7 @@ additionalEnv:
   LOG_LEVEL: "5"
   POLL_INTERVAL_SECONDS: "3"
 
+# Host network is used to access instance metadata endpoints which are not always available from pod network.
 useHostNetwork: true
 
 resources: {}
