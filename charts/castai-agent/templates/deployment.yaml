@@ -70,6 +70,15 @@ spec:
           {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
+          ports:
+            - containerPort: 9876
+              name: healthz
+          readinessProbe:
+            httpGet:
+              port: healthz
+          livenessProbe:
+            httpGet:
+              port: healthz
         {{- if .Values.clusterVPA.enabled }}
         - name: autoscaler
           image: k8s.gcr.io/cpvpa-amd64:v0.8.3
