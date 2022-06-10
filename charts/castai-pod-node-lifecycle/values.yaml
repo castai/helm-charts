@@ -30,9 +30,6 @@ podAnnotations: {}
 
 podSecurityContext:
   readOnlyRootFilesystem: true
-# fsGroup: 2000
-
-securityContext:
   runAsNonRoot: true
   fsGroup: 1005
   runAsGroup: 1005
