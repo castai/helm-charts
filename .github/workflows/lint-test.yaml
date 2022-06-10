@@ -42,7 +42,7 @@ jobs:
           fi
 
       - name: Run chart-testing (lint)
-        run: ct lint --config ct.yaml
+        run: ct lint --config ct.yaml --debug
 
       - name: Lint Code Base
         uses: docker://github/super-linter:v3.12.0
