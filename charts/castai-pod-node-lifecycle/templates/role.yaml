@@ -17,7 +17,7 @@ rules:
     resources:
       - secrets
     resourceNames:
-      - {{ include "pod-node-lifecycle.fullname" . }}-certs
+      - {{- define "pod-node-lifecycle.certsSecretName" -}}
     verbs:
       - get
       - update
