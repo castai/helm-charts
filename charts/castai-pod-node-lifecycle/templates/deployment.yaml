@@ -44,6 +44,10 @@ spec:
                   fieldPath: metadata.namespace
             - name: WEBHOOK_NAME
               value: {{ include "pod-node-lifecycle.webhookName" . }}
+            - name: SERVICE_NAME
+              value: {{ include "pod-node-lifecycle.fullname" . }}
+            - name: CERTS_SECRET_NAME
+              value: {{ include "pod-node-lifecycle.certsSecretName" . }}
             {{- if .Values.telemetry.enabled }}
             - name: API_URL
               value: {{ required "api.url must be provided" .Values.api.url | quote }}
