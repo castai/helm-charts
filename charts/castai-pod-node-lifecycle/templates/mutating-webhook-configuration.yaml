@@ -15,10 +15,6 @@ webhooks:
         # We don't want to match ourselves since it would cause a chicken and egg problem:
         # in order for our pod to come up, the pod would need to be already listening for requests.
         {{- include "pod-node-lifecycle.exludeSelfLabelSelectors" . | nindent 8 }}
-        # We do so for syncer as well
-        {{- if .Values.syncer.enabled }}
-        {{- include "syncer.exludeSelfLabelSelectors" . | nindent 8 }}
-        {{- end }}
         # Allow user to label pods to ignore as well
         - key: pod-node-lifecycle.cast.ai/ignore
           operator: NotIn

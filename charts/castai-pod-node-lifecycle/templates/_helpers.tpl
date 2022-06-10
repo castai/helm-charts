@@ -66,11 +66,7 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "pod-node-lifecycle.configMapName" -}}
-{{- if .Values.syncer.enabled }}
-{{- .Values.syncer.targetConfigmap }}
-{{- else }}
 {{- include "pod-node-lifecycle.fullname" . }}-rtconfig
-{{- end }}
 {{- end }}
 
 {{- define "pod-node-lifecycle.staticConfig" -}}
