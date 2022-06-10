@@ -29,11 +29,13 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext:
-  readOnlyRootFilesystem: true
   runAsNonRoot: true
   fsGroup: 1005
   runAsGroup: 1005
   runAsUser: 1005
+
+mainContainerSecurityContext:
+  readOnlyRootFilesystem: true
 
 webhook:
   # Overrides webhook service routing and uses the provided url instead.

@@ -60,6 +60,8 @@ spec:
             - secretRef:
                 name: {{ include "pod-node-lifecycle.fullname" . }}-api
             {{- end }}
+          securityContext:
+            {{- toYaml .Values.mainContainerSecurityContext | nindent 12 }}
           livenessProbe:
             httpGet:
               port: 9091
