@@ -5,6 +5,8 @@ metadata:
   namespace: {{ .Values.namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/host-network: "Spot handler need host network to access instance metadata endpoints for spot interrupts checks."
 spec:
   selector:
     matchLabels:
@@ -14,15 +16,18 @@ spec:
       labels:
         name: spot-handler
     spec:
-      serviceAccount: castai-spot-handler
+      serviceAccountName: castai-spot-handler
+      {{- with .Values.tolerations }}
       tolerations:
-        - operator: Exists
-          effect: NoSchedule
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | trim | nindent 8 }}
       {{- end }}
       hostNetwork: {{ .Values.useHostNetwork }}
+      securityContext:
+      {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: spot-handler
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -43,10 +48,12 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
-                # re-use shared secret from cluster-controller
+                # Re-use shared secret from cluster-controller.
                 name: castai-cluster-controller
           {{- with .Values.resources }}
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
       terminationGracePeriodSeconds: 30
