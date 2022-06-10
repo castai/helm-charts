@@ -7,4 +7,3 @@ metadata:
 data:
   config.yaml: |
     {{- include "pod-node-lifecycle.staticConfig" . | nindent 6 }}
-
