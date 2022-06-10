@@ -75,16 +75,14 @@ affinity:
               values:
                 - windows
   podAntiAffinity:
-    preferredDuringSchedulingIgnoredDuringExecution:
-      - weight: 100
-        podAffinityTerm:
-          labelSelector:
-            matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                  - castai-pod-node-lifecycle
-          topologyKey: kubernetes.io/hostname
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - castai-pod-node-lifecycle
+        topologyKey: kubernetes.io/hostname
 
 staticConfig:
   # Set to a string value defining config.yaml
