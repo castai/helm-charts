@@ -5,6 +5,10 @@ metadata:
   name: {{ include "pod-node-lifecycle.fullname" . }}
   labels:
   {{- include "pod-node-lifecycle.labels" . | nindent 4 }}
+  annotations:
+    "ignore-check.kube-linter.io/env-var-secret": >-
+      Cert rotator ('github.com/open-policy-agent/cert-controller/pkg/rotator')
+      is responsible for managing the secret, thus it needs a ref to the secret name.
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
