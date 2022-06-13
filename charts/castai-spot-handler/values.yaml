@@ -30,9 +30,13 @@ useHostNetwork: true
 
 resources: {}
 
+rbac:
+  enabled: true
+
 serviceAccount:
   # Annotations to add to the service account.
   annotations: {}
+  name: castai-spot-handler
 
 # Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
