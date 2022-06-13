@@ -3,7 +3,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: castai-aks-init-data
-  namespace: {{ .Values.namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
 spec:

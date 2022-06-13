@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: castai-cluster-controller
-  namespace: {{ .Values.namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
   annotations:
@@ -39,7 +38,7 @@ spec:
       {{- if (.Values.priorityClass | default dict).enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
-      serviceAccountName: castai-cluster-controller
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
