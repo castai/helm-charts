@@ -2,8 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-namespace: "castai-agent"
-
 image:
   repository: us-docker.pkg.dev/castai-hub/library/spot-handler
   # Tag is set using Chart.yaml appVersion field.
@@ -30,9 +28,13 @@ useHostNetwork: true
 
 resources: {}
 
+rbac:
+  enabled: true
+
 serviceAccount:
   # Annotations to add to the service account.
   annotations: {}
+  name: castai-spot-handler
 
 # Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/

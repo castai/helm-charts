@@ -1,8 +1,8 @@
+{{- if .Values.rbac.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: castai-spot-handler
-  namespace: {{ .Values.namespace }}
+  name: {{ .Values.serviceAccount.name }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
   {{- with .Values.serviceAccount.annotations }}
@@ -38,4 +38,5 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: castai-spot-handler
-    namespace: {{ .Values.namespace }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

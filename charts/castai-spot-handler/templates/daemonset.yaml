@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: castai-spot-handler
-  namespace: {{ .Values.namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
   annotations:
@@ -16,7 +15,7 @@ spec:
       labels:
         name: spot-handler
     spec:
-      serviceAccountName: castai-spot-handler
+      serviceAccountName: {{ .Values.serviceAccount.name }}
       {{- with .Values.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
