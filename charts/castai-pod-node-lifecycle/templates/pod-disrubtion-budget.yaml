@@ -1,0 +1,11 @@
+{{- if and (ge .Capabilities.KubeVersion.Minor "21") (gt .Values.replicaCount 1.0)}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "pod-node-lifecycle.fullname" . }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: {{ include "pod-node-lifecycle.fullname" . }}
+{{- end}}

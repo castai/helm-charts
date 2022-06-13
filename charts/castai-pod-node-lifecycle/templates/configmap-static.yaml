@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "pod-node-lifecycle.configMapName" . }}
+  labels:
+  {{- include "pod-node-lifecycle.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    {{- include "pod-node-lifecycle.staticConfig" . | nindent 6 }}
