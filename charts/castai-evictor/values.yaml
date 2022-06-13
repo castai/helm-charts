@@ -41,6 +41,9 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: castai-evictor
 
+rbac:
+  enabled: true
+
 serviceAccount:
   create: true
   # Specifies whether a service account should be created
