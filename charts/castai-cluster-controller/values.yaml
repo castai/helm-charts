@@ -87,6 +87,7 @@ serviceAccount:
   create: true
   # Annotations to add to the service account.
   annotations: {}
+  name: "castai-cluster-controller"
 
 # For aks we need some extra components (daemon set to collect init data).
 aks:
