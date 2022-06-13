@@ -73,6 +73,14 @@ spec:
                   apiVersion: v1
                   fieldPath: metadata.namespace
           {{- end }}
+          {{- if .Values.k8sApiClient.rateLimit.burst }}
+            - name: KUBECLIENT_BURST
+              value: {{ .Values.k8sApiClient.rateLimit.burst | quote }}
+          {{- end }}
+          {{- if .Values.k8sApiClient.rateLimit.qps }}
+            - name: KUBECLIENT_QPS
+              value: {{ .Values.k8sApiClient.rateLimit.qps | quote }}
+          {{- end }}
           {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
