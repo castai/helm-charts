@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "pod-node-lifecycle.fullname" . }}
+  labels:
+  {{- include "pod-node-lifecycle.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 8443
+    - name: metrics
+      protocol: TCP
+      port: 9090
+      targetPort: 9090
+  selector:
+    {{- include "pod-node-lifecycle.selectorLabels" . | nindent 4}}
+  type: ClusterIP

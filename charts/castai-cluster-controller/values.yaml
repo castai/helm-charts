@@ -98,3 +98,11 @@ aks:
 priorityClass:
   enabled: false
   name: system-cluster-critical
+
+# Settings for configuring k8s client used in castai-cluster-controller.
+k8sApiClient:
+  # Client uses token based rate limiting. By default, client has 150 api request burst limit set.
+  # Buffer is refilled with 25 tokens every second. During sustained load client will be capped at 25 requests / sec.
+  rateLimit:
+    burst: 150
+    qps: 25
