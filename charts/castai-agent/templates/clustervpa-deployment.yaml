@@ -1,0 +1,61 @@
+{{- if .Values.clusterVPA.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "castai-agent.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "castai-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
+      serviceAccountName: {{ include "castai-agent.serviceAccountName" . }}
+      automountServiceAccountToken: true
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+      {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: autoscaler
+          image: k8s.gcr.io/cpvpa-amd64:v0.8.3
+          command:
+            - /cpvpa
+            - --target=deployment/{{ include "castai-agent.fullname" . }}
+            - --namespace={{ .Values.namespace }}
+            - --logtostderr=true
+            - --poll-period-seconds=300
+            - --config-file=/etc/config/castai-agent-autoscaler
+          volumeMounts:
+            - mountPath: /etc/config
+              name: autoscaler-config
+          securityContext:
+            readOnlyRootFilesystem: true
+      volumes:
+        - name: autoscaler-config
+          configMap:
+            name: {{ include "castai-agent.fullname" . }}-autoscaler
+{{- end }}

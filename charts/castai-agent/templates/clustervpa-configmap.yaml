@@ -8,6 +8,10 @@ metadata:
 data:
   # Increase memory requests/limits by 256Mi for every 20 nodes. round_up(nodes/nodes_per_step)*step
   # For example, for 150 nodes: round_up(150/20)*256Mi=2048Mi
+
+  # we assume that typical node is 8 CPU on average; we set coresPerStep=nodesPerStep*8
+  # if nodes are larger than 8 CPU per machine, then cores-per-step will ensure that we increase a step,
+  # e.g. it will only take 5x32core nodes for the next step
   castai-agent-autoscaler: |-
     {
       "agent": {
@@ -16,7 +20,8 @@ data:
             "base": "0",
             "max": "8Gi",
             "step": "256Mi",
-            "nodesPerStep": 20
+            "nodesPerStep": 20,
+            "coresPerStep": 160
           }
         },
         "limits": {
@@ -25,6 +30,7 @@ data:
             "max": "8Gi",
             "step": "256Mi",
             "nodesPerStep": 20
+            "coresPerStep": 160
           }
         }
       }
