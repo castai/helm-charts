@@ -5,16 +5,18 @@ metadata:
   name: castai-agent-cvpa
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "castai-agent.labels" . | nindent 4 }}
+    app.kubernetes.io/name: castai-agent-cvpa
+    app.kubernetes.io/instance: castai-agent-cvpa
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "castai-agent.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: castai-agent-cvpa
   template:
     metadata:
       labels:
-        {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/name: castai-agent-cvpa
+        app.kubernetes.io/instance: castai-agent-cvpa
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
@@ -41,13 +43,13 @@ spec:
       {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: autoscaler
-          image: k8s.gcr.io/cpvpa-amd64:v0.8.3
+          image: k8s.gcr.io/cpvpa-amd64:{{ .Values.cpvpa.version }}
           command:
             - /cpvpa
             - --target=deployment/{{ include "castai-agent.fullname" . }}
             - --namespace={{ .Values.namespace }}
             - --logtostderr=true
-            - --poll-period-seconds=300
+            - --poll-period-seconds={{ .Values.cpvpa.pollPeriodSeconds }}
             - --config-file=/etc/config/castai-agent-autoscaler
           volumeMounts:
             - mountPath: /etc/config
