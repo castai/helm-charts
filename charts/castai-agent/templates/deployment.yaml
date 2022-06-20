@@ -57,15 +57,16 @@ spec:
             - secretRef:
                 name: {{ include "castai-agent.fullname" . -}}
           {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
+          {{- if not .Values.clusterVPA.enabled }}
           resources:
-          {{- if .Values.clusterVPA.enabled }}
+            {{- .Values.resources | toYaml | nindent 14 }}
+          {{- else }}
           {{/* we hardcode CPU req/limit for now */}}
+          resources:
             requests:
               cpu: 100m
             limits:
               cpu: 1000m
-          {{- else }}
-            {{- .Values.resources | toYaml | nindent 14 }}
           {{- end }}
           securityContext:
             readOnlyRootFilesystem: true

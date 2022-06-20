@@ -116,7 +116,7 @@ rules:
     resources:
       - deployments
     resourceNames:
-      - {{ include "castai-agent.fullname" . }}
+      - castai-agent-cvpa
     verbs:
       - patch
 ---
