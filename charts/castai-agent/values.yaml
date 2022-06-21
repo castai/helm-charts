@@ -29,10 +29,12 @@ serviceAccount:
 
 podAnnotations: {}
 
-# Should the cluster proportional vertical autoscaler be enabled for the agent deployment
+# Cluster proportional vertical autoscaler for the agent deployment
 # https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler
 clusterVPA:
   enabled: true
+  version: v0.8.3
+  pollPeriodSeconds: 300
 
 resources: {}
 
@@ -83,6 +85,4 @@ securityContext:
   runAsGroup: 1002
   runAsUser: 1002
 
-cpvpa:
-  version: v0.8.3
-  pollPeriodSeconds: 300
+
