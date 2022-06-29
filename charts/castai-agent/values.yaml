@@ -41,13 +41,17 @@ resources: {}
 additionalEnv:
   PPROF_PORT: "6060"
 
-additionalSecretEnv: {}
-
 # URL to the API server
 apiURL: "https://api.cast.ai"
 
 # Token to be used for authorizing agent access to the API
 apiKey: ""
+
+# Name of secret with Token to be used for authorizing agent access to the API
+# apiKey and apiKeySecretRef are mutually exclusive
+apiKeySecretRef: ""
+
+additionalSecretEnv: {}
 
 # Name of the Kubernetes service provider
 # one of: "eks", "gks", "aks", "kops"
