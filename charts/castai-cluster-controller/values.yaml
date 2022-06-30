@@ -29,6 +29,10 @@ castai:
   # Token to be used for authorizing agent access to the CASTAI API
   apiKey: ""
 
+  # Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  apiKeySecretRef: ""
+
   # CASTAI public api url.
   apiURL: "https://api.cast.ai"
 
