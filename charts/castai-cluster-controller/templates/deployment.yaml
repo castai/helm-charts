@@ -87,7 +87,7 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
-                {{- if or (.Values.apiKey ) (.Values.castai.apiKey) }}
+                {{- if or .Values.apiKey .Values.castai.apiKey }}
                   {{- if ne .Values.castai.apiKeySecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
