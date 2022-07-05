@@ -47,7 +47,10 @@ additionalSecretEnv: {}
 apiURL: "https://api.cast.ai"
 
 # Token to be used for authorizing agent access to the API
-apiKey: ""
+apiKey:
+  value: ""
+  secretKeyRef:
+    name: ""
 
 # Name of the Kubernetes service provider
 # one of: "eks", "gks", "aks", "kops"
