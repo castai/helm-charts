@@ -1,0 +1,20 @@
+apiKey: "test"
+apiURL: "test"
+provider: "castai"
+namespace: "default"
+createNamespace: false
+additionalEnv:
+  CASTAI_CLUSTER_ID: "c1"
+  CASTAI_ORGANIZATION_ID: "org1"
+additionalSecretEnv:
+  AWS_ACCESS_KEY_ID: "key"
+  AWS_SECRET_ACCESS_KEY: "secret"
+clusterVPA:
+  enabled: true
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 1000m
+    memory: 256Mi
