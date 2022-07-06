@@ -55,7 +55,9 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
-          {{- if .Values.apiKey.value }}
+          {{-  if and  (kindIs "string" .Values.apiKey) .Values.apiKey}}
+                name: {{ include "castai-agent.fullname" . -}}
+          {{- else if .Values.apiKey.value }}
                 name: {{ include "castai-agent.fullname" . -}}
           {{- else }}
                 name: {{ required "apiKey.value or apiKey.secretKeyRef.name must be provided" .Values.apiKey.secretKeyRef.name -}}
