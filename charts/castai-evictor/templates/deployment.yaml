@@ -55,7 +55,11 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
+                {{- if .Values.apiKeySecretRef }}
+                name: {{ .Values.apiKeySecretRef }}
+                {{- else }}
                 name: castai-cluster-controller
+                {{- end }}
                 optional: false
             - configMapRef:
                 name: castai-cluster-controller
