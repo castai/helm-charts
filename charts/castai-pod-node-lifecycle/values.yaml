@@ -1,8 +1,12 @@
 # Values used to connect to the CAST AI API.
 api:
   url: https://api.cast.ai
-  key:
-  clusterId:
+  key: ""
+  # Name of secret with Token to be used for authorizing access to the API
+  # key and keySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"]
+  keySecretRef: ""
+  clusterId: ""
 
 replicaCount: 3
 
