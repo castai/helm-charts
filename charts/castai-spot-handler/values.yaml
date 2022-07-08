@@ -58,3 +58,7 @@ securityContext:
   fsGroup: 1003
   runAsGroup: 1003
   runAsUser: 1003
+
+# Name of secret with Token to be used for authorizing access to the API
+# The referenced secret must provide the token in .data["API_KEY"]
+apiKeySecretRef: ""

@@ -47,8 +47,12 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
+                {{- if .Values.apiKeySecretRef }}
+                name: {{ .Values.apiKeySecretRef }}
+                {{- else }}
                 # Re-use shared secret from cluster-controller.
                 name: castai-cluster-controller
+                {{- end }}
           {{- with .Values.resources }}
           resources:
           {{- toYaml . | nindent 12 }}
