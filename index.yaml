@@ -1147,6 +1147,17 @@ entries:
   castai-pod-node-lifecycle:
   - apiVersion: v2
     appVersion: v0.15.0
+    created: "2022-07-08T13:00:51.256311115Z"
+    description: CAST AI spotonly K8s webhook to control workload placement during
+      cluster migration and spotonly.
+    digest: d94ca06b091e45deeaa008cf3ec6a5e419b05e40f8b2ce723d5d5d78a0782930
+    name: castai-pod-node-lifecycle
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-pod-node-lifecycle-0.17.0/castai-pod-node-lifecycle-0.17.0.tgz
+    version: 0.17.0
+  - apiVersion: v2
+    appVersion: v0.15.0
     created: "2022-06-30T12:41:25.069620167Z"
     description: CAST AI spotonly K8s webhook to control workload placement during
       cluster migration and spotonly.
@@ -1168,16 +1179,6 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-pod-node-lifecycle-0.15.0/castai-pod-node-lifecycle-0.15.0.tgz
     version: 0.15.0
   castai-spot-handler:
-  - apiVersion: v2
-    appVersion: v0.7.0
-    created: "2022-07-08T13:00:33.467693811Z"
-    description: CAST AI spot handler daemonset chart
-    digest: 909ef6fb7840f207c38e00f08ecb149bcdba673dc03115761ac86dc6dcc46ba3
-    name: castai-spot-handler
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.12.0/castai-spot-handler-0.12.0.tgz
-    version: 0.12.0
   - apiVersion: v2
     appVersion: v0.7.0
     created: "2022-06-13T13:13:21.473811158Z"
@@ -1288,4 +1289,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.2.0/castai-spot-handler-0.2.0.tgz
     version: 0.2.0
-generated: "2022-07-08T13:00:33.468548025Z"
+generated: "2022-07-08T13:00:51.257101519Z"
