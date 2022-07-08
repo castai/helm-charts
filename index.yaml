@@ -798,18 +798,6 @@ entries:
       release-date: 2022-07-04T08:32:17
     apiVersion: v2
     appVersion: 6a6fcd17200d1b3da09805a70a5f1abfbdc5c62e
-    created: "2022-07-08T13:00:14.550937286Z"
-    description: Cluster utilization defragmentation tool
-    digest: d3468098f64b4e35d6e7eebf0b64c2f6b1b9dbdf1d6326e0faaacde1e8f78ee1
-    name: castai-evictor
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.17.0/castai-evictor-0.17.0.tgz
-    version: 0.17.0
-  - annotations:
-      release-date: 2022-07-04T08:32:17
-    apiVersion: v2
-    appVersion: 6a6fcd17200d1b3da09805a70a5f1abfbdc5c62e
     created: "2022-07-04T08:43:46.920747161Z"
     description: Cluster utilization defragmentation tool
     digest: 91cb499b20108bfd77cee5f21b4caab656e057c40ca51d07a736590db5dccc2c
@@ -1182,6 +1170,16 @@ entries:
   castai-spot-handler:
   - apiVersion: v2
     appVersion: v0.7.0
+    created: "2022-07-08T13:00:33.467693811Z"
+    description: CAST AI spot handler daemonset chart
+    digest: 909ef6fb7840f207c38e00f08ecb149bcdba673dc03115761ac86dc6dcc46ba3
+    name: castai-spot-handler
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.12.0/castai-spot-handler-0.12.0.tgz
+    version: 0.12.0
+  - apiVersion: v2
+    appVersion: v0.7.0
     created: "2022-06-13T13:13:21.473811158Z"
     description: CAST AI spot handler daemonset chart
     digest: bc8da9bd3993c33cfbf359851361f0a96eb8c4d8cf5caf4d6748e3fcb60c2a95
@@ -1290,4 +1288,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.2.0/castai-spot-handler-0.2.0.tgz
     version: 0.2.0
-generated: "2022-07-08T13:00:14.551732317Z"
+generated: "2022-07-08T13:00:33.468548025Z"
