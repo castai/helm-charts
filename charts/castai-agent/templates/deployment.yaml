@@ -58,7 +58,7 @@ spec:
           {{- if .Values.apiKey }}
                 name: {{ include "castai-agent.fullname" . -}}
           {{- else }}
-                name: {{ required "apiKey or secretKeyRef must be provided" .Values.secretKeyRef -}}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
           {{- end -}}
           {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
