@@ -81,6 +81,17 @@ affinity:
               operator: NotIn
               values:
                 - windows
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - castai-agent
+          topologyKey: kubernetes.io/hostname
 
 # Pod security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
