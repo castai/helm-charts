@@ -3,6 +3,16 @@ entries:
   castai-agent:
   - apiVersion: v2
     appVersion: v0.31.0
+    created: "2022-07-13T13:06:34.335906028Z"
+    description: CAST AI agent deployment chart.
+    digest: 468d5a3abf60ea3ce20981df7272bbb243ce023173b38ae229cc2477bdd3b3f2
+    name: castai-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-agent-0.33.3/castai-agent-0.33.3.tgz
+    version: 0.33.3
+  - apiVersion: v2
+    appVersion: v0.31.0
     created: "2022-07-11T08:25:13.223101077Z"
     description: CAST AI agent deployment chart.
     digest: 4e2700c342a5ac587c9bcca238296e9adfb9e96caf27b8f73dfe5127263ef4bc
@@ -815,6 +825,18 @@ entries:
     version: 0.1.0
   castai-evictor:
   - annotations:
+      release-date: 2022-07-13T11:17:21
+    apiVersion: v2
+    appVersion: f4094fdf07c629632c800caa2481ea9f2fad555a
+    created: "2022-07-13T13:06:34.483828688Z"
+    description: Cluster utilization defragmentation tool
+    digest: 869ee710f39967e781780d664967880228708c5a0a4fc3bd5e3125626c78fd34
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.17.3/castai-evictor-0.17.3.tgz
+    version: 0.17.3
+  - annotations:
       release-date: 2022-07-04T08:32:17
     apiVersion: v2
     appVersion: 6a6fcd17200d1b3da09805a70a5f1abfbdc5c62e
@@ -1309,4 +1331,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.2.0/castai-spot-handler-0.2.0.tgz
     version: 0.2.0
-generated: "2022-07-11T08:25:13.22413649Z"
+generated: "2022-07-13T13:06:34.484893488Z"
