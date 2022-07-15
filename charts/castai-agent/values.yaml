@@ -29,6 +29,9 @@ serviceAccount:
 
 podAnnotations: {}
 
+# Labels to be added to agent pods
+podLabels: {}
+
 # Cluster proportional vertical autoscaler for the agent deployment
 # https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler
 clusterVPA:
