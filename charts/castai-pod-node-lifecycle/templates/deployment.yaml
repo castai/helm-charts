@@ -63,11 +63,15 @@ spec:
             {{- end }}
             - name: CONFIG_PATH
               value: /config/config.yaml
+          {{- if .Values.telemetry.enabled }}
           envFrom:
-            {{- if .Values.telemetry.enabled }}
             - secretRef:
+                {{- if .Values.api.keySecretRef }}
+                name: {{ .Values.api.keySecretRef }}
+                {{- else }}
                 name: {{ include "pod-node-lifecycle.fullname" . }}-api
-            {{- end }}
+                {{- end }}
+          {{- end }}
           securityContext:
             {{- toYaml .Values.mainContainerSecurityContext | nindent 12 }}
           livenessProbe:

@@ -49,6 +49,11 @@ apiURL: "https://api.cast.ai"
 # Token to be used for authorizing agent access to the API
 apiKey: ""
 
+# Name of secret with Token to be used for authorizing agent access to the API
+# apiKey and apiKeySecretRef are mutually exclusive
+# The referenced secret must provide the token in .data["API_KEY"]
+apiKeySecretRef: ""
+
 # Name of the Kubernetes service provider
 # one of: "eks", "gks", "aks", "kops"
 provider: ""
@@ -76,6 +81,17 @@ affinity:
               operator: NotIn
               values:
                 - windows
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - castai-agent
+          topologyKey: kubernetes.io/hostname
 
 # Pod security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
