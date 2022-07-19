@@ -17,6 +17,9 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "castai-agent.fullname" . }}-cpvpa
         app.kubernetes.io/instance: {{ include "castai-agent.fullname" . }}-cpvpa
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.podAnnotations }}
       annotations:
         {{- toYaml . | nindent 8 }}
