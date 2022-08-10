@@ -1,6 +1,8 @@
+{{- if .Values.createNamespace }}
 apiVersion: v1
 kind: Namespace
 metadata:
   name: {{ .Release.Namespace }}
   labels:
   {{- include "castai-sec-agent.labels" . | nindent 4 }}
+{{- end }}

@@ -8,6 +8,9 @@ leaderElectionEnabled: true
 nameOverride: ""
 fullnameOverride: castai-sec-agent
 
+# By default namespace is expected to be created by castai-agent.
+createNamespace: false
+
 image:
   repository: us-docker.pkg.dev/castai-hub/library/sec-agent
   # Tag is set using Chart.yaml appVersion field.
