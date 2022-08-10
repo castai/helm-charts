@@ -23,10 +23,6 @@ rules:
     resources: [ "roles", "clusterroles", "clusterrolebindings" ]
     resourceNames: [ "castai-sec-agent" ]
     verbs: [ "get", "patch", "update", "delete", "escalate" ]
-  - apiGroups: [ "" ]
-    resources: [ "namespaces" ]
-    resourceNames: [ "castai-sec-agent" ]
-    verbs: [ "delete" ]
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
