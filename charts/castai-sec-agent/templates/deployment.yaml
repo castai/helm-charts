@@ -95,6 +95,7 @@ spec:
           securityContext:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
+            runAsUser: 1004
           ports:
             - containerPort: 6060
               name: http
