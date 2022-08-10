@@ -92,6 +92,8 @@ spec:
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
           ports:
             - containerPort: 6060
               name: http
