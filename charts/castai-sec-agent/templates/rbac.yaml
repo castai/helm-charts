@@ -35,7 +35,6 @@ metadata:
   labels:
     {{- include "castai-sec-agent.labels" . | nindent 4 }}
 rules:
-  # Agent has full access in castai-sec-agent namespace. This is required to fully manage castai components.
   - apiGroups: [ "*" ]
     resources: [ "*" ]
     verbs: [ "*" ]
