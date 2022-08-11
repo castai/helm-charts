@@ -1,0 +1,116 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: castai-sec-agent
+  labels:
+    {{- include "castai-sec-agent.labels" . | nindent 4 }}
+spec:
+  strategy:
+    {{- .Values.updateStrategy | toYaml | nindent 4 }}
+  {{- if .Values.leaderElectionEnabled }}
+  replicas: {{ .Values.replicas }}
+  {{- else}}
+  replicas: 1
+  {{- end}}
+  selector:
+    matchLabels:
+      {{- include "castai-sec-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-sec-agent.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      annotations:
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+      {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: sec-agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          {{- if .Values.leaderElectionEnabled }}
+            - name: LEADER_ELECTION_ENABLED
+              value: "true"
+            - name: LEADER_ELECTION_LOCK_NAME
+              value: "castai-sec-agent"
+            - name: LEADER_ELECTION_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+          {{- end }}
+          {{- if .Values.k8sApiClient.rateLimit.burst }}
+            - name: KUBECLIENT_BURST
+              value: {{ .Values.k8sApiClient.rateLimit.burst | quote }}
+          {{- end }}
+          {{- if .Values.k8sApiClient.rateLimit.qps }}
+            - name: KUBECLIENT_QPS
+              value: {{ .Values.k8sApiClient.rateLimit.qps | quote }}
+          {{- end }}
+          {{- range $k, $v := .Values.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+          {{- end }}
+          envFrom:
+            - secretRef:
+                {{- if or .Values.apiKey .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
+                name: castai-sec-agent
+                {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                {{- end }}
+            - configMapRef:
+                name: castai-sec-agent
+          {{- with .Values.resources }}
+          resources:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1004
+          ports:
+            - containerPort: 6060
+              name: http
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /healthz
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /healthz
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+

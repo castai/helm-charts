@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: castai-sec-agent
+  labels:
+    {{- include "castai-sec-agent.labels" . | nindent 4 }}
+data:
+  {{- if .Values.apiURL }}
+  API_URL: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+  {{- else }}
+  API_URL: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+  {{- end }}
