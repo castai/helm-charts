@@ -10,3 +10,4 @@ data:
   {{- else }}
   API_URL: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
   {{- end }}
+  FEATURES_KUBELINTER_ENABLED: true
