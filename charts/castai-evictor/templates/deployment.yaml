@@ -52,6 +52,8 @@ spec:
               value: {{ .Values.scopedMode | quote }}
             - name: NODE_GRACE_PERIOD_MINUTES
               value: {{ .Values.nodeGracePeriodMinutes | quote }}
+            - name: MAX_TARGET_NODES_PER_CYCLE
+              value: {{ .Values.maxNodesToEvictPerCycle | quote }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"

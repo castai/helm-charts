@@ -22,6 +22,9 @@ scopedMode: false
 # The number of minutes a node must exist before it will be considered.
 nodeGracePeriodMinutes: 5
 
+# Specifies the max nodes evictor can evict in a single cycle.
+maxNodesToEvictPerCycle: 20
+
 # Specifies leader election parameters
 leaderElection:
   # Whether to enable leader election
