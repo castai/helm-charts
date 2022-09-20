@@ -21,7 +21,7 @@ rules:
   # Readonly.
   - apiGroups: [ "" ]
     resources: [ "pods", "nodes" ]
-    verbs: [ "get", "list" ]
+    verbs: [ "get", "list", "watch" ]
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
     verbs: [ "get" ]
