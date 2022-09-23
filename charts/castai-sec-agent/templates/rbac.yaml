@@ -18,35 +18,48 @@ metadata:
   labels:
     {{- include "castai-sec-agent.labels" . | nindent 4 }}
 rules:
-  # For installing/updating CAST AI components.
-  - apiGroups: [ "rbac.authorization.k8s.io" ]
-    resources: [ "roles", "clusterroles", "clusterrolebindings" ]
-    resourceNames: [ "castai-sec-agent" ]
-    verbs: [ "get", "patch", "update", "delete", "escalate" ]
----
-kind: Role
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: castai-sec-agent
-  labels:
-    {{- include "castai-sec-agent.labels" . | nindent 4 }}
-rules:
-  - apiGroups: [ "*" ]
-    resources: [ "*" ]
-    verbs: [ "*" ]
----
-kind: RoleBinding
-apiVersion: rbac.authorization.k8s.io/v1
-metadata:
-  name: castai-sec-agent
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: castai-sec-agent
-subjects:
-  - kind: ServiceAccount
-    name: castai-sec-agent
-    namespace: {{ .Release.Namespace }}
+  # Readonly access for resources which are tracked by castai-sec-agent.
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - nodes
+      - services
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+      - replicasets
+      - daemonsets
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
+      - cronjobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "rbac.authorization.k8s.io"
+    resources:
+      - roles
+      - clusterroles
+      - clusterrolebindings
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
