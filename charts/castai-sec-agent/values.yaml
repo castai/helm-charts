@@ -87,6 +87,11 @@ affinity:
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 securityContext: {}
 
+agentContainerSecurityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 1004
+
 serviceAccount:
   create: true
   # Annotations to add to the service account.

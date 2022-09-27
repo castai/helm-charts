@@ -93,10 +93,10 @@ spec:
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.agentContainerSecurityContext }}
           securityContext:
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1004
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 6060
               name: http
