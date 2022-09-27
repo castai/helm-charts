@@ -69,6 +69,7 @@ metadata:
   labels:
     {{- include "castai-sec-agent.labels" . | nindent 4 }}
 rules:
+  # Access to manage jobs in castai-sec namespace.
   - apiGroups:
       - "batch"
     resources:
