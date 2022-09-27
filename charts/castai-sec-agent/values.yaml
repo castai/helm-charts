@@ -113,6 +113,9 @@ features:
     enabled: false
   imagescan:
     enabled: false
+    scanInterval: "15s"
+    maxConcurrentScans: 5
     image:
       repository: us-docker.pkg.dev/castai-hub/library/sec-agent-imgcollector
       tag: ""
+      pullPolicy: IfNotPresent
