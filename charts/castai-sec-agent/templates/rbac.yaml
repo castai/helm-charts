@@ -61,6 +61,37 @@ rules:
       - list
       - watch
 ---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: castai-sec-agent
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-sec-agent.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
+    verbs:
+      - delete
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: castai-sec-agent
+  namespace: {{ .Release.Namespace }}
+  labels:
+      {{- include "castai-sec-agent.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: castai-sec-agent
+subjects:
+  - kind: ServiceAccount
+    name: castai-sec-agent
+    namespace: {{ .Release.Namespace }}
+---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

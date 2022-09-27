@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: castai-sec-agent
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "castai-sec-agent.labels" . | nindent 4 }}
 spec:
