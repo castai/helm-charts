@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: castai-sec-agent
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "castai-sec-agent.labels" . | nindent 4 }}
 data:
@@ -9,4 +10,7 @@ data:
   CLUSTER_ID: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
   FEATURES_KUBELINTER_ENABLED: {{ .Values.features.kubelinter.enabled | quote }}
   FEATURES_KUBEBENCH_ENABLED: {{ .Values.features.kubebench.enabled | quote }}
-  FEATURES_IMAGE_SCAN_ENABLED: {{ .Values.features.imagescan.enabled | quote }}
+  {{- if .Values.features.imagescan.enabled }}
+  FEATURES_IMAGE_SCAN_ENABLED: "true"
+  FEATURES_IMAGE_SCAN_IMAGE_COLLECTOR_IMAGE: "{{ .Values.features.imagescan.image.repository }}:{{ .Values.features.imagescan.image.tag | default .Chart.AppVersion }}"
+  {{- end }}

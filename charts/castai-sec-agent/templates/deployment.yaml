@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: castai-sec-agent
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "castai-sec-agent.labels" . | nindent 4 }}
 spec:
@@ -92,10 +93,10 @@ spec:
           resources:
           {{- toYaml . | nindent 12 }}
           {{- end }}
+          {{- with .Values.agentContainerSecurityContext }}
           securityContext:
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1004
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 6060
               name: http

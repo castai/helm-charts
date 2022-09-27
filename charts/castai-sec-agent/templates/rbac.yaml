@@ -3,6 +3,7 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ .Values.serviceAccount.name }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "castai-sec-agent.labels" . | nindent 4 }}
   {{- with .Values.serviceAccount.annotations }}
@@ -60,6 +61,42 @@ rules:
       - get
       - list
       - watch
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: castai-sec-agent
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-sec-agent.labels" . | nindent 4 }}
+rules:
+  # Access to manage jobs in castai-sec namespace.
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - delete
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: castai-sec-agent
+  namespace: {{ .Release.Namespace }}
+  labels:
+      {{- include "castai-sec-agent.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: castai-sec-agent
+subjects:
+  - kind: ServiceAccount
+    name: castai-sec-agent
+    namespace: {{ .Release.Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
