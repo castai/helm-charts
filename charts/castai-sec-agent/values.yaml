@@ -108,11 +108,11 @@ k8sApiClient:
 
 features:
   kubelinter:
-    enabled: "false"
+    enabled: false
   kubebench:
-    enabled: "false"
+    enabled: false
   imagescan:
-    enabled: "false"
+    enabled: false
     image:
       repository: us-docker.pkg.dev/castai-hub/library/sec-agent-imgcollector
       tag: ""
