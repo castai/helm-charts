@@ -12,5 +12,8 @@ data:
   FEATURES_KUBEBENCH_ENABLED: {{ .Values.features.kubebench.enabled | quote }}
   {{- if .Values.features.imagescan.enabled }}
   FEATURES_IMAGE_SCAN_ENABLED: "true"
-  FEATURES_IMAGE_SCAN_IMAGE_COLLECTOR_IMAGE: "{{ .Values.features.imagescan.image.repository }}:{{ .Values.features.imagescan.image.tag | default .Chart.AppVersion }}"
+  FEATURES_IMAGE_SCAN_COLLECTOR_IMAGE: "{{ .Values.features.imagescan.image.repository }}:{{ .Values.features.imagescan.image.tag | default .Chart.AppVersion }}"
+  FEATURES_IMAGE_SCAN_COLLECTOR_IMAGE_PULL_POLICY: "{{ .Values.features.imagescan.image.pullPolicy }}"
+  FEATURES_IMAGE_SCAN_INTERVAL: "{{ .Values.features.imagescan.scanInterval }}"
+  FEATURES_IMAGE_SCAN_MAX_CONCURRENT_SCANS: "{{ .Values.features.imagescan.maxConcurrentScans }}"
   {{- end }}
