@@ -54,17 +54,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-          {{- if .Values.leaderElectionEnabled }}
-            - name: LEADER_ELECTION_ENABLED
-              value: "true"
-            - name: LEADER_ELECTION_LOCK_NAME
-              value: "castai-sec-agent"
-            - name: LEADER_ELECTION_NAMESPACE
+            - name: POD_IP
               valueFrom:
                 fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
-          {{- end }}
+                  fieldPath: status.podIP
           {{- if .Values.k8sApiClient.rateLimit.burst }}
             - name: KUBECLIENT_BURST
               value: {{ .Values.k8sApiClient.rateLimit.burst | quote }}
