@@ -38,11 +38,41 @@ castai:
   # CASTAI Cluster unique identifier.
   clusterID: ""
 
+# Agent global configuration in yaml format. All values could be overridden with environment values.
+config: |
+  api:
+    url: {{ .Values.castai.apiURL }}
+    cluster_id: {{ .Values.castai.clusterID }}
+  # Settings for configuring k8s client used in castai-sec-agent.
+  kube_client:
+    # Client uses token based rate limiting. By default, client has 150 api request burst limit set.
+    # Buffer is refilled with 25 tokens every second. During sustained load client will be capped at 25 requests / sec.
+    rate_limit:
+      burst: 150
+      qps: 25
+  log:
+    level: "debug"
+  linter:
+    enabled: true
+  kube_bench:
+    enabled: true
+  image_scan:
+    enabled: true
+    scanInterval: "15s"
+    maxConcurrentScans: 2
+    image:
+      name: "us-docker.pkg.dev/castai-hub/library/sec-agent-imgcollector:{{ .Values.image.tag | default .Chart.AppVersion }}"
+      pullPolicy: IfNotPresent
+
+# Agent global configuration for convenient overrides without changing the whole config yaml file. Final config is merged from both config and structuredConfig.
+structuredConfig: {}
+# Mount existing secret as config instead of config map if set`
+existingSecretForConfig: ""
+
 podAnnotations: {}
 podLabels: {}
 
-additionalEnv:
-  LOG_LEVEL: "5"
+additionalEnv: {}
 
 resources:
   requests:
@@ -97,24 +127,4 @@ serviceAccount:
   annotations: {}
   name: "castai-sec-agent"
 
-# Settings for configuring k8s client used in castai-sec-agent.
-k8sApiClient:
-  # Client uses token based rate limiting. By default, client has 150 api request burst limit set.
-  # Buffer is refilled with 25 tokens every second. During sustained load client will be capped at 25 requests / sec.
-  rateLimit:
-    burst: 150
-    qps: 25
 
-features:
-  kubelinter:
-    enabled: false
-  kubebench:
-    enabled: false
-  imagescan:
-    enabled: false
-    scanInterval: "15s"
-    maxConcurrentScans: 2
-    image:
-      repository: us-docker.pkg.dev/castai-hub/library/sec-agent-imgcollector
-      tag: ""
-      pullPolicy: IfNotPresent

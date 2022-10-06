@@ -6,14 +6,6 @@ metadata:
   labels:
     {{- include "castai-sec-agent.labels" . | nindent 4 }}
 data:
-  API_URL: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
-  CLUSTER_ID: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
-  FEATURES_KUBELINTER_ENABLED: {{ .Values.features.kubelinter.enabled | quote }}
-  FEATURES_KUBEBENCH_ENABLED: {{ .Values.features.kubebench.enabled | quote }}
-  {{- if .Values.features.imagescan.enabled }}
-  FEATURES_IMAGE_SCAN_ENABLED: "true"
-  FEATURES_IMAGE_SCAN_COLLECTOR_IMAGE: "{{ .Values.features.imagescan.image.repository }}:{{ .Values.features.imagescan.image.tag | default .Chart.AppVersion }}"
-  FEATURES_IMAGE_SCAN_COLLECTOR_IMAGE_PULL_POLICY: "{{ .Values.features.imagescan.image.pullPolicy }}"
-  FEATURES_IMAGE_SCAN_INTERVAL: "{{ .Values.features.imagescan.scanInterval }}"
-  FEATURES_IMAGE_SCAN_MAX_CONCURRENT_SCANS: "{{ .Values.features.imagescan.maxConcurrentScans }}"
-  {{- end }}
+  config.yaml: |
+    {{- tpl (mergeOverwrite (tpl .Values.config . | fromYaml) .Values.structuredConfig | toYaml) . | nindent 4 }}
+
