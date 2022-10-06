@@ -42,30 +42,31 @@ castai:
 config: |
   api:
     url: {{ .Values.castai.apiURL }}
-    cluster_id: {{ .Values.castai.clusterID }}
+    clusterID: {{ .Values.castai.clusterID }}
   # Settings for configuring k8s client used in castai-sec-agent.
-  kube_client:
+  kubeClient:
     # Client uses token based rate limiting. By default, client has 150 api request burst limit set.
     # Buffer is refilled with 25 tokens every second. During sustained load client will be capped at 25 requests / sec.
-    rate_limit:
+    rateLimit:
       burst: 150
       qps: 25
   log:
     level: "debug"
   linter:
     enabled: true
-  kube_bench:
+  kubebench:
     enabled: true
-  image_scan:
+  imagescan:
     enabled: true
-    scan_interval: "15s"
-    max_concurrent_scans: 3
+    scanInterval: "15s"
+    maxConcurrentScans: 3
     image:
       name: "us-docker.pkg.dev/castai-hub/library/sec-agent-imgcollector:{{ .Values.image.tag | default .Chart.AppVersion }}"
-      pull_policy: IfNotPresent
+      pullPolicy: IfNotPresent
 
 # Agent global configuration for convenient overrides without changing the whole config yaml file. Final config is merged from both config and structuredConfig.
 structuredConfig: {}
+
 # Mount existing secret as config instead of config map if set`
 existingSecretForConfig: ""
 

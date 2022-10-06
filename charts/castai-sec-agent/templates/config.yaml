@@ -8,4 +8,3 @@ metadata:
 data:
   config.yaml: |
     {{- tpl (mergeOverwrite (tpl .Values.config . | fromYaml) .Values.structuredConfig | toYaml) . | nindent 4 }}
-
