@@ -14,16 +14,16 @@ podLabels:
   provider: alibaba
 
 castai:
-  clusterID: "test"
-  apiKey: "test"
-  apiURL: "test"
+  clusterID: "c1"
+  apiKey: "key1"
+  apiURL: "https://api.test"
 
 tolerations:
   - key: scheduling.cast.ai/spot
     operator: Exists
 
-features:
-  kubelinter:
+structuredConfig:
+  linter:
     enabled: true
   kubebench:
     enabled: false

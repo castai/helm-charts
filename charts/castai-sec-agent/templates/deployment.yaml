@@ -58,14 +58,14 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-          {{- if .Values.k8sApiClient.rateLimit.burst }}
-            - name: KUBECLIENT_BURST
-              value: {{ .Values.k8sApiClient.rateLimit.burst | quote }}
-          {{- end }}
-          {{- if .Values.k8sApiClient.rateLimit.qps }}
-            - name: KUBECLIENT_QPS
-              value: {{ .Values.k8sApiClient.rateLimit.qps | quote }}
-          {{- end }}
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: API_URL
+              value: {{ .Values.castai.apiURL | quote }}
+            - name: CLUSTER_ID
+              value: {{ .Values.castai.clusterID | quote }}
           {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
@@ -82,6 +82,9 @@ spec:
                 {{- end }}
             - configMapRef:
                 name: castai-sec-agent
+          volumeMounts:
+            - name: config
+              mountPath: /etc/castai/config
           {{- with .Values.resources }}
           resources:
           {{- toYaml . | nindent 12 }}
@@ -106,5 +109,13 @@ spec:
               path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-
+      volumes:
+        - name: config
+          {{- if .Values.existingSecretForConfig }}
+          secret:
+            secretName: {{ .Values.existingSecretForConfig }}
+          {{- else }}
+          configMap:
+            name: castai-sec-agent
+          {{- end }}
 
