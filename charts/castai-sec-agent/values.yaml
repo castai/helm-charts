@@ -58,11 +58,11 @@ config: |
     enabled: true
   image_scan:
     enabled: true
-    scanInterval: "15s"
-    maxConcurrentScans: 2
+    scan_interval: "15s"
+    max_concurrent_scans: 3
     image:
       name: "us-docker.pkg.dev/castai-hub/library/sec-agent-imgcollector:{{ .Values.image.tag | default .Chart.AppVersion }}"
-      pullPolicy: IfNotPresent
+      pull_policy: IfNotPresent
 
 # Agent global configuration for convenient overrides without changing the whole config yaml file. Final config is merged from both config and structuredConfig.
 structuredConfig: {}
