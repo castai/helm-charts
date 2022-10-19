@@ -43,7 +43,14 @@ spec:
             value: "true"
           envFrom:
             - secretRef:
+                {{- if or .Values.apiKey .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
                 name: castai-cluster-controller
+                {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                {{- end }}
             - configMapRef:
                 name: castai-cluster-controller
           volumeMounts:
