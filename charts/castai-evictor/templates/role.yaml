@@ -8,7 +8,7 @@ metadata:
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
     {{- include "evictor.annotations" . | nindent 4 }}
-  {{- end -}}
+  {{- end }}
 rules:
   # ------------------------------------------------
   # Leader election

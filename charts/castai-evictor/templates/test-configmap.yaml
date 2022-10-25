@@ -9,7 +9,7 @@ metadata:
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
     {{- include "evictor.annotations" . | nindent 4 }}
-  {{- end -}}
+  {{- end }}
 data:
   API_URL: {{ required "test.apiURL must be provided" .Values.test.apiURL | quote }}
   CLUSTER_ID: {{ required "test.clusterID must be provided" .Values.test.clusterID | quote }}

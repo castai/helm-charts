@@ -5,6 +5,12 @@ kind: ConfigMap
 metadata:
   name: {{ include "castai-agent.fullname" . }}-autoscaler
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 data:
   # Increase memory requests/limits by 256Mi for every 20 nodes. round_up(nodes/nodes_per_step)*step
   # For example, for 150 nodes: round_up(150/20)*256Mi=2048Mi
