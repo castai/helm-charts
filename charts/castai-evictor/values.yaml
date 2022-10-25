@@ -4,6 +4,14 @@
 
 replicaCount: 1
 
+# labels to add to all resources
+commonLabels:
+  mylabel: my-label-value
+
+# annotations to add to all resources
+commonAnnotations: {}
+  # my-annotation: my-annotation-value
+
 # Specifies whether the Evictor should run in dryRun mode (Read-Only).
 # if true, evictor will just log action(s) it would perform
 # instead of actually performing them.

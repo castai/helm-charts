@@ -34,12 +34,24 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "evictor.labels" -}}
+{{- with .Values.commonLabels }}
+{{- toYaml . }}
+{{- end }}
 helm.sh/chart: {{ include "evictor.chart" . }}
 {{ include "evictor.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
+{{- end }}
+
+{{/*
+Common Annotations
+*/}}
+{{- define "evictor.annotations" -}}
+{{- with .Values.commonAnnotations }}
+{{- toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*

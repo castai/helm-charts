@@ -4,6 +4,10 @@ metadata:
   name: {{ include "evictor.fullname" . }}
   labels:
     {{- include "evictor.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "evictor.annotations" . | nindent 4 }}
+  {{- end -}}
 spec:
   type: {{ .Values.service.type }}
   ports:
