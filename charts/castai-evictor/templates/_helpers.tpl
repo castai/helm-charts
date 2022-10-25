@@ -34,8 +34,10 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "evictor.labels" -}}
+{{ if gt (len .Values.commonLabels) 0 -}}
 {{- with .Values.commonLabels }}
 {{- toYaml . }}
+{{- end }}
 {{- end }}
 helm.sh/chart: {{ include "evictor.chart" . }}
 {{ include "evictor.selectorLabels" . }}
@@ -49,8 +51,10 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Common Annotations
 */}}
 {{- define "evictor.annotations" -}}
+{{ if gt (len .Values.commonAnnotations) 0 -}}
 {{- with .Values.commonAnnotations }}
 {{- toYaml . }}
+{{- end }}
 {{- end }}
 {{- end }}
 

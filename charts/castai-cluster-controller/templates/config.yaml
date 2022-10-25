@@ -4,6 +4,10 @@ metadata:
   name: castai-cluster-controller
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 data:
   {{- if .Values.apiURL }}
   API_URL: {{ required "apiURL must be provided" .Values.apiURL | quote }}

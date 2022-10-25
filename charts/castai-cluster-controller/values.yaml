@@ -6,6 +6,12 @@ replicas: 2
 pdbMinAvailable: 1
 leaderElectionEnabled: true
 
+# labels to add to all resources
+commonLabels: {}
+
+# annotations to add to all resources
+commonAnnotations: {}
+
 nameOverride: ""
 fullnameOverride: castai-cluster-controller
 

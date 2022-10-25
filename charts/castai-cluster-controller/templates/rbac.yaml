@@ -9,6 +9,7 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+    {{- include "castai-agent.annotations" . | nindent 4 }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -17,6 +18,10 @@ metadata:
   name: castai-cluster-controller
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 rules:
   # Readonly.
   - apiGroups: [ "" ]
@@ -70,6 +75,10 @@ metadata:
   name: castai-cluster-controller
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 rules:
   # Controller has full access in castai-agent namespace. This is required to fully manage castai components.
   - apiGroups: [ "*" ]
@@ -80,6 +89,12 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: castai-cluster-controller
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role
@@ -95,6 +110,10 @@ metadata:
   name: castai-cluster-controller
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
