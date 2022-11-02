@@ -50,7 +50,7 @@ spec:
       {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: autoscaler
-          image: k8s.gcr.io/cpvpa-amd64:{{ .Values.clusterVPA.version }}
+          image: k8s.gcr.io/cpa/cpvpa:{{ .Values.clusterVPA.version }}
           command:
             - /cpvpa
             - --target=deployment/{{ include "castai-agent.fullname" . }}
