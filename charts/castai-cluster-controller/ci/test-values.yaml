@@ -1,6 +1,4 @@
 namespace: default
-clusterVPA:
-  enabled: false
 resources:
   requests:
     cpu: 100m
@@ -21,3 +19,8 @@ castai:
 tolerations:
   - key: scheduling.cast.ai/spot
     operator: Exists
+
+clusterVPA:
+  enabled: true
+  version: v0.8.4
+  pollPeriodSeconds: 300

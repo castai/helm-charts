@@ -1,0 +1,55 @@
+{{- if .Values.clusterVPA.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "castai-agent.fullname" . }}-cpvpa
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+data:
+  # Increase memory requests/limits by 256Mi for every 20 nodes. round_up(nodes/nodes_per_step)*step
+  # For example, for 150 nodes: round_up(150/20)*256Mi=2048Mi
+
+  # in case of large nodes, cores-per-step will ensure that we continue to scale the agent
+  castai-cluster-contoller-autoscaler: |-
+    {
+      "cluster-controller": {
+        "requests": {
+          "memory": {
+            "base": "0",
+            "max": "4Gi",
+            "step": "256Mi",
+            "nodesPerStep": 20,
+            "coresPerStep": 480
+          },
+          "cpu": {
+            "base": "0",
+            "max": "2",
+            "step": "100m",
+            "nodesPerStep": 20,
+            "coresPerStep": 480
+          }
+        },
+        "limits": {
+          "memory": {
+            "base": "0",
+            "max": "4Gi",
+            "step": "256Mi",
+            "nodesPerStep": 20,
+            "coresPerStep": 480
+          },
+          "cpu": {
+            "base": "0",
+            "max": "2",
+            "step": "100m",
+            "nodesPerStep": 20,
+            "coresPerStep": 480
+          }
+        }
+      }
+    }
+{{- end }}

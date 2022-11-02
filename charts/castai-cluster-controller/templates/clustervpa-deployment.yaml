@@ -1,0 +1,67 @@
+{{- if .Values.clusterVPA.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "castai-agent.fullname" . }}-cpvpa
+  labels:
+    app.kubernetes.io/name: {{ include "castai-agent.fullname" . }}-cpvpa
+    app.kubernetes.io/instance: {{ include "castai-agent.fullname" . }}-cpvpa
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "castai-agent.fullname" . }}-cpvpa
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "castai-agent.fullname" . }}-cpvpa
+        app.kubernetes.io/instance: {{ include "castai-agent.fullname" . }}-cpvpa
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.serviceAccount.create }}
+      serviceAccountName: {{ .Values.serviceAccount.name }}
+      automountServiceAccountToken: true
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+      {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: autoscaler
+          image: k8s.gcr.io/cpa/cpvpa:{{ .Values.clusterVPA.version }}
+          command:
+            - /cpvpa
+            - --target=deployment/{{ include "castai-agent.fullname" . }}
+            - --namespace={{ .Values.namespace | default "castai-agent" }}
+            - --logtostderr=true
+            - --poll-period-seconds={{ .Values.clusterVPA.pollPeriodSeconds }}
+            - --config-file=/etc/config/castai-cluster-contoller-autoscaler
+          volumeMounts:
+            - mountPath: /etc/config
+              name: autoscaler-config
+          securityContext:
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsGroup: 1002
+            runAsUser: 1002
+      volumes:
+        - name: autoscaler-config
+          configMap:
+            name: {{ include "castai-agent.fullname" . }}-cpvpa
+{{- end }}

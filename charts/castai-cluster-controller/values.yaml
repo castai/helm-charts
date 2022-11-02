@@ -52,12 +52,19 @@ podLabels: {}
 additionalEnv:
   LOG_LEVEL: "5"
 
+# Will be used only when cluster VPA is disabled.
 resources:
   requests:
-    cpu: 50m
-    memory: 100Mi
+    memory: 256Mi
+    cpu: 100m
   limits:
-    memory: 1Gi
+    memory: 256Mi
+    cpu: 100m
+
+clusterVPA:
+  enabled: true
+  version: v0.8.4
+  pollPeriodSeconds: 300
 
 # Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
