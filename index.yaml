@@ -3,6 +3,16 @@ entries:
   castai-agent:
   - apiVersion: v2
     appVersion: v0.33.0
+    created: "2022-11-02T08:38:42.483068869Z"
+    description: CAST AI agent deployment chart.
+    digest: df1dcd455e78b2f921e94dbf908fc0feb96de898da17e4abd080672c351472c3
+    name: castai-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-agent-0.36.0/castai-agent-0.36.0.tgz
+    version: 0.36.0
+  - apiVersion: v2
+    appVersion: v0.33.0
     created: "2022-10-18T10:27:37.412933757Z"
     description: CAST AI agent deployment chart.
     digest: abc21bccd52636f1fcfb0c2e9464c4521a1accea29ee59fb3b917992dcf81cb3
@@ -483,6 +493,16 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-azure-spot-handler-0.1.0/castai-azure-spot-handler-0.1.0.tgz
     version: 0.1.0
   castai-cluster-controller:
+  - apiVersion: v2
+    appVersion: v0.26.0
+    created: "2022-11-02T08:38:42.762803404Z"
+    description: CAST AI cluster controller deployment chart.
+    digest: d02e811e62037cd7c62299a5edc7a6bd87957116ee44bc4ce64de8a90932459e
+    name: castai-cluster-controller
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-0.40.0/castai-cluster-controller-0.40.0.tgz
+    version: 0.40.0
   - apiVersion: v2
     appVersion: v0.26.0
     created: "2022-10-19T10:38:00.399923213Z"
@@ -984,6 +1004,18 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-0.1.0/castai-cluster-controller-0.1.0.tgz
     version: 0.1.0
   castai-evictor:
+  - annotations:
+      release-date: 2022-10-24T08:42:57
+    apiVersion: v2
+    appVersion: 219eb0e4745a2795d371c9c8ff1bdeb910728deb
+    created: "2022-11-02T08:38:43.056360932Z"
+    description: Cluster utilization defragmentation tool
+    digest: 161ee9e68f6569182d96e5f5612b63274ed178147b2273b7a2480ffe8abaddbf
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.20.0/castai-evictor-0.20.0.tgz
+    version: 0.20.0
   - annotations:
       release-date: 2022-10-24T08:42:57
     apiVersion: v2
@@ -2082,6 +2114,16 @@ entries:
   castai-spot-handler:
   - apiVersion: v2
     appVersion: v0.7.0
+    created: "2022-11-02T08:38:43.331103297Z"
+    description: CAST AI spot handler daemonset chart
+    digest: 2714d8b27ebb3d5c13c5ec021a5bce10ec8272a41f5ef2860588889938dba19e
+    name: castai-spot-handler
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.14.0/castai-spot-handler-0.14.0.tgz
+    version: 0.14.0
+  - apiVersion: v2
+    appVersion: v0.7.0
     created: "2022-07-18T07:43:13.622721573Z"
     description: CAST AI spot handler daemonset chart
     digest: a0420a991941ce47a8ef75196827db5e0d5f706c878f93ad242b4ba59c0a64c2
@@ -2200,4 +2242,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.2.0/castai-spot-handler-0.2.0.tgz
     version: 0.2.0
-generated: "2022-10-27T13:12:33.22002974Z"
+generated: "2022-11-02T08:38:43.332938422Z"
