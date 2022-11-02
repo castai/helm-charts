@@ -5,6 +5,12 @@
 replicaCount: 1
 namespace: "castai-agent"
 
+# labels to add to all resources
+commonLabels: {}
+
+# annotations to add to all resources
+commonAnnotations: {}
+
 image:
   repository: us-docker.pkg.dev/castai-hub/library/agent
   pullPolicy: IfNotPresent

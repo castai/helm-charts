@@ -7,6 +7,7 @@ metadata:
   annotations:
     ignore-check.kube-linter.io/no-read-only-root-fs: "This deployment writes to local fs during chart upsert actions."
     ignore-check.kube-linter.io/run-as-non-root: "This deployment writes to local fs during chart upsert actions."
+    {{- include "castai-agent.annotations" . | nindent 4 }}
 spec:
   strategy:
     {{- .Values.updateStrategy | toYaml | nindent 4 }}

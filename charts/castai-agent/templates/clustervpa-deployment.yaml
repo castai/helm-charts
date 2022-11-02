@@ -7,6 +7,10 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ include "castai-agent.fullname" . }}-cpvpa
     app.kubernetes.io/instance: {{ include "castai-agent.fullname" . }}-cpvpa
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: 1
   selector:

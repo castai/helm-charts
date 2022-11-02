@@ -11,6 +11,7 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
+  {{- include "castai-agent.annotations" . | nindent 4 }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -19,6 +20,10 @@ metadata:
   name: {{ include "castai-agent.serviceAccountName" . }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 rules:
   # ---
   # Required for cost savings estimation features.
@@ -101,6 +106,10 @@ metadata:
   name: {{ include "castai-agent.serviceAccountName" . }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -117,6 +126,12 @@ kind: Role
 metadata:
   name: {{ include "castai-agent.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 rules:
   # ---
   # Required for proportional vertical cluster autoscaler to adjust castai-agent requests/limits.
@@ -134,7 +149,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: {{ include "castai-agent.serviceAccountName" . }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role

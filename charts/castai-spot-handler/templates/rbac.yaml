@@ -9,7 +9,7 @@ metadata:
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
-
+    {{- include "castai-agent.annotations" . | nindent 4 }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -17,6 +17,10 @@ metadata:
   name: castai-spot-handler
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 rules:
   - apiGroups:
       - ""
@@ -31,6 +35,12 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: castai-spot-handler
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole

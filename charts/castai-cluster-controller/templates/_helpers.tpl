@@ -34,9 +34,25 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "castai-agent.labels" -}}
+{{ if gt (len .Values.commonLabels) 0 -}}
+{{- with .Values.commonLabels }}
+{{- toYaml . }}
+{{- end }}
+{{- end }}
 {{ include "castai-agent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+{{- end }}
+
+{{/*
+Common Annotations
+*/}}
+{{- define "castai-agent.annotations" -}}
+{{ if gt (len .Values.commonAnnotations) 0 -}}
+{{- with .Values.commonAnnotations }}
+{{- toYaml . }}
+{{- end }}
 {{- end }}
 {{- end }}
 

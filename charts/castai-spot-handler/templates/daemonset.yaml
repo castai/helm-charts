@@ -6,6 +6,7 @@ metadata:
     {{- include "castai-agent.labels" . | nindent 4 }}
   annotations:
     ignore-check.kube-linter.io/host-network: "Spot handler need host network to access instance metadata endpoints for spot interrupts checks."
+    {{- include "castai-agent.annotations" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
