@@ -105,7 +105,7 @@ aks:
     provisioner.cast.ai/aks-init-data: "true"
 
 priorityClass:
-  enabled: false
+  enabled: true
   name: system-cluster-critical
 
 # Settings for configuring k8s client used in castai-cluster-controller.
