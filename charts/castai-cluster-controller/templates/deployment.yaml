@@ -36,7 +36,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
-      {{- if and (.Capabilities.APIVersions.Has "scheduling.k8s.io/v1") (semverCompare ">= 1.14-0" .Capabilities.KubeVersion.Version) (.Values.priorityClass | default dict).enabled }}
+      {{- if and (.Capabilities.APIVersions.Has "scheduling.k8s.io/v1") (semverCompare ">= 1.18-0" .Capabilities.KubeVersion.Version) (.Values.priorityClass | default dict).enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
       serviceAccountName: {{ .Values.serviceAccount.name }}
