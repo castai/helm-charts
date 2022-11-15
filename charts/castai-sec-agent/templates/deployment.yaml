@@ -76,14 +76,12 @@ spec:
           {{- end }}
           envFrom:
             - secretRef:
-                {{- if .Values.castai.apiKey }}
-                  {{- if ne .Values.castai.apiKeySecretRef "" }}
-                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
-                  {{- end }}
-                name: castai-sec-agent
+                {{- if .Values.apiKeySecretRef }}
+                name: {{ .Values.apiKeySecretRef }}
                 {{- else }}
-                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                name: castai-cluster-controller
                 {{- end }}
+                optional: false
             - configMapRef:
                 name: castai-sec-agent
           volumeMounts:
