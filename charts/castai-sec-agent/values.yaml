@@ -131,3 +131,37 @@ serviceAccount:
 metrics:
   enabled: true
   scrapePort: "6060"
+
+tetragon:
+  enabled: true
+  tetragon:
+    exportFilename: tetragon.log
+  exportDirectory: "/var/run/cilium/tetragon"
+  export:
+    stdout:
+      extraEnv:
+      - name: CASTAI_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: castai-sec-agent
+            key: API_KEY
+            optional: false
+      enabledCommand: true
+      enabledArgs: true
+      commandOverride: ["/fluent-bit/bin/fluent-bit"]
+      argsOverride: ["-R", "/fluentbit/tetragon-parser.conf", "-c", "/fluentbit/fluentbit.conf"]
+      extraVolumeMounts:
+        - name: fluentbit-config
+          mountPath: /fluentbit
+          readOnly: true
+      image:
+        override: fluent/fluent-bit:1.8.2
+  extraVolumes:
+    - name: fluentbit-config
+      configMap:
+        name: castai-sec-agent
+        items:
+          - key: "tetragon-parser.conf"
+            path: "tetragon-parser.conf"
+          - key: "fluentbit.conf"
+            path: "fluentbit.conf"

@@ -4,3 +4,8 @@ description: CAST AI security agent deployment chart.
 type: application
 version: 0.12.0
 appVersion: "v0.17.0"
+dependencies:
+  - name: tetragon
+    condition: tetragon.enabled
+    repository: https://helm.cilium.io
+    version: 0.8.3
