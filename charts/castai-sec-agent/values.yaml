@@ -133,7 +133,7 @@ metrics:
   scrapePort: "6060"
 
 tetragon:
-  enabled: true
+  enabled: false
   tetragon:
     exportFilename: tetragon.log
   exportDirectory: "/var/run/cilium/tetragon"
