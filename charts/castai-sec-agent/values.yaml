@@ -134,6 +134,8 @@ metrics:
 
 tetragon:
   enabled: false
+  daemonSetAnnotations:
+    kube-linter.io/ignore-all:
   tetragon:
     exportFilename: tetragon.log
   exportDirectory: "/var/run/cilium/tetragon"
