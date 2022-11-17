@@ -133,9 +133,9 @@ metrics:
   scrapePort: "6060"
 
 tetragon:
-  enabled: false
+  enabled: true
   daemonSetAnnotations:
-    kube-linter.io/ignore-all:
+    kube-linter.io/ignore-all: "This DaemonSet is optional"
   tetragon:
     exportFilename: tetragon.log
   exportDirectory: "/var/run/cilium/tetragon"
