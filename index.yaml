@@ -2061,6 +2061,21 @@ entries:
   castai-sec-agent:
   - apiVersion: v2
     appVersion: v0.17.1
+    created: "2022-11-18T11:06:24.854143344Z"
+    dependencies:
+    - condition: tetragon.enabled
+      name: tetragon
+      repository: https://helm.cilium.io
+      version: 0.8.3
+    description: CAST AI security agent deployment chart.
+    digest: 5b82c4b3d792980acb2e1d6d087ce7da22d3ce77f15b790ee7d4555bfa2c7722
+    name: castai-sec-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-sec-agent-0.14.0/castai-sec-agent-0.14.0.tgz
+    version: 0.14.0
+  - apiVersion: v2
+    appVersion: v0.17.1
     created: "2022-11-17T10:53:29.282376271Z"
     description: CAST AI security agent deployment chart.
     digest: 80964a3b8f68be78c991b150984c9bdff29a0d0166713b9d220750cf48812dcc
@@ -2410,4 +2425,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.2.0/castai-spot-handler-0.2.0.tgz
     version: 0.2.0
-generated: "2022-11-17T10:53:29.283781961Z"
+generated: "2022-11-18T11:06:24.855815254Z"
