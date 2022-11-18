@@ -16,6 +16,8 @@ data:
       Time_Key    time
       Time_Format %Y-%m-%dT%H:%M:%S.%L
   fluentbit.conf: |
+    [SERVICE]
+      Flush          15
     [INPUT]
       Name           tail
       Path           {{ .Values.tetragon.exportDirectory }}/{{ .Values.tetragon.tetragon.exportFilename }}
