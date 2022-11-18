@@ -8,3 +8,28 @@ metadata:
 data:
   config.yaml: |
     {{- tpl (mergeOverwrite (tpl .Values.config . | fromYaml) .Values.structuredConfig | toYaml) . | nindent 4 }}
+  {{- if .Values.tetragon.enabled }}
+  tetragon-parser.conf: |
+    [PARSER]
+      Name tetragon
+      Format json
+      Time_Key    time
+      Time_Format %Y-%m-%dT%H:%M:%S.%L
+  fluentbit.conf: |
+    [SERVICE]
+      Flush          15
+    [INPUT]
+      Name           tail
+      Path           {{ .Values.tetragon.exportDirectory }}/{{ .Values.tetragon.tetragon.exportFilename }}
+      Parser         tetragon
+      Read_From_Head true
+    [OUTPUT]
+      Name           http
+      Match          *
+      Host           {{ trimPrefix "https://" .Values.castai.apiURL }}
+      Port           443
+      Header         X-API-Key ${CASTAI_API_KEY}
+      Compress       gzip
+      TLS            On
+      URI            /v1/security/insights/agent/{{ .Values.castai.clusterID }}/runtime-log
+  {{- end }}
