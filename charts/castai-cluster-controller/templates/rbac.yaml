@@ -62,7 +62,7 @@ rules:
   # For installing/updating CAST AI components.
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles", "clusterroles", "clusterrolebindings" ]
-    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler" ]
+    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-sec-agent" ]
     verbs: [ "get", "patch", "update", "delete", "escalate" ]
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
