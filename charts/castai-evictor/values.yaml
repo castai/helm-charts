@@ -20,6 +20,11 @@ dryRun: false
 # as long as they can be scheduled somewhere else.
 aggressiveMode: false
 
+# Specifies whether the Evictor was installed using mothership and is automatically updated by CAST AI.
+# Alternative scenarios are, when CAST AI is not managing charts, and customers' are install them with Argo CD/Terraform
+# or something else.
+managedByCASTAI: false
+
 # Specifies whether the Evictor can behave in a scoped manner
 # if true, evictor will only evict nodes that are created by CAST AI
 scopedMode: false
