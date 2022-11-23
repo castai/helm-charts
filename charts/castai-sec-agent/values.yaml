@@ -150,20 +150,18 @@ tetragon:
             optional: false
       enabledCommand: true
       enabledArgs: true
-      commandOverride: ["/fluent-bit/bin/fluent-bit"]
-      argsOverride: ["-R", "/fluentbit/tetragon-parser.conf", "-c", "/fluentbit/fluentbit.conf"]
+      commandOverride: ["vector"]
+      argsOverride: ["--config", "/vector/vector-config.yaml"]
       extraVolumeMounts:
-        - name: fluentbit-config
-          mountPath: /fluentbit
+        - name: vector-config
+          mountPath: /vector
           readOnly: true
       image:
-        override: fluent/fluent-bit:1.8.2
+        override: timberio/vector:0.25.1-alpine
   extraVolumes:
-    - name: fluentbit-config
+    - name: vector-config
       configMap:
         name: castai-sec-agent
         items:
-          - key: "tetragon-parser.conf"
-            path: "tetragon-parser.conf"
-          - key: "fluentbit.conf"
-            path: "fluentbit.conf"
+          - key: "vector-config.yaml"
+            path: "vector-config.yaml"
