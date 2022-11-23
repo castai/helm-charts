@@ -22,6 +22,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
+        {{- if .Values.managedByCASTAI }}
+        charts.cast.ai/managed-by: cast.ai
+        {{ end }}
         {{- include "evictor.selectorLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
           {{- toYaml . | nindent 8 }}
@@ -50,8 +53,6 @@ spec:
               value: "8080"
             - name: DRY_RUN
               value: {{ .Values.dryRun | quote }}
-            - name: MANAGED_BY_CASTAI
-              value: {{ .Values.managedByCASTAI | quote }}
             - name: AGGRESSIVE_MODE
               value: {{ .Values.aggressiveMode | quote }}
             - name: SCOPED_MODE
