@@ -2,8 +2,8 @@ apiVersion: v2
 name: castai-sec-agent
 description: CAST AI security agent deployment chart.
 type: application
-version: 0.14.2
-appVersion: "v0.18.1"
+version: 0.15.0
+appVersion: "v0.19.0"
 dependencies:
   - name: tetragon
     condition: tetragon.enabled
