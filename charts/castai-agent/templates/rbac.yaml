@@ -94,6 +94,13 @@ rules:
       - list
       - watch
       - update
+  - apiGroups:
+      - "metrics.k8s.io"
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
   - nonResourceURLs:
       - "/version"
     verbs:
