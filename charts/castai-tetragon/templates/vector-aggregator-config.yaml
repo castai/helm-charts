@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: castai-vector-aggregator-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai.labels" . | nindent 4 }}
+data:
+  vector.yaml: |
+    sources:
+      vector:
+        address: 0.0.0.0:6000
+        type: vector
+        version: "2"
+    sinks:
+      runtime_logs:
+        type: http
+        inputs:
+          -       vector
+        uri: {{ .Values.castai.apiURL }}/v1/security/runtime/{{ .Values.castai.clusterID }}/logs
+        compression: gzip
+        encoding:
+          codec: json
+        request:
+          headers:
+            X-API-Key: ${CASTAI_API_KEY}
