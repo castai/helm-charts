@@ -21,6 +21,7 @@ tetragon:
   tetragon:
     exportFilename: tetragon.log
   exportDirectory: "/var/run/cilium/tetragon"
+  # TODO: fieldFilters is not available since latest chart is not released. Will need to fork chart.
   export:
     stdout:
       enabledCommand: true
@@ -45,6 +46,9 @@ tetragon:
 vector:
   role: Aggregator
   terminationGracePeriodSeconds: 30
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
   extraEnv:
     - name: CASTAI_API_KEY
       valueFrom:
