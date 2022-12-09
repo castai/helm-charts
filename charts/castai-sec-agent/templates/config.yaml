@@ -8,32 +8,4 @@ metadata:
 data:
   config.yaml: |
     {{- tpl (mergeOverwrite (tpl .Values.config . | fromYaml) .Values.structuredConfig | toYaml) . | nindent 4 }}
-  {{- if .Values.tetragon.enabled }}
-  vector-config.yaml: |
-    sources:
-      tetragon_logs:
-        type: file
-        ignore_older_secs: 600
-        include:
-          - {{ .Values.tetragon.exportDirectory }}/{{ .Values.tetragon.tetragon.exportFilename }}
-        read_from: beginning
-    transforms:
-      tetragon_events:
-        type: remap
-        inputs:
-          - tetragon_logs
-        source: |-
-          . = parse_json!(string!(.message))
-    sinks:
-      runtime_logs:
-        type: http
-        inputs:
-          - tetragon_events
-        uri: {{ .Values.castai.apiURL }}/v1/security/insights/agent/{{ .Values.castai.clusterID }}/runtime-log
-        compression: gzip
-        encoding:
-          codec: json
-        request:
-          headers:
-            X-API-Key: ${CASTAI_API_KEY}
-  {{- end }}
+
