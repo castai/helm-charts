@@ -14,7 +14,12 @@ castai:
   # CASTAI Cluster unique identifier.
   clusterID: ""
 
-# Tetragon configuration.
+# Tetragon tracing policies
+tracingPolicies:
+  tcpConnections:
+    enabled: true
+
+# Tetragon chart configuration.
 tetragon:
   dnsPolicy: "ClusterFirstWithHostNet"
   daemonSetAnnotations:
@@ -22,6 +27,8 @@ tetragon:
   tetragon:
     exportFilename: tetragon.log
   exportDirectory: "/var/run/cilium/tetragon"
+  enableProcessCred: true
+  enableProcessNs: true
   # TODO: fieldFilters is not available since latest chart is not released. Will need to fork chart.
   export:
     stdout:
@@ -43,7 +50,7 @@ tetragon:
           - key: "vector.yaml"
             path: "vector.yaml"
 
-# Vector configuration for Tetragon logs export.
+# Vector chart configuration for Tetragon logs export.
 vector:
   role: Aggregator
   terminationGracePeriodSeconds: 30
