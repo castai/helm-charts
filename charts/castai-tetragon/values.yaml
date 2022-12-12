@@ -16,6 +16,7 @@ castai:
 
 # Tetragon configuration.
 tetragon:
+  dnsPolicy: "ClusterFirstWithHostNet"
   daemonSetAnnotations:
     kube-linter.io/ignore-all: "This component is managed by CAST AI"
   tetragon:
@@ -49,13 +50,19 @@ vector:
   securityContext:
     readOnlyRootFilesystem: true
     runAsNonRoot: true
-  extraEnv:
+    runAsUser: 1010
+  env:
     - name: CASTAI_API_KEY
       valueFrom:
         secretKeyRef:
           name: castai-tetragon
           key: API_KEY
-          optional: false
+          optional: true
   existingConfigMaps:
     - castai-vector-aggregator-config
   dataDir: "/vector-data-dir"
+  service:
+    ports:
+      - name: vector
+        port: 6000
+        protocol: TCP

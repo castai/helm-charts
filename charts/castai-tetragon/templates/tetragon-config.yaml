@@ -26,4 +26,4 @@ data:
         type: vector
         inputs:
           - tetragon_events
-        address: vector.{{ .Release.Namespace }}.svc.cluster.local:6000
+        address: castai-tetragon-vector-headless.{{ .Release.Namespace }}.svc.cluster.local:6000
