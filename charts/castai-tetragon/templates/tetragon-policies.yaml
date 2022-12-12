@@ -3,6 +3,8 @@ apiVersion: cilium.io/v1alpha1
 kind: TracingPolicy
 metadata:
   name: "tcp-connections"
+  annotations:
+    "helm.sh/hook": post-install
 spec:
   kprobes:
     - call: "tcp_connect"
