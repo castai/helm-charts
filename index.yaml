@@ -2738,4 +2738,21 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.2.0/castai-spot-handler-0.2.0.tgz
     version: 0.2.0
-generated: "2022-12-09T13:31:16.810903086Z"
+  castai-tetragon:
+  - apiVersion: v2
+    created: "2022-12-12T13:14:52.760517784Z"
+    dependencies:
+    - name: tetragon
+      repository: https://helm.cilium.io
+      version: 0.8.3
+    - name: vector
+      repository: https://helm.vector.dev
+      version: 0.17.0
+    description: eBPF-based Security Observability and Runtime Enforcement
+    digest: 9383fa0955ba78b37a9a4ee9226119b07dcf4e5d6f869dd966c1247b656eac77
+    name: castai-tetragon
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-tetragon-0.1.0/castai-tetragon-0.1.0.tgz
+    version: 0.1.0
+generated: "2022-12-12T13:14:52.762249715Z"
