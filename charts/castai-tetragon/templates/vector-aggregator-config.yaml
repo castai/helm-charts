@@ -13,18 +13,20 @@ data:
         type: vector
         version: "2"
     sinks:
+      {{- if .Values.vectorAggregator.logToStdout }}
       stdout:
         type: console
         inputs:
           - vector
         encoding:
           codec: json
+      {{- end }}
       {{- if .Values.castai.clusterID }}
       runtime_logs:
         type: http
         inputs:
           - vector
-        uri: {{ .Values.castai.apiURL }}/v1/security/runtime/{{ .Values.castai.clusterID }}/logs
+        uri: "{{ .Values.castai.apiURL }}/v1/security/runtime/{{ .Values.castai.clusterID }}/logs"
         compression: gzip
         encoding:
           codec: json
