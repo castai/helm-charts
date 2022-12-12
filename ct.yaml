@@ -5,6 +5,7 @@ chart-dirs:
   - charts
 chart-repos: 
   - tetragon=https://helm.cilium.io
+  - vector=https://helm.vector.dev
 helm-extra-args: --timeout 600s
 validate-maintainers: false
 namespace: default

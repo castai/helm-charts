@@ -1,0 +1,16 @@
+castai:
+  apiURL: "http://test"
+  clusterID: "test"
+  provider: "gcp"
+
+# Kind test cluster doesn't support spot selector.
+nodeSelector: null
+
+test:
+  apiKey: "test"
+
+podLabels:
+  key: value1
+
+vectorAggregator:
+  logToStdout: true

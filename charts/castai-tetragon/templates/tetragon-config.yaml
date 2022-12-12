@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: castai-tetragon-vector-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai.labels" . | nindent 4 }}
+data:
+  vector.yaml: |
+    sources:
+      tetragon_logs:
+        type: file
+        ignore_older_secs: 600
+        include:
+          - {{ .Values.tetragon.exportDirectory }}/{{ .Values.tetragon.tetragon.exportFilename }}
+        read_from: beginning
+    transforms:
+      tetragon_events:
+        type: remap
+        inputs:
+          - tetragon_logs
+        source: |-
+          . = parse_json!(string!(.message))
+    sinks:
+      vector_aggregator:
+        type: vector
+        inputs:
+          - tetragon_events
+        address: castai-tetragon-vector-headless.{{ .Release.Namespace }}.svc.cluster.local:6000

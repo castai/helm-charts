@@ -1,0 +1,78 @@
+# CAST AI API configuration.
+castai:
+  # Token to be used for authorizing agent access to the CASTAI API
+  apiKey: ""
+
+  # Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"]
+  apiKeySecretRef: ""
+
+  # CASTAI public api url.
+  apiURL: "https://api.cast.ai"
+
+  # CASTAI Cluster unique identifier.
+  clusterID: ""
+
+# Tetragon tracing policies
+tracingPolicies:
+  tcpConnections:
+    enabled: true
+
+# Tetragon chart configuration.
+tetragon:
+  dnsPolicy: "ClusterFirstWithHostNet"
+  daemonSetAnnotations:
+    kube-linter.io/ignore-all: "This component is managed by CAST AI"
+  tetragon:
+    exportFilename: tetragon.log
+  exportDirectory: "/var/run/cilium/tetragon"
+  enableProcessCred: true
+  enableProcessNs: true
+  # TODO: fieldFilters is not available since latest chart is not released. Will need to fork chart.
+  export:
+    stdout:
+      enabledCommand: true
+      enabledArgs: true
+      commandOverride: ["vector"]
+      argsOverride: ["--config", "/vector/vector.yaml"]
+      extraVolumeMounts:
+        - name: vector-config
+          mountPath: /vector
+          readOnly: true
+      image:
+        override: timberio/vector:0.25.1-alpine
+  extraVolumes:
+    - name: vector-config
+      configMap:
+        name: castai-tetragon-vector-config
+        items:
+          - key: "vector.yaml"
+            path: "vector.yaml"
+
+# Vector chart configuration for Tetragon logs export.
+vector:
+  role: Aggregator
+  terminationGracePeriodSeconds: 30
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1010
+  env:
+    - name: CASTAI_API_KEY
+      valueFrom:
+        secretKeyRef:
+          name: castai-tetragon
+          key: API_KEY
+          optional: true
+  existingConfigMaps:
+    - castai-vector-aggregator-config
+  dataDir: "/vector-data-dir"
+  service:
+    ports:
+      - name: vector
+        port: 6000
+        protocol: TCP
+
+vectorAggregator:
+  logToStdout: false
