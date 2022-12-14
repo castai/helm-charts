@@ -4,7 +4,7 @@ kind: TracingPolicy
 metadata:
   name: "tcp-connections"
   annotations:
-    "helm.sh/hook": post-install
+    "helm.sh/hook": post-install,post-upgrade
 spec:
   kprobes:
     - call: "tcp_connect"

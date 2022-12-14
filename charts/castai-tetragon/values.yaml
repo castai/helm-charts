@@ -3,11 +3,6 @@ castai:
   # Token to be used for authorizing agent access to the CASTAI API
   apiKey: ""
 
-  # Name of secret with Token to be used for authorizing agent access to the API
-  # apiKey and apiKeySecretRef are mutually exclusive
-  # The referenced secret must provide the token in .data["API_KEY"]
-  apiKeySecretRef: ""
-
   # CASTAI public api url.
   apiURL: "https://api.cast.ai"
 
@@ -26,9 +21,15 @@ tetragon:
     kube-linter.io/ignore-all: "This component is managed by CAST AI"
   tetragon:
     exportFilename: tetragon.log
+    resources:
+      requests:
+        cpu: 20m
+        memory: 128Mi
+      limits:
+        memory: 1Gi
   exportDirectory: "/var/run/cilium/tetragon"
-  enableProcessCred: true
-  enableProcessNs: true
+  enableProcessCred: false
+  enableProcessNs: false
   # TODO: fieldFilters is not available since latest chart is not released. Will need to fork chart.
   export:
     stdout:
@@ -42,6 +43,12 @@ tetragon:
           readOnly: true
       image:
         override: timberio/vector:0.25.1-alpine
+      resources:
+        requests:
+          cpu: 10m
+          memory: 32Mi
+        limits:
+          memory: 128Mi
   extraVolumes:
     - name: vector-config
       configMap:
@@ -73,6 +80,12 @@ vector:
       - name: vector
         port: 6000
         protocol: TCP
+  resources:
+    requests:
+      cpu: 20m
+      memory: 128Mi
+    limits:
+      memory: 512Mi
 
 vectorAggregator:
   logToStdout: false
