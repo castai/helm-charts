@@ -32,6 +32,7 @@ data:
           codec: json
         batch:
           max_bytes: 10485760 # 10MB not compressed size.
+          timeout_secs: 120
         request:
           headers:
             X-API-Key: "${CASTAI_API_KEY}"
