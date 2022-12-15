@@ -19,6 +19,9 @@ tetragon:
   dnsPolicy: "ClusterFirstWithHostNet"
   daemonSetAnnotations:
     kube-linter.io/ignore-all: "This component is managed by CAST AI"
+  tolerations:
+    - key: scheduling.cast.ai/spot
+      operator: Exists
   tetragon:
     exportFilename: tetragon.log
     resources:
