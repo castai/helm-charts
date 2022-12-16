@@ -16,13 +16,22 @@ tracingPolicies:
 
 # Tetragon chart configuration.
 tetragon:
+# Enable grafana phlare. Pprof endpoints should also be enabled, see extraArgs example.
+#  podAnnotations:
+#    phlare.grafana.com/scrape: "true"
+#    phlare.grafana.com/port: "6060"
   dnsPolicy: "ClusterFirstWithHostNet"
   daemonSetAnnotations:
     kube-linter.io/ignore-all: "This component is managed by CAST AI"
   tolerations:
-    - key: scheduling.cast.ai/spot
-      operator: Exists
+    - operator: Exists
   tetragon:
+    image:
+      repository: quay.io/cilium/tetragon-ci
+      tag: b6f3056a3f6cf05e366a3e07348f7c0b6265a60f
+# Enable pprof endpoints.
+#    extraArgs:
+#      pprof-addr: ":6060"
     exportFilename: tetragon.log
     resources:
       requests:
