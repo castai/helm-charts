@@ -2740,6 +2740,22 @@ entries:
     version: 0.2.0
   castai-tetragon:
   - apiVersion: v2
+    created: "2022-12-16T11:38:10.913586117Z"
+    dependencies:
+    - name: tetragon
+      repository: https://helm.cilium.io
+      version: 0.8.3
+    - name: vector
+      repository: https://helm.vector.dev
+      version: 0.17.0
+    description: eBPF-based Security Observability and Runtime Enforcement
+    digest: 109f3d4cc5f2c879276333306617b1baaedda7478ce201d8586dfc3221932df1
+    name: castai-tetragon
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-tetragon-0.3.0/castai-tetragon-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
     created: "2022-12-15T11:37:40.81591981Z"
     dependencies:
     - name: tetragon
@@ -2771,4 +2787,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-tetragon-0.1.0/castai-tetragon-0.1.0.tgz
     version: 0.1.0
-generated: "2022-12-15T11:37:40.817922327Z"
+generated: "2022-12-16T11:38:10.915511701Z"
