@@ -2,10 +2,10 @@ apiVersion: v2
 name: castai-tetragon
 description: eBPF-based Security Observability and Runtime Enforcement
 type: application
-version: 0.3.0
+version: 0.4.0
 dependencies:
   - name: tetragon
-    repository: https://helm.cilium.io
+    repository: file://tetragon
     version: 0.8.3
   - name: vector
     repository: https://helm.vector.dev
