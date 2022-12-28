@@ -12,4 +12,9 @@ spec:
       args:
         - index: 0
           type: "sock"
+    - call: "tcp_close"
+      syscall: false
+      args:
+        - index: 0
+          type: "sock"
 {{- end }}
