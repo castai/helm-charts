@@ -29,15 +29,9 @@ tetragon:
     image:
       repository: quay.io/cilium/tetragon-ci
       tag: b6f3056a3f6cf05e366a3e07348f7c0b6265a60f
-    exportAllowList: |-
-      {"event_set":["PROCESS_EXEC", "PROCESS_KPROBE"]}
-    fieldFilters: |
-     {"event_set": ["PROCESS_EXEC", "PROCESS_KPROBE"], "fields": "process.arguments,parent.arguments", "action": "EXCLUDE"}
-    extraArgs:
-      log-level: "info"
-      # Enable pprof endpoints.
-      # pprof-addr: ":6060"
-
+# Enable pprof endpoints.
+#    extraArgs:
+#      pprof-addr: ":6060"
     exportFilename: tetragon.log
     resources:
       requests:
