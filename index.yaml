@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   castai-agent:
   - apiVersion: v2
+    appVersion: v0.37.0
+    created: "2022-12-28T09:12:50.824327911Z"
+    description: CAST AI agent deployment chart.
+    digest: 64ed055b476b43b94b1c09889927bdf65c76adeb392b1577c65755a49662b2c1
+    name: castai-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-agent-0.44.0/castai-agent-0.44.0.tgz
+    version: 0.44.0
+  - apiVersion: v2
     appVersion: v0.36.1
     created: "2022-12-09T10:49:23.096935669Z"
     description: CAST AI agent deployment chart.
@@ -1124,6 +1134,18 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-0.1.0/castai-cluster-controller-0.1.0.tgz
     version: 0.1.0
   castai-evictor:
+  - annotations:
+      release-date: 2022-12-21T14:43:13
+    apiVersion: v2
+    appVersion: 86ded7fd54210c55a8999353e0f56de960d47559
+    created: "2022-12-28T09:12:51.041108354Z"
+    description: Cluster utilization defragmentation tool
+    digest: 1fc7166fea1dd47e99e0df4ba5b905a5fb836a04acd29e950b203e0aa8f7a584
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.20.22/castai-evictor-0.20.22.tgz
+    version: 0.20.22
   - annotations:
       release-date: 2022-12-20T09:43:20
     apiVersion: v2
@@ -2788,6 +2810,22 @@ entries:
     version: 0.2.0
   castai-tetragon:
   - apiVersion: v2
+    created: "2022-12-28T09:12:51.28067936Z"
+    dependencies:
+    - name: tetragon
+      repository: https://helm.cilium.io
+      version: 0.8.3
+    - name: vector
+      repository: https://helm.vector.dev
+      version: 0.17.0
+    description: eBPF-based Security Observability and Runtime Enforcement
+    digest: 4236e62ea5fbc7f011258907e1ee58d91857653b2b8afcf84e5e14bc507c8371
+    name: castai-tetragon
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-tetragon-0.5.0/castai-tetragon-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
     created: "2022-12-15T11:37:40.81591981Z"
     dependencies:
     - name: tetragon
@@ -2819,4 +2857,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-tetragon-0.1.0/castai-tetragon-0.1.0.tgz
     version: 0.1.0
-generated: "2022-12-20T09:54:11.946057073Z"
+generated: "2022-12-28T09:12:51.283519555Z"
