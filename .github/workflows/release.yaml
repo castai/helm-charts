@@ -19,6 +19,7 @@ jobs:
           git config user.name "$GITHUB_ACTOR"
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
+      # We need to manually add repos for deps due to bug in https://github.com/helm/chart-releaser/issues/135
       - name: Add dependencies
         run: |
           helm repo add vector https://helm.vector.dev
