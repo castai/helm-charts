@@ -114,8 +114,12 @@ affinity:
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
 securityContext:
   runAsNonRoot: true
+  fsGroup: 1002
+  runAsGroup: 1002
+  runAsUser: 1002
   seccompProfile:
     type: RuntimeDefault
+
 
 # Container security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
