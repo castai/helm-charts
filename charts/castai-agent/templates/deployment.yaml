@@ -43,8 +43,10 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.securityContext }}
       securityContext:
-      {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: agent
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -78,8 +80,10 @@ spec:
           {{- else -}}
             {{ .Values.resources | toYaml | nindent 14 }}
           {{- end }}
+          {{- with .Values.containerSecurityContext }}
           securityContext:
-            readOnlyRootFilesystem: true
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           ports:
             - containerPort: 9876
               name: healthz
