@@ -106,6 +106,19 @@ rules:
       - "/version"
     verbs:
       - "get"
+  {{- if eq .Values.provider "openshift" }}
+  # ---
+  # Required for OpenShift clusters to retrieve cluster version and cluster ID.
+  # ---
+  - apiGroups:
+      - "config.openshift.io"
+    resources:
+      - "clusterversions"
+    resourceNames:
+      - "version"
+    verbs:
+      - get
+  {{- end }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -173,4 +186,51 @@ subjects:
     name: {{ include "castai-agent.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 {{- end }}
+
+{{- if eq .Values.provider "openshift" }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" . }}
+  namespace: openshift-machine-api
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+rules:
+  # ---
+  # Required for OpenShift clusters to retrieve cloud provider information about the Nodes: instance types, spot information, etc.
+  # ---
+  - apiGroups:
+      - "machine.openshift.io"
+    resources:
+      - machines
+    verbs:
+      - list
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" . }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  namespace: openshift-machine-api
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "castai-agent.serviceAccountName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-agent.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end}}
+
 {{- end }}
