@@ -50,6 +50,7 @@ rules:
       - statefulsets
     verbs:
       - get
+      - list
   - apiGroups:
       - "policy"
     resources:
