@@ -1,4 +1,4 @@
-{{- if and (ge .Capabilities.KubeVersion.Minor "21") (gt .Values.replicaCount 1.0)}}
+{{- if and (ge .Capabilities.KubeVersion.Minor "21") (gt (int .Values.replicaCount) 1)}}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
