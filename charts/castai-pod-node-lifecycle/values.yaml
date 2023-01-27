@@ -47,6 +47,8 @@ webhook:
   url: ""
   # Overrides the failure policy of the webhook whose default is Ignore.
   failurePolicy: ""
+  # The default port for most webhooks.
+  port: 10250
 
 telemetry:
   # Can be used for testing to skip the secret-api.yaml and use your local IDE.

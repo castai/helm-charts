@@ -66,6 +66,8 @@ spec:
             {{- end }}
             - name: CONFIG_PATH
               value: /config/config.yaml
+            - name: PORT
+              value: {{ .Values.webhook.port | quote }}
           {{- if .Values.telemetry.enabled }}
           envFrom:
             - secretRef:
@@ -94,6 +96,10 @@ spec:
               readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          ports:
+            - containerPort: {{ .Values.webhook.port }}
+              name: https
+              protocol: TCP
       volumes:
         - name: certs
           secret:
