@@ -2471,6 +2471,17 @@ entries:
   castai-pod-node-lifecycle:
   - apiVersion: v2
     appVersion: v0.17.0
+    created: "2023-01-27T15:00:29.656894648Z"
+    description: CAST AI spot-only K8s webhook to control workload placement during
+      cluster migration and spot-only.
+    digest: 04a6aee9e72002729194f8ef2c89c73222626904815760eaf0d041894cccf459
+    name: castai-pod-node-lifecycle
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-pod-node-lifecycle-0.22.0/castai-pod-node-lifecycle-0.22.0.tgz
+    version: 0.22.0
+  - apiVersion: v2
+    appVersion: v0.17.0
     created: "2023-01-27T13:45:38.477117205Z"
     description: CAST AI spotonly K8s webhook to control workload placement during
       cluster migration and spotonly.
@@ -2762,4 +2773,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-tetragon-0.1.0/castai-tetragon-0.1.0.tgz
     version: 0.1.0
-generated: "2023-01-27T13:45:38.47807654Z"
+generated: "2023-01-27T15:00:29.657339246Z"
