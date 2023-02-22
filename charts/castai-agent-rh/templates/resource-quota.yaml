@@ -1,0 +1,21 @@
+{{- if .Values.priorityClass.enabled }}
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: {{ include "castai-agent.fullname" . }}-critical-pods
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  scopeSelector:
+    matchExpressions:
+      - operator: In
+        scopeName: PriorityClass
+        values:
+          # Required to ensure castai-agent is always running to provide autoscaling capabilities.
+          - system-cluster-critical
+{{- end }}

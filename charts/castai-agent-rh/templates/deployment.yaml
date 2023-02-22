@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "castai-agent.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "castai-agent.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
+      serviceAccountName: {{ include "castai-agent.serviceAccountName" . }}
+      automountServiceAccountToken: true
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: agent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: API_URL
+              value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+            {{- if .Values.provider }}
+            - name: PROVIDER
+              value: {{ .Values.provider | quote }}
+            {{- end }}
+          {{- range $k, $v := .Values.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+          {{- end }}
+          envFrom:
+            - secretRef:
+          {{- if .Values.apiKey }}
+                name: {{ include "castai-agent.fullname" . -}}
+          {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+          {{- end -}}
+          {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
+          resources:
+          {{- if .Values.clusterVPA.enabled -}}
+          {{/* we hardcode CPU req/limit for now */}}
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 1000m
+          {{- else -}}
+            {{ .Values.resources | toYaml | nindent 14 }}
+          {{- end }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: 9876
+              name: healthz
+          readinessProbe:
+            httpGet:
+              port: healthz
+          livenessProbe:
+            httpGet:
+              port: healthz
