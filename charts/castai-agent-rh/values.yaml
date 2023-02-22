@@ -66,7 +66,8 @@ apiKey: ""
 # Name of secret with Token to be used for authorizing agent access to the API
 # apiKey and apiKeySecretRef are mutually exclusive
 # The referenced secret must provide the token in .data["API_KEY"]
-apiKeySecretRef: ""
+# Only for RedHat Helm Chart, we have a default set here.
+apiKeySecretRef: "castai-agent"
 
 # Name of the Kubernetes service provider
 # one of: "eks", "gks", "aks", "kops"
