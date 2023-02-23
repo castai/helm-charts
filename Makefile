@@ -20,4 +20,4 @@ lint-all:
 package-rh-chart:
 	helm package --sign --key "security@cast.ai" --keyring ./charts/secring.gpg ./charts/castai-agent-rh/ --destination ./charts/
 verify-rh-chart:
-	docker run --platform linux/amd64 -v ${PWD}/charts:/charts -it --rm quay.io/redhat-certification/chart-verifier -k /charts/pubring.gpg verify /charts/castai-agent-0.51.0.tgz 
+	docker run --platform linux/amd64 -v ${PWD}/charts:/charts -it --rm quay.io/redhat-certification/chart-verifier -k /charts/pubring.gpg verify /charts/castai-agent-0.52.0.tgz 
