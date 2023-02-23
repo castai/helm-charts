@@ -17,7 +17,10 @@ lint-all:
 ## 2. Convert values.yaml to values.json and then to values.schema.json
 # https://www.arthurkoziel.com/validate-helm-chart-values-with-json-schemas/
 # -- 
+## 3. Chart Verifier tool (need to build `make bin` on macOS)
+# https://github.com/redhat-certification/chart-verifier
+# ---
 package-rh-chart:
 	helm package --sign --key "security@cast.ai" --keyring ./charts/secring.gpg ./charts/castai-agent-rh/ --destination ./charts/
 verify-rh-chart:
-	docker run --platform linux/amd64 -v ${PWD}/charts:/charts -it --rm quay.io/redhat-certification/chart-verifier -k /charts/pubring.gpg verify /charts/castai-agent-0.52.0.tgz 
+	chart-verifier -k ./charts/pubring.gpg verify ./charts/castai-agent-0.52.0.tgz 
