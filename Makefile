@@ -23,4 +23,4 @@ lint-all:
 package-rh-chart:
 	helm package --sign --key "security@cast.ai" --keyring ./charts/secring.gpg ./charts/castai-agent-rh/ --destination ./charts/
 verify-rh-chart:
-	chart-verifier -k ./charts/pubring.gpg verify ./charts/castai-agent-0.52.0.tgz 
+	chart-verifier -k ./charts/pubring.gpg verify -F ./override.yaml -n castai-agent ./charts/castai-agent-0.52.0.tgz 
