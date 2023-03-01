@@ -82,6 +82,14 @@ spec:
             - name: KUBECLIENT_QPS
               value: {{ .Values.k8sApiClient.rateLimit.qps | quote }}
           {{- end }}
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: KUBERNETES_POD
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
