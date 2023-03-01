@@ -21,7 +21,7 @@ data:
       "agent": {
         "requests": {
           "memory": {
-            "base": "0",
+            "base": "512Mi",
             "max": "8Gi",
             "step": "256Mi",
             "nodesPerStep": 20,
@@ -30,7 +30,7 @@ data:
         },
         "limits": {
           "memory": {
-            "base": "0",
+            "base": "512Mi",
             "max": "8Gi",
             "step": "256Mi",
             "nodesPerStep": 20,
