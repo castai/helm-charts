@@ -7,5 +7,5 @@ spec:
   minAvailable: 1
   selector:
     matchLabels:
-      app: {{ include "pod-node-lifecycle.fullname" . }}
+      app.kubernetes.io/name: {{ include "pod-node-lifecycle.fullname" . }}
 {{- end}}
