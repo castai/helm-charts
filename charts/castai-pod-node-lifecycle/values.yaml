@@ -54,7 +54,7 @@ telemetry:
   # Can be used for testing to skip the secret-api.yaml and use your local IDE.
   enabled: false
 
-metrics: 
+metrics:
   # Can be used to disable the metrics function if there are conflicts
   enabled: true
 
@@ -62,7 +62,7 @@ hostNetwork:
   # Enable host networking for mutating webhook
   enabled: false
 
-# DNS Policy Override - Needed when using some custom CNI's. 
+# DNS Policy Override - Needed when using some custom CNI's.
 dnsPolicy: ""
 
 resources:
