@@ -60,11 +60,10 @@ metrics:
 
 hostNetwork: {}
   # Enable host networking for mutating webhook
-  #enabled: true
+  enabled: false
 
 # DNS Policy Override - Needed when using some custom CNI's. 
 dnsPolicy: ""
-  #ClusterFirstWithHostNet
 
 resources:
   limits:
