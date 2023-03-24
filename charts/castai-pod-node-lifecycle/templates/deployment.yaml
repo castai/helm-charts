@@ -30,6 +30,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.hostNetwork.enabled }}
+      hostNetwork: true
+      {{- end }}
+      {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- end }}
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
@@ -63,6 +69,10 @@ spec:
             {{- else }}
             - name: DISABLE_TELEMETRY
               value: "true"
+            {{- end }}
+            {{- if not .Values.metrics.enabled }}
+            - name: METRICS_ADDRESS
+              value: "0"
             {{- end }}
             - name: CONFIG_PATH
               value: /config/config.yaml
@@ -98,6 +108,9 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           ports:
             - containerPort: {{ .Values.webhook.port }}
+              {{- if .Values.hostNetwork }}
+              hostPort: {{ .Values.webhook.port }}
+              {{- end}}
               name: https
               protocol: TCP
       volumes:
