@@ -107,6 +107,9 @@ staticConfig:
   stringTemplate: |
     defaultToSpot: {{ .Values.staticConfig.defaultToSpot }}
     spotPercentageOfReplicaSet: {{ .Values.staticConfig.spotPercentageOfReplicaSet }}
+    {{- if .Values.staticConfig.IgnorePodsWithNodeSelectorsAffinities }}
+    IgnorePodsWithNodeSelectorsAffinities: {{ .Values.staticConfig.IgnorePodsWithNodeSelectorsAffinities }}
+    {{- end }}
     {{- if .Values.staticConfig.ignorePods }}
     ignorePods:
     {{ toYaml .Values.staticConfig.ignorePods }}
