@@ -33,7 +33,12 @@ additionalEnv:
 # Host network is used to access instance metadata endpoints which are not always available from pod network.
 useHostNetwork: true
 
-resources: {}
+resources:
+  requests:
+    cpu: 5m
+    memory: 10Mi
+  limits:
+    memory: 20Mi
 
 rbac:
   enabled: true
