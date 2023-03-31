@@ -52,7 +52,7 @@ spec:
       {{- end }}
       containers:
         - name: autoscaler
-          image: k8s.gcr.io/cpa/cpvpa:{{ .Values.clusterVPA.version }}
+          image: registry.k8s.io/cpa/cpvpa:{{ .Values.clusterVPA.version }}
           command:
             - /cpvpa
             - --target=deployment/{{ include "castai-agent.fullname" . }}
