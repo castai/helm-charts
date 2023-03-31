@@ -108,7 +108,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           ports:
             - containerPort: {{ .Values.webhook.port }}
-              {{- if .Values.hostNetwork }}
+              {{- if .Values.hostNetwork.enabled }}
               hostPort: {{ .Values.webhook.port }}
               {{- end}}
               name: https
