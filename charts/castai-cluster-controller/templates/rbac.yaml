@@ -5,11 +5,15 @@ metadata:
   name: {{ .Values.serviceAccount.name }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
-  {{- with .Values.serviceAccount.annotations }}
+  {{- if or .Values.serviceAccount.annotations .Values.commonAnnotations }}
   annotations:
+    {{- with .Values.serviceAccount.annotations }}
     {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- with .Values.commonAnnotations }}
+    {{- toYaml . | nindent 4}}
+    {{- end }}
   {{- end }}
-    {{- include "castai-agent.annotations" . | nindent 4 }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
