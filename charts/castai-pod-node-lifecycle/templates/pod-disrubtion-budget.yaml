@@ -4,8 +4,8 @@ kind: PodDisruptionBudget
 metadata:
   name: {{ include "pod-node-lifecycle.fullname" . }}
 spec:
-  minAvailable: 1
+  minAvailable: {{ sub .Values.replicaCount 1 }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "pod-node-lifecycle.fullname" . }}
+      {{- include "pod-node-lifecycle.selectorLabels" . | nindent 6 }}
 {{- end}}
