@@ -11,7 +11,7 @@ api:
 replicaCount: 3
 
 image:
-  repository: castai/pod-node-lifecycle
+  repository: us-docker.pkg.dev/castai-hub/library/pod-node-lifecycle
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
