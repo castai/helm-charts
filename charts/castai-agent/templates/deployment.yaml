@@ -4,6 +4,9 @@ metadata:
   name: {{ include "castai-agent.fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
+    {{ if .Values.global }}
+    azure-extensions-usage-release-identifier: {{.Release.Name}}
+    {{ end }}
     {{- include "castai-agent.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
@@ -49,7 +52,11 @@ spec:
       {{- end }}
       containers:
         - name: agent
+        {{ if .Values.global }}
+          image: "{{ .Values.global.azure.images.agent.registry }}/{{ .Values.global.azure.images.agent.image }}@{{ .Values.global.azure.images.agent.digest }}"
+        {{ else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        {{ end }}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: API_URL

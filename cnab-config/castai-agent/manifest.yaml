@@ -1,0 +1,11 @@
+applicationName: castai
+publisher: "cast.ai"
+description: "CAST AI read-only agent deployement"
+version: <chartVersion> # Updated by CI to match Helm chart version
+helmChart: "./castai-agent"
+clusterArmTemplate: "./mainTemplate.json"
+uiDefinition: "./createUIDefinition.json"
+registryServer: "castaik8smarketplace.azurecr.io"
+extensionRegistrationParameters:
+  defaultScope: "cluster" # cluster or namespace
+  namespace: "castai-agent" # Specify the namespace the extension will install into. This property is required when defaultScope field value is chosen as 'cluster'

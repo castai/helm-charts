@@ -5,6 +5,9 @@ metadata:
   name: {{ include "castai-agent.fullname" . }}-cpvpa
   namespace: {{ .Release.Namespace }}
   labels:
+    {{ if .Values.global }}
+    azure-extensions-usage-release-identifier: {{.Release.Name}}
+    {{ end }}
     app.kubernetes.io/name: {{ include "castai-agent.fullname" . }}-cpvpa
     app.kubernetes.io/instance: {{ include "castai-agent.fullname" . }}-cpvpa
   {{ if gt (len .Values.commonAnnotations) 0 -}}
@@ -52,7 +55,11 @@ spec:
       {{- end }}
       containers:
         - name: autoscaler
-          image: registry.k8s.io/cpa/cpvpa:{{ .Values.clusterVPA.version }}
+        {{ if .Values.global }}
+          image: "{{ .Values.global.azure.images.cpva.registry }}/{{ .Values.global.azure.images.cpva.image }}@{{ .Values.global.azure.images.cpva.digest }}"
+        {{ else }}
+          image: "registry.k8s.io/cpa/cpvpa:{{ .Values.clusterVPA.version }}"
+        {{ end }}
           command:
             - /cpvpa
             - --target=deployment/{{ include "castai-agent.fullname" . }}
