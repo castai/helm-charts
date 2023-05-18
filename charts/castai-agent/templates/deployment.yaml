@@ -54,6 +54,8 @@ spec:
           env:
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+            - name: LEADER_ELECTION_NAMESPACE
+              value: {{ .Release.Namespace }}
             {{- if .Values.provider }}
             - name: PROVIDER
               value: {{ .Values.provider | quote }}
