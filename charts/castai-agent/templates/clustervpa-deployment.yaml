@@ -56,7 +56,7 @@ spec:
           command:
             - /cpvpa
             - --target=deployment/{{ include "castai-agent.fullname" . }}
-            - --namespace={{ .Values.namespace }}
+            - --namespace={{ .Release.Namespace }}
             - --logtostderr=true
             - --poll-period-seconds={{ .Values.clusterVPA.pollPeriodSeconds }}
             - --config-file=/etc/config/castai-agent-autoscaler
