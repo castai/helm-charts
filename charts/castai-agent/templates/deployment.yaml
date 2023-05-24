@@ -138,7 +138,6 @@ spec:
           {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
           {{- end -}}
-          {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
             requests:
               cpu: 100m
