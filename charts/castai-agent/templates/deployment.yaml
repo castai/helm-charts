@@ -137,7 +137,7 @@ spec:
                 name: {{ include "castai-agent.fullname" . -}}
           {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
-          {{- end -}}
+          {{- end }}
           resources:
             requests:
               cpu: 100m
