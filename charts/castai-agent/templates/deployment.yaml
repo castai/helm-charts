@@ -113,6 +113,14 @@ spec:
               value: monitor
             - name: MONITOR_METADATA
               value: /agent-metadata/metadata
+            - name: SELF_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SELF_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
             {{- if .Values.provider }}
