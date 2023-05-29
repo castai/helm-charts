@@ -26,6 +26,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      shareProcessNamespace: true
+      volumes:
+        - name: shared-metadata
+          emptyDir: {}
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
@@ -51,6 +55,9 @@ spec:
         - name: agent
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: shared-metadata
+              mountPath: /agent-metadata
           env:
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
@@ -58,6 +65,8 @@ spec:
             - name: PROVIDER
               value: {{ .Values.provider | quote }}
             {{- end }}
+            - name: MONITOR_METADATA
+              value: /agent-metadata/metadata
           {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
@@ -93,3 +102,51 @@ spec:
           livenessProbe:
             httpGet:
               port: healthz
+        - name: monitor
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: shared-metadata
+              mountPath: /agent-metadata
+          env:
+            - name: MODE
+              value: monitor
+            - name: MONITOR_METADATA
+              value: /agent-metadata/metadata
+            - name: SELF_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: SELF_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SELF_POD_NODE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: API_URL
+              value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+            {{- if .Values.provider }}
+            - name: PROVIDER
+              value: {{ .Values.provider | quote }}
+            {{- end }}
+          {{- range $k, $v := .Values.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+          {{- end }}
+          envFrom:
+            - secretRef:
+          {{- if .Values.apiKey }}
+                name: {{ include "castai-agent.fullname" . -}}
+          {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+          {{- end }}
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
