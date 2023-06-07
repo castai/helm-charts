@@ -1,0 +1,17 @@
+## Azure K8s App marketplace variables:
+global:
+  azure:
+    images:
+      agent:
+        digest: <imageDigest>
+        image: <imageName>
+        registry: <imageRegistry>
+      cpva:
+        digest: sha256:f6c85b45bb5e8ce6077855425bdd03e93d41926dbf6b751af64ab1ea41e1755b
+        image: cpvpa
+        registry: registry.k8s.io/cpa
+
+# Specifies whether a namespace should be created
+createNamespace: false
+
+apiKey: "PLACEHOLDER"

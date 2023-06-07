@@ -24,3 +24,9 @@ jobs:
         run: scripts/validate-pr.sh
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+
+      - name: Verify CNAB package
+        run: scripts/handle-cnab-package.sh
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          CNAB_ACTION: "VERIFY"
