@@ -40,12 +40,12 @@ jobs:
         env:
           CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Release CNAB package
-        run: scripts/handle-cnab-package.sh
-        env:
-          PR_TITLE: ${{ github.event.pull_request.title }}
-          CNAB_ACTION: "RELEASE"
-          AZURE_K8S_APP_MARKETPLACE_SP_ID: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_SP_ID }}
-          AZURE_K8S_APP_MARKETPLACE_SP_SECRET: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_SP_SECRET }}
-          AZURE_K8S_APP_MARKETPLACE_TENANT_ID: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_TENANT_ID }}
-          AZURE_K8S_APP_MARKETPLACE_REGISTRY_NAME: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_REGISTRY_NAME }}
+#      - name: Release CNAB package
+#        run: scripts/handle-cnab-package.sh
+#        env:
+#          PR_TITLE: ${{ github.event.pull_request.title }}
+#          CNAB_ACTION: "RELEASE"
+#          AZURE_K8S_APP_MARKETPLACE_SP_ID: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_SP_ID }}
+#          AZURE_K8S_APP_MARKETPLACE_SP_SECRET: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_SP_SECRET }}
+#          AZURE_K8S_APP_MARKETPLACE_TENANT_ID: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_TENANT_ID }}
+#          AZURE_K8S_APP_MARKETPLACE_REGISTRY_NAME: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_REGISTRY_NAME }}

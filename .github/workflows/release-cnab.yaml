@@ -1,0 +1,50 @@
+name: Release CNAB
+
+on:
+  push:
+    tags:
+      - "castai-*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+#      - name: Configure Git
+#        run: |
+#          git config user.name "$GITHUB_ACTOR"
+#          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      # We need to manually add repos for deps due to bug in https://github.com/helm/chart-releaser/issues/135
+      - name: Add dependencies
+        run: |
+          helm repo add vector https://helm.vector.dev
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.5.2
+
+#      - name: Set up chart-testing
+#        uses: helm/chart-testing-action@v2.0.1
+#
+#      - name: Run chart-releaser
+#        uses: helm/chart-releaser-action@v1.4.1
+#        with:
+#          charts_dir: charts
+#          config: cr.yaml
+#        env:
+#          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Release CNAB package
+        run: scripts/release-cnab-package.sh
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+          AZURE_K8S_APP_MARKETPLACE_SP_ID: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_SP_ID }}
+          AZURE_K8S_APP_MARKETPLACE_SP_SECRET: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_SP_SECRET }}
+          AZURE_K8S_APP_MARKETPLACE_TENANT_ID: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_TENANT_ID }}
+          AZURE_K8S_APP_MARKETPLACE_REGISTRY_NAME: ${{ secrets.AZURE_K8S_APP_MARKETPLACE_REGISTRY_NAME }}

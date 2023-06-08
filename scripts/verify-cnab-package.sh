@@ -28,11 +28,6 @@ main() {
     # Strip charts directory.
     chartName="${changed##*/}"
 
-    if [[ "$CNAB_ACTION" != "VERIFY" && "$CNAB_ACTION" != "RELEASE" ]]; then
-        echo "CNAB_ACTION must be one of: [VERIFY, RELEASE]."
-        exit 1
-    fi
-
     if [[ "$PR_TITLE" != "[$chartName] "* ]]; then
         echo "PR title must start with '[$chartName] '." >&2
         exit 1
@@ -77,17 +72,8 @@ main() {
     # Merge CNAB specific configuration into values.yaml
     valuesPath="cnab-config/$chartName/values.yaml" yq -i '. *= load(env(valuesPath))' "./.cpa-stage/$chartName/$chartName/values.yaml"
 
-    if [[ "$CNAB_ACTION" == "VERIFY" ]]; then
-      echo "Verifying CNAB package.."
-      docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/.cpa-stage/$chartName":/data  mcr.microsoft.com/container-package-app:latest /bin/bash -c 'cd /data ; cpa verify --telemetryOptOut'
-    fi
-
-    if [[ "$CNAB_ACTION" == "RELEASE" ]]; then
-      echo "Releasing CNAB package.."
-      az login --service-principal -u "$AZURE_K8S_APP_MARKETPLACE_SP_ID" -p "$AZURE_K8S_APP_MARKETPLACE_SP_SECRET" --tenant "$AZURE_K8S_APP_MARKETPLACE_TENANT_ID" -o none
-      TOKEN=$(az acr login --name "$AZURE_K8S_APP_MARKETPLACE_REGISTRY_NAME" --expose-token --output tsv --query accessToken)
-      docker run --env TOKEN="$TOKEN" --env REGISTRY="$AZURE_K8S_APP_MARKETPLACE_REGISTRY_NAME" --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/.cpa-stage/$chartName":/data "$PACKAGING_IMAGE" /bin/bash -c 'cd /data ; docker login -p $TOKEN "$REGISTRY" --username 00000000-0000-0000-0000-000000000000; cpa buildbundle --telemetryOptOut'
-    fi
+    echo "Verifying CNAB package.."
+    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/.cpa-stage/$chartName":/data  mcr.microsoft.com/container-package-app:latest /bin/bash -c 'cd /data ; cpa verify --telemetryOptOut'
 }
 
 main
