@@ -14,6 +14,7 @@ main() {
     changed=$(ct list-changed --config "$repo_root/ct.yaml")
 
     if [[ -z "$changed" ]]; then
+        echo "No helm charts were updated, skipping.."
         exit 0
     fi
 
