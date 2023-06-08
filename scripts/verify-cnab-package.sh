@@ -74,7 +74,7 @@ main() {
     valuesPath="cnab-config/$chartName/values.yaml" yq -i '. *= load(env(valuesPath))' "./.cpa-stage/$chartName/$chartName/values.yaml"
 
     echo "Verifying CNAB package.."
-    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/.cpa-stage/$chartName":/data  mcr.microsoft.com/container-package-app:latest /bin/bash -c 'cd /data ; cpa verify --telemetryOptOut'
+    docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/.cpa-stage/$chartName":/data  "$PACKAGING_IMAGE" /bin/bash -c 'cd /data ; cpa verify --telemetryOptOut'
 }
 
 main
