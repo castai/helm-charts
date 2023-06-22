@@ -3,7 +3,7 @@ name: Release CNAB
 on:
   push:
     tags:
-      - "castai-*"
+    - 'castai*'
 
 jobs:
   release:
