@@ -45,7 +45,7 @@ jobs:
         run: ct lint --debug --config ct.yaml
 
       - name: Lint Code Base
-        uses: docker://github/super-linter:v3.12.0
+        uses: docker://github/super-linter:v5.0.0
         env:
           FILTER_REGEX_EXCLUDE: .*(README\.md|Chart\.yaml|NOTES.txt).*
           VALIDATE_ALL_CODEBASE: false
@@ -56,7 +56,7 @@ jobs:
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.2.0
-        with: 
+        with:
           config: kind.yaml
         if: steps.list-changed.outputs.changed == 'true'
 
