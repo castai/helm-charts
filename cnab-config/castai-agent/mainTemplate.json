@@ -121,7 +121,7 @@
     "plan-offerID": "DONOTMODIFY",
     "releaseTrain": "DONOTMODIFY",
     "clusterExtensionTypeName": "DONOTMODIFY",
-    "extensionResourceName": "castaiagent",
+    "extensionResourceName": "castai-agent",
     "provider": "aks"
   },
   "resources": [
@@ -158,7 +158,6 @@
             "type": "VirtualMachineScaleSets",
             "mode": "System",
             "maxPods": 110,
-            "availabilityZones": [],
             "enableNodePublicIP": false,
             "tags": {}
           }
@@ -194,9 +193,6 @@
         "configurationSettings": {
           "apiKey": "[parameters('apiKey')]",
           "provider": "[variables('provider')]"
-        },
-        "configurationProtectedSettings": {
-
         }
       },
       "plan": {
