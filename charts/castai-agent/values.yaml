@@ -72,6 +72,13 @@ priorityClass:
   enabled: true
   name: system-cluster-critical
 
+hostNetwork:
+  # Enable host networking
+  enabled: false
+
+# DNS Policy Override - Needed when using some custom CNI's.
+dnsPolicy: ""
+
 # Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
 tolerations: {}
