@@ -70,6 +70,13 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
+hostNetwork:
+  # Enable host networking
+  enabled: false
+
+# DNS Policy Override - Needed when using some custom CNI's.
+dnsPolicy: ""
+
 podSecurityContext:
   readOnlyRootFilesystem: true
 

@@ -36,6 +36,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- if .Values.hostNetwork.enabled }}
+      hostNetwork: true
+      {{- end }}
+      {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- end }}
       {{- if and (.Capabilities.APIVersions.Has "scheduling.k8s.io/v1") (semverCompare ">= 1.18-0" .Capabilities.KubeVersion.Version) (.Values.priorityClass | default dict).enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
