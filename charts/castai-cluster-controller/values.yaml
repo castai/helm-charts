@@ -104,6 +104,13 @@ aks:
   nodeSelector:
     provisioner.cast.ai/aks-init-data: "true"
 
+hostNetwork:
+  # Enable host networking
+  enabled: false
+
+# DNS Policy Override - Needed when using some custom CNI's.
+dnsPolicy: ""
+
 priorityClass:
   enabled: true
   name: system-cluster-critical
