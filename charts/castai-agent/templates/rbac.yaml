@@ -106,6 +106,13 @@ rules:
     verbs:
       - get
       - list
+  - apiGroups:
+      - "policy"
+    resources:
+      - poddisruptionbudgets
+    verbs:
+      - get
+      - list
   - nonResourceURLs:
       - "/version"
     verbs:
