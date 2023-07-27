@@ -1,0 +1,17 @@
+castai:
+  apiKey: "test"
+  apiURL: "test"
+
+podLabels:
+  my-label: value
+
+commonLabels:
+  label1: "label"
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 1000m
+    memory: 256Mi
