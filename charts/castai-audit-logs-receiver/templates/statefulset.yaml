@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "castai-audit-logs-receiver.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-audit-logs-receiver.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/no-read-only-root-fs: "This deployment writes to local fs during chart upsert actions."
+    ignore-check.kube-linter.io/run-as-non-root: "This deployment writes to local fs during chart upsert actions."
+spec:
+  serviceName: {{ include "castai-audit-logs-receiver.fullname" . }}
+  podManagementPolicy: {{ .Values.statefulset.podManagementPolicy }}
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "castai-audit-logs-receiver.selectorLabels" . | nindent 6 }}
+  updateStrategy:
+    type: {{ .Values.rollout.strategy }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "castai-audit-logs-receiver.selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 8 }}
+          {{- end }}
+          env:
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.podIP
+            - name: CASTAI_API_URL
+              value: {{ required "apiURL must be provided" .Values.castai.apiURL | quote }}
+          volumeMounts:
+            {{- if .Values.configMap.create }}
+            - mountPath: /etc/otel
+              name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-configmap
+            {{- end }}
+            {{- if and .Values.persistence.enabled }}
+            - mountPath: /var/lib/otelcol/file_storage
+              name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-statestorage
+            {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 13133
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 13133
+          envFrom:
+            - secretRef:
+          {{- if .Values.castai.apiKey  }}
+                name: {{ include "castai-audit-logs-receiver.fullname" . -}}
+          {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}
+          {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        {{- if .Values.configMap.create }}
+        - name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-configmap
+          configMap:
+            name: {{ include "castai-audit-logs-receiver.fullname" . }}{{ .configmapSuffix }}
+            items:
+              - key: config
+                path: config.yaml
+        {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-statestorage
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.existingClaim | default (include "castai-audit-logs-receiver.fullname" .) }}
+        {{- end }}
+      hostNetwork: {{ .Values.hostNetwork }}

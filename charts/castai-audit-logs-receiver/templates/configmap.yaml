@@ -1,0 +1,16 @@
+{{- if .Values.configMap.create }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "castai-audit-logs-receiver.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-audit-logs-receiver.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-audit-logs-receiver.annotations" . | nindent 4 }}
+  {{- end }}
+data:
+  config: |
+  {{- toYaml .Values.config | nindent 4 }}
+ {{- end }}
