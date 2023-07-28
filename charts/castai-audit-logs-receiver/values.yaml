@@ -67,7 +67,7 @@ affinity: {}
 rollout:
   rollingUpdate: {}
   strategy: RollingUpdate
-    
+
 configMap:
   # Specifies whether a configMap should be created.
   create: true
@@ -94,10 +94,10 @@ config:
   receivers:
     castai-audit-logs:
       api:
-        url:             ${env:CASTAI_API_URL} # Use CASTAI_API_URL env variable to override default API URL (https://api.cast.ai/).
-        key:             ${env:CASTAI_API_KEY} # Use CASTAI_API_KEY env variable to provide API Access Key.
-      poll_interval_sec: 10 # This parameter defines poll cycle in seconds.
-      page_limit:        100 # This parameter defines the max number of records returned from the backend in one page.
+        url: ${env:CASTAI_API_URL}  # Use CASTAI_API_URL env variable to override default API URL (https://api.cast.ai/).
+        key: ${env:CASTAI_API_KEY}  # Use CASTAI_API_KEY env variable to provide API Access Key.
+      poll_interval_sec: 10  # This parameter defines poll cycle in seconds.
+      page_limit: 100  # This parameter defines the max number of records returned from the backend in one page.
       storage:
         type: "persistent"
         filename: "/var/lib/otelcol/file_storage/audit_logs_poll_data.json"
