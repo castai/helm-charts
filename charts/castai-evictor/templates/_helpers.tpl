@@ -76,3 +76,24 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create labels for evictor configMap
+*/}}
+{{- define "evictor.configMap.labels"}}
+{{- with .Values.commonLabels }}
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+  {{- with .Values.commonLabels }}
+    {{- toYaml . | nindent 8 }}
+  {{- end }}
+{{- end }}
+
+{{/*
+Pass the customConfig to the configMap
+*/}}
+{{- define "evictor.configMap.customConfig" -}}
+{{- if .Values.customConfig }}
+{{ .Values.customConfig | nindent 4 }}
+{{- end }}
+{{- end }}
