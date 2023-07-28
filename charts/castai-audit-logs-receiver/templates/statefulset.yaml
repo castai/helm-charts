@@ -11,7 +11,7 @@ metadata:
 spec:
   serviceName: {{ include "castai-audit-logs-receiver.fullname" . }}
   podManagementPolicy: {{ .Values.statefulset.podManagementPolicy }}
-  replicas: {{ .Values.replicaCount }}
+  replicas: 1
   selector:
     matchLabels:
       {{- include "castai-audit-logs-receiver.selectorLabels" . | nindent 6 }}
