@@ -12,7 +12,7 @@ commonLabels:
 commonAnnotations:
   annotation1: "annotation"
 
-customConfig:
+customConfig: |
   - podSelector:
       namespace: "default"
       kind: Job
