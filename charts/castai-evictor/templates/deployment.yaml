@@ -67,6 +67,8 @@ spec:
               value: {{ .Values.nodeGracePeriodMinutes | quote }}
             - name: MAX_TARGET_NODES_PER_CYCLE
               value: {{ .Values.maxNodesToEvictPerCycle | quote }}
+            - name: EVICTION_SETTINGS_CONFIG_PATH
+              value: /config/config.yaml
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
@@ -81,6 +83,9 @@ spec:
                 optional: false
             - configMapRef:
                 name: castai-cluster-controller
+                optional: false
+            - configMapRef:
+                name: {{ include "evictor.fullname" . }}-config
                 optional: false
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
@@ -98,8 +103,16 @@ spec:
             httpGet:
               path: /healthz
               port: http
+          volumeMounts:
+            - mountPath: /config
+              name: cfg
+              readOnly: true
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: cfg
+          configMap:
+            name: {{ include "evictor.fullname" . }}-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
