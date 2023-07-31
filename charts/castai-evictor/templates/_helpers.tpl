@@ -76,3 +76,12 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Pass the customConfig to the configMap
+*/}}
+{{- define "evictor.configMap.customConfig" -}}
+{{- if .Values.customConfig }}
+{{ .Values.customConfig | nindent 4 }}
+{{- end }}
+{{- end }}
