@@ -32,6 +32,20 @@ main() {
         echo "PR title must start with '[$changed] '." >&2
         exit 1
     fi
+
+    if [[ -f charts/$changed/README.md ]]; then
+      cd charts/"$changed"
+      helm-docs
+      if [[ $(git diff --stat) != '' ]]; then
+        echo "Readme for chart wasn't updated. Please use helm-docs and update it"
+        echo "Diff:"
+        git diff
+        exit 1
+      else
+        echo 'clean'
+      fi
+    fi
+
 }
 
 main
