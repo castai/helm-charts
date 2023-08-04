@@ -5,10 +5,10 @@
 replicaCount: 1
 namespace: "castai-agent"
 
-# labels to add to all resources
+# commonLabels -- Labels to add to all resources.
 commonLabels: {}
 
-# annotations to add to all resources
+# commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
 
 image:
@@ -18,28 +18,29 @@ image:
 nameOverride: ""
 fullnameOverride: castai-agent
 
-# Specifies whether a namespace should be created
+# createNamespace -- Specifies whether a namespace should be created.
 createNamespace: true
-# Specifies whether RBAC Clusterrole should be created
+# rbac -- Specifies whether RBAC Clusterrole should be created.
 rbac:
   enabled: true
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # serviceAccount.create -- Specifies whether a service account should be created.
   create: true
-  # Annotations to add to the service account
+  # serviceAccount.annotations -- Annotations to add to the service account.
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # serviceAccount.name -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
   name: ""
 
+# podAnnotations -- Annotations to be added to agent pods.
 podAnnotations: {}
 
-# Labels to be added to agent pods
+# podLabels -- Labels to be added to agent pods.
 podLabels: {}
 
-# Cluster proportional vertical autoscaler for the agent deployment
-# https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler
+# clusterVPA -- Cluster proportional vertical autoscaler for the agent deployment
+# https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler.
 clusterVPA:
   repository: "registry.k8s.io/cpa/cpvpa"
   enabled: true
@@ -53,19 +54,19 @@ additionalEnv:
 
 additionalSecretEnv: {}
 
-# URL to the API server
+# apiURL -- URL to the CAST AI API server.
 apiURL: "https://api.cast.ai"
 
-# Token to be used for authorizing agent access to the API
+# apiKey -- Token to be used for authorizing agent access to the API.
 apiKey: ""
 
-# Name of secret with Token to be used for authorizing agent access to the API
+# apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
 # apiKey and apiKeySecretRef are mutually exclusive
-# The referenced secret must provide the token in .data["API_KEY"]
+# The referenced secret must provide the token in .data["API_KEY"].
 apiKeySecretRef: ""
 
-# Name of the Kubernetes service provider
-# one of: "eks", "gks", "aks", "kops"
+# provider -- Name of the Kubernetes service provider
+# one of: "eks", "gks", "aks", "kops".
 provider: ""
 
 priorityClass:
