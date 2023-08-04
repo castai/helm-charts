@@ -2,10 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# labels to add to all resources
+# commonLabels -- Labels to add to all resources.
 commonLabels: {}
 
-# annotations to add to all resources
+# commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
 
 image:
@@ -15,13 +15,13 @@ image:
   pullPolicy: IfNotPresent
 
 castai:
-  # CASTAI public api url.
+  # castai.apiURL -- CASTAI public api url.
   apiURL: "https://api.cast.ai"
 
-  # CASTAI Cluster unique identifier.
+  # castai.clusterID -- CASTAI Cluster unique identifier.
   clusterID: ""
 
-  # Cloud provider (azure, gcp, aws)
+  # castai.provider -- Cloud provider (azure, gcp, aws).
   provider: ""
 
 podAnnotations: {}
@@ -30,7 +30,7 @@ additionalEnv:
   LOG_LEVEL: "5"
   POLL_INTERVAL_SECONDS: "3"
 
-# Host network is used to access instance metadata endpoints which are not always available from pod network.
+# useHostNetwork -- Host network is used to access instance metadata endpoints which are not always available from pod network.
 useHostNetwork: true
 
 resources:
@@ -44,7 +44,7 @@ rbac:
   enabled: true
 
 serviceAccount:
-  # Annotations to add to the service account.
+  # serviceAccount.annotation -- Annotations to add to the service account.
   annotations: {}
   name: castai-spot-handler
 
@@ -71,6 +71,6 @@ securityContext:
   runAsGroup: 1003
   runAsUser: 1003
 
-# Name of secret with Token to be used for authorizing access to the API
+# apiKeySecretRef -- Name of secret with Token to be used for authorizing access to the API
 # The referenced secret must provide the token in .data["API_KEY"]
 apiKeySecretRef: ""
