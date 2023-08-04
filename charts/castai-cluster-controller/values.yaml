@@ -2,16 +2,16 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# replicas -- Number of replicas for castai-cluster-controller deployment
+# replicas -- Number of replicas for castai-cluster-controller deployment.
 replicas: 2
 pdbMinAvailable: 1
-# leaderElectionEnabled -- When running 2+ replicas of castai-cluster-controller only one should work as a leader
+# leaderElectionEnabled -- When running 2+ replicas of castai-cluster-controller only one should work as a leader.
 leaderElectionEnabled: true
 
-# commonLabels -- Labels to add to all resources
+# commonLabels -- Labels to add to all resources.
 commonLabels: {}
 
-# commonAnnotations -- Annotations to add to all resources
+# commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
 
 nameOverride: ""
@@ -28,18 +28,18 @@ image:
 
 imagePullSecrets: {}
 
-# updateStrategy -- Controls `deployment.spec.strategy` field
+# updateStrategy -- Controls `deployment.spec.strategy` field.
 updateStrategy:
   type: Recreate
 
-# CAST AI API configuration.
+# castai -- CAST AI API configuration.
 castai:
-  # castai.apiKey -- Token to be used for authorizing agent access to the CASTAI API
+  # castai.apiKey -- Token to be used for authorizing agent access to the CASTAI API.
   apiKey: ""
 
   # castai.apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
   # apiKey and apiKeySecretRef are mutually exclusive
-  # The referenced secret must provide the token in .data["API_KEY"]
+  # The referenced secret must provide the token in .data["API_KEY"].
   apiKeySecretRef: ""
 
   # castai.apiURL -- CASTAI public api url.
@@ -48,12 +48,12 @@ castai:
   # castai.clusterID -- CASTAI Cluster unique identifier.
   clusterID: ""
 
-# podAnnotations -- Annotations added to each pod
+# podAnnotations -- Annotations added to each pod.
 podAnnotations: {}
-# podLabels - labels added to each pod
+# podLabels - Labels added to each pod.
 podLabels: {}
 
-# additionalEnv -- Env variables passed to castai-cluster-controller
+# additionalEnv -- Env variables passed to castai-cluster-controller.
 additionalEnv:
   LOG_LEVEL: "5"
 
