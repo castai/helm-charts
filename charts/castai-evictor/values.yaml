@@ -4,44 +4,44 @@
 
 replicaCount: 1
 
-# labels to add to all resources
+# commonLabels -- Labels to add to all resources.
 commonLabels: {}
 
-# annotations to add to all resources
+# annotations - Annotations to add to all resources.
 commonAnnotations: {}
 
-# Specifies whether the Evictor should run in dryRun mode (Read-Only).
+# dryRyn -- Specifies whether the Evictor should run in dryRun mode (Read-Only).
 # if true, evictor will just log action(s) it would perform
 # instead of actually performing them.
 dryRun: false
 
-# Specifies whether the Evictor can behave as aggressive
+# aggressiveMode -- Specifies whether the Evictor can behave as aggressive
 # if true, evictor will start considering single replica pods
 # as long as they can be scheduled somewhere else.
 aggressiveMode: false
 
-# Specifies whether the Evictor was installed using mothership and is automatically updated by CAST AI.
+# managedByCASTAI -- Specifies whether the Evictor was installed using mothership and is automatically updated by CAST AI.
 # Alternative scenarios are, when CAST AI is not managing charts, and customers' are install them with Argo CD/Terraform
 # or something else.
 managedByCASTAI: false
 
-# Specifies whether the Evictor can behave in a scoped manner
-# if true, evictor will only evict nodes that are created by CAST AI
+# scopeMode -- Specifies whether the Evictor can behave in a scoped manner
+# if true, evictor will only evict nodes that are created by CAST AI.
 scopedMode: false
 
-# Specifies the grace period after a node is created before it is considered for eviction
+# nodeGracePeriodMinutes -- Specifies the grace period after a node is created before it is considered for eviction
 # The number of minutes a node must exist before it will be considered.
 nodeGracePeriodMinutes: 5
 
-# Specifies the max nodes evictor can evict in a single cycle.
+# maxNodesToEvictPerCycle -- Specifies the max nodes evictor can evict in a single cycle.
 maxNodesToEvictPerCycle: 20
 
-# Specifies leader election parameters
+# leaderElection -- Specifies leader election parameters.
 leaderElection:
-  # Whether to enable leader election
+  # leaderElection.enabled -- Whether to enable leader election.
   enabled: true
 
-# Controls `deployment.spec.strategy` field
+# updateStrategy -- Controls `deployment.spec.strategy` field.
 updateStrategy:
   type: Recreate
 
@@ -59,24 +59,23 @@ rbac:
   enabled: true
 
 serviceAccount:
+  # serviceAccount.create Specifies whether a service account should be created
   create: true
-  # Specifies whether a service account should be created
-  # Annotations to add to the service account
+  # serviceAccount.annotations -- Annotations to add to the service account.
   annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
+  # serviceAccount.name -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
   name: ""
 
 podAnnotations: {}
 podLabels: {}
 
 hostNetwork:
-  # Enable host networking
+  # hostNetwork.enabled -- Enable host networking.
   enabled: false
 
-# DNS Policy Override - Needed when using some custom CNI's.
+# dnsPolicy -- DNS Policy Override - Needed when using some custom CNI's.
 dnsPolicy: ""
-
 
 podSecurityContext:
   readOnlyRootFilesystem: true
@@ -127,10 +126,10 @@ affinity:
 customConfig: {}
 configMapLabels: {}
 
-# Used to set any additional environment variables
+# additionalEnv -- Used to set any additional environment variables.
 additionalEnv: {}
 
-# Name of secret with Token to be used for authorizing agent access to the API
+# apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
 # apiKey and apiKeySecretRef are mutually exclusive
-# The referenced secret must provide the token in .data["API_KEY"]
+# The referenced secret must provide the token in .data["API_KEY"].
 apiKeySecretRef: ""
