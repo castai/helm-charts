@@ -2,10 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# commonLabels -- Labels to add to all resources
+# commonLabels -- Labels to add to all resources.
 commonLabels: {}
 
-# commonAnnotations -- Annotations to add to all resources
+# commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
 
 image:
@@ -21,7 +21,7 @@ castai:
   # castai.clusterID -- CASTAI Cluster unique identifier.
   clusterID: ""
 
-  # castai.provider -- Cloud provider (azure, gcp, aws)
+  # castai.provider -- Cloud provider (azure, gcp, aws).
   provider: ""
 
 podAnnotations: {}

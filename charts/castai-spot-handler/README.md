@@ -12,9 +12,9 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing access to the API The referenced secret must provide the token in .data["API_KEY"] |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
 | castai.clusterID | string | `""` | CASTAI Cluster unique identifier. |
-| castai.provider | string | `""` | Cloud provider (azure, gcp, aws) |
-| commonAnnotations | object | `{}` | Annotations to add to all resources |
-| commonLabels | object | `{}` | Labels to add to all resources |
+| castai.provider | string | `""` | Cloud provider (azure, gcp, aws). |
+| commonAnnotations | object | `{}` | Annotations to add to all resources. |
+| commonLabels | object | `{}` | Labels to add to all resources. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/spot-handler"` |  |
 | image.tag | string | `""` |  |
