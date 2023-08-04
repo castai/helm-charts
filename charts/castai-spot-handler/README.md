@@ -1,6 +1,6 @@
 # castai-spot-handler
 
-Spot Handler is the component responsible for scheduled events monitoring and delivering them to the central platform,
+Spot Handler is the component responsible for scheduled events monitoring and delivering them to the central platform.
 
 ## Values
 
