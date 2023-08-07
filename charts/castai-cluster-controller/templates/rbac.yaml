@@ -48,6 +48,12 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "nodes" ]
     verbs: [ "delete" ]
+  {{- if .Values.workloadManagement.enabled }}
+  # For workload management
+  - apiGroups: [ "apps" ]
+    resources: [ "deployments" ]
+    verbs: [ "patch" ]
+  {{- end}}
   # For csr approval.
   - apiGroups: [ "certificates.k8s.io" ]
     resources: [ "certificatesigningrequests" ]

@@ -7,6 +7,10 @@ on:
       - edited
       - reopened
       - synchronize
+    paths:
+      - '**.yaml'
+      - 'charts/*/templates/**'
+      - 'charts/*/values.yaml'
 
 jobs:
   validate:
