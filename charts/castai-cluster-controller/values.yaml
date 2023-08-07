@@ -122,3 +122,8 @@ k8sApiClient:
   rateLimit:
     burst: 150
     qps: 25
+
+# workloadManagement -- Settings for managing deployments and other pod controllers.
+workloadManagement:
+  # workloadManagement.enabled -- Adds permissions to patch deployments.
+  enabled: false

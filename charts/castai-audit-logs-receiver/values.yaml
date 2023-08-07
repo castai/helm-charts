@@ -8,35 +8,35 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-# CAST AI API configuration.
+# castai - -CAST AI API configuration.
 castai:
-  # Token to be used for authorizing access to the CASTAI API.
+  # castai.apiKey -- Token to be used for authorizing access to the CASTAI API.
   apiKey: ""
 
-  # Name of secret with Token to be used for authorizing access to the API.
+  # castai.apiKeySecretRef -- Name of secret with Token to be used for authorizing access to the API.
   # apiKey and apiKeySecretRef are mutually exclusive.
   # The referenced secret must provide the token in .data["CASTAI_API_KEY"].
   apiKeySecretRef: ""
 
-  # CASTAI public api url.
+  # castai.apiURL -- CASTAI public api url.
   apiURL: "https://api.cast.ai"
 
-# Annotations to add to all resources.
+# commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
 
-# Labels to add to all resources.
+# commonLabels -- Labels to add to all resources.
 commonLabels: {}
 
-# Override the name of the chart.
+# nameOverride -- Override the name of the chart.
 nameOverride: ""
 
-# Override the release name used for the full names of resources.
+# fullnameOverride -- Override the release name used for the full names of resources.
 fullnameOverride: ""
 
-# Annotations to be added to pods.
+# podAnnotations -- Annotations to be added to pods.
 podAnnotations: {}
 
-# Labels to be added to pods.
+# podLabels -- Labels to be added to pods.
 podLabels: {}
 
 # Pod security context.
@@ -67,10 +67,10 @@ rollout:
   strategy: RollingUpdate
 
 configMap:
-  # Specifies whether a configMap should be created.
+  # configMap.create -- Specifies whether a configMap should be created.
   create: true
 
-# Host networking requested for this pod. Use the host's network namespace.
+# hostNetwork -- Host networking requested for this pod. Use the host's network namespace.
 hostNetwork: false
 
 ## Persist collector state to a persistent volume.
@@ -90,12 +90,17 @@ statefulset:
 ## Ref: https://opentelemetry.io/docs/collector/configuration/
 config:
   receivers:
+    # config.receivers.castai-audit-logs - Configuration for CAST AI receiver.
     castai-audit-logs:
       api:
-        url: ${env:CASTAI_API_URL}  # Use CASTAI_API_URL env variable to override default API URL (https://api.cast.ai/).
-        key: ${env:CASTAI_API_KEY}  # Use CASTAI_API_KEY env variable to provide API Access Key.
-      poll_interval_sec: 10  # This parameter defines poll cycle in seconds.
-      page_limit: 100  # This parameter defines the max number of records returned from the backend in one page.
+        # config.receivers.castai-audit-logs.api.url -- Use CASTAI_API_URL env variable to override default API URL (https://api.cast.ai/).
+        url: ${env:CASTAI_API_URL}
+        # config.receivers.castai-audit-logs.api.key -- Use CASTAI_API_KEY env variable to provide API Access Key.
+        key: ${env:CASTAI_API_KEY}
+      # config.receivers.castai-audit-logs.poll_interval_sec -- This parameter defines poll cycle in seconds.
+      poll_interval_sec: 10
+      # config.receivers.castai-audit-logs.page_limit -- This parameter defines the max number of records returned from the backend in one page.
+      page_limit: 100
       storage:
         type: "persistent"
         filename: "/var/lib/otelcol/file_storage/audit_logs_poll_data.json"
