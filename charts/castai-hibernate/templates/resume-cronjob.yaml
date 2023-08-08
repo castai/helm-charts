@@ -1,0 +1,39 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.resumeCronJobName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: "{{ .Values.resumeCronSchedule }}"
+  concurrencyPolicy: {{ .Values.concurrencyPolicy }}
+  jobTemplate:
+     spec:
+      template:
+        metadata:
+          annotations:
+            autoscaling.cast.ai/removal-disabled: "true"
+        spec:
+          priorityClassName: system-cluster-critical
+          tolerations:
+          - key: "scheduling.cast.ai/paused-cluster"
+            operator: Exists
+          serviceAccountName: {{ .Values.serviceAccountName }}
+          containers:
+          - name: pauser
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            envFrom:
+              - secretRef:
+                  name: {{ .Values.secretName }}
+            env:
+              - name: CLOUD
+                value: "{{ .Values.cloud }}"
+              - name: ACTION
+                value: "resume"
+              - name: CLUSTER_ID
+                valueFrom:
+                  configMapKeyRef:
+                    name: {{ .Values.configMapName }}
+                    key: CLUSTER_ID
+          restartPolicy: {{ .Values.restartPolicy }}
+      backoffLimit: {{ .Values.backoffLimit }}

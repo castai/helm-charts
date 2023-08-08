@@ -1,0 +1,48 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ .Values.pauseCronJobName }}
+  namespace: {{ .Values.namespace }}
+spec:
+  schedule: "{{ .Values.pauseCronSchedule }}"
+  concurrencyPolicy: {{ .Values.concurrencyPolicy }}
+  jobTemplate:
+    spec:
+      template:
+        metadata:
+          annotations:
+            autoscaling.cast.ai/removal-disabled: "true"
+        spec:
+          tolerations:
+          - key: "scheduling.cast.ai/paused-cluster"
+            operator: Exists
+          serviceAccountName: {{ .Values.serviceAccountName }}
+          containers:
+          - name: pauser
+            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            envFrom:
+              - secretRef:
+                  name: {{ .Values.secretName }}
+            env:
+              - name: MY_NODE_NAME
+                valueFrom:
+                  fieldRef:
+                    fieldPath: spec.nodeName
+              - name: CLOUD
+                value: "{{ .Values.cloud }}"
+              - name: HIBERNATE_NODE
+                value: "{{ .Values.hibernateNode }}"
+              - name: NAMESPACES_TO_KEEP
+                value: "{{ .Values.namespacesToKeep }}"
+              - name: PROTECT_REMOVAL_DISABLED
+                value: "{{ .Values.protectRemovalDisabled }}"
+              - name: ACTION
+                value: "pause"
+              - name: CLUSTER_ID
+                valueFrom:
+                  configMapKeyRef:
+                    name: {{ .Values.configMapName }}
+                    key: CLUSTER_ID
+          restartPolicy: {{ .Values.restartPolicy }}
+      backoffLimit: {{ .Values.backoffLimit }}
