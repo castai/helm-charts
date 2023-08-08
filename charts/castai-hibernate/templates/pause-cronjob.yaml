@@ -19,11 +19,13 @@ spec:
           serviceAccountName: {{ .Values.serviceAccountName }}
           containers:
           - name: pauser
-            image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
             imagePullPolicy: {{ .Values.image.pullPolicy }}
             envFrom:
               - secretRef:
                   name: {{ .Values.secretName }}
+            securityContext:
+              readOnlyRootFilesystem: true       
             env:
               - name: MY_NODE_NAME
                 valueFrom:
@@ -43,6 +45,6 @@ spec:
                 valueFrom:
                   configMapKeyRef:
                     name: {{ .Values.configMapName }}
-                    key: CLUSTER_ID
+                    key: CLUSTER_ID      
           restartPolicy: {{ .Values.restartPolicy }}
       backoffLimit: {{ .Values.backoffLimit }}

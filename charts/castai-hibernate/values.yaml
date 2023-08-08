@@ -40,7 +40,7 @@ concurrencyPolicy: "Forbid"
 
 image:
   repository: castai/hibernate
-  tag: latest
+  tag: ""
   pullPolicy: Always
 
 namespacesToKeep: ""
@@ -50,11 +50,16 @@ configMapName: castai-cluster-controller
 restartPolicy: "OnFailure"
 backoffLimit: 0
 
+# Pod security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1005
+  runAsGroup: 1005
+  runAsUser: 1005
 
+  
 #Override default hibernate-node size
 #Set the HIBERNATE_NODE environment variable to override the default node sizing selections. 
 #Make sure the size selected is appropriate for your cloud.
 hibernateNode: ""
-
-
-
