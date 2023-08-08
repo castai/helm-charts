@@ -55,9 +55,9 @@ backoffLimit: 0
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 podSecurityContext:
   runAsNonRoot: true
-  fsGroup: 1005
-  runAsGroup: 1005
-  runAsUser: 1005
+  fsGroup: 1003
+  runAsGroup: 1003
+  runAsUser: 1003
 
   
 #Override default hibernate-node size
