@@ -13,6 +13,7 @@ spec:
           annotations:
             autoscaling.cast.ai/removal-disabled: "true"
         spec:
+          securityContext: {{ .Values.podSecurityContext | toYaml | nindent 12 }}
           priorityClassName: system-cluster-critical
           tolerations:
           - key: "scheduling.cast.ai/paused-cluster"
@@ -26,7 +27,7 @@ spec:
               - secretRef:
                   name: {{ .Values.secretName }}
             securityContext:
-              readOnlyRootFilesystem: true      
+              readOnlyRootFilesystem: true   
             env:
               - name: CLOUD
                 value: "{{ .Values.cloud }}"

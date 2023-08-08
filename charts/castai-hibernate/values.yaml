@@ -40,6 +40,7 @@ concurrencyPolicy: "Forbid"
 
 image:
   repository: castai/hibernate
+  # Tag is set using Chart.yaml appVersion field.
   tag: ""
   pullPolicy: Always
 

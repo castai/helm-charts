@@ -13,6 +13,7 @@ spec:
           annotations:
             autoscaling.cast.ai/removal-disabled: "true"
         spec:
+          securityContext: {{ .Values.podSecurityContext | toYaml | nindent 12 }} 
           tolerations:
           - key: "scheduling.cast.ai/paused-cluster"
             operator: Exists
