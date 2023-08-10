@@ -35,3 +35,4 @@ Hibernate is a set of CronJobs that can be used to pause and resume Kubernetes c
 | secretName | string | `"castai-hibernate"` |  |
 | serviceAccountName | string | `"hibernate"` |  |
 | restartPolicy | string | `"OnFailure"` |  |
+
