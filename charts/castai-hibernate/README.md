@@ -9,7 +9,7 @@ Hibernate is a set of CronJobs that can be used to pause and resume Kubernetes c
 | agentNamespace | string | `"castai-agent"` |  |
 | apiKey | string | `""` | API token with Full Access permissions and encode base64 |
 | backoffLimit | int | `0` |  |
-| cloud | string | `""` | Cloud env variable to [EKS|GKE|AKS] |
+| cloud | string | `""` | Cloud env variable to EKS|GKE|AKS |
 | clusterRoleBindingAdminName | string | `"hibernate-admin"` |  |
 | clusterRoleBindingName | string | ``"hibernate"` |  |
 | clusterRoleName | string | `"hibernate"` |  |
@@ -28,7 +28,7 @@ Hibernate is a set of CronJobs that can be used to pause and resume Kubernetes c
 | podSecurityContext.runAsNonRoot | bool | `true` |  |
 | podSecurityContext.runAsUser | int | `1003` |  |
 | protectRemovalDisabled | string | `"false"` | Override default "PROTECT_EVICTION_DISABLED" and set to "true" to prevent the removal of removal-disabled nodes from being removed during hibernate. |
-| resumeCronJobName | string | `"hibernate-resume"` | |
+| resumeCronJobName | string | `"hibernate-resume"` |  |
 | resumeCronSchedule | string | `"0 7 * * 1-5"` | Schedule to resume cluster. |
 | roleName| string | `"hibernate"` |  |
 | roleBindingName | string | `"hibernate"` |  |
