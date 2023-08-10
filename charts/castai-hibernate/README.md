@@ -1,6 +1,6 @@
 # castai-hibernate
 
-Hibernate is a set of CronJobs that can be used to pause and resume Kubernetes cluster on a defined schedule
+Hibernate is a set of CronJobs that can be used to pause and resume Kubernetes cluster on a defined schedule.
 
 ## Values
 
@@ -21,7 +21,7 @@ Hibernate is a set of CronJobs that can be used to pause and resume Kubernetes c
 | image.tag | string | `""` | Tag is set using Chart.yaml appVersion field. |
 | namespace | string | `"castai-agent"` |  |
 | namespacesToKeep | string | `""` | Set the NAMESPACES_TO_KEEP environment variable to override, "opa,istio"" |
-| pauseCronJobName | string | `"hibernate-pause"` | |
+| pauseCronJobName | string | `"hibernate-pause"` |  |
 | pauseCronSchedule | string | `"0 22 * * 1-5"` | Schedule to pause cluster. |
 | podSecurityContext.fsGroup | int | `1003` |  |
 | podSecurityContext.runAsGroup | int | `1003` |  |
