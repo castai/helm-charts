@@ -3,21 +3,23 @@
 # Declare variables to be passed into your templates.
 
 # CAST AI API Key configuration.
-# API token with Full Access permissions and encode base64
+# -- API token with Full Access permissions and encode base64
 apiKey: ""
 
-# Set CronJobs "Cloud" env variable to [EKS|GKE|AKS]
+# -- Set CronJobs "Cloud" env variable to [EKS|GKE|AKS]
 cloud: ""
 
-# hibernate-pause cronjob schedule.
+# -- hibernate-pause cronjob schedule.
 pauseCronJobName: hibernate-pause
+# -- update hibernate-pause schedule according to business needs.
 pauseCronSchedule: "0 22 * * 1-5"
 
-# hibernate-resume cronjob schedule.
+# -- hibernate-resume cronjob schedule.
 resumeCronJobName: hibernate-resume
+# -- update hibernate-resume schedule according to business needs.
 resumeCronSchedule: "0 7 * * 1-5"
 
-# By default namespace is expected to be created by castai-agent.
+# -- By default namespace is expected to be created by castai-agent.
 namespace: castai-agent
 agentNamespace: castai-agent
 
@@ -40,16 +42,16 @@ concurrencyPolicy: "Forbid"
 
 image:
   repository: castai/hibernate
-  # Tag is set using Chart.yaml appVersion field.
+  # -- Tag is set using Chart.yaml appVersion field.
   tag: ""
   pullPolicy: Always
 
 # Override default NAMESPACES_TO_KEEP
-# Set the NAMESPACES_TO_KEEP environment variable to override, "opa,istio""
+# -- Set the NAMESPACES_TO_KEEP environment variable to override, "opa,istio""
 namespacesToKeep: ""
 
 # Override default "PROTECT_EVICTION_DISABLED" and set to "true" to prevent the removal of removal-disabled nodes from being removed during hibernate.
-# This looks for the autoscaling.cast.ai/removal-disabled="true" label on a node and if it exists excludes it from being cordoned and deleted.
+# -- This looks for the autoscaling.cast.ai/removal-disabled="true" label on a node and if it exists excludes it from being cordoned and deleted.
 protectRemovalDisabled: "false"
 
 configMapName: castai-cluster-controller
@@ -66,6 +68,5 @@ podSecurityContext:
   runAsUser: 1003
 
 # Override default hibernate-node size
-# Set the HIBERNATE_NODE environment variable to override the default node sizing selections.
-# Make sure the size selected is appropriate for your cloud.
+# -- Set the HIBERNATE_NODE environment variable to override the default node sizing selections. Make sure the size selected is appropriate for your cloud.
 hibernateNode: ""
