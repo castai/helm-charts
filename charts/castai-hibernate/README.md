@@ -24,7 +24,7 @@ Hibernate is a set of CronJobs that can be used to pause and resume Kubernetes c
 | pauseCronJobName | string | `"hibernate-pause"` | |
 | pauseCronSchedule | string | `"0 22 * * 1-5"` | Schedule to pause cluster. |
 | podSecurityContext.fsGroup | int | `1003` |  |
-| podSecurityContext.runAsGroup | int | `{}` |  |
+| podSecurityContext.runAsGroup | int | `1003` |  |
 | podSecurityContext.runAsNonRoot | bool | `true` |  |
 | podSecurityContext.runAsUser | int | `1003` |  |
 | protectRemovalDisabled | string | `"false"` | Override default "PROTECT_EVICTION_DISABLED" and set to "true" to prevent the removal of removal-disabled nodes from being removed during hibernate. |
@@ -32,6 +32,6 @@ Hibernate is a set of CronJobs that can be used to pause and resume Kubernetes c
 | resumeCronSchedule | string | `"0 7 * * 1-5"` | Schedule to resume cluster. |
 | roleName| string | `"hibernate"` |  |
 | roleBindingName | string | `"hibernate"` |  |
-| secretName | string | `castai-hibernate` |  |
-| serviceAccountName | string | `hibernate` |  |
-| restartPolicy | string | `OnFailure` |  |
+| secretName | string | `"castai-hibernate"` |  |
+| serviceAccountName | string | `"hibernate"` |  |
+| restartPolicy | string | `"OnFailure"` |  |
