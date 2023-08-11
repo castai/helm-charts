@@ -1,0 +1,50 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Values.clusterRoleName }}
+rules:
+  - verbs:
+      - get
+      - list
+      - patch
+    apiGroups:
+      - ''
+    resources:
+      - nodes
+  - verbs:
+      - get
+    apiGroups:
+      - ''
+    resources:
+      - namespaces
+  - verbs:
+      - get
+      - list
+      - delete
+      - create
+      - watch
+    apiGroups:
+      - ''
+    resources:
+      - events
+  - verbs:
+      - get
+      - patch
+      - update
+      - delete
+      - escalate
+    apiGroups:
+      - ''
+    resources:
+      - namespaces
+    resourceNames:
+      - {{ .Values.agentNamespace }}
+      - kube-system
+  - verbs:
+      - get
+      - list
+      - patch
+    apiGroups:
+      - "apps"
+    resources:
+      - deployments
