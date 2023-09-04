@@ -36,6 +36,10 @@ nodeGracePeriodMinutes: 5
 # maxNodesToEvictPerCycle -- Specifies the max nodes evictor can evict in a single cycle.
 maxNodesToEvictPerCycle: 20
 
+# cycleInterval -- Specifies the interval between eviction cycles. This property can be used to lower or raise the
+# frequency of the evictor's find-and-drain operations.
+cycleInterval: 1m
+
 # leaderElection -- Specifies leader election parameters.
 leaderElection:
   # leaderElection.enabled -- Whether to enable leader election.
