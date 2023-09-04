@@ -16,6 +16,7 @@ Cluster utilization defragmentation tool
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | configMapLabels | object | `{}` |  |
 | customConfig | object | `{}` |  |
+| cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | dryRun | bool | `false` |  |
 | fullnameOverride | string | `"castai-evictor"` |  |

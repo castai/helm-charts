@@ -69,6 +69,8 @@ spec:
               value: {{ .Values.maxNodesToEvictPerCycle | quote }}
             - name: EVICTION_SETTINGS_CONFIG_PATH
               value: "/config/config.yaml"
+            - name: CYCLE_INTERVAL
+              value: {{ .Values.cycleInterval | quote }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
