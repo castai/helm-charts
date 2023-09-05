@@ -73,7 +73,7 @@ rules:
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles", "clusterroles", "clusterrolebindings" ]
     resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-kvisor", "castai-egressd" ]
-    verbs: [ "get", "patch", "update", "delete", "escalate" ]
+    verbs: [ "get", "delete" ]
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
     resourceNames: [ "castai-agent" ]
