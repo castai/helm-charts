@@ -4895,6 +4895,16 @@ entries:
     version: 0.1.0
   egressd:
   - apiVersion: v2
+    appVersion: v0.10.4
+    created: "2023-09-08T08:32:29.405317644Z"
+    description: Kubernetes aware network traffic monitoring
+    digest: 0055ad9d3473237646fe4ce1bb3b73250e857c1aafcd1a0dbdaceb81405243e3
+    name: egressd
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/egressd-0.1.20/egressd-0.1.20.tgz
+    version: 0.1.20
+  - apiVersion: v2
     appVersion: v0.10.3
     created: "2023-09-06T08:13:31.112392087Z"
     description: Kubernetes aware network traffic monitoring
@@ -5064,4 +5074,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/egressd-0.1.2/egressd-0.1.2.tgz
     version: 0.1.2
-generated: "2023-09-08T08:04:18.893430194Z"
+generated: "2023-09-08T08:32:29.409365169Z"
