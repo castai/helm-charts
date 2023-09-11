@@ -32,12 +32,9 @@ rules:
     resources:
       - pods
     verbs:
-      - create
       - delete
       - get
       - list
-      - patch
-      - update
       - watch
   # ------------------------------------------------
   # Finding out whether it's safe to evict a pod
@@ -65,3 +62,16 @@ rules:
       - ""
     resources: ["pods/eviction"]
     verbs: ["create"]
+  # ------------------------------------------------
+  # Leader election
+  # ------------------------------------------------
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
