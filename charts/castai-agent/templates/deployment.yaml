@@ -62,7 +62,8 @@ spec:
       {{- end }}
       containers:
         - name: agent
-        {{ if .Values.global }}
+        {{- $global := .Values.global | default dict }}
+        {{ if $global.azure }}
           image: "{{ .Values.global.azure.images.agent.registry }}/{{ .Values.global.azure.images.agent.image }}@{{ .Values.global.azure.images.agent.digest }}"
         {{ else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -116,7 +117,7 @@ spec:
             httpGet:
               port: healthz
         - name: monitor
-        {{ if .Values.global }}
+        {{ if $global.azure }}
           image: "{{ .Values.global.azure.images.agent.registry }}/{{ .Values.global.azure.images.agent.image }}@{{ .Values.global.azure.images.agent.digest }}"
         {{ else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

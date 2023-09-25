@@ -55,7 +55,8 @@ spec:
       {{- end }}
       containers:
         - name: autoscaler
-        {{ if .Values.global }}
+        {{- $global := .Values.global | default dict }}
+        {{ if $global.azure }}
           image: "{{ .Values.global.azure.images.cpva.registry }}/{{ .Values.global.azure.images.cpva.image }}@{{ .Values.global.azure.images.cpva.digest }}"
         {{ else }}
           image: "{{ .Values.clusterVPA.repository }}:{{ .Values.clusterVPA.version }}"
