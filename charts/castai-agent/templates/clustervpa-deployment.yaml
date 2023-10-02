@@ -75,6 +75,8 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          resources:
+            {{- .Values.clusterVPA.resources | default dict | toYaml | nindent 12 }}
 
       volumes:
         - name: autoscaler-config
