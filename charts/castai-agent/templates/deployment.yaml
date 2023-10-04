@@ -92,6 +92,13 @@ spec:
           {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
           {{- end -}}
+          {{- if .Values.trustedCACert }}
+            - secretRef:
+                name: {{ include "castai-agent.fullname" . -}}-tls-cert
+          {{- else if .Values.trustedCACertSecretRef }}
+            - secretRef:
+                name: {{ .Values.trustedCACertSecretRef -}}
+          {{- end }}
           {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
           {{- if .Values.clusterVPA.enabled -}}
@@ -159,6 +166,13 @@ spec:
                 name: {{ include "castai-agent.fullname" . -}}
           {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+          {{- end }}
+          {{- if .Values.trustedCACert }}
+            - secretRef:
+                name: {{ include "castai-agent.fullname" . -}}-tls-cert
+          {{- else if .Values.trustedCACertSecretRef }}
+            - secretRef:
+                name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
           resources:
             requests:
