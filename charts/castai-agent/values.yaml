@@ -48,7 +48,10 @@ clusterVPA:
   pollPeriodSeconds: 300
   resources: {}
 
-resources: {}
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
 additionalEnv:
   PPROF_PORT: "6060"
