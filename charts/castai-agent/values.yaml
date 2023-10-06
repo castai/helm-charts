@@ -66,6 +66,14 @@ apiKey: ""
 # The referenced secret must provide the token in .data["API_KEY"].
 apiKeySecretRef: ""
 
+# trustedCACert -- CA certificate to add to agent's set of root certificate authorities that client will use when verifying server certificates.
+trustedCACert: ""
+
+# trustedCACertSecretRef -- Name of secret with CA certificate to be added to agent's set of root certificate authorities.
+# trustedCACert and trustedCACertSecretRef are mutually exclusive.
+# The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"].
+trustedCACertSecretRef: ""
+
 # provider -- Name of the Kubernetes service provider
 # one of: "eks", "gks", "aks", "kops".
 provider: ""
