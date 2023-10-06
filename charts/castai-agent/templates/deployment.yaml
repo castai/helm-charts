@@ -175,7 +175,7 @@ spec:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
           resources:
-            {{- .Values.resources | default dict | toYaml | nindent 12 }}
+            {{- .Values.monitor.resources | default dict | toYaml | nindent 12 }}
           {{- with .Values.containerSecurityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}

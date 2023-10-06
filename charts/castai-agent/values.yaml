@@ -53,6 +53,12 @@ resources:
     cpu: 100m
     memory: 128Mi
 
+monitor:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
 additionalEnv:
   PPROF_PORT: "6060"
 
