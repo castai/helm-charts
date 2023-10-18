@@ -35,10 +35,10 @@ useHostNetwork: true
 
 resources:
   requests:
-    cpu: 5m
-    memory: 10Mi
+    cpu: 10m
+    memory: 25Mi
   limits:
-    memory: 20Mi
+    memory: 25Mi
 
 rbac:
   enabled: true

@@ -22,9 +22,9 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
 | rbac.enabled | bool | `true` |  |
-| resources.limits.memory | string | `"20Mi"` |  |
-| resources.requests.cpu | string | `"5m"` |  |
-| resources.requests.memory | string | `"10Mi"` |  |
+| resources.limits.memory | string | `"25Mi"` |  |
+| resources.requests.cpu | string | `"10m"` |  |
+| resources.requests.memory | string | `"25Mi"` |  |
 | securityContext.fsGroup | int | `1003` |  |
 | securityContext.runAsGroup | int | `1003` |  |
 | securityContext.runAsNonRoot | bool | `true` |  |
