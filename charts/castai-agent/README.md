@@ -49,10 +49,10 @@ CAST AI agent deployment chart.
 | replicaCount | int | `1` |  |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"128Mi"` |  |
-| securityContext.fsGroup | int | `1002` |  |
-| securityContext.runAsGroup | int | `1002` |  |
+| securityContext.fsGroup | int | `65532` |  |
+| securityContext.runAsGroup | int | `65532` |  |
 | securityContext.runAsNonRoot | bool | `true` |  |
-| securityContext.runAsUser | int | `1002` |  |
+| securityContext.runAsUser | int | `65532` |  |
 | securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
