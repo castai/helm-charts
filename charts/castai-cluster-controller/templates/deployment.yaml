@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: castai-cluster-controller
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
   annotations:
