@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "evictor.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- if .Values.managedByCASTAI }}
     charts.cast.ai/managed-by: cast.ai
