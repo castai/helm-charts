@@ -35,3 +35,4 @@ CAST AI hibernate CronJobs used to pause and resume Kubernetes cluster on a defi
 | roleName | string | `"hibernate"` |  |
 | secretName | string | `"castai-hibernate"` |  |
 | serviceAccountName | string | `"hibernate"` |  |
+| timeZone | string | `""` | Set CronJobs timezone, if no time zone specified the kube-controller-manager interprets schedules relative to its local time zone |
