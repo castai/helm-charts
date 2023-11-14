@@ -9,6 +9,9 @@ apiKey: ""
 # -- Set CronJobs "Cloud" env variable to [EKS|GKE|AKS]
 cloud: ""
 
+# -- Set CronJobs timezone, if no time zone specified the kube-controller-manager interprets schedules relative to its local time zone
+timeZone: ""
+
 # -- hibernate-pause cronjob schedule.
 pauseCronJobName: hibernate-pause
 # -- update hibernate-pause schedule according to business needs.

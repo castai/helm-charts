@@ -6,6 +6,9 @@ metadata:
 spec:
   schedule: "{{ .Values.resumeCronSchedule }}"
   concurrencyPolicy: {{ .Values.concurrencyPolicy }}
+  {{- if and .Values.timeZone (semverCompare ">=1.27-0" .Capabilities.KubeVersion.GitVersion) }}
+  timeZone: {{ .Values.timeZone }}
+  {{- end }}
   jobTemplate:
      spec:
       template:
