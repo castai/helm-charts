@@ -115,6 +115,23 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - "karpenter.sh"
+    resources:
+      - provisioners
+      - machines
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "karpenter.k8s.aws"
+    resources:
+      - awsnodetemplates
+    verbs:
+      - get
+      - list
+      - watch
   - nonResourceURLs:
       - "/version"
     verbs:
