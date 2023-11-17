@@ -1,0 +1,40 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "pod-pinner.webhookName" . }}
+  labels:
+  {{- include "pod-pinner.labels" . | nindent 4 }}
+webhooks:
+  - name: pod-pinner.cast.ai
+    failurePolicy: {{ .Values.webhook.failurePolicy | default "Ignore"}}
+    sideEffects: None
+    timeoutSeconds: 5
+    objectSelector:
+      matchExpressions:
+        # We don't want to match ourselves since it would cause a chicken and egg problem:
+        # in order for our pod to come up, the pod would need to be already listening for requests.
+        {{- include "pod-pinner.exludeSelfLabelSelectors" . | nindent 8 }}
+    rules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+        resources:
+          - pods
+        scope: "*"
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      {{- if .Values.webhook.url }}
+      url: "{{ .Values.webhook.url }}/mutate"
+      {{- else }}
+      service:
+        name: {{ include "pod-pinner.fullname" . }}
+        namespace: {{ .Release.Namespace }}
+        path: /mutate
+        port: {{ .Values.service.port }}
+      {{- end }}
+
