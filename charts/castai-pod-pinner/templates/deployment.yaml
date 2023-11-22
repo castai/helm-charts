@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "pod-pinner.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET_NAME, which is NOT a secret value. CERTS_SECRET_NAME contains a resource name used by Cert Rotator."
 spec:
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
