@@ -6,7 +6,7 @@ replicaCount: 1
 namespace: "castai-agent"
 
 image:
-  repository: castai/pod-pinner
+  repository: us-docker.pkg.dev/castai-hub/library/pod-pinner
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
