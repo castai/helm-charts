@@ -5,6 +5,12 @@
 replicaCount: 1
 namespace: "castai-agent"
 
+# commonLabels -- Labels to add to all resources.
+commonLabels: {}
+
+# commonAnnotations -- Annotations to add to all resources.
+commonAnnotations: {}
+
 image:
   repository: us-docker.pkg.dev/castai-hub/library/pod-pinner
   pullPolicy: IfNotPresent
