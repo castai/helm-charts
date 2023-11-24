@@ -1,0 +1,53 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pod-pinner.fullname" . }}
+  labels:
+    {{- include "pod-pinner.labels" . | nindent 4 }}
+rules:
+  # ---
+  # Required to execute pod pinning actions.
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - create
+      - delete
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - delete
+      - get
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - pods/binding
+    verbs:
+      - create
+  # ---
+  # Required for Webhook functionality.
+  # ---
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    resourceNames:
+      - {{ include "pod-pinner.webhookName" . | quote }}
+    verbs:
+      - watch
+      - get
+      - patch
+      - update

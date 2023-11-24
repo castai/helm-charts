@@ -1,0 +1,107 @@
+{{- if .Values.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "pod-pinner.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pod-pinner.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET_NAME, which is NOT a secret value. CERTS_SECRET_NAME contains a resource name used by Cert Rotator."
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "pod-pinner.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "pod-pinner.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "pod-pinner.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: 9091
+              path: /healthz
+          readinessProbe:
+            httpGet:
+              port: 9091
+              path: /readyz
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+            - name: API_URL
+              value: {{ .Values.api.url }}
+            - name: API_GRPC_URL
+              value: {{ .Values.api.grpcUrl }}
+            - name: CLUSTER_ID
+              value: {{ .Values.api.clusterId }}
+            - name: CERTS_SECRET_NAME
+              value: {{ include "pod-pinner.certsSecretName" . }}
+            - name: CERTS_DIR
+              value: /certs
+            - name: PORT
+              value: {{ .Values.service.port | quote }}
+            {{- range $name, $value := .Values.additionalEnv }}
+            - name: "{{ $name }}"
+              value: "{{ $value }}"
+            {{- end }}
+          envFrom:
+            - secretRef:
+          {{- if .Values.api.key }}
+                name: {{ include "pod-pinner.fullname" . -}}
+          {{- else }}
+                name: {{ required "api.key or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /certs
+              name: certs
+              readOnly: true
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: certs
+          secret:
+            defaultMode: 420
+            secretName: {{ include "pod-pinner.certsSecretName" . }}
+{{- end }}
