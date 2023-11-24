@@ -78,10 +78,10 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
-          {{- if .Values.apiKey }}
+          {{- if .Values.api.key }}
                 name: {{ include "pod-pinner.fullname" . -}}
           {{- else }}
-                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+                name: {{ required "api.key or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
           {{- end }}
           volumeMounts:
             - mountPath: /certs
