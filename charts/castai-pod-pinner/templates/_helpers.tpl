@@ -51,6 +51,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Common Annotations
+*/}}
+{{- define "pod-pinner.annotations" -}}
+{{ if gt (len .Values.commonAnnotations) 0 -}}
+{{- with .Values.commonAnnotations }}
+{{- toYaml . }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "pod-pinner.serviceAccountName" -}}

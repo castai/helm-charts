@@ -1,0 +1,14 @@
+api:
+  url: "https://api.cast.ai"
+  grpcUrl: "grpc.cast.ai:443"
+  key: ""
+  clusterId: "a24cd53c-0d56-4422-88e6-f82f78ef8f20"
+apiKeySecretRef: "test"
+resources:
+  requests:
+    cpu: 10m
+    memory: 25Mi
+  limits:
+    cpu: 10m
+    memory: 25Mi
+isTest: true

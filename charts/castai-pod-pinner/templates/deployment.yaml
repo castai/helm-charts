@@ -61,11 +61,11 @@ spec:
                   fieldRef:
                     fieldPath: metadata.namespace
             - name: API_URL
-              value: {{ .Values.api.url }}
+              value: {{ required "api.url must be provided" .Values.api.url | quote }}
             - name: API_GRPC_URL
-              value: {{ .Values.api.grpcUrl }}
+              value: {{ required "api.grpcUrl must be provided" .Values.api.grpcUrl | quote }}
             - name: CLUSTER_ID
-              value: {{ .Values.api.clusterId }}
+              value: {{ required "api.clusterId must be provided" .Values.api.clusterId }}
             - name: CERTS_SECRET_NAME
               value: {{ include "pod-pinner.certsSecretName" . }}
             - name: CERTS_DIR
