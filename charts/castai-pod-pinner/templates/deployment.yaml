@@ -61,11 +61,11 @@ spec:
                   fieldRef:
                     fieldPath: metadata.namespace
             - name: API_URL
-              value: {{ required "api.url must be provided" .Values.api.url | quote }}
+              value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
             - name: API_GRPC_URL
-              value: {{ required "api.grpcUrl must be provided" .Values.api.grpcUrl | quote }}
+              value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
             - name: CLUSTER_ID
-              value: {{ required "api.clusterId must be provided" .Values.api.clusterId }}
+              value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
             - name: CERTS_SECRET_NAME
               value: {{ include "pod-pinner.certsSecretName" . }}
             - name: CERTS_DIR
@@ -80,10 +80,10 @@ spec:
             {{- end }}
           envFrom:
             - secretRef:
-          {{- if .Values.api.key }}
+          {{- if .Values.castai.apiKey }}
                 name: {{ include "pod-pinner.fullname" . -}}
           {{- else }}
-                name: {{ required "api.key or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+                name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}
           {{- end }}
           volumeMounts:
             - mountPath: /certs

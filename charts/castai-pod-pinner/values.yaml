@@ -86,13 +86,16 @@ tolerations: []
 affinity: {}
 
 webhook:
+  # Overrides the failure policy of the webhook whose default is Ignore.
   failurePolicy: Ignore
+  # Overrides webhook service routing and uses the provided url instead.
   url: ""
 
 deploy: true
 
-api:
-  url: "https://api.cast.ai"
-  grpcUrl: "grpc.cast.ai:443"
-  key: ""
-  clusterId: ""
+castai:
+  apiURL: "https://api.cast.ai"
+  grpcURL: "grpc.cast.ai:443"
+  apiKey: ""
+  apiKeySecretRef: ""
+  clusterID: ""

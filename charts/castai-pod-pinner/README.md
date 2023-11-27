@@ -8,14 +8,15 @@ CAST AI Pod Pinning deployment chart.
 |-----|------|---------|-------------|
 | additionalEnv | object | `{}` |  |
 | affinity | object | `{}` |  |
-| api.clusterId | string | `""` |  |
-| api.grpcUrl | string | `"grpc.cast.ai:443"` |  |
-| api.key | string | `""` |  |
-| api.url | string | `"https://api.cast.ai"` |  |
 | autoscaling.enabled | bool | `false` |  |
 | autoscaling.maxReplicas | int | `100` |  |
 | autoscaling.minReplicas | int | `1` |  |
 | autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
+| castai.apiKey | string | `""` |  |
+| castai.apiKeySecretRef | string | `""` |  |
+| castai.apiURL | string | `"https://api.cast.ai"` |  |
+| castai.clusterID | string | `""` |  |
+| castai.grpcURL | string | `"grpc.cast.ai:443"` |  |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | deploy | bool | `true` |  |
