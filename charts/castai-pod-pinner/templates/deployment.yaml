@@ -72,6 +72,8 @@ spec:
               value: /certs
             - name: PORT
               value: {{ .Values.service.port | quote }}
+            - name: WEBHOOK_NAME
+              value: {{ include "pod-pinner.webhookName" . }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
