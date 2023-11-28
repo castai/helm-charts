@@ -86,7 +86,7 @@ rules:
   - apiGroups: [ "admissionregistration.k8s.io" ]
     resourceNames: [ "castai-pod-pinner" ]
     resources: [ "mutatingwebhookconfigurations" ]
-    verbs: [ "patch" ]
+    verbs: [ "get", "patch" ]
   # For CAST autoscaling CRDs management.
   - apiGroups: [ "autoscaling.cast.ai" ]
     resources: [ "*" ]
