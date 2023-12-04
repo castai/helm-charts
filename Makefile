@@ -6,3 +6,6 @@ lint-all:
 		--workdir /repo \
 		quay.io/helmpack/chart-testing:v3.6.0 \
 		ct lint --debug --config ct.yaml --all
+
+validate:
+	scripts/validate-pr.sh

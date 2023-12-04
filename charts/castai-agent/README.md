@@ -1,7 +1,5 @@
 # castai-agent
 
-![Version: 0.64.13](https://img.shields.io/badge/Version-0.64.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.52.8](https://img.shields.io/badge/AppVersion-v0.52.8-informational?style=flat-square)
-
 CAST AI agent deployment chart.
 
 ## Values
@@ -62,4 +60,3 @@ CAST AI agent deployment chart.
 | tolerations | object | `{}` |  |
 | trustedCACert | string | `""` | CA certificate to add to agent's set of root certificate authorities that client will use when verifying server certificates. |
 | trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to agent's set of root certificate authorities. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
-
