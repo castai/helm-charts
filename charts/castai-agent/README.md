@@ -46,7 +46,7 @@ CAST AI agent deployment chart.
 | priorityClass.name | string | `"system-cluster-critical"` |  |
 | provider | string | `""` | Name of the Kubernetes service provider one of: "eks", "gks", "aks", "kops". |
 | rbac | object | `{"enabled":true}` | Specifies whether RBAC Clusterrole should be created. |
-| replicaCount | int | `1` |  |
+| replicaCount | int | `2` |  |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"128Mi"` |  |
 | securityContext.fsGroup | int | `65532` |  |
