@@ -1,0 +1,192 @@
+# Default values for egressd.
+# Declare variables to be passed into your templates.
+
+# CAST AI API configuration.
+castai:
+  # Token to be used for authorizing agent access to the CASTAI API
+  apiKey: ""
+
+  # Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"]
+  apiKeySecretRef: ""
+
+  # CASTAI public api url.
+  apiURL: "https://api.cast.ai"
+
+  # CASTAI Cluster unique identifier.
+  clusterID: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+collector:
+  image:
+    repository: ghcr.io/castai/egressd/egressd
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: { }
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  ## The name of the PriorityClass for collector pods
+  #priorityClassName: "system-node-critical"
+
+  ## Annotations to be added to collector pod
+  ##
+  podAnnotations: { }
+
+  ## Labels to be added to collector pod
+  ##
+  podLabels: { }
+
+  # If hostPID is used container should run in fully privileged mode. Then hostNetwork can be set to false.
+  hostPID: false
+  hostNetwork: true
+
+  podSecurityContext: { }
+  # fsGroup: 2000
+
+  containerSecurityContext:
+    privileged: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - all
+      add:
+        - NET_ADMIN  # Needed for reading conntrack.
+        - SYS_PTRACE # Needed for reading conntrack.
+        - SYS_ADMIN  # Needed for reading conntrack and ebpf.
+        - BPF        # Needed for reading ebpf.
+        - PERFMON    # Needed for reading ebpf.
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 1Gi
+
+  nodeSelector: { }
+
+  tolerations:
+    - operator: Exists
+
+  affinity: { }
+
+  dnsPolicy: ClusterFirstWithHostNet
+
+  httpListenPort: 6061
+
+  # Extra args for egressd collector container.
+  extraArgs:
+    group-public-ips: true
+    send-traffic-delta: true
+    ebpf-dns-tracer-enabled: false
+
+  prometheusScrape:
+    enabled: true
+
+  # Skip privileged init container if netfilter accounting or cgroupv2 mount is not needed.
+  # Netfilter accounting is enabled by setting /proc/sys/net/netfilter/nf_conntrack_acct to 1. If this is already enabled on host it can be skipped.
+  # Cgroupv2 should be already mounted in recent k8s versions. It's required to track dns requests using eBPF.
+  skipInit: false
+
+exporter:
+  image:
+    repository: ghcr.io/castai/egressd/egressd-exporter
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: ""
+
+  # Exporter global configuration in yaml format. All values could be overridden with environment values.
+  config: |
+    log:
+      level: "debug"
+    sinks:
+    {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+      castai:
+        http:
+          url: "{{.Values.castai.apiURL}}/v1/kubernetes/clusters/{{.Values.castai.clusterID}}/egressd-metrics"
+          compression: gzip
+          encoding: protobuf
+          method: POST
+          headers:
+            X-API-Key: "${API_KEY}"
+    {{- end }}
+
+  # Exporter global configuration for convenient overrides without changing the whole config yaml file. Final config is merged from both config and structuredConfig.
+  structuredConfig: {}
+
+  # Custom secret can be used to store configuration.
+  existingSecretForConfig: ""
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: { }
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+
+  ## The name of the PriorityClass for exporter pods
+  #priorityClassName: "system-cluster-critical"
+
+  ## Annotations to be added to exporter pod
+  ##
+  podAnnotations: { }
+
+
+  ## Labels to be added to exporter pod
+  ##
+  podLabels: { }
+
+  podSecurityContext:
+    fsGroup: 10001
+    runAsGroup: 10001
+    runAsNonRoot: true
+    runAsUser: 10001
+    seccompProfile:
+      type: RuntimeDefault
+
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop: [ ALL ]
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 100Mi
+    limits:
+      memory: 512Mi
+
+  nodeSelector: { }
+
+  tolerations: [ ]
+
+  affinity: { }
+
+  dnsPolicy: ClusterFirstWithHostNet
+
+  httpListenPort: 6060
+
+  # Extra args for egressd container.
+  extraArgs:
+  # metric-buffer-size: 10000
+
+  prometheusScrape:
+    enabled: true
+
+
