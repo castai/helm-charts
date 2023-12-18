@@ -132,6 +132,14 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - "datadoghq.com"
+    resouces:
+      - extendeddaemonsetreplicasets
+    verbs:
+      - get
+      - list
+      - watch
   - nonResourceURLs:
       - "/version"
     verbs:
