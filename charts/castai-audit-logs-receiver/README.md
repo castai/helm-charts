@@ -18,6 +18,8 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | config.extensions.health_check | object | `{}` |  |
 | config.receivers.castai-audit-logs.api.key | string | `"${env:CASTAI_API_KEY}"` | Use CASTAI_API_KEY env variable to provide API Access Key. |
 | config.receivers.castai-audit-logs.api.url | string | `"${env:CASTAI_API_URL}"` | Use CASTAI_API_URL env variable to override default API URL (https://api.cast.ai/). |
+| config.receivers.castai-audit-logs.filters | object | `{"cluster_id":""}` | Optional configuration for filtering scraped audit logs |
+| config.receivers.castai-audit-logs.filters.cluster_id | string | `""` | This optional parameters defines cluster id for which logs should be scraped. |
 | config.receivers.castai-audit-logs.page_limit | int | `100` | This parameter defines the max number of records returned from the backend in one page. |
 | config.receivers.castai-audit-logs.poll_interval_sec | int | `10` | This parameter defines poll cycle in seconds. |
 | config.receivers.castai-audit-logs.storage.filename | string | `"/var/lib/otelcol/file_storage/audit_logs_poll_data.json"` |  |

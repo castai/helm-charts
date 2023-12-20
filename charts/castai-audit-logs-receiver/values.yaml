@@ -104,6 +104,10 @@ config:
       storage:
         type: "persistent"
         filename: "/var/lib/otelcol/file_storage/audit_logs_poll_data.json"
+      # config.receivers.castai-audit-logs.filters -- Optional configuration for filtering scraped audit logs
+      filters:
+        # config.receivers.castai-audit-logs.filters.cluster_id -- This optional parameters defines cluster id for which logs should be scraped.
+        cluster_id: ""
 
   exporters:
     logging:
