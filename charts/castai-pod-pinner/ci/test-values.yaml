@@ -5,10 +5,17 @@ castai:
   clusterID: "a24cd53c-0d56-4422-88e6-f82f78ef8f20"
   apiKeySecretRef: "test"
 resources:
-  requests:
-    cpu: 10m
-    memory: 25Mi
   limits:
-    cpu: 10m
-    memory: 25Mi
+    cpu: 1000m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 isTest: true
+additionalEnv:
+  ANTICIPATE_WORKER_READY_STATUS: true
+webhook:
+  port: 8443
+service:
+  port: 443
+  type: ClusterIP
