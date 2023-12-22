@@ -45,11 +45,12 @@ CAST AI Pod Pinning deployment chart.
 | securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | securityContext.runAsNonRoot | bool | `true` |  |
 | securityContext.runAsUser | int | `1000` |  |
-| service.port | int | `8443` |  |
+| service.port | int | `443` |  |
 | service.type | string | `"ClusterIP"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
 | tolerations | list | `[]` |  |
 | webhook.failurePolicy | string | `"Ignore"` |  |
+| webhook.port | int | `8443` |  |
 | webhook.url | string | `""` |  |

@@ -39,7 +39,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.webhook.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -71,7 +71,7 @@ spec:
             - name: CERTS_DIR
               value: /certs
             - name: PORT
-              value: {{ .Values.service.port | quote }}
+              value: {{ .Values.webhook.port | quote }}
             - name: WEBHOOK_NAME
               value: {{ include "pod-pinner.webhookName" . }}
             {{- range $name, $value := .Values.additionalEnv }}

@@ -49,7 +49,7 @@ securityContext:
 
 service:
   type: ClusterIP
-  port: 8443
+  port: 443
 
 ingress:
   enabled: false
@@ -90,6 +90,7 @@ webhook:
   failurePolicy: Ignore
   # Overrides webhook service routing and uses the provided url instead.
   url: ""
+  port: 8443
 
 deploy: true
 
