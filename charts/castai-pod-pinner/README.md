@@ -52,5 +52,5 @@ CAST AI Pod Pinning deployment chart.
 | serviceAccount.name | string | `""` |  |
 | tolerations | list | `[]` |  |
 | webhook.failurePolicy | string | `"Ignore"` |  |
-| webhook.port | int | `8443` |  |
+| webhook.port | int | `10250` |  |
 | webhook.url | string | `""` |  |
