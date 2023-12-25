@@ -74,6 +74,8 @@ spec:
               value: {{ .Values.webhook.port | quote }}
             - name: WEBHOOK_NAME
               value: {{ include "pod-pinner.webhookName" . }}
+            - name: SERVICE_NAME
+              value: {{ include "pod-pinner.fullname" . }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
