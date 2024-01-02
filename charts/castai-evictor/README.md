@@ -16,6 +16,9 @@ Cluster utilization defragmentation tool
 | commonAnnotations | object | `{}` |  |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | configMapLabels | object | `{}` |  |
+| containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
+| containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
