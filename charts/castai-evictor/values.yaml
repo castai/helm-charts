@@ -137,3 +137,17 @@ additionalEnv: {}
 # apiKey and apiKeySecretRef are mutually exclusive
 # The referenced secret must provide the token in .data["API_KEY"].
 apiKeySecretRef: ""
+
+# clusterVPA -- Cluster proportional vertical autoscaler for the agent deployment
+# https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler.
+clusterVPA:
+  repository: "registry.k8s.io/cpa/cpvpa"
+  enabled: true
+  version: v0.8.4
+  pollPeriodSeconds: 300
+  resources: {}
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
