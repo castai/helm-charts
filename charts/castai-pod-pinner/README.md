@@ -38,9 +38,9 @@ CAST AI Pod Pinning deployment chart.
 | podAnnotations | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |
 | replicaCount | int | `1` |  |
-| resources.limits.memory | string | `"25Mi"` |  |
+| resources.limits.memory | string | `"100Mi"` |  |
 | resources.requests.cpu | string | `"20m"` |  |
-| resources.requests.memory | string | `"25Mi"` |  |
+| resources.requests.memory | string | `"100Mi"` |  |
 | securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | securityContext.runAsNonRoot | bool | `true` |  |
