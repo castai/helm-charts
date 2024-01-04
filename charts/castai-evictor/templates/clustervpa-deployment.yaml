@@ -1,0 +1,82 @@
+{{- if .Values.clusterVPA.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "evictor.fullname" . }}-cpvpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{ if .Values.global }}
+    azure-extensions-usage-release-identifier: {{.Release.Name}}
+    {{ end }}
+    app.kubernetes.io/name: {{ include "evictor.fullname" . }}-cpvpa
+    app.kubernetes.io/instance: {{ include "evictor.fullname" . }}-cpvpa
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "evictor.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "evictor.fullname" . }}-cpvpa
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "evictor.fullname" . }}-cpvpa
+        app.kubernetes.io/instance: {{ include "evictor.fullname" . }}-cpvpa
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      serviceAccountName: {{ include "evictor.serviceAccountName" . }}
+      automountServiceAccountToken: true
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: autoscaler
+        {{- $global := .Values.global | default dict }}
+        {{ if $global.azure }}
+          image: "{{ .Values.global.azure.images.cpva.registry }}/{{ .Values.global.azure.images.cpva.image }}@{{ .Values.global.azure.images.cpva.digest }}"
+        {{ else }}
+          image: "{{ .Values.clusterVPA.repository }}:{{ .Values.clusterVPA.version }}"
+        {{ end }}
+          command:
+            - /cpvpa
+            - --target=deployment/{{ include "evictor.fullname" . }}
+            - --namespace={{ .Release.Namespace }}
+            - --logtostderr=true
+            - --poll-period-seconds={{ .Values.clusterVPA.pollPeriodSeconds }}
+            - --config-file=/etc/config/evictor-autoscaler
+          volumeMounts:
+            - mountPath: /etc/config
+              name: autoscaler-config
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          resources:
+            {{- .Values.clusterVPA.resources | default dict | toYaml | nindent 12 }}
+
+      volumes:
+        - name: autoscaler-config
+          configMap:
+            name: {{ include "evictor.fullname" . }}-autoscaler
+{{- end }}

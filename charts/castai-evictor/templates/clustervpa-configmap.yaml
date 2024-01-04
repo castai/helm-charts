@@ -1,0 +1,40 @@
+{{- if .Values.clusterVPA.enabled }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "evictor.fullname" . }}-autoscaler
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "evictor.annotations" . | nindent 4 }}
+  {{- end }}
+data:
+  # Increase memory requests/limits by 256Mi for every 20 nodes. round_up(nodes/nodes_per_step)*step
+  # For example, for 150 nodes: round_up(150/20)*256Mi=2048Mi
+
+  # in case of large nodes, cores-per-step will ensure that we continue to scale the evictor
+  evictor-autoscaler: |-
+    {
+      "evictor": {
+        "requests": {
+          "memory": {
+            "base": "200Mi",
+            "max": "8Gi",
+            "step": "256Mi",
+            "nodesPerStep": 20
+          }
+        },
+        "limits": {
+          "memory": {
+            "base": "2Gi",
+            "max": "8Gi",
+            "step": "256Mi",
+            "nodesPerStep": 20
+          }
+        }
+      }
+    }
+{{- end }}
