@@ -10,3 +10,5 @@ helm-extra-args: --timeout 600s
 validate-maintainers: false
 namespace: default
 release-label: app.kubernetes.io/instance
+excluded-charts:
+  charts/egressd
