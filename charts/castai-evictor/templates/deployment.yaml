@@ -90,6 +90,17 @@ spec:
             - configMapRef:
                 name: {{ include "evictor.fullname" . }}-config
                 optional: false
+          {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
+          resources:
+          {{- if .Values.clusterVPA.enabled -}}
+          {{/* we hardcode CPU req/limit for now */}}
+            requests:
+              cpu: 100m
+            limits:
+              cpu: 1000m
+          {{- else -}}
+            {{ .Values.resources | toYaml | nindent 14 }}
+          {{- end }}
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"

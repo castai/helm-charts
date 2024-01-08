@@ -11,10 +11,14 @@ Cluster utilization defragmentation tool
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
 | aggressiveMode | bool | `false` | Specifies whether the Evictor can behave as aggressive if true, evictor will start considering single replica pods as long as they can be scheduled somewhere else. |
-| apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing agent access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
+| apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing evictor access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
+| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"registry.k8s.io/cpa/cpvpa","resources":{},"version":"v0.8.4"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |
 | commonAnnotations | object | `{}` |  |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | configMapLabels | object | `{}` |  |
+| containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
+| containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |

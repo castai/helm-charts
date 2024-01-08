@@ -33,9 +33,10 @@ jobs:
         uses: helm/chart-testing-action@v2.0.1
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.4.1
+        uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c
         with:
           charts_dir: charts
           config: cr.yaml
+          skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.PAT_CICD }}"
