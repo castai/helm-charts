@@ -32,7 +32,7 @@ jobs:
           directory: charts
           config: kube-linter-config.yaml
           format: plain
-          version: v0.6.5
+          version: v0.6.7
 
       - name: Run chart-testing (list-changed)
         id: list-changed
