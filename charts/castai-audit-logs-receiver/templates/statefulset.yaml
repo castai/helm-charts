@@ -66,6 +66,10 @@ spec:
             - mountPath: /var/lib/otelcol/file_storage
               name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-statestorage
             {{- end }}
+          ports:
+            - name: healthz
+              containerPort: 13133
+              protocol: TCP
           livenessProbe:
             httpGet:
               path: /
