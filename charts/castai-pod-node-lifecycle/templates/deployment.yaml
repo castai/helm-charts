@@ -113,6 +113,9 @@ spec:
               {{- end}}
               name: https
               protocol: TCP
+            - name: healthz
+              containerPort: 9091              
+              protocol: TCP
       volumes:
         - name: certs
           secret:
