@@ -41,6 +41,9 @@ spec:
             - name: http
               containerPort: {{ .Values.webhook.port }}
               protocol: TCP
+            - name: healthz
+              containerPort: 9091
+              protocol: TCP
           livenessProbe:
             httpGet:
               port: 9091
