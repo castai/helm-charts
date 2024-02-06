@@ -14,6 +14,9 @@ image:
   tag: ""
   pullPolicy: IfNotPresent
 
+# imagePullSecrets -- what secret should be used for pulling the image
+imagePullSecrets: {}
+
 castai:
   # castai.apiURL -- CASTAI public api url.
   apiURL: "https://api.cast.ai"
