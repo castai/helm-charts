@@ -18,6 +18,7 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/spot-handler"` |  |
 | image.tag | string | `""` |  |
+| imagePullSecrets | object | `{}` | what secret should be used for pulling the image |
 | nodeSelector."scheduling.cast.ai/spot" | string | `"true"` |  |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
