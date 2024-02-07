@@ -15,6 +15,9 @@ image:
   repository: us-docker.pkg.dev/castai-hub/library/agent
   pullPolicy: IfNotPresent
 
+# imagePullSecrets -- what secret should be used for pulling the image
+imagePullSecrets: {}
+
 nameOverride: ""
 fullnameOverride: castai-agent
 

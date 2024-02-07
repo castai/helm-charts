@@ -35,6 +35,7 @@ CAST AI agent deployment chart.
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/agent"` |  |
+| imagePullSecrets | object | `{}` | what secret should be used for pulling the image |
 | monitor.resources.requests.cpu | string | `"100m"` |  |
 | monitor.resources.requests.memory | string | `"128Mi"` |  |
 | nameOverride | string | `""` |  |
