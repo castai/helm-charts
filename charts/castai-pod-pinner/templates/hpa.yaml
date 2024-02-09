@@ -23,7 +23,7 @@ spec:
       resource:
         name: cpu
         targetAverageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
-        {{- if semverCompare ">=1.29-0" .Capabilities.KubeVersion.GitVersion }}
+        {{- if semverCompare ">=1.25-0" .Capabilities.KubeVersion.GitVersion }}
         target:
           type: Utilization
           averageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
@@ -35,7 +35,7 @@ spec:
     - type: Resource
       resource:
         name: memory
-        {{- if semverCompare ">=1.29-0" .Capabilities.KubeVersion.GitVersion }}
+        {{- if semverCompare ">=1.25-0" .Capabilities.KubeVersion.GitVersion }}
         target:
           type: Utilization
           averageUtilization: {{ .Values.autoscaling.targetMemoryUtilizationPercentage }}
