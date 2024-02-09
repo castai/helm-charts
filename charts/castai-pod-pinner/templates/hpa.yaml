@@ -22,7 +22,6 @@ spec:
     - type: Resource
       resource:
         name: cpu
-        targetAverageUtilization: {{ .Values.autoscaling.targetCPUUtilizationPercentage }}
         {{- if semverCompare ">=1.25-0" .Capabilities.KubeVersion.GitVersion }}
         target:
           type: Utilization
