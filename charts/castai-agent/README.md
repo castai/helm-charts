@@ -46,7 +46,8 @@ CAST AI agent deployment chart.
 | priorityClass.enabled | bool | `true` |  |
 | priorityClass.name | string | `"system-cluster-critical"` |  |
 | provider | string | `""` | Name of the Kubernetes service provider one of: "eks", "gks", "aks", "kops". |
-| rbac | object | `{"enabled":true}` | Specifies whether RBAC Clusterrole should be created. |
+| rbac.configmapsReadAccessNamespaces | list | `["kube-system"]` | Namespaces to be granted access to the castai-agent for configmaps read access. |
+| rbac.enabled | bool | `true` | Specifies whether a Clusterrole should be created. |
 | replicaCount | int | `2` |  |
 | resources.requests.cpu | string | `"100m"` |  |
 | resources.requests.memory | string | `"128Mi"` |  |
