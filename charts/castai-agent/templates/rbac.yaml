@@ -289,4 +289,44 @@ subjects:
     namespace: {{ .Release.Namespace }}
 {{- end}}
 
+{{- range .Values.rbac.configmapsReadAccessNamespaces }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" $ }}
+  namespace: {{ . }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" $ }}
+  labels:
+    {{- include "castai-agent.labels" $ | nindent 4 }}
+  namespace: {{ . }}
+  {{ if gt (len $.Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" $ | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "castai-agent.serviceAccountName" $ }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-agent.serviceAccountName" $ }}
+    namespace: {{ . }}
+
+{{- end }}
+
 {{- end }}
