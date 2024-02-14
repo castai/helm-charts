@@ -99,7 +99,7 @@ spec:
             limits:
               cpu: 1000m
           {{- else -}}
-            {{ .Values.resources | toYaml | nindent 14 }}
+            {{ .Values.resources | toYaml | nindent 12 }}
           {{- end }}
           securityContext:
             {{- toYaml .Values.podSecurityContext | nindent 12 }}
@@ -121,8 +121,6 @@ spec:
             - mountPath: /config
               name: cfg
               readOnly: true
-          resources:
-            {{- toYaml .Values.resources | nindent 12 }}
       volumes:
         - name: cfg
           configMap:
