@@ -2,6 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# Do not run more than one replica.
 replicaCount: 1
 namespace: "castai-agent"
 
@@ -71,13 +72,6 @@ resources:
     memory: 100Mi
   limits:
     memory: 100Mi
-
-autoscaling:
-  enabled: false
-  minReplicas: 1
-  maxReplicas: 100
-  targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 

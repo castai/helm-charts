@@ -8,10 +8,6 @@ CAST AI Pod Pinning deployment chart.
 |-----|------|---------|-------------|
 | additionalEnv | object | `{}` |  |
 | affinity | object | `{}` |  |
-| autoscaling.enabled | bool | `false` |  |
-| autoscaling.maxReplicas | int | `100` |  |
-| autoscaling.minReplicas | int | `1` |  |
-| autoscaling.targetCPUUtilizationPercentage | int | `80` |  |
 | castai.apiKey | string | `""` |  |
 | castai.apiKeySecretRef | string | `""` |  |
 | castai.apiURL | string | `"https://api.cast.ai"` |  |
