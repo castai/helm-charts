@@ -32,6 +32,7 @@ CAST AI Pod Pinning deployment chart.
 | namespace | string | `"castai-agent"` |  |
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
+| podLabels | object | `{}` |  |
 | podSecurityContext | object | `{}` |  |
 | replicaCount | int | `1` |  |
 | resources.limits.memory | string | `"100Mi"` |  |
