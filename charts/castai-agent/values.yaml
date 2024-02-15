@@ -23,9 +23,13 @@ fullnameOverride: castai-agent
 
 # createNamespace -- Specifies whether a namespace should be created.
 createNamespace: true
-# rbac -- Specifies whether RBAC Clusterrole should be created.
+
 rbac:
+  # rbac.enabled -- Specifies whether a Clusterrole should be created.
   enabled: true
+  # rbac.configmapsReadAccessNamespaces -- Namespaces to be granted access to the castai-agent for configmaps read access.
+  configmapsReadAccessNamespaces:
+    - "kube-system"
 
 serviceAccount:
   # serviceAccount.create -- Specifies whether a service account should be created.

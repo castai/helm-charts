@@ -43,7 +43,6 @@ rules:
       - services
       - namespaces
       - events
-      - configmaps
     verbs:
       - get
       - list
@@ -186,7 +185,6 @@ subjects:
     name: {{ include "castai-agent.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 
-{{- if .Values.clusterVPA.enabled }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -201,6 +199,18 @@ metadata:
   {{- end }}
 rules:
   # ---
+  # Required for cost savings estimation features.
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+  {{- if .Values.clusterVPA.enabled }}
+  # ---
   # Required for proportional vertical cluster autoscaler to adjust castai-agent requests/limits.
   # ---
   - apiGroups:
@@ -211,6 +221,7 @@ rules:
       - {{ include "castai-agent.fullname" . }}
     verbs:
       - patch
+  {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -231,7 +242,6 @@ subjects:
   - kind: ServiceAccount
     name: {{ include "castai-agent.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
-{{- end }}
 
 {{- if eq .Values.provider "openshift" }}
 ---
@@ -278,5 +288,45 @@ subjects:
     name: {{ include "castai-agent.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 {{- end}}
+
+{{- range .Values.rbac.configmapsReadAccessNamespaces }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" $ }}
+  namespace: {{ . }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "castai-agent.serviceAccountName" $ }}
+  labels:
+    {{- include "castai-agent.labels" $ | nindent 4 }}
+  namespace: {{ . }}
+  {{ if gt (len $.Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" $ | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "castai-agent.serviceAccountName" $ }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-agent.serviceAccountName" $ }}
+    namespace: {{ . }}
+
+{{- end }}
 
 {{- end }}
