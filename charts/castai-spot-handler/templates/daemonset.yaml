@@ -9,6 +9,8 @@ metadata:
     ignore-check.kube-linter.io/host-network: "Spot handler need host network to access instance metadata endpoints for spot interrupts checks."
     {{- include "castai-agent.annotations" . | nindent 4 }}
 spec:
+  updateStrategy:
+    {{- .Values.updateStrategy | toYaml | nindent 4 }}
   selector:
     matchLabels:
       name: spot-handler

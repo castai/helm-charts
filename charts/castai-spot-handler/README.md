@@ -34,4 +34,5 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | serviceAccount.name | string | `"castai-spot-handler"` |  |
 | tolerations[0].effect | string | `"NoSchedule"` |  |
 | tolerations[0].operator | string | `"Exists"` |  |
+| updateStrategy | object | `{}` | Controls `daemonset.spec.updateStrategy` field. |
 | useHostNetwork | bool | `true` | Host network is used to access instance metadata endpoints which are not always available from pod network. |
