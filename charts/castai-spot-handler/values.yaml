@@ -36,6 +36,9 @@ additionalEnv:
 # useHostNetwork -- Host network is used to access instance metadata endpoints which are not always available from pod network.
 useHostNetwork: true
 
+# updateStrategy -- Controls `daemonset.spec.updateStrategy` field.
+updateStrategy: {}
+
 resources:
   requests:
     cpu: 10m

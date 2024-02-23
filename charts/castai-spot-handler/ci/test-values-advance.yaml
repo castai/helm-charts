@@ -1,0 +1,23 @@
+castai:
+  apiURL: "test"
+  clusterID: "test"
+  provider: "gcp"
+
+namespace: default
+
+# Kind test cluster doesn't support spot selector.
+nodeSelector: null
+
+test:
+  apiKey: "test"
+
+podLabels:
+  key: value1
+
+podAnnotations:
+  key: value
+
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
