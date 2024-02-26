@@ -119,6 +119,8 @@ rules:
     resources:
       - provisioners
       - machines
+      - nodepools
+      - nodeclaims
     verbs:
       - get
       - list
@@ -127,6 +129,7 @@ rules:
       - "karpenter.k8s.aws"
     resources:
       - awsnodetemplates
+      - ec2nodeclasses
     verbs:
       - get
       - list
