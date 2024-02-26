@@ -35,6 +35,10 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
     verbs: [ "get" ]
+  # For advertising extended resources
+  - apiGroups: [ "" ]
+    resources: [ "nodes/status" ]
+    verbs: [ "patch" ]
   # For node draining and patching.
   - apiGroups: [ "" ]
     resources: [ "nodes" ]
