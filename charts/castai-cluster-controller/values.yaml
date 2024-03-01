@@ -30,7 +30,7 @@ imagePullSecrets: {}
 
 # updateStrategy -- Controls `deployment.spec.strategy` field.
 updateStrategy:
-  type: Recreate
+  type: RollingUpdate
 
 # castai -- CAST AI API configuration.
 castai:
