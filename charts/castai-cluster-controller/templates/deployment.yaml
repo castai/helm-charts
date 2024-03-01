@@ -10,12 +10,14 @@ metadata:
     ignore-check.kube-linter.io/run-as-non-root: "This deployment writes to local fs during chart upsert actions."
     {{- include "castai-agent.annotations" . | nindent 4 }}
 spec:
-  strategy:
-    {{- .Values.updateStrategy | toYaml | nindent 4 }}
   {{- if .Values.leaderElectionEnabled }}
   replicas: {{ .Values.replicas }}
+  strategy:
+    {{- .Values.updateStrategy | toYaml | nindent 4 }}
   {{- else}}
   replicas: 1
+  strategy:
+    type: Recreate
   {{- end}}
   selector:
     matchLabels:
