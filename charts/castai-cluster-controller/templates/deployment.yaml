@@ -82,6 +82,10 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
+            - name: LEADER_ELECTION_LEASE_DURATION
+              value: "{{ .Values.leaderElectionLeaseDuration }}"
+            - name: LEADER_ELECTION_LEASE_RENEW_DEADLINE
+              value: "{{ .Values.leaderElectionRenewDeadline }}"
           {{- end }}
           {{- if .Values.k8sApiClient.rateLimit.burst }}
             - name: KUBECLIENT_BURST
