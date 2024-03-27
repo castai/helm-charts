@@ -27,7 +27,12 @@ spec:
             imagePullPolicy: {{ .Values.image.pullPolicy }}
             envFrom:
               - secretRef:
+                  {{- if .Values.apiKeySecretRef }}
+                  name: {{ .Values.apiKeySecretRef }}
+                  {{- else }}
                   name: {{ .Values.secretName }}
+                  {{- end }}
+                  optional: false
             securityContext:
               readOnlyRootFilesystem: true       
             env:
