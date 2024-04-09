@@ -108,7 +108,7 @@ spec:
           {{- if .Values.clusterVPA.enabled -}}
           {{/* we hardcode CPU req/limit for now */}}
             requests:
-              cpu: 100m
+              cpu: 1m
             limits:
               cpu: 1000m
           {{- else -}}
