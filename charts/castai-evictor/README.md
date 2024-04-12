@@ -40,6 +40,7 @@ Cluster utilization defragmentation tool
 | podLabels | object | `{}` |  |
 | podSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | rbac.enabled | bool | `true` |  |
+| rbac.volumes.enabled | bool | `true` |  |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |
 | scopedMode | bool | `false` |  |
