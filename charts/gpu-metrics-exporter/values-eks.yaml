@@ -1,0 +1,7 @@
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: k8s.amazonaws.com/accelerator
+              operator: Exists
