@@ -103,17 +103,8 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
-          {{- if .Values.clusterVPA.enabled -}}
-          {{/* we hardcode CPU req/limit for now */}}
-            requests:
-              cpu: 1m
-            limits:
-              cpu: 1000m
-          {{- else -}}
             {{ .Values.resources | toYaml | nindent 14 }}
-          {{- end }}
           {{- with .Values.containerSecurityContext }}
           securityContext:
             {{- toYaml . | nindent 12 }}
