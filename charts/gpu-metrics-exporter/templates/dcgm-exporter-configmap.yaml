@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: dcgm-exporter-metrics
+  name: {{- include "dcgm-exporter.config-map" . | indent 1 }}
 data:
   counters.csv: |
     # Temperature and power usage,,

@@ -60,3 +60,17 @@ app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
+
+{{/*
+Create the name of the dcgm-exporter config map
+*/}}
+{{- define "dcgm-exporter.config-map" -}}
+{{- printf "%s-%s" .Release.Name "dcgm-metrics" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
+Create the name of the gpu-metrics-exporter config map
+*/}}
+{{- define "gpu-metrics-exporter.config-map" -}}
+{{- printf "%s-%s" .Release.Name "gpu-metrics-exporter" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
+{{- end }}

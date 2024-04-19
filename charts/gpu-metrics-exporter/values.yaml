@@ -19,7 +19,7 @@ gpuMetricsExporter:
   image:
     repository: ghcr.io/castai/gpu-metrics-exporter/gpu-metrics-exporter
     pullPolicy: IfNotPresent
-    tag: ""
+    tag: "latest"
   config: {}
   resources:
     limits:
@@ -28,7 +28,9 @@ gpuMetricsExporter:
     requests:
       cpu: 100m
       memory: 128Mi
-  securityContext: {}
+  securityContext:
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
   volumeMounts: []
 
 dcgmExporter:
@@ -38,4 +40,8 @@ dcgmExporter:
     repository: nvcr.io/nvidia/k8s/dcgm-exporter
     pullPolicy: IfNotPresent
     tag: 3.3.5-3.4.1-ubuntu22.04
+  useExternalHostEngine: false
   additionalEnv: []
+  securityContext:
+    privileged: true
+    readOnlyRootFilesystem: true

@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: gpu-metrics-exporter-config
+  name: {{- include "gpu-metrics-exporter.config-map" . | indent 1}}
 data:
 {{- with .Values.gpuMetricsExporter.config }}
   {{- toYaml . | nindent 2 }}
