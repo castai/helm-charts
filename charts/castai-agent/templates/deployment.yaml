@@ -85,6 +85,8 @@ spec:
             {{- end }}
             - name: MONITOR_METADATA
               value: /agent-metadata/metadata
+            - name: CONTROLLER_CONFIG_MAP_NAMESPACES
+              value: '{{ join "," ( concat ( list .Release.Namespace ) .Values.rbac.configmapsReadAccessNamespaces ) }}' 
           {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
