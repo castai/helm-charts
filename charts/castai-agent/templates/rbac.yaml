@@ -328,7 +328,7 @@ roleRef:
 subjects:
   - kind: ServiceAccount
     name: {{ include "castai-agent.serviceAccountName" $ }}
-    namespace: {{ . }}
+    namespace: {{ $.Release.Namespace }}
 
 {{- end }}
 
