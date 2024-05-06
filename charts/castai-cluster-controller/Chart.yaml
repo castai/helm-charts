@@ -2,5 +2,11 @@ apiVersion: v2
 name: castai-cluster-controller
 description: Cluster controller is responsible for handling certain Kubernetes actions such as draining and deleting nodes, adding labels, approving CSR requests.
 type: application
-version: 0.56.9
+version: 0.56.10
 appVersion: "v0.41.8"
+
+dependencies:
+- name: castai-cluster-controller-ext
+  repository: file://charts/castai-cluster-controller-ext
+  version: 0.1.0
+  condition: castai-cluster-controller-ext.enabled
