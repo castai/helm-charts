@@ -1,0 +1,12 @@
+
+# commonLabels -- Labels to add to all resources.
+commonLabels: {}
+
+# annotations - Annotations to add to all resources.
+commonAnnotations: {}
+
+nameOverride: ""
+fullnameOverride: castai-evictor-ext
+
+serviceAccount:
+  name: "castai-evictor"
