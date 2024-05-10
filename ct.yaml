@@ -3,7 +3,7 @@ remote: origin
 target-branch: main
 chart-dirs:
   - charts
-chart-repos: 
+chart-repos:
   - tetragon=https://helm.cilium.io
   - vector=https://helm.vector.dev
 helm-extra-args: --timeout 600s
