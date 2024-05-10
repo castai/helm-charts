@@ -8,5 +8,7 @@ commonAnnotations: {}
 nameOverride: ""
 fullnameOverride: castai-evictor-ext
 
+# This chart is meant to provide possibility for granting permissions mostly. Permissions are granted by creating
+# new role bindings to the SA created in the parent Chart. This SA name is used for creating role bindings.
 serviceAccount:
   name: "castai-evictor"
