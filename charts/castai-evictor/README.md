@@ -2,6 +2,12 @@
 
 Cluster utilization defragmentation tool
 
+## Requirements
+
+| Repository | Name | Version |
+|------------|------|---------|
+| file://child-charts/castai-evictor-ext | castai-evictor-ext | 0.1.0 |
+
 ## Values
 
 | Key | Type | Default | Description |
@@ -40,7 +46,6 @@ Cluster utilization defragmentation tool
 | podLabels | object | `{}` |  |
 | podSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | rbac.enabled | bool | `true` |  |
-| rbac.volumes.enabled | bool | `true` |  |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |
 | scopedMode | bool | `false` |  |
