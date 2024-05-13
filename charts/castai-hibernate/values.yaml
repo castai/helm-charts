@@ -51,7 +51,7 @@ concurrencyPolicy: "Forbid"
 image:
   repository: castai/hibernate
   # -- Tag is set using Chart.yaml appVersion field.
-  tag: ""
+  tag: "v0.9"
   pullPolicy: Always
 
 # Override default NAMESPACES_TO_KEEP
@@ -78,3 +78,6 @@ podSecurityContext:
 # Override default hibernate-node size
 # -- Set the HIBERNATE_NODE environment variable to override the default node sizing selections. Make sure the size selected is appropriate for your cloud.
 hibernateNode: ""
+
+lastRunStatus: "success"
+lastRunTime: "2022-01-01T00:00:00Z"
