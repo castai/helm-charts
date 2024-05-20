@@ -24,6 +24,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "castai-agent.fullname" . }}-cpvpa
         app.kubernetes.io/instance: {{ include "castai-agent.fullname" . }}-cpvpa
+        autoscaling.cast.ai/disposable: "true"
         {{- with .Values.podLabels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
