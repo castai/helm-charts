@@ -88,7 +88,7 @@ spec:
                 name: castai-cluster-controller
                 optional: false
             - configMapRef:
-                name: {{ include "evictor.fullname" . }}-config
+                name: {{ include "evictor.name" . }}-config
                 optional: false
           {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
@@ -124,7 +124,7 @@ spec:
       volumes:
         - name: cfg
           configMap:
-            name: {{ include "evictor.fullname" . }}-config
+            name: {{ include "evictor.name" . }}-config
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
