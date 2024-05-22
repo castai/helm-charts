@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: castai-hibernate-state
+  namespace: {{ .Release.Namespace }}
+data:
+  last_run_status: "success"
+  last_run_time: "2022-01-01T00:00:00Z"
