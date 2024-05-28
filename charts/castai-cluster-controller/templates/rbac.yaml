@@ -59,6 +59,7 @@ rules:
     resources: [ "deployments" ]
     verbs: [ "patch" ]
   {{- end}}
+  {{- if .Values.autoscaling.enabled }}
   # For csr approval.
   - apiGroups: [ "certificates.k8s.io" ]
     resources: [ "certificatesigningrequests" ]
@@ -74,6 +75,11 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "events" ]
     verbs: [ "list", "create", "patch" ]
+  # For CAST autoscaling CRDs management.
+  - apiGroups: [ "autoscaling.cast.ai" ]
+    resources: [ "*" ]
+    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
+  {{- end}}
   # For installing/updating CAST AI components.
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles" ]
@@ -91,10 +97,6 @@ rules:
     resourceNames: [ "castai-pod-pinner" ]
     resources: [ "mutatingwebhookconfigurations" ]
     verbs: [ "get", "patch" ]
-  # For CAST autoscaling CRDs management.
-  - apiGroups: [ "autoscaling.cast.ai" ]
-    resources: [ "*" ]
-    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1

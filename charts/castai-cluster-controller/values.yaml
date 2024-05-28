@@ -129,3 +129,8 @@ k8sApiClient:
 workloadManagement:
   # workloadManagement.enabled -- Adds permissions to patch deployments.
   enabled: false
+
+# autoscaling -- Settings for managing autoscaling.
+autoscaling:
+  # autoscaling.enabled -- Adds permissions to manage autoscaling.
+  enabled: true
