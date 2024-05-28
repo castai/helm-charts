@@ -95,6 +95,9 @@ rules:
   - apiGroups: [ "autoscaling.cast.ai" ]
     resources: [ "*" ]
     verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["delete", "list", "get"]
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
