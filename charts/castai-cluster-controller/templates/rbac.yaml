@@ -35,6 +35,16 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
     verbs: [ "get" ]
+  - apiGroups: [ "" ]
+    resources: [ "events" ]
+    verbs: [ "list" ]
+  {{- if .Values.workloadManagement.enabled }}
+  # For workload management
+  - apiGroups: [ "apps" ]
+    resources: [ "deployments" ]
+    verbs: [ "patch" ]
+  {{- end}}
+  {{- if .Values.autoscaling.enabled }}
   # For advertising extended resources
   - apiGroups: [ "" ]
     resources: [ "nodes/status" ]
@@ -53,13 +63,6 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "nodes" ]
     verbs: [ "delete" ]
-  {{- if .Values.workloadManagement.enabled }}
-  # For workload management
-  - apiGroups: [ "apps" ]
-    resources: [ "deployments" ]
-    verbs: [ "patch" ]
-  {{- end}}
-  {{- if .Values.autoscaling.enabled }}
   # For csr approval.
   - apiGroups: [ "certificates.k8s.io" ]
     resources: [ "certificatesigningrequests" ]
@@ -74,7 +77,7 @@ rules:
   # For creating events.
   - apiGroups: [ "" ]
     resources: [ "events" ]
-    verbs: [ "list", "create", "patch" ]
+    verbs: [ "create", "patch" ]
   # For CAST autoscaling CRDs management.
   - apiGroups: [ "autoscaling.cast.ai" ]
     resources: [ "*" ]
