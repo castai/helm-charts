@@ -18,7 +18,7 @@ data:
   # in case of large nodes, cores-per-step will ensure that we continue to scale the evictor
   evictor-autoscaler: |-
     {
-      "evictor": {
+      "{{ .Chart.Name }}": {
         "requests": {
           "memory": {
             "base": "200Mi",
