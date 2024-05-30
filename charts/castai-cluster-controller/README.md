@@ -8,6 +8,8 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 |-----|------|---------|-------------|
 | additionalEnv | object | `{"LOG_LEVEL":"5"}` | Env variables passed to castai-cluster-controller. |
 | affinity | object | `{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"NotIn","values":["windows"]}]}]}},"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["castai-cluster-controller"]}]},"topologyKey":"kubernetes.io/hostname"}]}}` | Pod affinity rules. Don't schedule application on windows node Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
+| autoscaling | object | `{"enabled":true}` | Settings for managing autoscaling features. |
+| autoscaling.enabled | bool | `true` | Adds permissions to manage autoscaling. |
 | castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":""}` | CAST AI API configuration. |
 | castai.apiKey | string | `""` | Token to be used for authorizing agent access to the CASTAI API. |
 | castai.apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing agent access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
