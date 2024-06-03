@@ -2,6 +2,12 @@
 
 Cluster controller is responsible for handling certain Kubernetes actions such as draining and deleting nodes, adding labels, approving CSR requests.
 
+## Requirements
+
+| Repository | Name | Version |
+|------------|------|---------|
+| file://child-charts/castai-cluster-controller-ext | castai-cluster-controller-ext | 0.1.0 |
+
 ## Values
 
 | Key | Type | Default | Description |

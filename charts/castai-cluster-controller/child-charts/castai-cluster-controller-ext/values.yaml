@@ -1,0 +1,14 @@
+
+# commonLabels -- Labels to add to all resources.
+commonLabels: {}
+
+# annotations - Annotations to add to all resources.
+commonAnnotations: {}
+
+nameOverride: ""
+fullnameOverride: castai-cluster-controller-ext
+
+# This chart is meant to provide possibility for granting permissions mostly. Permissions are granted by creating
+# new role bindings to the SA created in the parent Chart. This SA name is used for creating role bindings.
+serviceAccount:
+  name: "castai-cluster-controller"
