@@ -150,6 +150,14 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - "autoscaling.cast.ai"
+    resources:
+      - recommendations
+    verbs:
+      - get
+      - list
+      - watch
   - nonResourceURLs:
       - "/version"
     verbs:
