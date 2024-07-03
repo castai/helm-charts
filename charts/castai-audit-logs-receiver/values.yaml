@@ -91,7 +91,7 @@ statefulset:
 config:
   receivers:
     # config.receivers.castai-audit-logs - Configuration for CAST AI receiver.
-    castai-audit-logs:
+    castai_audit_logs:
       api:
         # config.receivers.castai-audit-logs.api.url -- Use CASTAI_API_URL env variable to override default API URL (https://api.cast.ai/).
         url: ${env:CASTAI_API_URL}
