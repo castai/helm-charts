@@ -71,10 +71,12 @@ spec:
               containerPort: 13133
               protocol: TCP
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: 13133
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: 13133
           envFrom:
             - secretRef:
