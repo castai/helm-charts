@@ -91,7 +91,7 @@ statefulset:
 config:
   receivers:
     # config.receivers.castai-audit-logs - Configuration for CAST AI receiver.
-    castai-audit-logs:
+    castai_audit_logs:
       api:
         # config.receivers.castai-audit-logs.api.url -- Use CASTAI_API_URL env variable to override default API URL (https://api.cast.ai/).
         url: ${env:CASTAI_API_URL}
@@ -119,7 +119,8 @@ config:
     # The health_check extension is mandatory for this chart.
     # Without the health_check extension the collector will fail the readiness and liveliness probes.
     # The health_check extension can be modified, but should never be removed.
-    health_check: {}
+    health_check:
+      endpoint: "0.0.0.0:13133"
 
   service:
     extensions: [health_check]
@@ -128,5 +129,5 @@ config:
         level: "debug"
     pipelines:
       logs:
-        receivers: [castai-audit-logs]
+        receivers: [castai_audit_logs]
         exporters: [logging]
