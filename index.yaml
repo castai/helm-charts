@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   castai-agent:
   - apiVersion: v2
+    appVersion: v0.62.0
+    created: "2024-07-04T13:19:04.935895843Z"
+    description: CAST AI agent deployment chart.
+    digest: d1faabb408eacf4272b0d2c3d297528c892bdc32dcc9d8156fc080acb711070c
+    name: castai-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-agent-0.77.0/castai-agent-0.77.0.tgz
+    version: 0.77.0
+  - apiVersion: v2
     appVersion: v0.61.0
     created: "2024-06-20T11:27:13.712485948Z"
     description: CAST AI agent deployment chart.
@@ -9735,4 +9745,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2024-07-03T18:15:38.269319979Z"
+generated: "2024-07-04T13:19:04.937194486Z"
