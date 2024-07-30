@@ -8,7 +8,9 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 |-----|------|---------|-------------|
 | additionalEnv.LOG_LEVEL | string | `"5"` |  |
 | additionalEnv.POLL_INTERVAL_SECONDS | string | `"3"` |  |
-| affinity | object | `{}` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing access to the API The referenced secret must provide the token in .data["API_KEY"] |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
 | castai.clusterID | string | `""` | CASTAI Cluster unique identifier. |
