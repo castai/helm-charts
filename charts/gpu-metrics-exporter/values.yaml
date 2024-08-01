@@ -14,7 +14,7 @@ additionalVolumes: []
 serviceAccount:
   create: true
   automount: true
-  annotations: { }
+  annotations: {}
 gpuMetricsExporter:
   image:
     repository: ghcr.io/castai/gpu-metrics-exporter/gpu-metrics-exporter
