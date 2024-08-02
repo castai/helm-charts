@@ -39,11 +39,12 @@ Common labels
 {{- toYaml . }}
 {{- end }}
 {{- end }}
+helm.sh/chart: {{ include "castai-agent.chart" . }}
 {{ include "castai-agent.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/managed-by: castai
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
 {{/*
