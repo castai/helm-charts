@@ -6,9 +6,9 @@ metadata:
   labels:
     {{- if .Values.managedByCASTAI }}
     charts.cast.ai/managed: true
-    {{- else}}
+    {{- else }}
     charts.cast.ai/managed: false
-    {{ end }}
+    {{- end }}
     {{- include "evictor.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
