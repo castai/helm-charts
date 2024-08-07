@@ -5,8 +5,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- if .Values.managedByCASTAI }}
-    charts.cast.ai/managed-by: cast.ai
-    {{ end }}
+    charts.cast.ai/managed: "true"
+    {{- else }}
+    charts.cast.ai/managed: "false"
+    {{- end }}
     {{- include "evictor.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:

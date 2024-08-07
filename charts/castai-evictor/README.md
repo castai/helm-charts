@@ -37,7 +37,7 @@ Cluster utilization defragmentation tool
 | imagePullSecrets | list | `[]` |  |
 | leaderElection | object | `{"enabled":true}` | Specifies leader election parameters. |
 | leaderElection.enabled | bool | `true` | Whether to enable leader election. |
-| managedByCASTAI | bool | `false` | Specifies whether the Evictor was installed using mothership and is automatically updated by CAST AI. Alternative scenarios are, when CAST AI is not managing charts, and customers' are install them with Argo CD/Terraform or something else. |
+| managedByCASTAI | bool | `true` | Specifies whether the Evictor was installed using mothership and is automatically updated by CAST AI. Alternative scenarios are, when CAST AI is not managing charts, and customers' are install them with Argo CD/Terraform or something else. |
 | maxNodesToEvictPerCycle | int | `20` | Specifies the max nodes evictor can evict in a single cycle. |
 | nameOverride | string | `""` |  |
 | nodeGracePeriodMinutes | int | `5` | Specifies the grace period after a node is created before it is considered for eviction The number of minutes a node must exist before it will be considered. |
