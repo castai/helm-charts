@@ -36,5 +36,7 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | serviceAccount.name | string | `"castai-spot-handler"` |  |
 | tolerations[0].effect | string | `"NoSchedule"` |  |
 | tolerations[0].operator | string | `"Exists"` |  |
+| trustedCACert | string | `""` | CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates. |
+| trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to the set of root certificate authorities that the client will use when verifying server certificates. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
 | updateStrategy | object | `{}` | Controls `daemonset.spec.updateStrategy` field. |
 | useHostNetwork | bool | `true` | Host network is used to access instance metadata endpoints which are not always available from pod network. |

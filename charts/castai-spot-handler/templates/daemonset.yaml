@@ -61,6 +61,13 @@ spec:
               value: "{{ $v }}"
             {{- end }}
           envFrom:
+          {{- if .Values.trustedCACert }}
+            - secretRef:
+                name: {{ include "castai-agent.fullname" . }}-tls-cert
+          {{- else if .Values.trustedCACertSecretRef }}
+            - secretRef:
+                name: {{ .Values.trustedCACertSecretRef -}}
+          {{- end }}
             - secretRef:
                 {{- if .Values.apiKeySecretRef }}
                 name: {{ .Values.apiKeySecretRef }}
