@@ -34,6 +34,14 @@ imagePullSecrets: {}
 updateStrategy:
   type: RollingUpdate
 
+# trustedCACert -- CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates.
+trustedCACert: ""
+
+# trustedCACertSecretRef -- Name of secret with CA certificate to be added to the set of root certificate authorities that the client will use when verifying server certificates.
+# trustedCACert and trustedCACertSecretRef are mutually exclusive.
+# The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"].
+trustedCACertSecretRef: ""
+
 # castai -- CAST AI API configuration.
 castai:
   # castai.apiKey -- Token to be used for authorizing agent access to the CASTAI API.

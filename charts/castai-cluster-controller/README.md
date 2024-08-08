@@ -50,6 +50,8 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
 | tolerations | object | `{}` |  |
+| trustedCACert | string | `""` | CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates. |
+| trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to the set of root certificate authorities that the client will use when verifying server certificates. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
 | updateStrategy | object | `{"type":"RollingUpdate"}` | Controls `deployment.spec.strategy` field. |
 | workloadManagement | object | `{"enabled":false}` | Settings for managing deployments and other pod controllers. |
 | workloadManagement.enabled | bool | `false` | Adds permissions to patch deployments. |
