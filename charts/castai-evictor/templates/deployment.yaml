@@ -92,6 +92,13 @@ spec:
             - configMapRef:
                 name: {{ include "evictor.name" . }}-config
                 optional: false
+            {{- if .Values.trustedCACert }}
+            - secretRef:
+                name: {{ include "castai-agent.fullname" . -}}-tls-cert
+            {{- else if .Values.trustedCACertSecretRef }}
+            - secretRef:
+                name: {{ .Values.trustedCACertSecretRef -}}
+            {{- end }}
           {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
           {{- if .Values.clusterVPA.enabled -}}
