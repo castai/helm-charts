@@ -8,6 +8,9 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# imagePullSecrets -- Specify image pull secrets
+imagePullSecrets: []
+
 # castai - -CAST AI API configuration.
 castai:
   # castai.apiKey -- Token to be used for authorizing access to the CASTAI API.
