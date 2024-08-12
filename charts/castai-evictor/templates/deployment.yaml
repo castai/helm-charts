@@ -94,7 +94,7 @@ spec:
                 optional: false
             {{- if .Values.trustedCACert }}
             - secretRef:
-                name: {{ include "castai-agent.fullname" . -}}-tls-cert
+                name: {{ include "evictor.fullname" . -}}-tls-cert
             {{- else if .Values.trustedCACertSecretRef }}
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
