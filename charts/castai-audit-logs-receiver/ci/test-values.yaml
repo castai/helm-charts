@@ -8,9 +8,6 @@ podLabels:
 commonLabels:
   label1: "label"
 
-imagePullSecrets:
-  - name: my-secret
-
 resources:
   requests:
     cpu: 100m
