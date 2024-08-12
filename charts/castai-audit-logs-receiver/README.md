@@ -34,6 +34,7 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/audit-logs-receiver"` |  |
 | image.tag | string | `""` |  |
+| imagePullSecrets | list | `[]` | Specify image pull secrets |
 | nameOverride | string | `""` | Override the name of the chart. |
 | nodeSelector | object | `{}` |  |
 | persistence.accessMode | string | `"ReadWriteOnce"` |  |
