@@ -94,6 +94,11 @@ trustedCACertSecretRef: ""
 # one of: "eks", "gks", "aks", "kops".
 provider: ""
 
+# Allow to read ingress resources. Needed for k8s security and compliance.
+allowReadIngress: true
+# Allow to read rbac resources. Required for security and k8s compliance reporting.
+allowReadRBAC: true
+
 priorityClass:
   enabled: true
   name: system-cluster-critical
