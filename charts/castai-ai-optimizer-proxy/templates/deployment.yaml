@@ -1,0 +1,121 @@
+{{- if .Values.deploy }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "ai-optimizer-proxy.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "ai-optimizer-proxy.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "ai-optimizer-proxy.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "ai-optimizer-proxy.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "ai-optimizer-proxy.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-router
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: router-rest
+              containerPort: {{ .Values.routerContainerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: router-rest
+              path: /healthz
+          readinessProbe:
+            httpGet:
+              port: router-rest
+              path: /healthz
+          resources:
+            {{- toYaml .Values.routerResources | nindent 12 }}
+          env:
+            - name: APP
+              value: "router"
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: rest
+              containerPort: {{ .Values.service.targetPort }}
+              protocol: TCP
+            - name: healthz
+              containerPort: 9876
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: healthz
+          readinessProbe:
+            httpGet:
+              port: healthz
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: APP
+              value: "proxy"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: CLUSTER_ID
+              value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
+            - name: API_URL
+              value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+            - name: SERVICE_NAME
+              value: {{ include "ai-optimizer-proxy.fullname" . }}
+            - name: ROUTER_ENDPOINT
+              value: {{ .Values.routerEndpoint | quote }}
+            - name: ROUTER_HEALTHZ_ENDPOINT
+              value: {{ .Values.routerHealthzEndpoint | quote }}
+            {{- range $name, $value := .Values.additionalEnv }}
+            - name: "{{ $name }}"
+              value: "{{ $value }}"
+            {{- end }}
+          envFrom:
+            - secretRef:
+              {{- if .Values.castai.apiKey }}
+                name: {{ include "ai-optimizer-proxy.fullname" . -}}
+              {{- else }}
+                name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}
+              {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: {{ include "ai-optimizer-proxy.fullname" . }}-openai
+          secret:
+            secretName: {{ include "ai-optimizer-proxy.fullname" . }}-openai
+{{- end }}
