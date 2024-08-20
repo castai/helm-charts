@@ -1,0 +1,11 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "pod-pinner.fullname" . }}
+  labels:
+    {{- include "pod-pinner.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "pod-pinner.selectorLabels" . | nindent 6 }}
