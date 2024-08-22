@@ -1,7 +1,0 @@
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: cloud.google.com/gke-accelerator
-              operator: Exists

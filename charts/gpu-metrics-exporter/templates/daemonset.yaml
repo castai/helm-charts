@@ -5,68 +5,63 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "gpu-metrics-exporter.labels" . | nindent 4 }}
+  {{- if .Values.dcgmExporter.enabled }}
   annotations:
-    {{- if .Values.dcgmExporter.enabled }}
     ignore-check.kube-linter.io/privileged-container: "This daemon set needs to run DCGM Exporter as privileged to access the GPU metrics."
     ignore-check.kube-linter.io/run-as-non-root: "This daemon set needs to run DCGM Exporter as root to access the GPU metrics."
-    ignore-check.kube-linter.io/privilege-escalation-container: "This daemon set needs escalate privileges for DCGM Exporter to access the GPU metrics."
-    ignore-check.kube-linter.io/no-read-only-root-fs: "This daemon set needs to run DCGM Exporter with read-only root filesystem to access the GPU utilization metrics."
-    {{- end }}
+    ignore-check.kube-linter.io/privilege-escalation-container: "This daemon set needs escalate privileges for DCGM Exporter."
+    ignore-check.kube-linter.io/no-read-only-root-fs: "This daemon set needs to run DCGM Exporter with read-only root filesystem."
+  {{- end }}
 spec:
   selector:
     matchLabels:
       {{- include "gpu-metrics-exporter.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "gpu-metrics-exporter.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        {{- include "gpu-metrics-exporter.selectorLabels" . | nindent 8 }}
     spec:
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      securityContext:
-        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if eq (required ".Values.provider is required (gke|eks|aks)" .Values.provider) "eks" }}
+      priorityClassName: system-node-critical
+      {{- end }}
+      serviceAccountName: {{ include "gpu-metrics-exporter.serviceAccountName" . }}
+      {{- if .Values.dcgmExporter.enabled }}
       volumes:
-        {{- if .Values.dcgmExporter.enabled }}
+        - name: "pod-gpu-resources"
+          hostPath:
+            path: /var/lib/kubelet/pod-resources
         - name: {{- include "dcgm-exporter.config-map" . | indent 1 }}
           configMap:
             name: {{- include "dcgm-exporter.config-map" . | indent 1 }}
-        - name: nvidia-install-dir-host
+        {{- if eq .Values.provider "gke" }}
+        - name: "nvidia-install-dir-host"
           hostPath:
             path: /home/kubernetes/bin/nvidia
-        - name: pod-resources
-          hostPath:
-            path: /var/lib/kubelet/pod-resources
         {{- end }}
-      {{- with .Values.additionalVolumes }}
-        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "gpu-metrics-exporter.serviceAccountName" . }}
-      {{- with .Values.affinity }}
+      {{- if eq .Values.provider "gke"}}
+      {{- with .Values.gke.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- end}}
       containers:
-        - name: {{ .Chart.Name }}
+        - name: castai-gpu-metrics-exporter
           securityContext:
-            {{- toYaml .Values.gpuMetricsExporter.securityContext | nindent 12 }}
+          {{- toYaml .Values.gpuMetricsExporter.securityContext | nindent 12 }}
           image: "{{ .Values.gpuMetricsExporter.image.repository }}:{{ .Values.gpuMetricsExporter.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.gpuMetricsExporter.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.gpuMetricsExporter.port }}
               protocol: TCP
           livenessProbe:
             httpGet:
@@ -79,61 +74,75 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{- include "gpu-metrics-exporter.config-map" . | indent 1}}
-          {{- if .Values.dcgmExporter.enabled}}
+          {{- if .Values.dcgmExporter.enabled }}
           env:
             - name: "DCGM_HOST"
               value: "localhost"
           {{- end }}
           resources:
             {{- toYaml .Values.gpuMetricsExporter.resources | nindent 12 }}
-          {{- with .Values.gpuMetricsExporter.volumeMounts }}
-          volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
         {{- if .Values.dcgmExporter.enabled }}
         - name: dcgm-exporter
-          image: "{{ .Values.dcgmExporter.image.repository}}:{{ .Values.dcgmExporter.image.tag }}"
-          imagePullPolicy: {{ .Values.dcgmExporter.image.pullPolicy }}
+          securityContext:
+            capabilities:
+              add:
+                - SYS_ADMIN
+              drop:
+                - NET_RAW
+            runAsNonRoot: false
+            runAsUser: 0
+            {{- if eq .Values.provider "gke"}}
+            privileged: true
+            {{- end }}
+          image: "nvcr.io/nvidia/k8s/dcgm-exporter:3.3.7-3.5.0-ubuntu22.04"
+          imagePullPolicy: "IfNotPresent"
           command: [ "/bin/bash", "-c" ]
           args:
-          {{- if .Values.dcgmExporter.useExternalHostEngine }}
-            - hostname $NODE_NAME; for ((;;)) { r=$(dcgm-exporter --remote-hostengine-info $(NODE_IP) --collectors /etc/dcgm-exporter/counters.csv); echo "dcgm-exporter could not run"; sleep 30 ; }
+          {{- if eq .Values.provider "gke"}}
+            {{- if .Values.dcgmExporter.useExternalHostEngine }}
+            - hostname $NODE_NAME; dcgm-exporter --remote-hostengine-info $(NODE_IP) -f /etc/dcgm-exporter/counters.csv
+            {{- else }}
+            - hostname $NODE_NAME; dcgm-exporter -f /etc/dcgm-exporter/counters.csv
+            {{- end }}
           {{- else }}
-            - hostname $NODE_NAME; for ((;;)) { r=$(dcgm-exporter --collectors /etc/dcgm-exporter/counters.csv); echo "dcgm-exporter could not run"; sleep 30 ; }
+            {{- if .Values.dcgmExporter.useExternalHostEngine }}
+            - hostname $NODE_NAME; for ((;;)) { r=$(dcgm-exporter --remote-hostengine-info $(NODE_IP) -f /etc/dcgm-exporter/counters.csv); echo "dcgm-exporter could not run"; sleep 60 ; }
+            {{- else }}
+            - hostname $NODE_NAME; for ((;;)) { r=$(dcgm-exporter -f /etc/dcgm-exporter/counters.csv); echo "dcgm-exporter could not run"; sleep 60 ; }
+            {{- end }}
           {{- end }}
           ports:
-            - name: metrics
+            - name: "metrics"
               containerPort: 9400
-          securityContext:
-            privileged: true
           env:
-            - name: NODE_NAME
+            - name: "DCGM_EXPORTER_KUBERNETES"
+              value: "true"
+            - name: "DCGM_EXPORTER_LISTEN"
+              value: ":9400"
+            - name: "DCGM_EXPORTER_INTERVAL"
+              value: "5000"
+            - name: "NODE_NAME"
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            - name: NODE_IP
+            {{- if eq .Values.provider "gke" }}
+            - name: "NODE_IP"
               valueFrom:
                 fieldRef:
                   fieldPath: status.hostIP
+            - name: "LD_LIBRARY_PATH"
+              value: "/usr/local/nvidia/lib64"
             - name: "DCGM_EXPORTER_KUBERNETES_GPU_ID_TYPE"
               value: "device-name"
-            - name: LD_LIBRARY_PATH
-              value: /usr/local/nvidia/lib64
-            - name: DCGM_EXPORTER_KUBERNETES
-              value: 'true'
-            - name: DCGM_EXPORTER_LISTEN
-              value: ':9400'
-            - name: DCGM_EXPORTER_INTERVAL
-              value: '5000'
-            {{- with .Values.dcgmExporter.additionalEnv }}
-            {{- toYaml . | nindent 12 }}
             {{- end }}
           volumeMounts:
+            - name: "pod-gpu-resources"
+              readOnly: true
+              mountPath: "/var/lib/kubelet/pod-resources"
+            {{- if eq .Values.provider "gke" }}
+            - name: "nvidia-install-dir-host"
+              mountPath: /usr/local/nvidia
+            {{- end }}
             - name: {{- include "dcgm-exporter.config-map" . | indent 1 }}
               mountPath: "/etc/dcgm-exporter"
-              readOnly: true
-            - name: nvidia-install-dir-host
-              mountPath: /usr/local/nvidia
-            - name: pod-resources
-              mountPath: /var/lib/kubelet/pod-resources
         {{- end }}

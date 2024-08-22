@@ -50,7 +50,7 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
-Common labels
+GPU metrics exporter labels
 */}}
 {{- define "gpu-metrics-exporter.labels" -}}
 helm.sh/chart: {{ include "gpu-metrics-exporter.chart" . }}
