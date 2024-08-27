@@ -7,7 +7,13 @@ CAST AI Pod Pinning deployment chart.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalEnv | object | `{}` |  |
-| affinity | object | `{}` |  |
+| affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].key | string | `"provisioner.cast.ai/managed-by"` |  |
+| affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].operator | string | `"In"` |  |
+| affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].preference.matchExpressions[0].values[0] | string | `"cast.ai"` |  |
+| affinity.nodeAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight | int | `100` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
 | castai.apiKey | string | `""` |  |
 | castai.apiKeySecretRef | string | `""` |  |
 | castai.apiURL | string | `"https://api.cast.ai"` |  |

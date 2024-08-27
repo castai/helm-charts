@@ -99,9 +99,40 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
       affinity:
-        {{- toYaml . | nindent 8 }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchExpressions:
+                  {{- $labels := (include "pod-pinner.selectorLabels" . | fromYaml) }}
+                  {{- range $key, $value := $labels }}
+                  - key: {{ $key }}
+                    operator: In
+                    values:
+                      - {{ $value }}
+                  {{- end }}
+      {{- with .Values.affinity }}
+        {{- if .podAntiAffinity }}
+          {{- if .podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution }}
+            {{- toYaml .podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution | nindent 12 }}
+          {{- end }}
+          {{- if .podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml .podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution | nindent 12 }}
+          {{- end }}
+        {{- end }}
+
+        {{- if .nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml .nodeAffinity | nindent 10 }}
+        {{- end }}
+
+        {{- if .podAffinity }}
+        podAffinity:
+          {{- toYaml .podAffinity | nindent 10 }}
+        {{- end }}
+
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:

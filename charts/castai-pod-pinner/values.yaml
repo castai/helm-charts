@@ -80,7 +80,23 @@ nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/os
+              operator: NotIn
+              values:
+                - windows
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: provisioner.cast.ai/managed-by
+              operator: In
+              values:
+                - cast.ai
 
 webhook:
   # Overrides the failure policy of the webhook whose default is Ignore.
