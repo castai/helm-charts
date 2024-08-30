@@ -1,0 +1,164 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "name" . }}-envoy-config
+  labels:
+    {{- include "labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "name" . }}
+data:
+  envoy-config.yaml: |-
+    node:
+      cluster: polyscale
+      id: polyscale-router
+
+    bootstrap_extensions:
+      - name: "polyscale.cache.lmdb_cache"
+        typed_config:
+          "@type": type.googleapis.com/polyscale.cache.lmdb_cache.v1.LmdbCacheConfig
+          stats_prefix: cache
+          path: /data/cache
+          db_size_bytes: {{ .Values.resources.proxy.cacheDbSizeBytes | int }}
+          max_cache_entries: {{ .Values.resources.proxy.maxCacheEntries | int }}
+          eviction_threshold: 0.5
+          stop_caching_threshold: 0.95
+          write_batch_size: 100
+          write_batch_delay_ms: 100
+          stats_thread_period_ms: 1000
+          eviction_thread_period_ms: 1000
+      - name: "polyscale.cache_control"
+        typed_config:
+          "@type": type.googleapis.com/polyscale.cache_control.v1.CacheControlConfig
+          location:
+            provider: pce
+            region:
+      - name: "polyscale.cluster_control"
+        typed_config:
+          "@type": type.googleapis.com/polyscale.cluster_control.v1.ClusterControlConfig
+          path: /v1/dbo/cache-groups/{{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." }}/cache-configurations
+          hostname: {{ .Values.apiURL }}
+          api_key: {{ .Values.apiKey }}
+      - name: "castai.grpc.services"
+        typed_config:
+          "@type": type.googleapis.com/castai.grpc.config.v1.Services
+          enabled: true
+          query_processor_service:
+            envoy_grpc:
+              cluster_name: query_processor_service
+
+    stats_config:
+      stats_matcher:
+        exclusion_list:
+          patterns:
+            - prefix: cluster.polyscale_cache_
+
+    static_resources:
+      listeners:
+        - name: polyscale_postgres_listener
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: 5432
+          filter_chains:
+            - filters:
+                - name: polyscale.filters.postgres
+                  typed_config:
+                    "@type": type.googleapis.com/polyscale.filters.postgres.v1.PostgresConfig
+                    common:
+                      stat_prefix: postgres
+                - name: polyscale.filters.router
+                  typed_config:
+                    "@type": type.googleapis.com/polyscale.filters.router.v1.RouterConfig
+                    tcp_proxy_config:
+                      stat_prefix: proxy_egress
+                      cluster: dummy
+                      idle_timeout: 0s
+              transport_socket:
+                name: envoy.transport_sockets.starttls
+                typed_config:
+                  "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
+                  tls_socket_config:
+                    common_tls_context:
+                      tls_certificates:
+                        - certificate_chain:
+                            filename: "cert.pem"
+                          private_key:
+                            filename: "key.pem"
+          socket_options:
+            - description: "enable keep-alive"
+              level: 1 # means socket level options
+              name: 9 # means the keep-alive parameter
+              int_value: 1 # a nonzero value means "yes"
+              state: STATE_PREBIND
+            - description: "idle time before first keep-alive probe is sent"
+              level: 6 # IPPROTO_TCP
+              name: 4 # TCP_KEEPIDLE parameter - The time (in seconds) the connection needs to remain idle before TCP starts sending keepalive probes
+              int_value: 60 # seconds
+              state: STATE_PREBIND
+            - description: "keep-alive interval"
+              level: 6 # IPPROTO_TCP
+              name: 5 # the TCP_KEEPINTVL parameter - The time (in seconds) between individual keepalive probes.
+              int_value: 20 # seconds
+              state: STATE_PREBIND
+            - description: "keep-alive probes count"
+              level: 6 # IPPROTO_TCP
+              name: 6 # the TCP_KEEPCNT parameter - The maximum number of keepalive probes TCP should send before dropping the connection
+              int_value: 2 # number of failed probes
+              state: STATE_PREBIND
+      clusters:
+        - name: dummy
+          connect_timeout: 1s
+          load_assignment:
+            cluster_name: dummy
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: 127.0.0.1
+                          port_value: 1234
+
+        - name: {{ .Values.apiURL }}
+          type: LOGICAL_DNS
+          connect_timeout: 2s
+          load_assignment:
+            cluster_name: {{ .Values.apiURL }}
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: {{ .Values.apiURL }}
+                          port_value: 443
+          transport_socket:
+            name: envoy.transport_sockets.tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
+              common_tls_context:
+                tls_params:
+                  tls_minimum_protocol_version: TLSv1_2
+                tls_certificates:
+                  - certificate_chain:
+                      filename: cert.pem
+                    private_key:
+                      filename: key.pem
+              sni: {{ .Values.apiURL }}
+
+        - name: query_processor_service
+          type: LOGICAL_DNS
+          connect_timeout: 1s
+          http2_protocol_options: {}
+          load_assignment:
+            cluster_name: query_processor_service
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: 127.0.0.1
+                          port_value: 9050
+    admin:
+      access_log_path: "/tmp/admin_access.log"
+      address:
+        socket_address:
+          address: 0.0.0.0
+          port_value: 9901
