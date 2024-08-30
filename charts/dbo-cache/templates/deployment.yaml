@@ -82,7 +82,7 @@ spec:
                   fieldPath: status.podIP
 
           readinessProbe:
-            grpc:
+            tcpSocket:
               port: 9050
             initialDelaySeconds: 0
           resources:
@@ -111,10 +111,6 @@ spec:
             - "25000"
             - --enable-core-dump
 
-          ports:
-            - name: grpc
-              containerPort: 9050
-              protocol: TCP
           resources:
             requests:
               cpu: {{ .Values.resources.proxy.cpu }}
