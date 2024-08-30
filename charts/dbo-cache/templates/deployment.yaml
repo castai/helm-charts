@@ -26,6 +26,10 @@ spec:
         - name: envoy-config
           configMap:
             name: {{ include "name" . }}-envoy-config
+        - name: temp-storage
+          emptyDir: {}
+        - name: data-storage
+          emptyDir: {}
       containers:
         - name: query-processor
           image: "{{ .Values.qpImage }}"
@@ -121,3 +125,7 @@ spec:
             - name: envoy-config
               mountPath: /home/polyscale/envoy.yaml
               subPath: envoy-config.yaml
+            - name: temp-storage
+              mountPath: /tmp
+            - name: data-storage
+              mountPath: /data
