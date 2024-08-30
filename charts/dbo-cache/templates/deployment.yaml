@@ -21,6 +21,13 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
+      securityContext:
+        capabilities:
+          drop:
+            - ALL
+        readOnlyRootFilesystem: true
+        runAsNonRoot: true
+        runAsUser: 1000
       terminationGracePeriodSeconds: 60
       volumes:
         - name: envoy-config
