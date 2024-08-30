@@ -1,0 +1,33 @@
+replicas: 1
+
+# apiURL -- URL to the CAST AI API server.
+apiURL: "api.cast.ai"
+
+# apiKey -- Token to be used for authorizing access to the CAST AI API.
+#
+apiKey: ""
+
+# cacheGroupID -- ID of the cache group for which cache configuration should be pulled.
+#
+cacheGroupID: ""
+
+resources:
+  proxy:
+    cpu: "500m"
+    # defines how much of proxy container disk space is allocated for cache.
+    ephemeralStorage: 10Gi
+    memory: "120Mi"
+    # max allowed database size in disk
+    cacheDbSizeBytes: 10000000000
+    # maximum number of entries to keep in the proxy.
+    maxCacheEntries: 1000000000
+  queryProcessor:
+    cpu: "500m"
+    memory: "500Mi"
+
+proxy:
+  logLevel: "filter:info"
+
+# proxy image
+proxyImage: "us-docker.pkg.dev/castai-hub/library/dbo-proxy:4.46.10"
+qpImage: "us-docker.pkg.dev/castai-hub/library/query-processor:v0.1.0-rc.8"
