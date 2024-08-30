@@ -21,13 +21,6 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
-      securityContext:
-        capabilities:
-          drop:
-            - ALL
-        readOnlyRootFilesystem: true
-        runAsNonRoot: true
-        runAsUser: 1000
       terminationGracePeriodSeconds: 60
       volumes:
         - name: envoy-config
@@ -37,6 +30,13 @@ spec:
         - name: query-processor
           image: "{{ .Values.qpImage }}"
           imagePullPolicy: IfNotPresent
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
           ports:
             - name: grpc
               containerPort: 9050
@@ -93,6 +93,13 @@ spec:
         - name: proxy
           image: {{ .Values.proxyImage }}
           imagePullPolicy: IfNotPresent
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
           command:
             - /home/polyscale/envoy
           args:
