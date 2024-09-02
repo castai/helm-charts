@@ -78,6 +78,11 @@ spec:
           env:
             - name: "DCGM_HOST"
               value: "localhost"
+            - name: "API_KEY"
+              valueFrom:
+                  secretKeyRef:
+                    name: {{ include "gpu-metrics-exporter.fullname" . }}
+                    key: API_KEY
           {{- end }}
           resources:
             {{- toYaml .Values.gpuMetricsExporter.resources | nindent 12 }}

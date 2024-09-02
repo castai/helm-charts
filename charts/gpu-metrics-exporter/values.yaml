@@ -6,6 +6,9 @@ serviceAccount:
   automount: true
   annotations: {}
 
+castai:
+  apiKey: ""
+
 gpuMetricsExporter:
   image:
     repository: ghcr.io/castai/gpu-metrics-exporter/gpu-metrics-exporter
