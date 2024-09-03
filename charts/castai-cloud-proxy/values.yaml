@@ -7,6 +7,8 @@ config:
   grpc:
     endpoint: ""
     key: ""
+    tls:
+      enabled: true
 
 replicaCount: 1
 
@@ -33,14 +35,14 @@ serviceAccount:
 podAnnotations: {}
 podLabels: {}
 
-podSecurityContext: {}
+podSecurityContext:
   # fsGroup: 2000
 
-securityContext: {}
+securityContext:
+  readOnlyRootFilesystem: true
   # capabilities:
   #   drop:
   #   - ALL
-  # readOnlyRootFilesystem: true
   # runAsNonRoot: true
   # runAsUser: 1000
 

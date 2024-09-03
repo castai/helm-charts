@@ -38,6 +38,12 @@ spec:
               value: {{ .Values.config.grpc.endpoint | quote }}
             - name: GRPC_KEY
               value: {{ .Values.config.grpc.key | quote }}
+            - name: GRPC_TLS_ENABLED
+              value: {{ .Values.config.grpc.tls.enabled | quote }}
+            {{- if .Values.config.gcpCredentials }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /opt/google/application_default_credentials.json
+            {{- end }}
           livenessProbe:
             {{- toYaml .Values.livenessProbe | nindent 12 }}
           readinessProbe:
@@ -46,7 +52,7 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
           - name: gcp-creds
-            mountPath: "/root/.config/gcloud"
+            mountPath: "/opt/google"
             readOnly: true
       {{- with .Values.nodeSelector }}
       nodeSelector:
