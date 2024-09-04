@@ -20,6 +20,8 @@ CAST AI agent deployment chart.
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].values[0] | string | `"castai-agent"` |  |
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.topologyKey | string | `"kubernetes.io/hostname"` |  |
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight | int | `100` |  |
+| allowReadIngress | bool | `true` | Allow to read ingress resources. Needed for k8s security and compliance. |
+| allowReadRBAC | bool | `true` | Allow to read rbac resources. Required for security and k8s compliance reporting. |
 | apiKey | string | `""` | Token to be used for authorizing agent access to the API. |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing agent access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
 | apiURL | string | `"https://api.cast.ai"` | URL to the CAST AI API server. |
