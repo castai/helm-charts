@@ -2,4 +2,7 @@ apiVersion: v2
 name: dbo-cache
 description: CAST AI dbo-cache deployment
 type: application
-version: 1.1.0
+version: 1.1.1
+proxyImage: "us-docker.pkg.dev/castai-hub/library/dbo-proxy:4.46.13"
+qpImage: "us-docker.pkg.dev/castai-hub/library/query-processor:v0.1.0-rc.9"
+
