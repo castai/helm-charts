@@ -29,8 +29,13 @@ brew install norwoodj/tap/helm-docs
 To generate docs, run:
 
 ```console
-cd charts/CHART_NAME
-helm-docs
+make docs-{chart-name}
+```
+
+Or to generate docs for all charts, run:
+
+```console
+make docs-all
 ```
 
 ## License
