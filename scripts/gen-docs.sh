@@ -10,6 +10,13 @@ function show_help {
     echo "If CHART_NAME is not provided, the script will generate docs for all charts in the 'charts' directory."
 }
 
+function check_helm_docs_installed {
+    if ! command -v helm-docs &> /dev/null; then
+        echo "Error: helm-docs is not installed. Please install helm-docs and try again."
+        exit 1
+    fi
+}
+
 CHART_NAME=""
 
 while getopts "c:h" opt; do
@@ -27,6 +34,8 @@ while getopts "c:h" opt; do
             ;;
     esac
 done
+
+check_helm_docs_installed
 
 if [[ -n "$CHART_NAME" ]]; then
     if [[ -d "charts/$CHART_NAME" ]]; then
