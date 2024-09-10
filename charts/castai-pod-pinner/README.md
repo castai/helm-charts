@@ -23,7 +23,14 @@ CAST AI Pod Pinning deployment chart.
 | castai.clusterID | string | `""` | The CAST AI cluster ID. |
 | castai.grpcURL | string | `"grpc.cast.ai:443"` | The CAST AI gRPC URL. |
 | global | object | `{"commonAnnotations":{},"commonLabels":{},"fullnameOverride":"","nameOverride":"","serviceAccount":{"annotations":{},"create":true,"name":""}}` | Values to apply for the parent and child chart resources. |
+| global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
+| global.commonLabels | object | `{}` | Labels to add to all resources. |
+| global.fullnameOverride | string | `""` | Override the fullname of resources. |
 | global.nameOverride | string | `""` | Override the name of the chart. |
+| global.serviceAccount | object | `{"annotations":{},"create":true,"name":""}` | Service account to use for the pod-pinner. |
+| global.serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
+| global.serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
+| global.serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | image | object | `{"pullPolicy":"IfNotPresent","repository":"us-docker.pkg.dev/castai-hub/library/pod-pinner","tag":""}` | Image settings for the pod-pinner container. |
 | image.pullPolicy | string | `"IfNotPresent"` | The image pull policy. |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/pod-pinner"` | The image repository to use. |

@@ -104,18 +104,17 @@ castai:
 global:
   # -- Override the name of the chart.
   nameOverride: ""
-  # Override the fullname of resources.
+  # -- Override the fullname of resources.
   fullnameOverride: ""
-  # Labels to add to all resources.
+  # -- Labels to add to all resources.
   commonLabels: {}
-  # Annotations to add to all resources.
+  # -- Annotations to add to all resources.
   commonAnnotations: {}
-  # Service account to use for the pod-pinner.
+  # -- Service account to use for the pod-pinner.
   serviceAccount:
-    # Specifies whether a service account should be created
+    # -- Specifies whether a service account should be created
     create: true
-    # Annotations to add to the service account
+    # -- Annotations to add to the service account
     annotations: {}
-    # The name of the service account to use.
-    # If not set and create is true, a name is generated using the fullname template
+    # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
     name: ""
