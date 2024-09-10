@@ -14,8 +14,6 @@ resources:
 isTest: true
 additionalEnv:
   ANTICIPATE_WORKER_READY_STATUS: true
-webhook:
-  port: 8443
 service:
   port: 8443
   type: ClusterIP
