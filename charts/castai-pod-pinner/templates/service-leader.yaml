@@ -4,10 +4,9 @@ metadata:
   name: {{ include "pod-pinner.leaderServiceName" . }}
   labels:
     {{- include "pod-pinner.labels" . | nindent 4 }}
-  {{ if gt (len .Values.global.commonAnnotations) 0 -}}
   annotations:
+    ignore-check.kube-linter.io/dangling-service: "Service endpoints are managed by the pod-pinner controller."
     {{- include "pod-pinner.annotations" . | nindent 4 }}
-  {{- end }}
 spec:
   ports:
     - port: {{ .Values.service.port }}
