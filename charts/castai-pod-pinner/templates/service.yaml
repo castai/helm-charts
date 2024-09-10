@@ -5,6 +5,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "pod-pinner.labels" . | nindent 4 }}
+  {{ if gt (len .Values.global.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "pod-pinner.annotations" . | nindent 4 }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:

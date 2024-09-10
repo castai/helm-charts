@@ -2,9 +2,12 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "pod-pinner.fullname" . }}
-  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "pod-pinner.labels" . | nindent 4 }}
+  {{ if gt (len .Values.global.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "pod-pinner.annotations" . | nindent 4 }}
+  {{- end }}
 rules:
   # ---
   # Required for Webhook functionality.

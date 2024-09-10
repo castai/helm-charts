@@ -1,12 +1,12 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: {{ include "pod-pinner.fullname" . }}
+  name: {{ include "pod-pinner-ext.fullname" . }}
   labels:
-    {{- include "pod-pinner.labels" . | nindent 4 }}
+    {{- include "pod-pinner-ext.labels" . | nindent 4 }}
   {{ if gt (len .Values.global.commonAnnotations) 0 -}}
   annotations:
-    {{- include "pod-pinner.annotations" . | nindent 4 }}
+    {{- include "pod-pinner-ext.annotations" . | nindent 4 }}
   {{- end }}
 rules:
   # ---
@@ -20,6 +20,8 @@ rules:
       - create
       - delete
       - get
+      - list
+      - watch
   - apiGroups:
       - ""
     resources:
@@ -28,6 +30,7 @@ rules:
       - delete
       - get
       - list
+      - watch
   - apiGroups:
       - ""
     resources:
@@ -49,7 +52,7 @@ rules:
     resources:
       - mutatingwebhookconfigurations
     resourceNames:
-      - {{ include "pod-pinner.webhookName" . | quote }}
+      - {{ include "pod-pinner-ext.webhookName" . | quote }}
     verbs:
       - watch
       - get

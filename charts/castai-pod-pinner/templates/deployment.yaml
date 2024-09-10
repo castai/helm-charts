@@ -1,13 +1,12 @@
-{{- if .Values.deploy }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "pod-pinner.fullname" . }}
-  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "pod-pinner.labels" . | nindent 4 }}
   annotations:
     ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET_NAME, which is NOT a secret value. CERTS_SECRET_NAME contains a resource name used by Cert Rotator."
+    {{- include "pod-pinner.annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
@@ -40,7 +39,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.webhook.port }}
+              containerPort: {{ .Values.service.port }}
               protocol: TCP
             - name: healthz
               containerPort: 9091
@@ -64,6 +63,14 @@ spec:
               valueFrom:
                   fieldRef:
                     fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: API_URL
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
             - name: API_GRPC_URL
@@ -75,7 +82,13 @@ spec:
             - name: CERTS_DIR
               value: /certs
             - name: PORT
-              value: {{ .Values.webhook.port | quote }}
+              value: {{ .Values.service.port | quote }}
+            - name: LEADER_ELECTION_ENABLED
+              value: "true"
+            - name: LEADER_ELECTION_LEASE_NAME
+              value: {{ include "pod-pinner.leaderElectionLeaseName" . }}
+            - name: LEADER_ELECTION_LEADER_SERVICE_NAME
+              value: {{ include "pod-pinner.leaderServiceName" . }}
             - name: WEBHOOK_NAME
               value: {{ include "pod-pinner.webhookName" . }}
             - name: SERVICE_NAME
@@ -143,4 +156,3 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ include "pod-pinner.certsSecretName" . }}
-{{- end }}

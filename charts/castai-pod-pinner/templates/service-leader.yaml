@@ -1,11 +1,15 @@
 apiVersion: v1
-kind: Secret
+kind: Service
 metadata:
-  name: {{ include "pod-pinner.certsSecretName" . }}
-  namespace: {{ .Release.Namespace }}
+  name: {{ include "pod-pinner.leaderServiceName" . }}
   labels:
     {{- include "pod-pinner.labels" . | nindent 4 }}
   {{ if gt (len .Values.global.commonAnnotations) 0 -}}
   annotations:
     {{- include "pod-pinner.annotations" . | nindent 4 }}
   {{- end }}
+spec:
+  ports:
+    - port: {{ .Values.service.port }}
+      protocol: TCP
+      name: http

@@ -58,3 +58,12 @@ jobs:
           skip_existing: true
         env:
           CR_TOKEN: "${{ secrets.PAT_CICD }}"
+
+      - name: Release pod pinner child charts
+        uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c
+        with:
+          charts_dir: charts/castai-pod-pinner/child-charts
+          config: cr.yaml
+          skip_existing: true
+        env:
+          CR_TOKEN: "${{ secrets.PAT_CICD }}"
