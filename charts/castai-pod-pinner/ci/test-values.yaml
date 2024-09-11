@@ -14,10 +14,18 @@ resources:
 isTest: true
 additionalEnv:
   ANTICIPATE_WORKER_READY_STATUS: true
-webhook:
-  port: 8443
 service:
-  port: 443
+  port: 8443
   type: ClusterIP
 podLabels:
   test: test
+global:
+  commonAnnotations:
+    foo: bar
+  commonLabels:
+    faz: baz
+    x: b
+  serviceAccount:
+    create: true
+    annotations:
+      foo2: bar2

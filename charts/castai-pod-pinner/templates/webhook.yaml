@@ -3,12 +3,16 @@ kind: MutatingWebhookConfiguration
 metadata:
   name: {{ include "pod-pinner.webhookName" . }}
   labels:
-  {{- include "pod-pinner.labels" . | nindent 4 }}
+    {{- include "pod-pinner.labels" . | nindent 4 }}
+  {{ if gt (len .Values.global.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "pod-pinner.annotations" . | nindent 4 }}
+  {{- end }}
 webhooks:
   - name: pod-pinner.cast.ai
     failurePolicy: {{ .Values.webhook.failurePolicy | default "Ignore"}}
     sideEffects: None
-    timeoutSeconds: 1
+    timeoutSeconds: 3
     objectSelector:
       matchExpressions:
         # We don't want to match ourselves since it would cause a chicken and egg problem:
@@ -32,7 +36,7 @@ webhooks:
       url: "{{ .Values.webhook.url }}/mutate"
       {{- else }}
       service:
-        name: {{ include "pod-pinner.fullname" . }}
+        name: {{ include "pod-pinner.leaderServiceName" . }}
         namespace: {{ .Release.Namespace }}
         path: /mutate
         port: {{ .Values.service.port }}

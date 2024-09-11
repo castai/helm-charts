@@ -2,47 +2,36 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-# Do not run more than one replica.
-replicaCount: 1
-namespace: "castai-agent"
+# -- Replica count for the pod-pinner deployment.
+replicaCount: 2
 
-# commonLabels -- Labels to add to all resources.
-commonLabels: {}
-
-# commonAnnotations -- Annotations to add to all resources.
-commonAnnotations: {}
-
+# -- Image settings for the pod-pinner container.
 image:
+  # -- The image repository to use.
   repository: us-docker.pkg.dev/castai-hub/library/pod-pinner
+  # -- The image pull policy.
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
+  # -- Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+# -- Image pull secrets to use for the pod-pinner pod.
 imagePullSecrets: []
-nameOverride: ""
-fullnameOverride: ""
 
-# Used to set additional environment variables for the pod-pinner container.
+# -- Used to set additional environment variables for the pod-pinner container.
 additionalEnv: {}
   # PPROF_PORT: "6060"
 
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: {}
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
+# -- Extra annotations to add to the pod.
 podAnnotations: {}
 
 # -- Extra labels to add to the pod.
 podLabels: {}
 
+# -- Pod security context.
 podSecurityContext: {}
   # fsGroup: 2000
 
+# -- Security context for the pod-pinner container.
 securityContext:
   capabilities:
     drop:
@@ -51,24 +40,14 @@ securityContext:
   runAsNonRoot: true
   runAsUser: 1000
 
+# -- Service settings for the pod-pinner.
 service:
+  # -- The service type to use.
   type: ClusterIP
-  port: 443
+  # -- The service port to use. The port is restricted to certain values because the webhook server uses this port.
+  port: 8443
 
-ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-  hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
-
+# -- Pod-pinner container resources.
 resources:
   requests:
     cpu: 20m
@@ -76,10 +55,13 @@ resources:
   limits:
     memory: 100Mi
 
+# -- Node selector for the pod-pinner pod.
 nodeSelector: {}
 
+# -- Tolerations for the pod-pinner pod.
 tolerations: []
 
+# -- Affinity for the pod-pinner pod.
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
@@ -98,18 +80,41 @@ affinity:
               values:
                 - cast.ai
 
+# -- Webhook settings for the pod-pinner.
 webhook:
-  # Overrides the failure policy of the webhook whose default is Ignore.
+  # -- Overrides the failure policy of the webhook whose default is Ignore.
   failurePolicy: Ignore
-  # Overrides webhook service routing and uses the provided url instead.
+  # -- Overrides webhook service routing and uses the provided url instead.
   url: ""
-  port: 10250
 
-deploy: true
-
+# -- CAST AI settings for the pod-pinner.
 castai:
+  # -- The CAST AI API URL.
   apiURL: "https://api.cast.ai"
+  # -- The CAST AI gRPC URL.
   grpcURL: "grpc.cast.ai:443"
+  # -- The CAST AI API key. Either this or apiKeySecretRef must be provided.
   apiKey: ""
+  # -- Kubernetes Secret reference for the CAST AI API key. Either this or apiKey must be provided.
   apiKeySecretRef: ""
+  # -- The CAST AI cluster ID.
   clusterID: ""
+
+# -- Values to apply for the parent and child chart resources.
+global:
+  # -- Override the name of the chart.
+  nameOverride: ""
+  # -- Override the fullname of resources.
+  fullnameOverride: ""
+  # -- Labels to add to all resources.
+  commonLabels: {}
+  # -- Annotations to add to all resources.
+  commonAnnotations: {}
+  # -- Service account to use for the pod-pinner.
+  serviceAccount:
+    # -- Specifies whether a service account should be created
+    create: true
+    # -- Annotations to add to the service account
+    annotations: {}
+    # -- The name of the service account to use. If not set and create is true, a name is generated using the fullname template
+    name: ""
