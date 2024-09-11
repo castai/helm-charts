@@ -12,7 +12,7 @@ webhooks:
   - name: pod-pinner.cast.ai
     failurePolicy: {{ .Values.webhook.failurePolicy | default "Ignore"}}
     sideEffects: None
-    timeoutSeconds: 1
+    timeoutSeconds: 3
     objectSelector:
       matchExpressions:
         # We don't want to match ourselves since it would cause a chicken and egg problem:
