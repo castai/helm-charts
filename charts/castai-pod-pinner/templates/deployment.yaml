@@ -92,7 +92,7 @@ spec:
             - name: WEBHOOK_NAME
               value: {{ include "pod-pinner.webhookName" . }}
             - name: SERVICE_NAME
-              value: {{ include "pod-pinner.fullname" . }}
+              value: {{ include "pod-pinner.leaderServiceName" . }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
