@@ -24,9 +24,51 @@ rules:
     resources:
       - secrets
     resourceNames:
-      - {{ include "pod-pinner.certsSecretName" . | quote }}
+      - {{ include "pod-pinner.certsSecretName" . }}
     verbs:
       - update
       - patch
       - get
       - watch
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+    verbs:
+      - list
+      - watch
+      - create
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+    resourceNames:
+      - {{ include "pod-pinner.leaderServiceName" . }}
+    verbs:
+      - get
+      - update
+      - patch
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    resourceNames:
+      - {{ include "pod-pinner.leaderElectionLeaseName" . }}
+    verbs:
+      - get
+      - watch
+      - update
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    verbs:
+      - create
+      - list
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+
