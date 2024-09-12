@@ -4,11 +4,28 @@
 
 config:
   gcpCredentials: ""
-  grpc:
-    endpoint: ""
-    key: ""
-    tls:
+  tls:
       enabled: true
+
+
+
+# -- CAST AI specific settings
+castai:
+  # -- The CAST AI API URL.
+  apiURL: "https://api.cast.ai"
+  # -- The CAST AI gRPC URL.
+  grpcURL: "api-grpc.cast.ai:443"
+  # -- The CAST AI API key. Either this or apiKeySecretRef must be provided.
+  apiKey: ""
+  # -- Kubernetes Secret reference for the CAST AI API key. Either this or apiKey must be provided.
+  apiKeySecretRef: ""
+  # -- The CAST AI cluster ID.
+  clusterID: ""
+
+# -- Used to set additional environment variables for the cloud-proxy container.
+additionalEnv: {}
+  # PPROF_PORT: "6060"
+
 
 replicaCount: 1
 
@@ -32,19 +49,19 @@ serviceAccount:
   # If not set and create is true, a name is generated using the fullname template
   name: ""
 
+commonAnnotations: {}
 podAnnotations: {}
 podLabels: {}
 
-podSecurityContext:
-  # fsGroup: 2000
+podSecurityContext: {}
 
 securityContext:
   readOnlyRootFilesystem: true
   runAsNonRoot: true
   runAsUser: 1000
-  # capabilities:
-  #   drop:
-  #   - ALL
+  capabilities:
+    drop:
+    - ALL
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -58,15 +75,16 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-# TODO: add probes
-# livenessProbe:
-#   httpGet:
-#     path: /
-#     port: http
-# readinessProbe:
-#   httpGet:
-#     path: /
-#     port: http
+probes:
+  port: 9091
+  livenessProbe:
+    httpGet:
+      path: /
+      port: http
+  readinessProbe:
+    httpGet:
+      path: /
+      port: http
 
 nodeSelector: {}
 
