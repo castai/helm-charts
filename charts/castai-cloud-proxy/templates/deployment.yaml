@@ -68,12 +68,13 @@ spec:
             - name: "{{ $name }}"
               value: "{{ $value }}"
             {{- end }}
-            # - name: GRPC_TLS_ENABLED
+            {{- /* # - name: GRPC_TLS_ENABLED
             #   value: {{ .Values.config.grpc.tls.enabled | quote }}
             # {{- if .Values.config.gcpCredentials }}
             # - name: GOOGLE_APPLICATION_CREDENTIALS
             #   value: /opt/google/application_default_credentials.json
-            # {{- end }}
+            # {{- end }} 
+            */}}
           envFrom:
             - secretRef:
           {{- if .Values.castai.apiKey }}

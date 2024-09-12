@@ -4,7 +4,7 @@ metadata:
   name: {{ include "castai-cloud-proxy.fullname" . }}
   labels:
     {{- include "castai-cloud-proxy.labels" . | nindent 4 -}}
-  {{- if gt (len .Values.global.commonAnnotations) 0 }}
+  {{- if gt (len .Values.commonAnnotations) 0 }}
   annotations:
     {{- include "castai-cloud-proxy.annotations" . | nindent 4 }}
   {{- end }}
