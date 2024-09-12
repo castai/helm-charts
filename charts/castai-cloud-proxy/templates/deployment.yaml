@@ -64,17 +64,20 @@ spec:
               value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
+            {{/*- if .Values.gcpConfiguration.auth.jsonCredentials }}
+            - name: GCP_CREDENTIALS_JSON
+              value: {{ .Values.gcpConfiguration.auth.jsonCredentials }}
+            {{- end */}}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
             {{- end }}
-            {{- /* # - name: GRPC_TLS_ENABLED
+            {{/* # - name: GRPC_TLS_ENABLED
             #   value: {{ .Values.config.grpc.tls.enabled | quote }}
             # {{- if .Values.config.gcpCredentials }}
             # - name: GOOGLE_APPLICATION_CREDENTIALS
             #   value: /opt/google/application_default_credentials.json
-            # {{- end }} 
-            */}}
+            # {{- end }} */}}
           envFrom:
             - secretRef:
           {{- if .Values.castai.apiKey }}
@@ -82,6 +85,10 @@ spec:
           {{- else }}
                 name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}
           {{- end }}
+          {{/*- if .Values.gcpConfiguration.auth.jsonCredentialsSecretRef }}
+            - secretRef: 
+                name: {{ .Values.gcpConfiguration.auth.jsonCredentialsSecretRef }}
+          {{- end */}}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
