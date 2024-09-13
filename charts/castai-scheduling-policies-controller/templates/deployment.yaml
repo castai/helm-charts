@@ -1,0 +1,102 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "scheduling-policies-controller.fullname" . }}
+  labels:
+  {{- include "scheduling-policies-controller.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET, which is NOT a secret value. CERTS_SECRET contains a resource name used by Cert Rotator."
+    {{- include "scheduling-policies-controller.annotations" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "scheduling-policies-controller.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+      {{- include "scheduling-policies-controller.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
+      serviceAccountName: {{ template "scheduling-policies-controller.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+      {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      {{- if or .Values.dnsPolicy .Values.hostNetwork  }}
+      dnsPolicy: {{ or .Values.dnsPolicy "ClusterFirstWithHostNet" }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: WEBHOOK_NAME
+              value: {{ include "scheduling-policies-controller.webhookName" . }}
+            - name: SERVICE_NAME
+              value: {{ include "scheduling-policies-controller.fullname" . }}
+            - name: LOG_LEVEL
+              value: "0"
+            - name: CERTS_ROTATION
+              value: "true"
+            - name: CERTS_SECRET
+              value: {{ include "scheduling-policies-controller.certsSecretName" . }}
+          envFrom:
+            - secretRef:
+                {{- if .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
+                name: scheduling-policies-controller
+                {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                {{- end }}
+            - configMapRef:
+                {{- if .Values.castai.clusterID }}
+                name: scheduling-policies-controller
+                {{- else }}
+                name: {{ required "configMapRef or (clusterID and apiUrl) must be provided" .Values.castai.configMapRef }}
+                {{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /certs
+              name: certs
+              readOnly: true
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: certs
+          secret:
+            defaultMode: 420
+            secretName: {{ include "scheduling-policies-controller.certsSecretName" . }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+{{- end }}

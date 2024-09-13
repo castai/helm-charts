@@ -1,0 +1,30 @@
+castai:
+  apiURL: "https://api.cast.ai"
+  apiKey: ""
+  clusterID: "a24cd53c-0d56-4422-88e6-f82f78ef8f20"
+  apiKeySecretRef: "test"
+resources:
+  limits:
+    cpu: 1000m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+isTest: true
+additionalEnv:
+  ANTICIPATE_WORKER_READY_STATUS: true
+service:
+  port: 8443
+  type: ClusterIP
+podLabels:
+  test: test
+global:
+  commonAnnotations:
+    foo: bar
+  commonLabels:
+    faz: baz
+    x: b
+  serviceAccount:
+    create: true
+    annotations:
+      foo2: bar2
