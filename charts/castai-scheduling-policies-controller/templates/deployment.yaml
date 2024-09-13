@@ -4,6 +4,9 @@ metadata:
   name: {{ include "scheduling-policies-controller.fullname" . }}
   labels:
   {{- include "scheduling-policies-controller.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET, which is NOT a secret value. CERTS_SECRET contains a resource name used by Cert Rotator."
+    {{- include "scheduling-policies-controller.annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
@@ -74,14 +77,6 @@ spec:
                 {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
-          livenessProbe:
-            httpGet:
-              port: 8081
-              path: /healthz
-          readinessProbe:
-            httpGet:
-              port: 8081
-              path: /readyz
           volumeMounts:
             - mountPath: /certs
               name: certs

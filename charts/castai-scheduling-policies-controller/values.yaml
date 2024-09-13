@@ -52,6 +52,13 @@ hostNetwork: false
 # dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
 dnsPolicy: ""
 
+# -- Values to apply for the parent and child chart resources.
+global:
+  # -- Labels to add to all resources.
+  commonLabels: {}
+  # -- Annotations to add to all resources.
+  commonAnnotations: {}
+
 castai:
   # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
   # apiKey and apiKeySecretRef are mutually exclusive

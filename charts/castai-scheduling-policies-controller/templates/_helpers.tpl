@@ -34,6 +34,11 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "scheduling-policies-controller.labels" -}}
+{{- if gt (len .Values.global.commonLabels) 0 }}
+{{- with .Values.global.commonLabels }}
+{{- toYaml . }}
+{{- end }}
+{{- end }}
 helm.sh/chart: {{ include "scheduling-policies-controller.chart" . }}
 {{ include "scheduling-policies-controller.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
@@ -80,4 +85,15 @@ Create the name of the service account to use
 
 {{- define "scheduling-policies-controller.certsSecretName" -}}
 {{ include "scheduling-policies-controller.fullname" . }}-certs
+{{- end }}
+
+{{/*
+Common Annotations
+*/}}
+{{- define "scheduling-policies-controller.annotations" -}}
+{{- if gt (len .Values.global.commonAnnotations) 0 }}
+{{- with .Values.global.commonAnnotations }}
+{{- toYaml . }}
+{{- end }}
+{{- end }}
 {{- end }}

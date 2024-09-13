@@ -14,6 +14,9 @@ CAST AI scheduling policies controller.
 | castai.clusterID | string | `""` |  |
 | castai.configMapRef | string | `""` |  |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
+| global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Values to apply for the parent and child chart resources. |
+| global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
+| global.commonLabels | object | `{}` | Labels to add to all resources. |
 | hostNetwork | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/scheduling-policies-controller"` |  |
