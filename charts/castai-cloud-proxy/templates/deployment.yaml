@@ -58,9 +58,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            - name: API_URL
+            - name: CAST_URL
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
-            - name: API_GRPC_URL
+            - name: CAST_GRPC_URL
               value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}

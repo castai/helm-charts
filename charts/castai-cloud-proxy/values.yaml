@@ -35,7 +35,8 @@ castai:
   clusterID: ""
 
 # -- Used to set additional environment variables for the cloud-proxy container.
-additionalEnv: {}
+additionalEnv:
+  LOG_LEVEL: "4"
   # PPROF_PORT: "6060"
 
 
