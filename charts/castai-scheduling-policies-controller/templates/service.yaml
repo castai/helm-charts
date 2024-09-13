@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "scheduling-policies-controller.fullname" . }}
+  labels:
+  {{- include "scheduling-policies-controller.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: 9443
+    - name: metrics
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  selector:
+    {{- include "scheduling-policies-controller.selectorLabels" . | nindent 4}}
+  type: ClusterIP
