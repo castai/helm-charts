@@ -33,18 +33,18 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: healthz
-              containerPort: 9091
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              port: healthz
-              path: /healthz
-          readinessProbe:
-            httpGet:
-              port: healthz
-              path: /readyz
+          # ports:
+          #   - name: healthz
+          #     containerPort: 9091
+          #     protocol: TCP
+          # livenessProbe:
+          #   httpGet:
+          #     port: healthz
+          #     path: /healthz
+          # readinessProbe:
+          #   httpGet:
+          #     port: healthz
+          #     path: /readyz
           env:
             - name: POD_NAME
               valueFrom:
