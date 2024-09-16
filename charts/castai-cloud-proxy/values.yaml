@@ -88,17 +88,6 @@ resources: {}
   #   cpu: 100m
   #   memory: 128Mi
 
-probes:
-  port: 9091
-  livenessProbe:
-    httpGet:
-      path: /
-      port: http
-  readinessProbe:
-    httpGet:
-      path: /
-      port: http
-
 nodeSelector: {}
 
 tolerations: []
