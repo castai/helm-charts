@@ -1,0 +1,26 @@
+castai:
+  apiURL: "https://api.cast.ai"
+  grpcURL: "grpc.cast.ai:443"
+  apiKey: "gibberish"
+  clusterID: "a24cd53c-0d56-4422-88e6-f82f78ef8f20"
+resources:
+  limits:
+    cpu: 1000m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+additionalEnv:
+  LOG_LEVEL: 5
+podLabels:
+  test: test
+global:
+  commonAnnotations:
+    foo: bar
+  commonLabels:
+    faz: baz
+    x: b
+  serviceAccount:
+    create: true
+    annotations:
+      foo2: bar2
