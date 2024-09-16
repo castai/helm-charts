@@ -3,22 +3,21 @@
 # Declare variables to be passed into your templates.
 
 
-
 config:
   gcpCredentials: ""
   tls:
-      enabled: true
+    enabled: true
 
 # TODO implement non-metadata server auth
 
 gcpConfiguration:
-  # -- Select the authentication mode to use to access Google Cloud APIs. Exactly one option from [metadata, raw JSON, secret reference] must be provided. 
+  # -- Select the authentication mode to use to access Google Cloud APIs. Exactly one option from [metadata, raw JSON, secret reference] must be provided.
   auth:
-    # -- Authenticate via node's metadata server. Requires to be running on a google cloud compute node.  
+    # -- Authenticate via node's metadata server. Requires to be running on a google cloud compute node.
     useMetadataServer: true
     # -- JSON credentials to use when authenticating against GCP.
     jsonCredentials: ""
-    # -- Secret to mount JSON credentials from. 
+    # -- Secret to mount JSON credentials from.
     jsonCredentialsSecretRef: ""
 
 # -- CAST AI specific settings
