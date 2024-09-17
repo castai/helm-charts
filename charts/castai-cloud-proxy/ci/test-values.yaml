@@ -14,13 +14,3 @@ additionalEnv:
   LOG_LEVEL: 5
 podLabels:
   test: test
-global:
-  commonAnnotations:
-    foo: bar
-  commonLabels:
-    faz: baz
-    x: b
-  serviceAccount:
-    create: true
-    annotations:
-      foo2: bar2
