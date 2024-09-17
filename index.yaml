@@ -7905,6 +7905,17 @@ entries:
     version: 0.1.0
   castai-hibernate:
   - apiVersion: v2
+    appVersion: v0.12
+    created: "2024-09-17T19:50:15.942483333Z"
+    description: CAST AI hibernate CronJobs used to pause and resume Kubernetes cluster
+      on a defined schedule.
+    digest: e48af2e122a394815024a3de26239e7e89089b6dbded0007a87a0b0b9917b1b0
+    name: castai-hibernate
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-hibernate-0.2.9/castai-hibernate-0.2.9.tgz
+    version: 0.2.9
+  - apiVersion: v2
     appVersion: v0.11
     created: "2024-09-16T18:00:04.289029652Z"
     description: CAST AI hibernate CronJobs used to pause and resume Kubernetes cluster
@@ -11069,4 +11080,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2024-09-16T18:00:04.290327867Z"
+generated: "2024-09-17T19:50:15.943799513Z"
