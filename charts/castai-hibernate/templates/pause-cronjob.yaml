@@ -54,6 +54,8 @@ spec:
                 valueFrom:
                   configMapKeyRef:
                     name: {{ .Values.configMapName }}
-                    key: CLUSTER_ID      
+                    key: CLUSTER_ID
+              - name: API_URL
+                value: {{ .Values.apiUrl }}
           restartPolicy: {{ .Values.restartPolicy }}
       backoffLimit: {{ .Values.backoffLimit }}
