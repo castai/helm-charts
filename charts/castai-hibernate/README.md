@@ -9,6 +9,7 @@ CAST AI hibernate CronJobs used to pause and resume Kubernetes cluster on a defi
 | agentNamespace | string | `"castai-agent"` |  |
 | apiKey | string | `""` | API token with Full Access permissions and encode base64 |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing evictor access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
+| apiUrl | for Europe use https://api.eu.cast.ai | `"https://api.cast.ai"` |  |
 | backoffLimit | int | `0` |  |
 | cloud | string | `""` | Set CronJobs "Cloud" env variable to [EKS|GKE|AKS] |
 | clusterRoleBindingAdminName | string | `"hibernate-admin"` |  |
