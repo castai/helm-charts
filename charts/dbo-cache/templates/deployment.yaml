@@ -52,6 +52,8 @@ spec:
               containerPort: 2112
               protocol: TCP
           env:
+            - name: LOG_LEVEL
+              value: {{ required "log level must be provided" .Values.queryProcessor.logLevel }}
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | printf "https://%s" }}
             - name: API_KEY
