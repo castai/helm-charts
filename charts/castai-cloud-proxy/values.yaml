@@ -46,6 +46,24 @@ image:
   pullPolicy: IfNotPresent
   tag: ""
 
+livenessProbe:
+  failureThreshold: 3
+  successThreshold: 1
+  timeoutSeconds: 1
+  periodSeconds: 10
+  httpGet:
+    path: /livez
+    port: 9091
+
+readinessProbe:
+  failureThreshold: 3
+  successThreshold: 1
+  timeoutSeconds: 1
+  periodSeconds: 10
+  httpGet:
+    path: /readyz
+    port: 9091
+
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
