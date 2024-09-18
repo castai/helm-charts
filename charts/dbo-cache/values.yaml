@@ -31,5 +31,9 @@ proxy:
 queryProcessor:
   logLevel: "warn"
 
-proxyImage: "us-docker.pkg.dev/castai-hub/library/dbo-proxy:4.46.13"
-qpImage: "us-docker.pkg.dev/castai-hub/library/query-processor:v0.1.0-rc.11"
+
+# queryProcessorVersion overrides image version for query-processor, default used otherwise
+queryProcessorVersion: ""
+
+# proxyVersion overrides image version for proxy, default used otherwise
+proxyVersion: ""

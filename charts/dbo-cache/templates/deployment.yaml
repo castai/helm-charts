@@ -32,7 +32,7 @@ spec:
           emptyDir: {}
       containers:
         - name: query-processor
-          image: "{{ .Values.qpImage }}"
+          image: "us-docker.pkg.dev/castai-hub/library/query-processor:{{default (include "defaultQueryProcessorVersion" .) .Values.queryProcessorVersion}}"
           imagePullPolicy: IfNotPresent
           securityContext:
             capabilities:
@@ -97,7 +97,7 @@ spec:
             limits:
               memory: {{ .Values.resources.queryProcessor.memory }}
         - name: proxy
-          image: {{ .Values.proxyImage }}
+          image: "us-docker.pkg.dev/castai-hub/library/dbo-proxy:{{default (include "defaultProxyVersion" .) .Values.proxyVersion}}"
           imagePullPolicy: IfNotPresent
           securityContext:
             capabilities:
