@@ -35,10 +35,9 @@ queryProcessor:
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
   pullPolicy: IfNotPresent
-  tag: "" # uses values from _versions.tpl for default value
+  tag: ""  # uses values from _versions.tpl for default value
 
 proxyImage:
   repository: us-docker.pkg.dev/castai-hub/library/dbo-proxy
   pullPolicy: IfNotPresent
-  tag: "" # uses values from _versions.tpl for default value
-
+  tag: ""  # uses values from _versions.tpl for default value
