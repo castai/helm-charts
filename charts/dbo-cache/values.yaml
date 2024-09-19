@@ -32,8 +32,13 @@ queryProcessor:
   logLevel: "warn"
 
 
-# queryProcessorVersion overrides image version for query-processor, default used otherwise
-queryProcessorVersion: ""
+queryProcessorImage:
+  repository: us-docker.pkg.dev/castai-hub/library/query-processor
+  pullPolicy: IfNotPresent
+  tag: "" # uses values from _versions.tpl for default value
 
-# proxyVersion overrides image version for proxy, default used otherwise
-proxyVersion: ""
+proxyImage:
+  repository: us-docker.pkg.dev/castai-hub/library/dbo-proxy
+  pullPolicy: IfNotPresent
+  tag: "" # uses values from _versions.tpl for default value
+
