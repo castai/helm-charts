@@ -38,6 +38,9 @@ additionalEnv:
   LOG_LEVEL: "4"
   # PPROF_PORT: "6060"
 
+priorityClass:
+  enabled: true
+  name: system-cluster-critical
 
 replicaCount: 1
 
