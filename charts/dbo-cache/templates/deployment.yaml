@@ -18,6 +18,8 @@ spec:
     type: RollingUpdate
   template:
     metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/envoy_config.yaml") . | sha256sum }}
       labels:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
