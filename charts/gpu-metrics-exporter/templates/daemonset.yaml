@@ -74,15 +74,19 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{- include "gpu-metrics-exporter.config-map" . | indent 1}}
-          {{- if .Values.dcgmExporter.enabled }}
           env:
-            - name: "DCGM_HOST"
-              value: "localhost"
+            - name: "NODE_NAME"
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: "API_KEY"
               valueFrom:
-                  secretKeyRef:
-                    name: {{ include "gpu-metrics-exporter.fullname" . }}
-                    key: API_KEY
+                secretKeyRef:
+                  name: {{ include "gpu-metrics-exporter.fullname" . }}
+                  key: API_KEY
+          {{- if .Values.dcgmExporter.enabled }}
+            - name: "DCGM_HOST"
+              value: "localhost"
           {{- end }}
           resources:
             {{- toYaml .Values.gpuMetricsExporter.resources | nindent 12 }}

@@ -4,5 +4,6 @@ metadata:
   name: {{- include "gpu-metrics-exporter.config-map" . | indent 1}}
 data:
 {{- with .Values.gpuMetricsExporter.config }}
-  {{- toYaml . | nindent 2 }}
+  CLUSTER_ID: "{{ $.Values.castai.clusterId | default .CLUSTER_ID }}"
+  {{- toYaml (omit . "CLUSTER_ID") | nindent 2 }}
 {{- end }}
