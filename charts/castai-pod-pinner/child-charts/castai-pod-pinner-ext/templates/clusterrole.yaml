@@ -38,6 +38,24 @@ rules:
       - pods/binding
     verbs:
       - create
+  - apiGroups:
+      - ""
+    resources:
+      - persistentvolumeclaims
+      - persistentvolumes
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+  - apiGroups:
+      - "storage.k8s.io"
+    resources:
+      - storageclasses
+    verbs:
+      - get
+      - list
+      - watch
   # ---
   # Required for Webhook functionality.
   # ---
