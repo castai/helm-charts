@@ -9761,6 +9761,18 @@ entries:
     version: 0.2.0
   castai-pod-pinner-ext:
   - apiVersion: v2
+    appVersion: v1.0.0
+    created: "2024-09-25T13:04:53.144738761Z"
+    description: 'Library chart the the CAST AI Pod Pinner that includes additional
+      resources such as ClusterRoles that the CAST AI auto-upgrade feature doesn''t
+      have permissions to create. '
+    digest: 61f5fc5d43a8a4e1abc4c90949f376da87d441e97502bd3bbcf3a0e91976c514
+    name: castai-pod-pinner-ext
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-pod-pinner-ext-1.0.0/castai-pod-pinner-ext-1.0.0.tgz
+    version: 1.0.0
+  - apiVersion: v2
     appVersion: v0.2.0
     created: "2024-09-25T11:58:09.762084367Z"
     description: 'Library chart the the CAST AI Pod Pinner that includes additional
@@ -11328,4 +11340,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2024-09-25T13:04:49.350941086Z"
+generated: "2024-09-25T13:04:53.146090853Z"
