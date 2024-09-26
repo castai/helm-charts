@@ -121,10 +121,13 @@ spec:
 
           resources:
             requests:
+              memory: {{ .Values.resources.proxy.memoryRequest }}
               cpu: {{ .Values.resources.proxy.cpu }}
               ephemeral-storage: {{ .Values.resources.proxy.ephemeralStorage }}
+            {{- if .Values.resources.proxy.memoryLimit }}
             limits:
-              memory: {{ .Values.resources.proxy.memory }}
+              memory: {{ .Values.resources.proxy.memoryLimit }}
+            {{- end }}
           volumeMounts:
             - name: envoy-config
               mountPath: /home/polyscale/envoy.yaml
