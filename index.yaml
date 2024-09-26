@@ -9493,6 +9493,21 @@ entries:
   castai-pod-pinner:
   - apiVersion: v2
     appVersion: v1.0.0
+    created: "2024-09-26T10:43:19.349491618Z"
+    dependencies:
+    - condition: castai-pod-pinner-ext.enabled
+      name: castai-pod-pinner-ext
+      repository: file://child-charts/castai-pod-pinner-ext
+      version: 1.0.1
+    description: CAST AI Pod Pinning deployment chart.
+    digest: 5623a937f37b036927f5f9c5667de1d8a6a1605f2f5408c7ed464eedafcce3f4
+    name: castai-pod-pinner
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-pod-pinner-1.0.2/castai-pod-pinner-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
+    appVersion: v1.0.0
     created: "2024-09-26T06:42:23.43369666Z"
     dependencies:
     - condition: castai-pod-pinner-ext.enabled
@@ -11381,4 +11396,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2024-09-26T08:02:38.98114232Z"
+generated: "2024-09-26T10:43:19.350971126Z"
