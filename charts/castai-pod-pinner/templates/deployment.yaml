@@ -3,6 +3,11 @@ kind: Deployment
 metadata:
   name: {{ include "pod-pinner.fullname" . }}
   labels:
+    {{- if .Values.managedByCASTAI }}
+    charts.cast.ai/managed: "true"
+    {{- else }}
+    charts.cast.ai/managed: "false"
+    {{- end }}
     {{- include "pod-pinner.labels" . | nindent 4 }}
   annotations:
     ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET_NAME, which is NOT a secret value. CERTS_SECRET_NAME contains a resource name used by Cert Rotator."

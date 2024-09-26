@@ -1,6 +1,6 @@
 # castai-pod-pinner
 
-![Version: 1.0.1](https://img.shields.io/badge/Version-1.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.0.0](https://img.shields.io/badge/AppVersion-v1.0.0-informational?style=flat-square)
+![Version: 1.0.2](https://img.shields.io/badge/Version-1.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.0.0](https://img.shields.io/badge/AppVersion-v1.0.0-informational?style=flat-square)
 
 CAST AI Pod Pinning deployment chart.
 
@@ -8,7 +8,7 @@ CAST AI Pod Pinning deployment chart.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/castai-pod-pinner-ext | castai-pod-pinner-ext | 1.0.0 |
+| file://child-charts/castai-pod-pinner-ext | castai-pod-pinner-ext | 1.0.1 |
 
 ## Values
 
@@ -36,6 +36,7 @@ CAST AI Pod Pinning deployment chart.
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/pod-pinner"` | The image repository to use. |
 | image.tag | string | `""` | Overrides the image tag whose default is the chart appVersion. |
 | imagePullSecrets | list | `[]` | Image pull secrets to use for the pod-pinner pod. |
+| managedByCASTAI | bool | `true` | Specifies whether the Pod Pinner should be managed by CAST AI automatically. Only the exact value "false" disables automatic management of the chart. If set to "false", then the installation, upgrade or any changes have to be managed manually. |
 | nodeSelector | object | `{}` | Node selector for the pod-pinner pod. |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
