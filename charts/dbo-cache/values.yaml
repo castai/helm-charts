@@ -14,9 +14,10 @@ cacheGroupID: ""
 resources:
   proxy:
     cpu: "500m"
+    memoryRequest: "200Mi"
+    memoryLimit: "200Mi"
     # defines how much of proxy container disk space is allocated for cache.
     ephemeralStorage: 10Gi
-    memory: "120Mi"
     # max allowed database size in disk
     cacheDbSizeBytes: 10000000000
     # maximum number of entries to keep in the proxy.
