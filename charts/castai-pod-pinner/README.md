@@ -1,6 +1,6 @@
 # castai-pod-pinner
 
-![Version: 1.0.0](https://img.shields.io/badge/Version-1.0.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.0.0](https://img.shields.io/badge/AppVersion-v1.0.0-informational?style=flat-square)
+![Version: 1.0.1](https://img.shields.io/badge/Version-1.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.0.0](https://img.shields.io/badge/AppVersion-v1.0.0-informational?style=flat-square)
 
 CAST AI Pod Pinning deployment chart.
 
@@ -41,7 +41,7 @@ CAST AI Pod Pinning deployment chart.
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | podSecurityContext | object | `{}` | Pod security context. |
 | replicaCount | int | `2` | Replica count for the pod-pinner deployment. |
-| resources | object | `{"limits":{"memory":"100Mi"},"requests":{"cpu":"20m","memory":"100Mi"}}` | Pod-pinner container resources. |
+| resources | object | `{"limits":{"memory":"256Mi"},"requests":{"cpu":"20m","memory":"256Mi"}}` | Pod-pinner container resources. |
 | securityContext | object | `{"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":1000}` | Security context for the pod-pinner container. |
 | service | object | `{"port":8443,"type":"ClusterIP"}` | Service settings for the pod-pinner. |
 | service.port | int | `8443` | The service port to use. The port is restricted to certain values because the webhook server uses this port. |
