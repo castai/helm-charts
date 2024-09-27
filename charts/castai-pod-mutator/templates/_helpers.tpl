@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "scheduling-policies-controller.name" -}}
+{{- define "pod-mutator.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "scheduling-policies-controller.fullname" -}}
+{{- define "pod-mutator.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,21 +26,21 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "scheduling-policies-controller.chart" -}}
+{{- define "pod-mutator.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "scheduling-policies-controller.labels" -}}
+{{- define "pod-mutator.labels" -}}
 {{- if gt (len .Values.global.commonLabels) 0 }}
 {{- with .Values.global.commonLabels }}
 {{- toYaml . }}
 {{- end }}
 {{- end }}
-helm.sh/chart: {{ include "scheduling-policies-controller.chart" . }}
-{{ include "scheduling-policies-controller.selectorLabels" . }}
+helm.sh/chart: {{ include "pod-mutator.chart" . }}
+{{ include "pod-mutator.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -50,28 +50,28 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "scheduling-policies-controller.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "scheduling-policies-controller.name" . }}
+{{- define "pod-mutator.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "pod-mutator.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{- define "scheduling-policies-controller.webhookName" -}}
-{{ include "scheduling-policies-controller.fullname" . }}
+{{- define "pod-mutator.webhookName" -}}
+{{ include "pod-mutator.fullname" . }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "scheduling-policies-controller.serviceAccountName" -}}
+{{- define "pod-mutator.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "scheduling-policies-controller.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "pod-mutator.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
 
-{{- define "scheduling-policies-controller.exludeSelfLabelSelectors" -}}
-{{- range splitList "\n" (include "scheduling-policies-controller.selectorLabels" .)  }}
+{{- define "pod-mutator.exludeSelfLabelSelectors" -}}
+{{- range splitList "\n" (include "pod-mutator.selectorLabels" .)  }}
   {{- /* we split label keypair by `:`. Let's hope there are no `:` in the key*/ -}}
   {{- $parts := splitn ":" 2 . -}}
   {{- $key := trim $parts._0 -}}
@@ -83,14 +83,14 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "scheduling-policies-controller.certsSecretName" -}}
-{{ include "scheduling-policies-controller.fullname" . }}-certs
+{{- define "pod-mutator.certsSecretName" -}}
+{{ include "pod-mutator.fullname" . }}-certs
 {{- end }}
 
 {{/*
 Common Annotations
 */}}
-{{- define "scheduling-policies-controller.annotations" -}}
+{{- define "pod-mutator.annotations" -}}
 {{- if gt (len .Values.global.commonAnnotations) 0 }}
 {{- with .Values.global.commonAnnotations }}
 {{- toYaml . }}

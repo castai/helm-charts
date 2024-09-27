@@ -1,5 +1,5 @@
 image:
-  repository: us-docker.pkg.dev/castai-hub/library/scheduling-policies-controller
+  repository: us-docker.pkg.dev/castai-hub/library/pod-mutator
   pullPolicy: IfNotPresent
   tag: ""
 
@@ -71,5 +71,5 @@ castai:
   apiKey: ""
   # apiUrl -- URL of the CAST AI API.
   apiUrl: "https://api.cast.ai"
-  # clusterID -- ID of the cluster the scheduling-policies-controller is deployed in.
+  # clusterID -- ID of the cluster the pod-mutator is deployed in.
   clusterID: ""

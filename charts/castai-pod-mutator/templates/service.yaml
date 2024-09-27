@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "scheduling-policies-controller.fullname" . }}
+  name: {{ include "pod-mutator.fullname" . }}
   labels:
-  {{- include "scheduling-policies-controller.labels" . | nindent 4 }}
+  {{- include "pod-mutator.labels" . | nindent 4 }}
 spec:
   ports:
     - name: https
@@ -15,5 +15,5 @@ spec:
       port: 8080
       targetPort: 8080
   selector:
-    {{- include "scheduling-policies-controller.selectorLabels" . | nindent 4}}
+    {{- include "pod-mutator.selectorLabels" . | nindent 4}}
   type: ClusterIP

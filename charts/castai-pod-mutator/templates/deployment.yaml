@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "scheduling-policies-controller.fullname" . }}
+  name: {{ include "pod-mutator.fullname" . }}
   labels:
-  {{- include "scheduling-policies-controller.labels" . | nindent 4 }}
+  {{- include "pod-mutator.labels" . | nindent 4 }}
   annotations:
     ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET, which is NOT a secret value. CERTS_SECRET contains a resource name used by Cert Rotator."
-    {{- include "scheduling-policies-controller.annotations" . | nindent 4 }}
+    {{- include "pod-mutator.annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   selector:
     matchLabels:
-      {{- include "scheduling-policies-controller.selectorLabels" . | nindent 6 }}
+      {{- include "pod-mutator.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       annotations:
@@ -19,7 +19,7 @@ spec:
       {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-      {{- include "scheduling-policies-controller.selectorLabels" . | nindent 8 }}
+      {{- include "pod-mutator.selectorLabels" . | nindent 8 }}
       {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -27,7 +27,7 @@ spec:
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
-      serviceAccountName: {{ template "scheduling-policies-controller.serviceAccountName" . }}
+      serviceAccountName: {{ template "pod-mutator.serviceAccountName" . }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
       {{- toYaml . | nindent 8 }}
@@ -50,28 +50,28 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: WEBHOOK_NAME
-              value: {{ include "scheduling-policies-controller.webhookName" . }}
+              value: {{ include "pod-mutator.webhookName" . }}
             - name: SERVICE_NAME
-              value: {{ include "scheduling-policies-controller.fullname" . }}
+              value: {{ include "pod-mutator.fullname" . }}
             - name: LOG_LEVEL
               value: "0"
             - name: CERTS_ROTATION
               value: "true"
             - name: CERTS_SECRET
-              value: {{ include "scheduling-policies-controller.certsSecretName" . }}
+              value: {{ include "pod-mutator.certsSecretName" . }}
           envFrom:
             - secretRef:
                 {{- if .Values.castai.apiKey }}
                   {{- if ne .Values.castai.apiKeySecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
-                name: scheduling-policies-controller
+                name: pod-mutator
                 {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
                 {{- end }}
             - configMapRef:
                 {{- if .Values.castai.clusterID }}
-                name: scheduling-policies-controller
+                name: pod-mutator
                 {{- else }}
                 name: {{ required "configMapRef or (clusterID and apiUrl) must be provided" .Values.castai.configMapRef }}
                 {{- end }}
@@ -87,7 +87,7 @@ spec:
         - name: certs
           secret:
             defaultMode: 420
-            secretName: {{ include "scheduling-policies-controller.certsSecretName" . }}
+            secretName: {{ include "pod-mutator.certsSecretName" . }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
       {{- toYaml . | nindent 8 }}

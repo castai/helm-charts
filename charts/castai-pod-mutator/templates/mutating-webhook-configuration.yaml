@@ -1,11 +1,11 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: {{ include "scheduling-policies-controller.webhookName" . }}
+  name: {{ include "pod-mutator.webhookName" . }}
   labels:
-  {{- include "scheduling-policies-controller.labels" . | nindent 4 }}
+  {{- include "pod-mutator.labels" . | nindent 4 }}
 webhooks:
-  - name: scheduling-policies-controller.cast.ai
+  - name: pod-mutator.cast.ai
     failurePolicy: {{ .Values.webhook.failurePolicy | default "Ignore"}}
     sideEffects: None
     timeoutSeconds: 1
@@ -13,14 +13,14 @@ webhooks:
     objectSelector:
       matchExpressions:
         # Exclude self.
-        {{- include "scheduling-policies-controller.exludeSelfLabelSelectors" . | nindent 8 }}
-        - key: scheduling-policies-controller.cast.ai/ignore
+        {{- include "pod-mutator.exludeSelfLabelSelectors" . | nindent 8 }}
+        - key: pod-mutator.cast.ai/ignore
           operator: NotIn
           values:
             - "true"
     namespaceSelector:
       matchExpressions:
-        - key: scheduling-policies-controller.cast.ai/ignore
+        - key: pod-mutator.cast.ai/ignore
           operator: NotIn
           values:
             - "true"
@@ -37,7 +37,7 @@ webhooks:
       url: "{{ .Values.webhook.url }}/v1/mutate"
       {{- else }}
       service:
-        name: {{ include "scheduling-policies-controller.fullname" . }}
+        name: {{ include "pod-mutator.fullname" . }}
         namespace: {{ .Release.Namespace }}
         path: /v1/mutate
   {{- end }}

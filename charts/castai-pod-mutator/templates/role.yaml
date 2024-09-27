@@ -1,9 +1,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ include "scheduling-policies-controller.fullname" . }}
+  name: {{ include "pod-mutator.fullname" . }}
   labels:
-  {{- include "scheduling-policies-controller.labels" . | nindent 4 }}
+  {{- include "pod-mutator.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - ""
@@ -17,7 +17,7 @@ rules:
     resources:
       - secrets
     resourceNames:
-      - {{ include "scheduling-policies-controller.fullname" . }}-certs
+      - {{ include "pod-mutator.fullname" . }}-certs
     verbs:
       - get
       - update
