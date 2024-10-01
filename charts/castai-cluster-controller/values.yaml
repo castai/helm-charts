@@ -82,7 +82,7 @@ tolerations: {}
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 nodeSelector: {}
 
-# Enable auto approve CSR for CAST AI nodes. Only used on GKE
+# autoApproveCSR -- Enable auto approve CSR for CAST AI nodes. Only used on GKE
 autoApproveCSR: true
 
 # affinity -- Pod affinity rules. Don't schedule application on windows node
