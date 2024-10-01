@@ -110,6 +110,7 @@ spec:
           {{- if .Values.autoApproveCSR }}
             - name: AUTO_APPROVE_CSR
               value: "true"
+          {{- end }}
           envFrom:
           {{- if .Values.trustedCACert }}
             - secretRef:
