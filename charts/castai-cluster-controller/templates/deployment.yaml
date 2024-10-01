@@ -107,6 +107,9 @@ spec:
             - name: {{ $k }}
               value: "{{ $v }}"
           {{- end }}
+          {{- if .Values.autoApproveCSR }}
+            - name: AUTO_APPROVE_CSR
+              value: "true"
           envFrom:
           {{- if .Values.trustedCACert }}
             - secretRef:
