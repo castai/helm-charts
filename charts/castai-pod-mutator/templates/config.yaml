@@ -1,0 +1,16 @@
+{{- if .Values.castai.clusterID -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pod-mutator
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "pod-mutator.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "pod-mutator.annotations" . | nindent 4 }}
+  {{- end }}
+data:
+  API_URL: {{ required "castai.apiUrl must be provided" .Values.castai.apiUrl | quote }}
+  CLUSTER_ID: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
+{{- end }}

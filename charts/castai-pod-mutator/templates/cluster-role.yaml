@@ -1,0 +1,92 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "pod-mutator.fullname" . }}
+  labels:
+  {{- include "pod-mutator.labels" . | nindent 4 }}
+rules:
+  # ---
+  # Required for basic Webhook functionality
+  # ---
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resourceNames:
+      - {{ include "pod-mutator.webhookName" . }}
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - get
+      - patch
+      - update
+  # ---
+  # Write permissions for pod controllers (deployments) - required for rolling out new pods
+  # ---
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    verbs:
+      - update
+  # ---
+  # Read only permissions to view pods/deployments/rollouts
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+    - "argoproj.io"
+    resources:
+      - rollouts
+    verbs:
+      - get
+      - list
+      - watch
+  # ---
+  # Read only permissions to view autoscaling resources
+  # ---
+  - apiGroups:
+      - autoscaling.cast.ai
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+  # ---
+  # Write permissions for autoscaling resources (recommendations) - required for adding finalizers
+  # ---
+  - apiGroups:
+      - autoscaling.cast.ai
+    resources:
+      - "*"
+    verbs:
+      - update
+      - patch
+  - apiGroups:
+      - "apps"
+    resources:
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
