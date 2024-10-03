@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.1](https://img.shields.io/badge/Version-0.0.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
+![Version: 0.0.2](https://img.shields.io/badge/Version-0.0.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -14,6 +14,7 @@ CAST AI Pod Mutator.
 | castai.clusterID | string | `""` |  |
 | castai.configMapRef | string | `""` |  |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
+| fullnameOverride | string | `"castai-pod-mutator"` |  |
 | global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | global.commonLabels | object | `{}` | Labels to add to all resources. |
@@ -21,6 +22,7 @@ CAST AI Pod Mutator.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/pod-mutator"` |  |
 | image.tag | string | `""` |  |
+| nameOverride | string | `""` |  |
 | podAnnotations | object | `{}` | Annotations added to each pod. |
 | podLabels | object | `{}` |  |
 | podSecurityContext.fsGroup | int | `1005` |  |
