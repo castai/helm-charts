@@ -21,6 +21,7 @@ CAST AI cloud-proxy chart
 | commonAnnotations | object | `{}` |  |
 | config.gcpCredentials | string | `""` |  |
 | config.tls.enabled | bool | `true` |  |
+| config.useCompression | bool | `true` |  |
 | fullnameOverride | string | `""` |  |
 | gcpConfiguration.auth | object | `{"jsonCredentials":"","jsonCredentialsSecretRef":"","useMetadataServer":true}` | Select the authentication mode to use to access Google Cloud APIs. Exactly one option from [metadata, raw JSON, secret reference] must be provided. |
 | gcpConfiguration.auth.jsonCredentials | string | `""` | JSON credentials to use when authenticating against GCP. |
