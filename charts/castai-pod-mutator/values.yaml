@@ -5,6 +5,9 @@ image:
 
 replicas: 1
 
+nameOverride: ""
+fullnameOverride: castai-pod-mutator
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
