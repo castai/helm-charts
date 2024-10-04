@@ -5,6 +5,7 @@ metadata:
   labels:
     {{- include "castai-cloud-proxy.labels" . | nindent 4 }}
 spec:
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
       {{- include "castai-cloud-proxy.selectorLabels" . | nindent 6 }}
