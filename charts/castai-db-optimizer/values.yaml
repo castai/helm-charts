@@ -1,4 +1,4 @@
-replicas: 1
+replicas: 2
 
 # apiURL -- URL to the CAST AI API server.
 apiURL: "api.cast.ai"
@@ -27,9 +27,11 @@ resources:
     memory: "500Mi"
 
 proxy:
+  # proxy.logLevel -- Default proxy log level.
   logLevel: "filter:info"
 
 queryProcessor:
+  # queryProcessor.logLevel -- Default query-processor log level.
   logLevel: "warn"
 
 
@@ -42,3 +44,5 @@ proxyImage:
   repository: us-docker.pkg.dev/castai-hub/library/dbo-proxy
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
+
+hostAntiAffinityEnabled: true
