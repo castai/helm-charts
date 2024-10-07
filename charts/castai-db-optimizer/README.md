@@ -11,11 +11,12 @@ CAST AI database cache deployment.
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API.  |
 | apiURL | string | `"api.cast.ai"` | URL to the CAST AI API server. |
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
-| proxy.logLevel | string | `"filter:info"` |  |
+| hostAntiAffinityEnabled | bool | `true` |  |
+| proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
-| queryProcessor.logLevel | string | `"warn"` |  |
+| queryProcessor.logLevel | string | `"warn"` | Default query-processor log level. |
 | queryProcessorImage.pullPolicy | string | `"IfNotPresent"` |  |
 | queryProcessorImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/query-processor"` |  |
 | queryProcessorImage.tag | string | `""` |  |
