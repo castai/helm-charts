@@ -24,6 +24,16 @@ spec:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
       terminationGracePeriodSeconds: 60
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                - {{ include "name" . }}
+            topologyKey: kubernetes.io/hostname
       volumes:
         - name: envoy-config
           configMap:
