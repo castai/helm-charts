@@ -79,7 +79,7 @@ spec:
               value: "{{ $value }}"
             {{- end }}
             - name: USE_COMPRESSION
-              value: {{ .Values.config.useCompression | quote }}
+              value: {{ .Values.castai.useCompression | quote }}
           envFrom:
             - secretRef:
           {{- if .Values.castai.apiKey }}

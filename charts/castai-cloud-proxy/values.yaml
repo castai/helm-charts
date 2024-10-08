@@ -2,11 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-config:
-  tls:
-    enabled: true
-  useCompression: true
-
 gke:
   # -- Optional: by default metadata server is used. Override this options to choose another authentication method. (https://cloud.google.com/docs/authentication/application-default-credentials).
   auth:
@@ -19,6 +14,8 @@ castai:
   apiURL: "https://api.cast.ai"
   # -- The CAST AI gRPC URL.
   grpcURL: "api-grpc.cast.ai:443"
+  # -- Use compression for gRPC communication.
+  useCompression: true
   # -- The CAST AI API key. Either this or apiKeySecretRef must be provided.
   apiKey: ""
   # -- Kubernetes Secret reference for the CAST AI API key. Either this or apiKey must be provided.

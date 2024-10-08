@@ -12,15 +12,14 @@ CAST AI cloud-proxy chart
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].values[0] | string | `"castai-cloud-proxy"` |  |
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.topologyKey | string | `"kubernetes.io/hostname"` |  |
 | affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight | int | `100` |  |
-| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","grpcURL":"api-grpc.cast.ai:443"}` | CAST AI specific settings |
+| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","grpcURL":"api-grpc.cast.ai:443","useCompression":true}` | CAST AI specific settings |
 | castai.apiKey | string | `""` | The CAST AI API key. Either this or apiKeySecretRef must be provided. |
 | castai.apiKeySecretRef | string | `""` | Kubernetes Secret reference for the CAST AI API key. Either this or apiKey must be provided. |
 | castai.apiURL | string | `"https://api.cast.ai"` | The CAST AI API URL. |
 | castai.clusterID | string | `""` | The CAST AI cluster ID. |
 | castai.grpcURL | string | `"api-grpc.cast.ai:443"` | The CAST AI gRPC URL. |
+| castai.useCompression | bool | `true` | Use compression for gRPC communication. |
 | commonAnnotations | object | `{}` |  |
-| config.tls.enabled | bool | `true` |  |
-| config.useCompression | bool | `true` |  |
 | fullnameOverride | string | `""` |  |
 | gke.auth | object | `{"jsonCredentials":""}` | Optional: by default metadata server is used. Override this options to choose another authentication method. (https://cloud.google.com/docs/authentication/application-default-credentials). |
 | gke.auth.jsonCredentials | string | `""` | JSON credentials to use when authenticating against GCP. You can generate the JSON key using this documentation: https://cloud.google.com/iam/docs/keys-create-delete#creating |
