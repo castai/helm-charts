@@ -7,13 +7,18 @@ CAST AI cloud-proxy chart
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalEnv | object | `{"LOG_LEVEL":"4"}` | Used to set additional environment variables for the cloud-proxy container. |
-| affinity | object | `{}` |  |
-| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","grpcURL":"api-grpc.cast.ai:443"}` | CAST AI specific settings |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].key | string | `"app.kubernetes.io/name"` |  |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].operator | string | `"In"` |  |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.labelSelector.matchExpressions[0].values[0] | string | `"castai-cloud-proxy"` |  |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].podAffinityTerm.topologyKey | string | `"kubernetes.io/hostname"` |  |
+| affinity.podAntiAffinity.preferredDuringSchedulingIgnoredDuringExecution[0].weight | int | `100` |  |
+| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","grpcURL":"api-grpc.cast.ai:443","useCompression":true}` | CAST AI specific settings |
 | castai.apiKey | string | `""` | The CAST AI API key. Either this or apiKeySecretRef must be provided. |
 | castai.apiKeySecretRef | string | `""` | Kubernetes Secret reference for the CAST AI API key. Either this or apiKey must be provided. |
 | castai.apiURL | string | `"https://api.cast.ai"` | The CAST AI API URL. |
 | castai.clusterID | string | `""` | The CAST AI cluster ID. |
 | castai.grpcURL | string | `"api-grpc.cast.ai:443"` | The CAST AI gRPC URL. |
+| castai.useCompression | bool | `true` | Use compression for gRPC communication. |
 | commonAnnotations | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
 | gke.auth | object | `{"jsonCredentials":""}` | Optional: by default metadata server is used. Override this options to choose another authentication method. (https://cloud.google.com/docs/authentication/application-default-credentials). |
@@ -41,8 +46,11 @@ CAST AI cloud-proxy chart
 | readinessProbe.periodSeconds | int | `10` |  |
 | readinessProbe.successThreshold | int | `1` |  |
 | readinessProbe.timeoutSeconds | int | `1` |  |
-| replicaCount | int | `1` |  |
-| resources | object | `{}` |  |
+| replicaCount | int | `2` |  |
+| resources.limits.cpu | int | `1` |  |
+| resources.limits.memory | string | `"512Mi"` |  |
+| resources.requests.cpu | string | `"100m"` |  |
+| resources.requests.memory | string | `"128Mi"` |  |
 | securityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | securityContext.readOnlyRootFilesystem | bool | `true` |  |
 | securityContext.runAsNonRoot | bool | `true` |  |

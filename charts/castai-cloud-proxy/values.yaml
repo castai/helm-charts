@@ -14,6 +14,8 @@ castai:
   apiURL: "https://api.cast.ai"
   # -- The CAST AI gRPC URL.
   grpcURL: "api-grpc.cast.ai:443"
+  # -- Use compression for gRPC communication.
+  useCompression: true
   # -- The CAST AI API key. Either this or apiKeySecretRef must be provided.
   apiKey: ""
   # -- Kubernetes Secret reference for the CAST AI API key. Either this or apiKey must be provided.
@@ -30,7 +32,7 @@ priorityClass:
   enabled: true
   name: system-cluster-critical
 
-replicaCount: 1
+replicaCount: 2
 
 image:
   repository: us-docker.pkg.dev/castai-hub/library/cloud-proxy
@@ -84,20 +86,27 @@ securityContext:
     drop:
     - ALL
 
-resources: {}
-  # We usually recommend not to specify default resources and to leave this as a conscious
-  # choice for the user. This also increases chances charts run on environments with little
-  # resources, such as Minikube. If you do want to specify resources, uncomment the following
-  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-  # limits:
-  #   cpu: 100m
-  #   memory: 128Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 128Mi
+resources:
+  limits:
+    cpu: 1
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
 nodeSelector: {}
 
 tolerations: []
 
-affinity: {}
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - castai-cloud-proxy
+          topologyKey: kubernetes.io/hostname
