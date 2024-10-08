@@ -71,7 +71,7 @@ spec:
             - name: LOG_LEVEL
               value: {{ required "log level must be provided" .Values.queryProcessor.logLevel }}
             - name: API_URL
-              value: {{ required "apiURL must be provided" .Values.apiURL | printf "https://%s" }}
+              value: {{ required "apiURL must be provided" .Values.apiURL }}
             - name: API_KEY
               value: {{ .Values.apiKey | quote }}
             - name: PROXY_METRICS_PORT
