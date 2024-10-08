@@ -69,7 +69,7 @@ spec:
               value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
-            {{- if or .Values.gcpConfiguration.auth.jsonCredentials .Values.gcpConfiguration.auth.jsonCredentialsSecretRef }}
+            {{- if or .Values.gke.auth.jsonCredentials .Values.gke.auth.jsonCredentialsSecretRef }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: "/opt/google/google-credentials.json"
             {{- end }}
@@ -87,7 +87,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
-          {{- if or .Values.gcpConfiguration.auth.jsonCredentials .Values.gcpConfiguration.auth.jsonCredentialsSecretRef }}
+          {{- if or .Values.gke.auth.jsonCredentials .Values.gke.auth.jsonCredentialsSecretRef }}
           - name: gcp-creds
             mountPath: "/opt/google"
             readOnly: true
@@ -105,12 +105,12 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
-      {{- if .Values.gcpConfiguration.auth.jsonCredentials }}
+      {{- if .Values.gke.auth.jsonCredentials }}
         - name: gcp-creds
           secret:
             secretName: {{ include "castai-cloud-proxy.fullname" . }}-gcp-creds
-      {{- else if .Values.gcpConfiguration.auth.jsonCredentialsSecretRef }}
+      {{- else if .Values.gke.auth.jsonCredentialsSecretRef }}
         - name: gcp-creds
           secret:
-            secretName: {{ .Values.gcpConfiguration.auth.jsonCredentialsSecretRef }}
+            secretName: {{ .Values.gke.auth.jsonCredentialsSecretRef }}
       {{- end }}

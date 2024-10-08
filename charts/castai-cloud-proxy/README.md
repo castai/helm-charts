@@ -16,9 +16,9 @@ CAST AI cloud-proxy chart
 | castai.grpcURL | string | `"api-grpc.cast.ai:443"` | The CAST AI gRPC URL. |
 | commonAnnotations | object | `{}` |  |
 | fullnameOverride | string | `""` |  |
-| gcpConfiguration.auth | object | `{"jsonCredentials":"","jsonCredentialsSecretRef":""}` | Select the authentication mode to use to access Google Cloud APIs. If you do not specify any, the metadata server will be used. |
-| gcpConfiguration.auth.jsonCredentials | string | `""` | JSON credentials to use when authenticating against GCP. |
-| gcpConfiguration.auth.jsonCredentialsSecretRef | string | `""` | Secret to mount JSON credentials from. The credentials JSON must be provided in the `google-credentials.json` key. |
+| gke.auth | object | `{"jsonCredentials":"","jsonCredentialsSecretRef":""}` | Optional: by default metadata server is used. Override this options to choose another authentication method (https://cloud.google.com/docs/authentication/application-default-credentials). |
+| gke.auth.jsonCredentials | string | `""` | JSON credentials to use when authenticating against GCP. |
+| gke.auth.jsonCredentialsSecretRef | string | `""` | Secret to mount JSON credentials from. The credentials JSON must be provided in the `google-credentials.json` key. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/cloud-proxy"` |  |
 | image.tag | string | `""` |  |

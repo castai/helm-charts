@@ -2,8 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-gcpConfiguration:
-  # -- Select the authentication mode to use to access Google Cloud APIs. If you do not specify any, the metadata server will be used.
+gke:
+  # -- Optional: by default metadata server is used. Override this options to choose another authentication method (https://cloud.google.com/docs/authentication/application-default-credentials).
   auth:
     # -- JSON credentials to use when authenticating against GCP.
     jsonCredentials: ""
