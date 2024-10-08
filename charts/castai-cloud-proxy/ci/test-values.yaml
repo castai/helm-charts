@@ -14,3 +14,14 @@ additionalEnv:
   LOG_LEVEL: 5
 podLabels:
   test: test
+gke:
+  auth:
+    jsonCredentials: |
+      {
+        "account": "",
+        "client_id": "dummy",
+        "client_secret": "dummy",
+        "refresh_token": "dummy",
+        "type": "authorized_user",
+        "universe_domain": "googleapis.com"
+      }
