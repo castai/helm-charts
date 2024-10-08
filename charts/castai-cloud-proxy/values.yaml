@@ -3,12 +3,10 @@
 # Declare variables to be passed into your templates.
 
 gke:
-  # -- Optional: by default metadata server is used. Override this options to choose another authentication method (https://cloud.google.com/docs/authentication/application-default-credentials).
+  # -- Optional: by default metadata server is used. Override this options to choose another authentication method. (https://cloud.google.com/docs/authentication/application-default-credentials).
   auth:
-    # -- JSON credentials to use when authenticating against GCP.
+    # -- JSON credentials to use when authenticating against GCP. You can generate the JSON key using this documentation: https://cloud.google.com/iam/docs/keys-create-delete#creating
     jsonCredentials: ""
-    # -- Secret to mount JSON credentials from. The credentials JSON must be provided in the `google-credentials.json` key.
-    jsonCredentialsSecretRef: ""
 
 # -- CAST AI specific settings
 castai:
