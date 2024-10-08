@@ -69,6 +69,10 @@ spec:
               value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
+            {{- if .Values.gke.auth.jsonCredentials }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/opt/google/google-credentials.json"
+            {{- end }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
@@ -83,9 +87,11 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
+          {{- if .Values.gke.auth.jsonCredentials }}
           - name: gcp-creds
             mountPath: "/opt/google"
             readOnly: true
+          {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -99,7 +105,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+      {{- if .Values.gke.auth.jsonCredentials }}
         - name: gcp-creds
           secret:
             secretName: {{ include "castai-cloud-proxy.fullname" . }}-gcp-creds
-            optional: true
+      {{- end }}
