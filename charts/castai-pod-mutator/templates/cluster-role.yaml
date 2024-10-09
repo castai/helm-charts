@@ -35,7 +35,7 @@ rules:
     verbs:
       - update
   # ---
-  # Read only permissions to view pods/deployments/rollouts
+  # Read and patch permissions for pods (patch is required to annotate pods)
   # ---
   - apiGroups:
       - ""
@@ -45,6 +45,8 @@ rules:
       - get
       - list
       - watch
+      - patch
+      - update
   - apiGroups:
       - apps
     resources:
