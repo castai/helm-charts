@@ -129,6 +129,18 @@ data:
                         socket_address:
                           address: {{ .Values.apiURL }}
                           port_value: 443
+
+          health_checks:
+            - timeout: 1s
+              interval: 5s
+              no_traffic_interval: 5s
+              unhealthy_threshold: 3
+              healthy_threshold: 1
+              custom_health_check:
+                name: "castai.cluster_control.health_check"
+                typed_config:
+                  "@type": type.googleapis.com/castai.cluster_control.v1.ClusterControlHealthCheck
+
           transport_socket:
             name: envoy.transport_sockets.tls
             typed_config:
