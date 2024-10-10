@@ -29,6 +29,9 @@ resources:
 proxy:
   # proxy.logLevel -- Default proxy log level.
   logLevel: "filter:info"
+  # proxy.readinessProbeEnabled -- Ensure proxy has retrieved initial cache configuration before accepting connections.
+  readinessProbeEnabled: true
+
 
 queryProcessor:
   # queryProcessor.logLevel -- Default query-processor log level.

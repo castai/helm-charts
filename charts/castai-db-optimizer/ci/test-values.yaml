@@ -4,3 +4,6 @@ apiKey: "456"
 resources:
   proxy:
     ephemeralStorage: 5Mi
+
+proxy:
+  readinessProbeEnabled: false
