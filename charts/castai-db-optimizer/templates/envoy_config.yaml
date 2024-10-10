@@ -1,3 +1,5 @@
+{{ $apiURL := (include "extractUrlComponents" .Values.apiURL | fromYaml)  }}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,6 +8,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
     app.kubernetes.io/name: {{ include "name" . }}
 data:
+
   envoy-config.yaml: |-
     node:
       cluster: castai
@@ -35,7 +38,7 @@ data:
         typed_config:
           "@type": type.googleapis.com/castai.cluster_control.v1.ClusterControlConfig
           path: /v1/dbo/cache-groups/{{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." }}/cache-configurations
-          hostname: {{ .Values.apiURL }}
+          hostname: {{ $apiURL.host }}
           api_key: {{ .Values.apiKey | quote }}
       - name: "castai.grpc.services"
         typed_config:
@@ -117,18 +120,19 @@ data:
                           address: 127.0.0.1
                           port_value: 1234
 
-        - name: {{ .Values.apiURL }}
+        - name: {{ $apiURL.host }}
           type: LOGICAL_DNS
           connect_timeout: 2s
           load_assignment:
-            cluster_name: {{ .Values.apiURL }}
+            cluster_name: {{ $apiURL.host }}
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: {{ .Values.apiURL }}
-                          port_value: 443
+                          address: {{ $apiURL.host }}
+                          port_value: {{ $apiURL.port }}
+          {{ if $apiURL.tls }}
           transport_socket:
             name: envoy.transport_sockets.tls
             typed_config:
@@ -141,7 +145,8 @@ data:
                       filename: cert.pem
                     private_key:
                       filename: key.pem
-              sni: {{ .Values.apiURL }}
+              sni: {{ $apiURL.host }}
+          {{ end }}
 
         - name: query_processor_service
           type: LOGICAL_DNS
