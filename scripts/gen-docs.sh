@@ -44,6 +44,6 @@ echo "Generating helm docs for all charts in the 'charts' directory."
 for chart in charts/*; do
     if [[ -d "$chart" ]]; then
         echo "Generating helm docs for chart: $(basename "$chart")"
-        docker run -v "$chart":/src -w /src jnorwood/helm-docs:v1.11.0
+        docker run -v "./$chart":/src -w /src jnorwood/helm-docs:v1.11.0
     fi
 done
