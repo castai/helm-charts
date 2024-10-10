@@ -31,7 +31,7 @@ done
 if [[ -n "$CHART_NAME" ]]; then
     if [[ -d "charts/$CHART_NAME" ]]; then
         echo "Generating helm docs for chart: $CHART_NAME"
-        docker run -v "charts/$CHART_NAME":/src -w /src jnorwood/helm-docs:v1.11.0
+        docker run -v "./charts/$CHART_NAME":/src -w /src jnorwood/helm-docs:v1.11.0
     else
         echo "Error: Chart '$CHART_NAME' does not exist in the 'charts' directory."
         exit 1
