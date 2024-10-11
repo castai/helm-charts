@@ -59,4 +59,3 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | updateStrategy | object | `{"type":"RollingUpdate"}` | Controls `deployment.spec.strategy` field. |
 | workloadManagement | object | `{"enabled":false}` | Settings for managing deployments and other pod controllers. |
 | workloadManagement.enabled | bool | `false` | Adds permissions to patch deployments. |
-
