@@ -62,5 +62,9 @@ CAST AI agent deployment chart.
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. |
 | tolerations | object | `{}` |  |
+| tolerations[0].effect | string | `"NoSchedule"` |  |
+| tolerations[0].key | string | `"provisioning.cast.ai/temporary"` |  |
+| tolerations[0].operator | string | `"Equal"` |  |
+| tolerations[0].value | string | `"resuming"` |  |
 | trustedCACert | string | `""` | CA certificate to add to agent's set of root certificate authorities that client will use when verifying server certificates. |
 | trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to agent's set of root certificate authorities. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
