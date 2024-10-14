@@ -168,3 +168,13 @@ containerSecurityContext:
   capabilities:
     drop:
       - ALL
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: DoNotSchedule
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-agent
+    matchLabelKeys:
+      - pod-template-hash
