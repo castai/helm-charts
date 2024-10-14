@@ -63,9 +63,8 @@ CAST AI agent deployment chart.
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. |
 | tolerations | object | `{}` |  |
 | topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-agent"` |  |
-| topologySpreadConstraints[0].matchLabelKeys[0] | string | `"pod-template-hash"` |  |
 | topologySpreadConstraints[0].maxSkew | int | `1` |  |
 | topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
-| topologySpreadConstraints[0].whenUnsatisfiable | string | `"DoNotSchedule"` |  |
+| topologySpreadConstraints[0].whenUnsatisfiable | string | `"ScheduleAnyway"` |  |
 | trustedCACert | string | `""` | CA certificate to add to agent's set of root certificate authorities that client will use when verifying server certificates. |
 | trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to agent's set of root certificate authorities. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
