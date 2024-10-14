@@ -168,3 +168,11 @@ containerSecurityContext:
   capabilities:
     drop:
       - ALL
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-agent
