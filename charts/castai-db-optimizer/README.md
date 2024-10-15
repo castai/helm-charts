@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.1.6](https://img.shields.io/badge/Version-0.1.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.7](https://img.shields.io/badge/Version-0.1.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -13,6 +13,7 @@ CAST AI database cache deployment.
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
 | hostAntiAffinityEnabled | bool | `true` |  |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
+| proxy.readinessProbeEnabled | bool | `true` | Ensure proxy has retrieved initial cache configuration before accepting connections. |
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
