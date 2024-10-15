@@ -335,6 +335,12 @@ kind: Role
 metadata:
   name: {{ include "castai-agent.serviceAccountName" $ }}
   namespace: {{ . }}
+  labels:
+    {{- include "castai-agent.labels" $ | nindent 4 }}
+  {{ if gt (len $.Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" $ | nindent 4 }}
+  {{- end }}
 rules:
   - apiGroups:
       - ""

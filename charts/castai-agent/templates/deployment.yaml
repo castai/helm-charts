@@ -64,6 +64,10 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: agent
         {{- $global := .Values.global | default dict }}
@@ -77,10 +81,18 @@ spec:
             - name: shared-metadata
               mountPath: /agent-metadata
           env:
+            - name: SELF_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: SELF_POD_NAMESPACE
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: SELF_POD_NODE
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
             {{- if .Values.provider }}
