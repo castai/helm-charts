@@ -10,7 +10,6 @@ metadata:
     {{- end }}
     {{- include "pod-pinner.labels" . | nindent 4 }}
   annotations:
-    ignore-check.kube-linter.io/no-anti-affinity: "This deployment is using Topology Spread Constraints on the hostname key instead of pod anti-affinity"
     ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET_NAME, which is NOT a secret value. CERTS_SECRET_NAME contains a resource name used by Cert Rotator."
     {{- include "pod-pinner.annotations" . | nindent 4 }}
 spec:
