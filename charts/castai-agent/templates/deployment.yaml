@@ -8,8 +8,9 @@ metadata:
     azure-extensions-usage-release-identifier: {{.Release.Name}}
     {{ end }}
     {{- include "castai-agent.labels" . | nindent 4 }}
-  {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
+    ignore-check.kube-linter.io/no-anti-affinity: "This deployment is using Topology Spread Constraints on the hostname key instead of pod anti-affinity"
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
     {{- include "castai-agent.annotations" . | nindent 4 }}
   {{- end }}
 spec:
