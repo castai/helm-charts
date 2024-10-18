@@ -21,6 +21,8 @@ fullnameOverride: castai-cluster-controller
 
 # createNamespace -- By default namespace is expected to be created by castai-agent.
 createNamespace: false
+# createLLMNamespace -- By default namespace is expected to be created when ai-optimizer-proxy component is installed.
+createLLMNamespace: false
 
 image:
   repository: us-docker.pkg.dev/castai-hub/library/cluster-controller

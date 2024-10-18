@@ -9,4 +9,17 @@ metadata:
   annotations:
     {{- include "castai-agent.annotations" . | nindent 4 }}
   {{- end }}
+---
+{{- end }}
+{{- if .Values.createLLMNamespace}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: castai-llms
+  labels:
+  {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
 {{- end }}
