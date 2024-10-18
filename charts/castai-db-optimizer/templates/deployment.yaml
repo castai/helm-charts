@@ -143,6 +143,8 @@ spec:
             - --file-flush-interval-msec
             - "25000"
             - --enable-core-dump
+            - --concurrency
+            - "{{ .Values.proxy.concurrency }}"
 
           resources:
             requests:

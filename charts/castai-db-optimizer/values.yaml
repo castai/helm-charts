@@ -1,13 +1,13 @@
 replicas: 2
 
-# apiURL -- URL to the CAST AI API server.
+# -- URL to the CAST AI API server.
 apiURL: "api.cast.ai"
 
-# apiKey -- Token to be used for authorizing access to the CAST AI API.
+# -- Token to be used for authorizing access to the CAST AI API.
 #
 apiKey: ""
 
-# cacheGroupID -- ID of the cache group for which cache configuration should be pulled.
+# -- ID of the cache group for which cache configuration should be pulled.
 #
 cacheGroupID: ""
 
@@ -16,25 +16,27 @@ resources:
     cpu: "500m"
     memoryRequest: "200Mi"
     memoryLimit: "200Mi"
-    # defines how much of proxy container disk space is allocated for cache.
+    # -- defines how much of proxy container disk space is allocated for cache.
     ephemeralStorage: 10Gi
-    # max allowed database size in disk
+    # -- max allowed database size in disk
     cacheDbSizeBytes: 10000000000
-    # maximum number of entries to keep in the proxy.
+    # -- maximum number of entries to keep in the proxy.
     maxCacheEntries: 1000000000
   queryProcessor:
     cpu: "500m"
     memory: "500Mi"
 
 proxy:
-  # proxy.logLevel -- Default proxy log level.
+  # -- Default proxy log level.
   logLevel: "filter:info"
-  # proxy.readinessProbeEnabled -- Ensure proxy has retrieved initial cache configuration before accepting connections.
+  # -- Ensure proxy has retrieved initial cache configuration before accepting connections.
   readinessProbeEnabled: true
+  # -- number of parallel workers in envoy. Increase this if CPU utilization
+  concurrency: 12
 
 
 queryProcessor:
-  # queryProcessor.logLevel -- Default query-processor log level.
+  # -- Default query-processor log level.
   logLevel: "warn"
 
 
