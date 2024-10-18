@@ -86,11 +86,11 @@ rules:
   # For installing/updating CAST AI components.
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles" ]
-    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-kvisor", "castai-kvisor-controller", "castai-egressd", "castai-pod-pinner" ]
+    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-kvisor", "castai-kvisor-controller", "castai-egressd", "castai-pod-pinner", "castai-ai-optimizer-proxy" ]
     verbs: [  "get", "patch", "update", "delete" ]
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "clusterroles", "clusterrolebindings" ]
-    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-kvisor", "castai-kvisor-controller", "castai-egressd", "castai-pod-pinner" ]
+    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-kvisor", "castai-kvisor-controller", "castai-egressd", "castai-pod-pinner", "castai-ai-optimizer-proxy" ]
     verbs: [ "get", "delete" ]
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
@@ -117,6 +117,25 @@ rules:
     resources: [ "*" ]
     verbs: [ "*" ]
 ---
+{{- if .Values.createLLMNamespace }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: castai-cluster-controller
+  namespace: castai-llms
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+rules:
+  # Controller has full access in castai-llms namespace. This is required to fully manage the LLM deployments.
+  - apiGroups: ["*"]
+    resources: ["*"]
+    verbs: ["*"]
+---
+{{- end }}
 kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
@@ -136,6 +155,28 @@ subjects:
     name: castai-cluster-controller
     namespace: {{ .Release.Namespace }}
 ---
+{{- if .Values.createLLMNamespace }}
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: castai-cluster-controller
+  namespace: castai-llms
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: castai-cluster-controller
+subjects:
+  - kind: ServiceAccount
+    name: castai-cluster-controller
+    namespace: {{ .Release.Namespace }}
+---
+{{- end }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:

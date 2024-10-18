@@ -24,6 +24,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | castai.clusterID | string | `""` | CASTAI Cluster unique identifier. |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
+| createLLMNamespace | bool | `false` | By default namespace is expected to be created when ai-optimizer-proxy component is installed. |
 | createNamespace | bool | `false` | By default namespace is expected to be created by castai-agent. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
