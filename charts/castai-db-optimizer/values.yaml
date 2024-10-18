@@ -18,7 +18,7 @@ resources:
     memoryLimit: "200Mi"
     # -- defines how much of proxy container disk space is allocated for cache.
     ephemeralStorage: 10Gi
-    # -- max allowed database size in disk
+    # -- max allowed database size in disk.
     cacheDbSizeBytes: 10000000000
     # -- maximum number of entries to keep in the proxy.
     maxCacheEntries: 1000000000
@@ -31,7 +31,7 @@ proxy:
   logLevel: "filter:info"
   # -- Ensure proxy has retrieved initial cache configuration before accepting connections.
   readinessProbeEnabled: true
-  # -- number of parallel workers in envoy. Increase this if CPU utilization
+  # -- number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP.
   concurrency: 12
 
 

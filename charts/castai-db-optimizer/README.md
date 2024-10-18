@@ -12,7 +12,7 @@ CAST AI database cache deployment.
 | apiURL | string | `"api.cast.ai"` | URL to the CAST AI API server. |
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
 | hostAntiAffinityEnabled | bool | `true` |  |
-| proxy.concurrency | int | `12` | number of parallel workers in envoy. Increase this if CPU utilization |
+| proxy.concurrency | int | `12` | number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxy.readinessProbeEnabled | bool | `true` | Ensure proxy has retrieved initial cache configuration before accepting connections. |
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
@@ -23,7 +23,7 @@ CAST AI database cache deployment.
 | queryProcessorImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/query-processor"` |  |
 | queryProcessorImage.tag | string | `""` |  |
 | replicas | int | `2` |  |
-| resources.proxy.cacheDbSizeBytes | int | `10000000000` | max allowed database size in disk |
+| resources.proxy.cacheDbSizeBytes | int | `10000000000` | max allowed database size in disk. |
 | resources.proxy.cpu | string | `"500m"` |  |
 | resources.proxy.ephemeralStorage | string | `"10Gi"` | defines how much of proxy container disk space is allocated for cache. |
 | resources.proxy.maxCacheEntries | int | `1000000000` | maximum number of entries to keep in the proxy. |
