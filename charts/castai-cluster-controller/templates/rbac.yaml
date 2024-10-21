@@ -90,7 +90,18 @@ rules:
     verbs: [  "get", "patch", "update", "delete" ]
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "clusterroles", "clusterrolebindings" ]
-    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-kvisor", "castai-kvisor-controller", "castai-egressd", "castai-pod-pinner" ]
+    resourceNames:
+      - castai-cluster-controller
+      - castai-cluster-controller-ext
+      - castai-evictor
+      - castai-evictor-ext
+      - castai-agent
+      - castai-spot-handler
+      - castai-kvisor
+      - castai-kvisor-controller
+      - castai-egressd
+      - castai-pod-pinner
+      - castai-pod-pinner-ext
     verbs: [ "get", "delete" ]
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
