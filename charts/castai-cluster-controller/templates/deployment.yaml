@@ -155,6 +155,9 @@ spec:
         - name: monitor
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - castai-cluster-controller
+            - monitor
           volumeMounts:
             - name: shared-metadata
               mountPath: /controller-metadata
