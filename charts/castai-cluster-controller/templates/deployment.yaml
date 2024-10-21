@@ -46,6 +46,9 @@ spec:
       dnsPolicy: {{ .Values.dnsPolicy }}
       {{- end }}
       {{- if and (.Capabilities.APIVersions.Has "scheduling.k8s.io/v1") (semverCompare ">= 1.18-0" .Capabilities.KubeVersion.Version) (.Values.priorityClass | default dict).enabled }}
+      volumes:
+        - name: shared-metadata
+          emptyDir: {}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
       serviceAccountName: {{ .Values.serviceAccount.name }}
@@ -71,6 +74,9 @@ spec:
         - name: cluster-controller
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: shared-metadata
+              mountPath: /controller-metadata
           env:
           {{- if .Values.leaderElectionEnabled }}
             - name: LEADER_ELECTION_ENABLED
@@ -150,5 +156,67 @@ spec:
               path: /healthz
             initialDelaySeconds: 5
             periodSeconds: 5
-
+        - name: monitor
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: shared-metadata
+              mountPath: /controller-metadata
+          env:
+          {{- if .Values.leaderElectionEnabled }}
+            - name: LEADER_ELECTION_ENABLED
+              value: "true"
+            - name: LEADER_ELECTION_LOCK_NAME
+              value: "cluster-controller"
+            - name: LEADER_ELECTION_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: LEADER_ELECTION_LEASE_DURATION
+              value: "{{ .Values.leaderElectionLeaseDuration }}"
+            - name: LEADER_ELECTION_LEASE_RENEW_DEADLINE
+              value: "{{ .Values.leaderElectionRenewDeadline }}"
+          {{- end }}
+          {{- if .Values.k8sApiClient.rateLimit.burst }}
+            - name: KUBECLIENT_BURST
+              value: {{ .Values.k8sApiClient.rateLimit.burst | quote }}
+          {{- end }}
+          {{- if .Values.k8sApiClient.rateLimit.qps }}
+            - name: KUBECLIENT_QPS
+              value: {{ .Values.k8sApiClient.rateLimit.qps | quote }}
+          {{- end }}
+            - name: KUBERNETES_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: KUBERNETES_POD
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          {{- range $k, $v := .Values.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+          {{- end }}
+          envFrom:
+          {{- if .Values.trustedCACert }}
+            - secretRef:
+                name: {{ include "castai-agent.fullname" . }}-tls-cert
+          {{- else if .Values.trustedCACertSecretRef }}
+            - secretRef:
+                name: {{ .Values.trustedCACertSecretRef -}}
+          {{- end }}
+            - secretRef:
+                {{- if or .Values.apiKey .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
+                name: castai-cluster-controller
+                {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                {{- end }}
+            - configMapRef:
+                name: castai-cluster-controller
+          resources:
+            {{- .Values.monitor.resources | default dict | toYaml | nindent 12 }}
 

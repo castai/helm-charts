@@ -66,6 +66,7 @@ podLabels: {}
 # additionalEnv -- Env variables passed to castai-cluster-controller.
 additionalEnv:
   LOG_LEVEL: "5"
+  MONITOR_METADATA: "/controller-metadata/metadata"
 
 resources:
   requests:
@@ -73,6 +74,12 @@ resources:
     memory: 100Mi
   limits:
     memory: 1Gi
+
+monitor:
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
 
 # Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
