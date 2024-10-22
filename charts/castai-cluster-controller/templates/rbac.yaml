@@ -86,7 +86,7 @@ rules:
   # For installing/updating CAST AI components.
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles" ]
-    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-kvisor", "castai-kvisor-controller", "castai-egressd", "castai-pod-pinner" ]
+    resourceNames: [ "castai-cluster-controller", "castai-evictor", "castai-agent", "castai-spot-handler", "castai-kvisor", "castai-kvisor-controller", "castai-egressd", "castai-pod-pinner", "castai-ai-optimizer-proxy" ]
     verbs: [  "get", "patch", "update", "delete" ]
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "clusterroles", "clusterrolebindings" ]
@@ -102,11 +102,16 @@ rules:
       - castai-egressd
       - castai-pod-pinner
       - castai-pod-pinner-ext
+      - castai-ai-optimizer-proxy
     verbs: [ "get", "delete" ]
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
     resourceNames: [ "castai-agent" ]
     verbs: [ "delete" ]
+  - apiGroups: [ "" ]
+    resources: [ "namespaces" ]
+    resourceNames: [ "castai-llms" ]
+    verbs: [ "get", "delete" ]
   - apiGroups: [ "admissionregistration.k8s.io" ]
     resourceNames: [ "castai-pod-pinner" ]
     resources: [ "mutatingwebhookconfigurations" ]
