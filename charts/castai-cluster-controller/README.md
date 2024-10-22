@@ -40,7 +40,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | pdbMinAvailable | int | `1` |  |
-| podAnnotations | object | `{"kubectl.kubernetes.io/default-container":"cluster-controller","kubectl.kubernetes.io/default-exec-container":"cluster-controller"}` | Annotations added to each pod. |
+| podAnnotations | object | `{}` | Annotations added to each pod. |
 | podLabels | object | `{}` |  |
 | priorityClass | object | `{"enabled":true,"name":"system-cluster-critical"}` | K8s priority class of castai-cluster-controller |
 | replicas | int | `2` | Number of replicas for castai-cluster-controller deployment. |
