@@ -14,6 +14,7 @@ CAST AI AI Optimizer Proxy deployment chart.
 | castai.clusterID | string | `""` |  |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
+| createNamespace | bool | `false` | By default castai-llms namespace is expected to be created explicitly during onboarding. |
 | deploy | bool | `true` |  |
 | fullnameOverride | string | `""` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |

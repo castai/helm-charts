@@ -2,6 +2,8 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# createNamespace -- By default castai-llms namespace is expected to be created explicitly during onboarding.
+createNamespace: false
 replicaCount: 1
 
 # Endpoint used to access the router running in the same pod.
