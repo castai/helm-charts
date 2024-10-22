@@ -30,6 +30,8 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
       annotations:
+        kubectl.kubernetes.io/default-container: "cluster-controller"
+        kubectl.kubernetes.io/default-exec-container: "cluster-controller"
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
         checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
       {{- if (.Values.aks | default dict ).enabled }}

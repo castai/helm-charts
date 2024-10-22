@@ -59,9 +59,7 @@ castai:
   clusterID: ""
 
 # podAnnotations -- Annotations added to each pod.
-podAnnotations:
-  kubectl.kubernetes.io/default-container: "cluster-controller"
-  kubectl.kubernetes.io/default-exec-container: "cluster-controller"
+podAnnotations: {}
 # podLabels - Labels added to each pod.
 podLabels: {}
 
