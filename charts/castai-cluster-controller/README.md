@@ -12,7 +12,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalEnv | object | `{"LOG_LEVEL":"5"}` | Env variables passed to castai-cluster-controller. |
+| additionalEnv | object | `{"LOG_LEVEL":"5","MONITOR_METADATA":"/controller-metadata/metadata"}` | Env variables passed to castai-cluster-controller. |
 | affinity | object | `{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"NotIn","values":["windows"]}]}]}},"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["castai-cluster-controller"]}]},"topologyKey":"kubernetes.io/hostname"}]}}` | Pod affinity rules. Don't schedule application on windows node Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
 | autoscaling | object | `{"enabled":true}` | Settings for managing autoscaling features. |
 | autoscaling.enabled | bool | `true` | Adds permissions to manage autoscaling. |
@@ -35,6 +35,8 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | leaderElectionEnabled | bool | `true` | When running 2+ replicas of castai-cluster-controller only one should work as a leader. |
 | leaderElectionLeaseDuration | string | `"15s"` |  |
 | leaderElectionRenewDeadline | string | `"10s"` |  |
+| monitor.resources.requests.cpu | string | `"100m"` |  |
+| monitor.resources.requests.memory | string | `"128Mi"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
 | pdbMinAvailable | int | `1` |  |
