@@ -1588,6 +1588,24 @@ entries:
   - annotations:
       release-date: 2024-06-04T07:10:07
     apiVersion: v2
+    appVersion: v0.54.4
+    created: "2024-10-24T07:40:36.166982275Z"
+    dependencies:
+    - condition: castai-cluster-controller-ext.enabled
+      name: castai-cluster-controller-ext
+      repository: file://child-charts/castai-cluster-controller-ext
+      version: 0.1.0
+    description: Cluster controller is responsible for handling certain Kubernetes
+      actions such as draining and deleting nodes, adding labels, approving CSR requests.
+    digest: 049f9076364121cf457f082f10dd0df784e93df9e0ac1c1ca2b28b715bade079
+    name: castai-cluster-controller
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-0.74.1/castai-cluster-controller-0.74.1.tgz
+    version: 0.74.1
+  - annotations:
+      release-date: 2024-06-04T07:10:07
+    apiVersion: v2
     appVersion: v0.54.3
     created: "2024-10-23T09:00:04.117455847Z"
     dependencies:
@@ -12343,4 +12361,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2024-10-23T16:05:33.679278664Z"
+generated: "2024-10-24T07:40:36.168472516Z"
