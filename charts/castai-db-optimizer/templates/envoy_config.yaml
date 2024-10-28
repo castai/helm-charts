@@ -119,6 +119,7 @@ data:
 
         - name: {{ .Values.apiURL }}
           type: LOGICAL_DNS
+          dns_lookup_family: {{ .Values.proxy.dnsLookupFamily }}
           connect_timeout: 2s
           load_assignment:
             cluster_name: {{ .Values.apiURL }}

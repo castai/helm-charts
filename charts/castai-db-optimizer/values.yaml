@@ -31,8 +31,10 @@ proxy:
   logLevel: "filter:info"
   # -- Ensure proxy has retrieved initial cache configuration before accepting connections.
   readinessProbeEnabled: true
-  # -- number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP.
+  # -- Number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP.
   concurrency: 12
+  # -- DNS lookup mode when communicating to outside. will use IPV4 addresses by default. change to V6_ONLY to v6 addresses.
+  dnsLookupFamily: V4_ONLY
 
 
 queryProcessor:
