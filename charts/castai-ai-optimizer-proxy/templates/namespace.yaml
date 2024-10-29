@@ -1,0 +1,12 @@
+{{- if .Values.createNamespace}}
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: castai-llms
+  labels:
+  {{- include "ai-optimizer-proxy.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "ai-optimizer-proxy.annotations" . | nindent 4 }}
+  {{- end }}
+{{- end }}

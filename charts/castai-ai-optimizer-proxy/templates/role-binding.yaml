@@ -13,3 +13,25 @@ subjects:
 - kind: ServiceAccount
   name: {{ include "ai-optimizer-proxy.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
+{{- if .Values.createNamespace }}
+---
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: castai-cluster-controller
+  namespace: castai-llms
+  labels:
+    {{- include "ai-optimizer-proxy.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "ai-optimizer-proxy.annotations" . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: castai-cluster-controller
+subjects:
+  - kind: ServiceAccount
+    name: castai-cluster-controller
+    namespace: {{ .Release.Namespace }}
+{{- end }}
