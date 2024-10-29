@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.1.12](https://img.shields.io/badge/Version-0.1.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.13](https://img.shields.io/badge/Version-0.1.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -13,7 +13,7 @@ CAST AI database cache deployment.
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
 | hostAntiAffinityEnabled | bool | `true` |  |
 | proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP. |
-| proxy.dnsLookupFamily | string | `"V4_ONLY"` | DNS lookup mode when communicating to outside. will use IPV4 addresses by default. change to V6_ONLY to v6 addresses. |
+| proxy.dnsLookupFamily | string | `"V4_PREFERRED"` | DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxy.readinessProbeEnabled | bool | `true` | Ensure proxy has retrieved initial cache configuration before accepting connections. |
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |

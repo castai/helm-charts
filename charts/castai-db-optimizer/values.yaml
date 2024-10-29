@@ -33,8 +33,8 @@ proxy:
   readinessProbeEnabled: true
   # -- Number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP.
   concurrency: 12
-  # -- DNS lookup mode when communicating to outside. will use IPV4 addresses by default. change to V6_ONLY to v6 addresses.
-  dnsLookupFamily: V4_ONLY
+  # -- DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead.
+  dnsLookupFamily: V4_PREFERRED
 
 
 queryProcessor:
