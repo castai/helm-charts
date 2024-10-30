@@ -19,7 +19,7 @@ CAST AI database cache deployment.
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
-| queryProcessor.logLevel | string | `"warn"` | Default query-processor log level. |
+| queryProcessor.logLevel | string | `"debug"` | Default query-processor log level. |
 | queryProcessorImage.pullPolicy | string | `"IfNotPresent"` |  |
 | queryProcessorImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/query-processor"` |  |
 | queryProcessorImage.tag | string | `""` |  |
