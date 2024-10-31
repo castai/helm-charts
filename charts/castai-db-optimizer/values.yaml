@@ -31,9 +31,11 @@ proxy:
   logLevel: "filter:info"
   # -- Ensure proxy has retrieved initial cache configuration before accepting connections.
   readinessProbeEnabled: true
-  # -- number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP.
+  # -- Number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP.
   concurrency: 12
-  # -- defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs backed disk
+  # -- DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead.
+  dnsLookupFamily: V4_PREFERRED
+  # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
   dataStorageMedium:
 
 
