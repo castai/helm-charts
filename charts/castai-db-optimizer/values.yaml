@@ -33,6 +33,8 @@ proxy:
   readinessProbeEnabled: true
   # -- number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP.
   concurrency: 12
+  # -- defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs backed disk
+  dataStorageMedium:
 
 
 queryProcessor:
