@@ -22,7 +22,7 @@ data:
         "requests": {
           "memory": {
             "base": "200Mi",
-            "max": "8Gi",
+            "max": "24Gi",
             "step": "256Mi",
             "nodesPerStep": 20
           }
@@ -30,7 +30,7 @@ data:
         "limits": {
           "memory": {
             "base": "2Gi",
-            "max": "8Gi",
+            "max": "24Gi",
             "step": "256Mi",
             "nodesPerStep": 20
           }
