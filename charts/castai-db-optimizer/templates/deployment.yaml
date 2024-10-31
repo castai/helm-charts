@@ -24,18 +24,21 @@ spec:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
       terminationGracePeriodSeconds: 60
-      {{- if .Values.hostAntiAffinityEnabled }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- $appName := default .Chart.Name .Values.nameOverride -}}
+      {{- with .Values.affinity }}
       affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: app.kubernetes.io/name
-                operator: In
-                values:
-                - {{ include "name" . }}
-            topologyKey: kubernetes.io/hostname
-      {{- end}}
+        {{- toYaml . | replace "APP_NAME" $appName | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+
       volumes:
         - name: envoy-config
           configMap:
