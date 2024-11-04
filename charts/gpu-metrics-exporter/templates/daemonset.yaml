@@ -103,8 +103,8 @@ spec:
             {{- if eq .Values.provider "gke"}}
             privileged: true
             {{- end }}
-          image: "nvcr.io/nvidia/k8s/dcgm-exporter:3.3.7-3.5.0-ubuntu22.04"
-          imagePullPolicy: "IfNotPresent"
+          image: "{{ .Values.dcgmExporter.image.repository }}:{{ .Values.dcgmExporter.image.tag }}"
+          imagePullPolicy: {{ .Values.dcgmExporter.image.pullPolicy }}
           command: [ "/bin/bash", "-c" ]
           args:
           {{- if eq .Values.provider "gke"}}

@@ -35,6 +35,8 @@ proxy:
   concurrency: 12
   # -- DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead.
   dnsLookupFamily: V4_PREFERRED
+  # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
+  dataStorageMedium:
 
 
 queryProcessor:
