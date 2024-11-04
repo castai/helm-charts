@@ -11052,6 +11052,17 @@ entries:
     version: 0.0.1
   castai-spot-handler:
   - apiVersion: v2
+    appVersion: v0.14.0
+    created: "2024-11-04T10:26:54.701416812Z"
+    description: Spot Handler is the component responsible for scheduled events monitoring
+      and delivering them to the central platform.
+    digest: e63876bf3e51a45afeace322326a2580b91a4a765db54f365f29c7558d7f1194
+    name: castai-spot-handler
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.22.0/castai-spot-handler-0.22.0.tgz
+    version: 0.22.0
+  - apiVersion: v2
     appVersion: v0.13.0
     created: "2024-08-09T07:57:39.623639884Z"
     description: Spot Handler is the component responsible for scheduled events monitoring
@@ -12672,4 +12683,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2024-11-04T09:42:11.25053517Z"
+generated: "2024-11-04T10:26:54.703055589Z"
