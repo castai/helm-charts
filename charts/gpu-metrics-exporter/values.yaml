@@ -44,3 +44,9 @@ gke:
           - matchExpressions:
               - key: cloud.google.com/gke-accelerator
                 operator: Exists
+
+migrate:
+  image:
+    repository: alpine/k8s
+    pullPolicy: IfNotPresent
+    tag: 1.31.0
