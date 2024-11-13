@@ -84,6 +84,10 @@ affinity:
               operator: NotIn
               values:
                 - windows
+            - key: kubernetes.io/arch
+              operator: In
+              values:
+                - amd64
     preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 100
         preference:
