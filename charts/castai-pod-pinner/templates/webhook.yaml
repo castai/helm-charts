@@ -9,6 +9,7 @@ metadata:
     {{- include "pod-pinner.annotations" . | nindent 4 }}
   {{- end }}
 webhooks:
+  {{- if gt .Values.replicaCount 0 }}
   - name: pod-pinner.cast.ai
     failurePolicy: {{ .Values.webhook.failurePolicy | default "Ignore"}}
     sideEffects: None
@@ -41,4 +42,4 @@ webhooks:
         path: /mutate
         port: {{ .Values.service.port }}
       {{- end }}
-
+  {{- end }}
