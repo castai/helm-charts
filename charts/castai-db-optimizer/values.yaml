@@ -11,6 +11,18 @@ apiKey: ""
 #
 cacheGroupID: ""
 
+# commonLabels -- Labels to add to all resources.
+commonLabels: {}
+
+# commonAnnotations -- Annotations to add to all resources.
+commonAnnotations: {}
+
+# -- Extra labels to add to the pod.
+podLabels: {}
+
+# -- Extra annotations to add to the pod.
+podAnnotations: {}
+
 resources:
   proxy:
     cpu: "500m"
@@ -42,6 +54,8 @@ proxy:
 queryProcessor:
   # -- Default query-processor log level.
   logLevel: "warn"
+  # -- Default query-processor query cache size.
+  queryCacheSize: 100000
 
 
 queryProcessorImage:
