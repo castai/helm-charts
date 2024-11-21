@@ -17,9 +17,11 @@ Create chart name and version as used by the chart label.
 Define common labels.
 */}}
 {{- define "labels" -}}
+{{- if .Values.commonLabels }}
 {{ if gt (len .Values.commonLabels) 0 -}}
 {{- with .Values.commonLabels }}
 {{- toYaml . }}
+{{- end }}
 {{- end }}
 {{- end }}
 app.kubernetes.io/managed-by: Helm
@@ -32,9 +34,11 @@ helm.sh/chart: {{ include "chart" . }}
 Common Annotations
 */}}
 {{- define "annotations" -}}
+{{- if .Values.commonAnnotations }}
 {{ if gt (len .Values.commonAnnotations) 0 -}}
 {{- with .Values.commonAnnotations }}
 {{- toYaml . }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

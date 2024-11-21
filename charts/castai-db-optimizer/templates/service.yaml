@@ -4,10 +4,8 @@ metadata:
   name: {{ include "name" . }}
   labels:
     {{- include "labels" . | nindent 4 }}
-  {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
     {{- include "annotations" . | nindent 4 }}
-  {{- end }}
 spec:
   clusterIP: None
   ports:
