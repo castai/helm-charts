@@ -21,6 +21,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | castai.apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing agent access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
 | castai.clusterID | string | `""` | CASTAI Cluster unique identifier. |
+| clusterIDSecretRef | string | `""` | Name of secret with Cluster ID to be used as CASTAI Cluster unique identifier 
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | createNamespace | bool | `false` | By default namespace is expected to be created by castai-agent. |
