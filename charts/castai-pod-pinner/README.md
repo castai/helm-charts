@@ -21,6 +21,7 @@ CAST AI Pod Pinning deployment chart.
 | castai.apiKeySecretRef | string | `""` | Kubernetes Secret reference for the CAST AI API key. Either this or apiKey must be provided. |
 | castai.apiURL | string | `"https://api.cast.ai"` | The CAST AI API URL. |
 | castai.clusterID | string | `""` | The CAST AI cluster ID. |
+| castai.clusterIDSecretRef | string | `""` | Kubernetes Secret reference for the CLUSTER ID. Either this or clusterID must be provided. |
 | castai.grpcURL | string | `"grpc.cast.ai:443"` | The CAST AI gRPC URL. |
 | global | object | `{"commonAnnotations":{},"commonLabels":{},"fullnameOverride":"","nameOverride":"","serviceAccount":{"annotations":{},"create":true,"name":""}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
