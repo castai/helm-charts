@@ -84,6 +84,16 @@ spec:
                 secretKeyRef:
                   name: {{ include "gpu-metrics-exporter.fullname" . }}
                   key: API_KEY
+          {{- if .Values.castai.clusterIdSecretRef }}
+            {{- if ne .Values.castai.clusterId "" }}
+            {{- fail "clusterId and clusterIdSecretRef are mutually exclusive" }}
+            {{- end }}
+            - name: "CLUSTER_ID"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.clusterIdSecretRef }}
+                  key: CLUSTER_ID
+          {{- end }}
           {{- if .Values.dcgmExporter.enabled }}
             - name: "DCGM_HOST"
               value: "localhost"

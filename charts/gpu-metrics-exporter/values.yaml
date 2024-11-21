@@ -8,7 +8,9 @@ serviceAccount:
 
 castai:
   apiKey: ""
+  # clusterId and clusterIdSecretRef are mutually exclusive
   clusterId: ""
+  clusterIdSecretRef: ""
 
 gpuMetricsExporter:
   image:
