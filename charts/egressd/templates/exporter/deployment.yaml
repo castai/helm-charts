@@ -61,6 +61,21 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
+        {{- if .Values.castai.clusterID }}
+          {{- if ne .Values.castai.clusterIDSecretRef "" }}
+          {{- fail "clusterID and clusterIDSecretRef are mutually exclusive" }}
+          {{- end }}
+        - name: CLUSTER_ID
+          value: {{ .Values.castai.clusterID | quote }}
+        {{- else }}
+          {- if not .Values.castai.clusterIDSecretRef }}
+          {{- fail "either clusterID or clusterIDSecretRef should be passed" }}
+          {{- end }}       
+        valueFrom:
+            secretKeyRef:
+              name: {{ .Values.castai.clusterIDSecretRef }}
+              key: CLUSTER_ID
+        {{- end }}
         {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
         - name: API_KEY
           valueFrom:
