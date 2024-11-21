@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.1.29](https://img.shields.io/badge/Version-0.1.29-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.1.30](https://img.shields.io/badge/Version-0.1.30-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -12,7 +12,11 @@ CAST AI database cache deployment.
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API.  |
 | apiURL | string | `"api.cast.ai"` | URL to the CAST AI API server. |
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
+| commonAnnotations | object | `{}` | Annotations to add to all resources. |
+| commonLabels | object | `{}` | Labels to add to all resources. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
+| podAnnotations | object | `{}` | Extra annotations to add to the pod. |
+| podLabels | object | `{}` | Extra labels to add to the pod. |
 | proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP. |
 | proxy.dataStorageMedium | string | `nil` | Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk |
 | proxy.dnsLookupFamily | string | `"V4_PREFERRED"` | DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead. |
@@ -22,6 +26,7 @@ CAST AI database cache deployment.
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
 | queryProcessor.logLevel | string | `"warn"` | Default query-processor log level. |
+| queryProcessor.queryCacheSize | int | `100000` | Default query-processor query cache size. |
 | queryProcessorImage.pullPolicy | string | `"IfNotPresent"` |  |
 | queryProcessorImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/query-processor"` |  |
 | queryProcessorImage.tag | string | `""` |  |
