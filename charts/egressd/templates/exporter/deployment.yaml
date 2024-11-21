@@ -62,19 +62,20 @@ spec:
             fieldRef:
               fieldPath: metadata.namespace
         {{- if .Values.castai.clusterID }}
-          {{- if ne .Values.castai.clusterIDSecretRef "" }}
-          {{- fail "clusterID and clusterIDSecretRef are mutually exclusive" }}
-          {{- end }}
+        {{- if ne .Values.castai.clusterIDSecretRef "" }}
+        {{- fail "clusterID and clusterIDSecretRef are mutually exclusive" }}
+        {{- end }}
         - name: CLUSTER_ID
           value: {{ .Values.castai.clusterID | quote }}
         {{- else }}
-          {- if not .Values.castai.clusterIDSecretRef }}
-          {{- fail "either clusterID or clusterIDSecretRef should be passed" }}
-          {{- end }}       
-        valueFrom:
+        {{- if not .Values.castai.clusterIDSecretRef }}
+        {{- fail "either clusterID or clusterIDSecretRef should be passed" }}
+        {{- end }}
+        - name: CLUSTER_ID     
+          valueFrom:
             secretKeyRef:
               name: {{ .Values.castai.clusterIDSecretRef }}
-              key: CLUSTER_ID
+              key: CLUSTER_ID       
         {{- end }}
         {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
         - name: API_KEY
@@ -84,6 +85,9 @@ spec:
                 {{- fail "`collector.extraArgs.send-traffic-delta` should be set to `true` when CAST AI is used as sink" }}
               {{- else }}
                 {{- if .Values.castai.apiKey }}
+                {{- if ne .Values.castai.apiKeySecretRef "" }}
+                {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                {{- end }}
                 name: "{{- include "egressd.fullname" . }}"
                 key: API_KEY
                 {{- else if  .Values.castai.apiKeySecretRef }}
