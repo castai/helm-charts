@@ -31,7 +31,11 @@ castai:
   apiURL: "https://api.cast.ai"
 
   # castai.clusterID -- CASTAI Cluster unique identifier.
+  # castai.clusterID and castai.clusterIDSecretRef are mutually exclusive
   clusterID: ""
+  # clusterIDSecretRef -- Name of secret with ClusterID
+  # The referenced secret must provide the token in .data["CLUSTER_ID"]
+  clusterIDSecretRef: ""
 
   # castai.provider -- Cloud provider (azure, gcp, aws).
   provider: ""
