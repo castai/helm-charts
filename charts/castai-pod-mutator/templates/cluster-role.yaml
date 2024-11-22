@@ -35,7 +35,17 @@ rules:
     verbs:
       - update
   # ---
-  # Read and patch permissions for pods (patch is required to annotate pods)
+  # Write permissions on pods to add labels/annotations about future patches
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - patch
+      - update 
+  # ---
+  # Read only permissions to view pods/deployments/rollouts
   # ---
   - apiGroups:
       - ""
@@ -45,8 +55,6 @@ rules:
       - get
       - list
       - watch
-      - patch
-      - update
   - apiGroups:
       - apps
     resources:
@@ -63,31 +71,21 @@ rules:
       - get
       - list
       - watch
-  # ---
-  # Read only permissions to view autoscaling resources
-  # ---
-  - apiGroups:
-      - autoscaling.cast.ai
-    resources:
-      - "*"
-    verbs:
-      - get
-      - list
-      - watch
-  # ---
-  # Write permissions for autoscaling resources (recommendations) - required for adding finalizers
-  # ---
-  - apiGroups:
-      - autoscaling.cast.ai
-    resources:
-      - "*"
-    verbs:
-      - update
-      - patch
   - apiGroups:
       - "apps"
     resources:
       - replicasets
+      - deployments
+      - statefulsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "batch"
+    resources:
+      - jobs
+      - cronjobs
     verbs:
       - get
       - list
