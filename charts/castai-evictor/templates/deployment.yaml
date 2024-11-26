@@ -64,7 +64,7 @@ spec:
               value: {{ .Values.dryRun | quote }}
             - name: AGGRESSIVE_MODE
               value: {{ .Values.aggressiveMode | quote }}
-            - name: TRY_LIVE_MIGRATION
+            - name: LIVE_MIGRATION_ENABLED
               value: {{ .Values.liveMigration.enabled | quote }}
             - name: SCOPED_MODE
               value: {{ .Values.scopedMode | quote }}
