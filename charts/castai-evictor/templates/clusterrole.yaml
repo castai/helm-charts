@@ -60,8 +60,8 @@ rules:
   # ------------------------------------------------
   - apiGroups:
       - ""
-    resources: ["pods/eviction"]
-    verbs: ["create"]
+    resources: [ "pods/eviction" ]
+    verbs: [ "create" ]
   # ------------------------------------------------
   # Leader election
   # ------------------------------------------------
@@ -75,3 +75,18 @@ rules:
       - list
       - watch
       - update
+  {{- if .Values.liveMigration.enabled }}
+  # ------------------------------------------------
+  # Live Migration
+  # ------------------------------------------------
+  - apiGroups:
+      - cast.ai
+    resources:
+      - livepodextensions
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - update
+  {{- end }}

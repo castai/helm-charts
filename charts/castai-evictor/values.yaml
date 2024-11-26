@@ -40,6 +40,15 @@ maxNodesToEvictPerCycle: 20
 # frequency of the evictor's find-and-drain operations.
 cycleInterval: 1m
 
+# liveMigration -- Specifies LIVE migration settings.
+# This options assumes that the CAST AI LIVE components are already installed in the cluster.
+liveMigration:
+  # If true, Evictor will consider using LIVE migrations to move workloads that prevent a node from being evicted
+  # to another node without interrupting these workloads.
+  # Evictor will only consider LIVE migrations for workloads that explicitly request it.
+  # as long as they can be scheduled somewhere else.
+  enabled: false
+
 # leaderElection -- Specifies leader election parameters.
 leaderElection:
   # leaderElection.enabled -- Whether to enable leader election.
