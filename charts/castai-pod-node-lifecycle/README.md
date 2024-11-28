@@ -1,6 +1,6 @@
 # castai-pod-node-lifecycle
 
-![Version: 0.34.0](https://img.shields.io/badge/Version-0.34.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.29.0](https://img.shields.io/badge/AppVersion-v0.29.0-informational?style=flat-square)
+![Version: 0.35.0](https://img.shields.io/badge/Version-0.35.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.30.0](https://img.shields.io/badge/AppVersion-v0.30.0-informational?style=flat-square)
 
 CAST AI spot-only K8s webhook to control workload placement during cluster migration and spot-only.
 
@@ -47,6 +47,7 @@ CAST AI spot-only K8s webhook to control workload placement during cluster migra
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
+| staticConfig.cacheTTLSeconds | int | `60` |  |
 | staticConfig.defaultToSpot | bool | `true` |  |
 | staticConfig.forcePodsToOnDemand | string | `nil` |  |
 | staticConfig.forcePodsToSpot | string | `nil` |  |
