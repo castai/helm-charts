@@ -56,11 +56,13 @@ castai:
   apiURL: "https://api.cast.ai"
 
   # castai.clusterID -- CASTAI Cluster unique identifier.
-  # clusterID and clusterIDSecretRef are mutually exclusive
+  # clusterID and clusterIdSecretKeyRef are mutually exclusive
   clusterID: ""
-  # clusterIDSecretRef -- Name of secret with ClusterID
-  # The referenced secret must provide the token in .data["CLUSTER_ID"]
-  clusterIDSecretRef: ""
+  # clusterIdSecretKeyRef -- Name and Key of secret with ClusterID
+  # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
+  clusterIdSecretKeyRef:
+    name: "test"
+    key: "CLUSTER_ID"
 
 # podAnnotations -- Annotations added to each pod.
 podAnnotations: {}

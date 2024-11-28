@@ -124,15 +124,16 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{- if .Values.castai.clusterIDSecretRef }}
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
             - secretRef:             
                 {{- if and (ne .Values.castai.clusterID "") (ne .Values.clusterID "") }}
-                {{- fail "clusterID and clusterIDSecretRef are mutually exclusive" }}
+                {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
                 {{- end }}
-                name: {{ required "clusterID or clusterIDSecretRef must be provided" .Values.castai.clusterIDSecretRef }}
+                name: {{ required "clusterID or clusterIdSecretKeyRef must be provided" .Values.castai.clusterIdSecretKeyRef.name }}
+                key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
           {{- else }}
             {{- if not .Values.castai.clusterID }}
-            {{- fail "either clusterID or clusterIDSecretRef must be provided" }}
+            {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
             {{- end }}
           {{- end }}
             - secretRef:
