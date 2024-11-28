@@ -81,11 +81,18 @@ spec:
             - name: API_GRPC_URL
               value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
             {{- if .Values.castai.clusterID }}
+            {{- if ne .Values.castai.clusterIdSecretKeyRef.name "" }}
+            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
             {{- else }}
-            {{- if not .Values.castai.clusterIDSecretRef }}
-              {{- fail "Either 'castai.clusterID' or 'castai.clusterIDSecretRef' must be provided." -}}
+            {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
             {{- end }}
             {{- end }}
             - name: CERTS_SECRET_NAME
