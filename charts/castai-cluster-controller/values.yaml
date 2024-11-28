@@ -61,7 +61,7 @@ castai:
   # clusterIdSecretKeyRef -- Name and Key of secret with ClusterID
   # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
   clusterIdSecretKeyRef:
-    name: "test"
+    name: ""
     key: "CLUSTER_ID"
 
 # podAnnotations -- Annotations added to each pod.
