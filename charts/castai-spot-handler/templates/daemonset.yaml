@@ -57,11 +57,20 @@ spec:
             - name: API_URL
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
           {{- if .Values.castai.clusterID }}
+            {{- if ne .Values.castai.clusterIdSecretKeyRef.name "" }}
+            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
           {{- else }}
-            {{- if not .Values.castai.clusterIdSecretKeyRef.name }}
-              {{- fail "Either clusterID or clusterIdSecretKeyRef must be provided." -}}
+            {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
+            {{- else}}
+            {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
             {{- end }}
           {{- end }}
             - name: PROVIDER
@@ -77,14 +86,6 @@ spec:
           {{- else if .Values.trustedCACertSecretRef }}
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
-          {{- end }}
-          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
-            {{- if ne .Values.castai.clusterID "" }}
-            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
-            {{- end }}
-            - secretRef:
-                name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
-                key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
           {{- end }}
             - secretRef:
                 {{- if .Values.apiKeySecretRef }}
