@@ -60,8 +60,8 @@ spec:
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
           {{- else }}
-            {{- if not .Values.castai.clusterIDSecretRef }}
-              {{- fail "Either clusterID or clusterIDSecretRef must be provided." -}}
+            {{- if not .Values.castai.clusterIdSecretKeyRef.name }}
+              {{- fail "Either clusterID or clusterIdSecretKeyRef must be provided." -}}
             {{- end }}
           {{- end }}
             - name: PROVIDER
@@ -78,12 +78,13 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{- if .Values.castai.clusterIDSecretRef }}
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
             {{- if ne .Values.castai.clusterID "" }}
-            {{- fail "clusterID and clusterIDSecretRef are mutually exclusive" }}
+            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
             {{- end }}
             - secretRef:
-                name: {{ .Values.castai.clusterIDSecretRef }}
+                name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
+                key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
           {{- end }}
             - secretRef:
                 {{- if .Values.apiKeySecretRef }}
