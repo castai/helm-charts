@@ -125,13 +125,6 @@ spec:
           {{- else }}
                 name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}
           {{- end }}
-          {{- if .Values.castai.clusterIDSecretRef }}
-            - secretRef:
-            {{- if ne .Values.castai.clusterID "" }}
-            {{- fail "clusterID and clusterIDSecretRef are mutually exclusive" }}
-            {{- end }}
-                name: {{ required "castai.clusterID or castai.clusterIDSecretRef must be provided" .Values.castai.clusterIDSecretRef -}}
-          {{- end }}
           volumeMounts:
             - mountPath: /certs
               name: certs
