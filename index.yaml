@@ -1544,6 +1544,16 @@ entries:
     version: 0.0.1
   castai-audit-logs-receiver:
   - apiVersion: v2
+    appVersion: v0.4.1
+    created: "2024-11-28T15:44:32.24294582Z"
+    description: A Helm chart for CAST AI OpenTelemetry Collector.
+    digest: f94b0f11eb7c122572d12ff9864bb1f20f9f0fb55a19ae19de6f6503c19729e8
+    name: castai-audit-logs-receiver
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-audit-logs-receiver-0.4.2/castai-audit-logs-receiver-0.4.2.tgz
+    version: 0.4.2
+  - apiVersion: v2
     appVersion: v0.4.0
     created: "2024-08-12T09:56:46.626742749Z"
     description: A Helm chart for CAST AI OpenTelemetry Collector.
@@ -11097,6 +11107,7 @@ entries:
   - apiVersion: v2
     appVersion: v0.30.0
     created: "2024-11-28T13:21:13.624592787Z"
+    deprecated: true
     description: CAST AI spot-only K8s webhook to control workload placement during
       cluster migration and spot-only.
     digest: 7ad607a4e6ca5806ef3d6dbd974e3d910c00ac275dc67c65efea1aeb421bc1e2
@@ -11105,7 +11116,6 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-pod-node-lifecycle-0.35.0/castai-pod-node-lifecycle-0.35.0.tgz
     version: 0.35.0
-    deprecated: true
   - apiVersion: v2
     appVersion: v0.29.0
     created: "2024-09-30T09:15:30.439093631Z"
@@ -13499,4 +13509,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2024-11-28T14:34:44.168415142Z"
+generated: "2024-11-28T15:44:32.244793398Z"
