@@ -10,7 +10,9 @@ castai:
   apiKey: ""
   # clusterId and clusterIdSecretRef are mutually exclusive
   clusterId: ""
-  clusterIdSecretRef: ""
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
 
 gpuMetricsExporter:
   image:
