@@ -4,7 +4,8 @@ metadata:
   name: {{ include "name" . }}-envoy-config
   labels:
     {{- include "labels" . | nindent 4 }}
-    app.kubernetes.io/name: {{ include "name" . }}
+  annotations:
+    {{- include "annotations" . | nindent 4 }}
 data:
   envoy-config.yaml: |-
     node:

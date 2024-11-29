@@ -7,3 +7,16 @@ resources:
 
 proxy:
   readinessProbeEnabled: false
+
+podLabels:
+  podLabel: label
+
+podAnnotations:
+  podAnnotation: annotation
+
+
+commonLabels:
+  commonLabel: label
+
+commonAnnotations:
+  commonAnnotation: annotation

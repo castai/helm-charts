@@ -122,6 +122,9 @@ staticConfig:
     forcePodsToOnDemand:
     {{ toYaml .Values.staticConfig.forcePodsToOnDemand }}
     {{- end }}
+    {{- if .Values.staticConfig.cacheTTLSeconds }}
+    cacheTTLSeconds: {{ toYaml .Values.staticConfig.cacheTTLSeconds }}
+    {{- end }}
   # Set to a map key of `presets` defined below to use a preset.
   preset: null
   presets:
@@ -148,6 +151,7 @@ staticConfig:
 
   defaultToSpot: true
   spotPercentageOfReplicaSet: 0
+  cacheTTLSeconds: 60
   ignorePods:
 #
 # `ignorePods`, `forcePodsToSpot` and `forcePodsToOnDemand` use the `corev1.PodAffinityTerm` schema, but ignores the

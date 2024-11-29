@@ -37,6 +37,7 @@ Cluster utilization defragmentation tool
 | imagePullSecrets | list | `[]` |  |
 | leaderElection | object | `{"enabled":true}` | Specifies leader election parameters. |
 | leaderElection.enabled | bool | `true` | Whether to enable leader election. |
+| liveMigration | object | `{"enabled":false}` | Specifies LIVE migration settings. This options assumes that the CAST AI LIVE components are already installed in the cluster. |
 | managedByCASTAI | bool | `true` | Specifies whether the Evictor was installed using mothership and is automatically updated by CAST AI. Alternative scenarios are, when CAST AI is not managing charts, and customers' are install them with Argo CD/Terraform or something else. |
 | maxNodesToEvictPerCycle | int | `20` | Specifies the max nodes evictor can evict in a single cycle. |
 | nameOverride | string | `""` |  |

@@ -4,7 +4,8 @@ metadata:
   name: {{ include "name" . }}
   labels:
     {{- include "labels" . | nindent 4 }}
-    app.kubernetes.io/name: {{ include "name" . }}
+  annotations:
+    {{- include "annotations" . | nindent 4 }}
 spec:
   clusterIP: None
   ports:
@@ -21,4 +22,4 @@ spec:
       targetPort: metrics
       protocol: TCP
   selector:
-    app.kubernetes.io/name: {{ include "name" . }}
+    {{- include "selectorLabels" . | nindent 4 }}
