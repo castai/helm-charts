@@ -13,8 +13,9 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing access to the API The referenced secret must provide the token in .data["API_KEY"] |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
-| castai.clusterID | string | `""` | CASTAI Cluster unique identifier. |
-| clusterIdSecretKeyRef | string | `""` | Name of secret with Cluster ID to be used as CASTAI Cluster unique identifier 
+| castai.clusterID | string | `""` | CASTAI Cluster unique identifier. castai.clusterID and castai.clusterIdSecretKeyRef are mutually exclusive |
+| castai.clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
+| castai.clusterIdSecretKeyRef.name | string | `""` |  |
 | castai.provider | string | `""` | Cloud provider (azure, gcp, aws). |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
