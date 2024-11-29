@@ -1,6 +1,6 @@
 # castai-pod-pinner
 
-![Version: 1.0.8](https://img.shields.io/badge/Version-1.0.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.2.0](https://img.shields.io/badge/AppVersion-v1.2.0-informational?style=flat-square)
+![Version: 1.1.0](https://img.shields.io/badge/Version-1.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.2.0](https://img.shields.io/badge/AppVersion-v1.2.0-informational?style=flat-square)
 
 CAST AI Pod Pinning deployment chart.
 
@@ -16,12 +16,11 @@ CAST AI Pod Pinning deployment chart.
 |-----|------|---------|-------------|
 | additionalEnv | object | `{}` | Used to set additional environment variables for the pod-pinner container. |
 | affinity | object | `{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"provisioner.cast.ai/managed-by","operator":"In","values":["cast.ai"]}]},"weight":100}],"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"NotIn","values":["windows"]}]}]}}}` | Affinity for the pod-pinner pod. |
-| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","grpcURL":"grpc.cast.ai:443"}` | CAST AI settings for the pod-pinner. |
+| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","clusterIdSecretKeyRef":{"key":"CLUSTER_ID","name":""},"grpcURL":"grpc.cast.ai:443"}` | CAST AI settings for the pod-pinner. |
 | castai.apiKey | string | `""` | The CAST AI API key. Either this or apiKeySecretRef must be provided. |
 | castai.apiKeySecretRef | string | `""` | Kubernetes Secret reference for the CAST AI API key. Either this or apiKey must be provided. |
 | castai.apiURL | string | `"https://api.cast.ai"` | The CAST AI API URL. |
 | castai.clusterID | string | `""` | The CAST AI cluster ID. |
-| castai.clusterIdSecretKeyRef | string | `""` | Kubernetes Secret reference for the CLUSTER ID. Either this or clusterID must be provided. |
 | castai.grpcURL | string | `"grpc.cast.ai:443"` | The CAST AI gRPC URL. |
 | global | object | `{"commonAnnotations":{},"commonLabels":{},"fullnameOverride":"","nameOverride":"","serviceAccount":{"annotations":{},"create":true,"name":""}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
