@@ -1,4 +1,5 @@
-provider: "" # gke | eks | aks
+# Can be one of: `gke`, `eks`, `aks`.
+provider: ""
 imagePullSecrets: []
 
 serviceAccount:
@@ -54,3 +55,4 @@ migrate:
     repository: alpine/k8s
     pullPolicy: IfNotPresent
     tag: 1.31.0
+
