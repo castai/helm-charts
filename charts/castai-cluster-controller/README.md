@@ -16,12 +16,11 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | affinity | object | `{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"NotIn","values":["windows"]}]}]}},"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["castai-cluster-controller"]}]},"topologyKey":"kubernetes.io/hostname"}]}}` | Pod affinity rules. Don't schedule application on windows node Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
 | autoscaling | object | `{"enabled":true}` | Settings for managing autoscaling features. |
 | autoscaling.enabled | bool | `true` | Adds permissions to manage autoscaling. |
-| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":""}` | CAST AI API configuration. |
+| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","clusterIdSecretKeyRef":{"key":"CLUSTER_ID","name":""}}` | CAST AI API configuration. |
 | castai.apiKey | string | `""` | Token to be used for authorizing agent access to the CASTAI API. |
 | castai.apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing agent access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
-| castai.clusterID | string | `""` | CASTAI Cluster unique identifier. |
-| castai.clusterIdSecretKeyRef | string | `""` | Name of secret with Cluster ID to be used as CASTAI Cluster unique identifier 
+| castai.clusterID | string | `""` | CASTAI Cluster unique identifier. clusterID and clusterIdSecretKeyRef are mutually exclusive |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | createNamespace | bool | `false` | By default namespace is expected to be created by castai-agent. |
