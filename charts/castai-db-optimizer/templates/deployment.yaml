@@ -106,7 +106,7 @@ spec:
             - name: METRICS_PORT
               value: "2112"
             - name: PEERS_URL
-              value: {{ include "name" . }}
+              value: headless-{{ include "name" . }}
             - name: CACHE_GROUP_ID
               value: {{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." | quote }}
             - name: OWN_IP
