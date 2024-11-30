@@ -1,6 +1,6 @@
 # castai-pod-node-lifecycle
 
-![Version: 0.34.0](https://img.shields.io/badge/Version-0.34.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.29.0](https://img.shields.io/badge/AppVersion-v0.29.0-informational?style=flat-square)
+![Version: 0.36.0](https://img.shields.io/badge/Version-0.36.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.30.0](https://img.shields.io/badge/AppVersion-v0.30.0-informational?style=flat-square)
 
 CAST AI spot-only K8s webhook to control workload placement during cluster migration and spot-only.
 
@@ -47,6 +47,7 @@ CAST AI spot-only K8s webhook to control workload placement during cluster migra
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
+| staticConfig.cacheTTLSeconds | int | `60` |  |
 | staticConfig.defaultToSpot | bool | `true` |  |
 | staticConfig.forcePodsToOnDemand | string | `nil` |  |
 | staticConfig.forcePodsToSpot | string | `nil` |  |
@@ -56,7 +57,7 @@ CAST AI spot-only K8s webhook to control workload placement during cluster migra
 | staticConfig.presets.allSpotExceptKubeSystem | string | `"defaultToSpot: true\nspotPercentageOfReplicaSet: 0\nignorePods: []\nforcePodsToSpot: []\nforcePodsToOnDemand:\n  - namespaces:\n      - kube-system\n"` |  |
 | staticConfig.presets.partialSpot | string | `"defaultToSpot: true\nspotPercentageOfReplicaSet: 40\nignorePods: []\nforcePodsToSpot: []\nforcePodsToOnDemand: []\n"` |  |
 | staticConfig.spotPercentageOfReplicaSet | int | `0` |  |
-| staticConfig.stringTemplate | string | `"defaultToSpot: {{ .Values.staticConfig.defaultToSpot }}\nspotPercentageOfReplicaSet: {{ .Values.staticConfig.spotPercentageOfReplicaSet }}\n{{- if .Values.staticConfig.IgnorePodsWithNodeSelectorsAffinities }}\nIgnorePodsWithNodeSelectorsAffinities: {{ .Values.staticConfig.IgnorePodsWithNodeSelectorsAffinities }}\n{{- end }}\n{{- if .Values.staticConfig.ignorePods }}\nignorePods:\n{{ toYaml .Values.staticConfig.ignorePods }}\n{{- end }}\n{{- if .Values.staticConfig.forcePodsToSpot }}\nforcePodsToSpot:\n{{ toYaml .Values.staticConfig.forcePodsToSpot }}\n{{- end }}\n{{- if .Values.staticConfig.forcePodsToOnDemand }}\nforcePodsToOnDemand:\n{{ toYaml .Values.staticConfig.forcePodsToOnDemand }}\n{{- end }}\n"` |  |
+| staticConfig.stringTemplate | string | `"defaultToSpot: {{ .Values.staticConfig.defaultToSpot }}\nspotPercentageOfReplicaSet: {{ .Values.staticConfig.spotPercentageOfReplicaSet }}\n{{- if .Values.staticConfig.IgnorePodsWithNodeSelectorsAffinities }}\nIgnorePodsWithNodeSelectorsAffinities: {{ .Values.staticConfig.IgnorePodsWithNodeSelectorsAffinities }}\n{{- end }}\n{{- if .Values.staticConfig.ignorePods }}\nignorePods:\n{{ toYaml .Values.staticConfig.ignorePods }}\n{{- end }}\n{{- if .Values.staticConfig.forcePodsToSpot }}\nforcePodsToSpot:\n{{ toYaml .Values.staticConfig.forcePodsToSpot }}\n{{- end }}\n{{- if .Values.staticConfig.forcePodsToOnDemand }}\nforcePodsToOnDemand:\n{{ toYaml .Values.staticConfig.forcePodsToOnDemand }}\n{{- end }}\n{{- if .Values.staticConfig.cacheTTLSeconds }}\ncacheTTLSeconds: {{ toYaml .Values.staticConfig.cacheTTLSeconds }}\n{{- end }}\n"` |  |
 | telemetry.enabled | bool | `false` |  |
 | tolerations[0].key | string | `"scheduling.cast.ai/spot"` |  |
 | tolerations[0].operator | string | `"Exists"` |  |
