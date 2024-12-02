@@ -3,7 +3,7 @@ REPO_ROOT = $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 .DEFAULT_GOAL := help
 
 .PHONY: help
-help: ## Shows this help message
+help: ## Shows this help message.
 	@echo "Usage:"
 	@echo
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//' | sed -e 's/^/  make /' | column -s: -t
@@ -32,5 +32,5 @@ $(addprefix docs-, $(CHART_NAMES)): docs-%: charts/%
 	./scripts/gen-docs.sh -c $*
 .PHONY: $(addprefix docs-, $(CHART_NAMES))
 
-# Add documentation for the dynamic docs targets to the help
+# Add documentation for the dynamic docs targets to the help.
 docs-<chart_name>: ## Generate helm docs for a specific chart, e.g., 'make docs-castai-agent'
