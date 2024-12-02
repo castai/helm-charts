@@ -8,6 +8,13 @@ CAST AI Pod Mutator.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].key | string | `"app.kubernetes.io/name"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].operator | string | `"In"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].values[0] | string | `"castai-pod-mutator"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
 | castai.apiKey | string | `""` |  |
 | castai.apiKeySecretRef | string | `""` |  |
 | castai.apiUrl | string | `"https://api.cast.ai"` |  |
@@ -29,7 +36,7 @@ CAST AI Pod Mutator.
 | podSecurityContext.runAsGroup | int | `1005` |  |
 | podSecurityContext.runAsNonRoot | bool | `true` |  |
 | podSecurityContext.runAsUser | int | `1005` |  |
-| priorityClass.enabled | bool | `false` |  |
+| priorityClass.enabled | bool | `true` |  |
 | priorityClass.name | string | `"system-cluster-critical"` |  |
 | replicas | int | `2` |  |
 | resources.limits.memory | string | `"100Mi"` |  |
