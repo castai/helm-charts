@@ -18,6 +18,6 @@ data:
 
   {{- if .Values.clusterID }}
   CLUSTER_ID: {{ required "clusterID must be provided" .Values.clusterID | quote }}
-  {{- else }}
+  {{- else if .Values.castai.clusterID }}
   CLUSTER_ID: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
   {{- end }}
