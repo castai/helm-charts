@@ -80,8 +80,21 @@ spec:
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
             - name: API_GRPC_URL
               value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
+            {{- if .Values.castai.clusterID }}
+            {{- if ne .Values.castai.clusterIdSecretKeyRef.name "" }}
+            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
+            {{- else }}
+            {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
+            {{- end }}
+            {{- end }}
             - name: CERTS_SECRET_NAME
               value: {{ include "pod-pinner.certsSecretName" . }}
             - name: CERTS_DIR
@@ -105,6 +118,9 @@ spec:
           envFrom:
             - secretRef:
           {{- if .Values.castai.apiKey }}
+            {{- if ne .Values.castai.apiKeySecretRef "" }}
+            {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+            {{- end }}
                 name: {{ include "pod-pinner.fullname" . -}}
           {{- else }}
                 name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}

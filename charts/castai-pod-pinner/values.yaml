@@ -103,6 +103,11 @@ castai:
   apiKeySecretRef: ""
   # -- The CAST AI cluster ID.
   clusterID: ""
+  # clusterIDSecretRef -- Name of secret with ClusterID
+  # The referenced secret must provide the token in .data["CLUSTER_ID"]
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
 
 # -- Values to apply for the parent and child chart resources.
 global:
