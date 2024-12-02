@@ -56,8 +56,23 @@ spec:
                   fieldPath: spec.nodeName
             - name: API_URL
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+          {{- if .Values.castai.clusterID }}
+            {{- if ne .Values.castai.clusterIdSecretKeyRef.name "" }}
+            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
+          {{- else }}
+            {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
+            {{- else}}
+            {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
+            {{- end }}
+          {{- end }}
             - name: PROVIDER
               value: {{ required "castai.provider must be provided" .Values.castai.provider | quote }}
             {{- range $k, $v := .Values.additionalEnv }}
