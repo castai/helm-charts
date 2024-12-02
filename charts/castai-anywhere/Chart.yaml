@@ -1,0 +1,10 @@
+apiVersion: v2
+name: castai-anywhere
+description: CAST AI Anywhere components deployment chart
+type: application
+version: 0.0.1
+appVersion: "0.0.1"
+dependencies:
+  - name: castai-agent
+    repository: file://../castai-agent
+    version: 0.87.0
