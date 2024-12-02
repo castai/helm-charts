@@ -1,0 +1,11 @@
+{{- if and (ge .Capabilities.KubeVersion.Minor "21") (gt .Values.replicas 1.0)}}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "pod-mutator.fullname" . }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "pod-mutator.fullname" . }}
+{{- end}}
