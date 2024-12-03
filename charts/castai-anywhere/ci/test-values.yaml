@@ -1,0 +1,25 @@
+castai-agent:
+  apiKey: "test"
+  apiURL: "test"
+  provider: "anywhere"
+  namespace: "default"
+  createNamespace: false
+  additionalEnv:
+    ANYWHERE_CLUSTER_NAME: test
+  clusterVPA:
+    enabled: true
+  resources:
+    requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
+      cpu: 1000m
+      memory: 256Mi
+  podLabels:
+    my-label: value
+
+  commonLabels:
+    label1: "label"
+
+  commonAnnotations:
+    annotation1: "annotation"
