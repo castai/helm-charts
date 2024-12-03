@@ -9,3 +9,4 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "pod-mutator.fullname" . }}
 {{- end}}
+
