@@ -1552,6 +1552,21 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-ai-optimizer-proxy-0.0.1/castai-ai-optimizer-proxy-0.0.1.tgz
     version: 0.0.1
+  castai-anywhere:
+  - apiVersion: v2
+    appVersion: 0.0.1
+    created: "2024-12-03T07:31:17.598004386Z"
+    dependencies:
+    - name: castai-agent
+      repository: file://../castai-agent
+      version: 0.87.0
+    description: CAST AI Anywhere components deployment chart
+    digest: 952ad53a0001c6f764315391ff4acfd1fc4007af25520768e29587f970693257
+    name: castai-anywhere
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-anywhere-0.0.1/castai-anywhere-0.0.1.tgz
+    version: 0.0.1
   castai-audit-logs-receiver:
   - apiVersion: v2
     appVersion: v0.4.1
@@ -13637,4 +13652,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2024-12-02T14:38:22.647026143Z"
+generated: "2024-12-03T07:31:17.6011429Z"
