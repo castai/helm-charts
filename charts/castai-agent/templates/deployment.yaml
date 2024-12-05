@@ -100,6 +100,14 @@ spec:
             - name: PROVIDER
               value: {{ .Values.provider | quote }}
             {{- end }}
+            {{- if or .Values.metadataStore.enabled (eq .Values.provider "anywhere") }}
+            - name: METADATA_STORE_ENABLED
+              value: "true"
+            - name: METADATA_STORE_CONFIG_MAP_NAME
+              value: {{ .Values.metadataStore.configMapName | quote }}
+            - name: METADATA_STORE_CONFIG_MAP_NAMESPACE
+              value: {{ .Values.metadataStore.configMapNamespace | quote }}
+            {{- end }}
             - name: MONITOR_METADATA
               value: /agent-metadata/metadata
             - name: CONTROLLER_CONFIG_MAP_NAMESPACES
