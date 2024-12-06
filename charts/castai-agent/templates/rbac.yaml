@@ -247,6 +247,14 @@ rules:
       - get
       - list
       - watch
+      {{- if or .Values.metadataStore.enabled (eq .Values.provider "anywhere") }}
+      # ---
+      # Required for Anywhere clusters to be able to store metadata into a config map.
+      # ---
+      - create
+      - update
+      - patch
+      {{- end }}
   {{- if .Values.clusterVPA.enabled }}
   # ---
   # Required for proportional vertical cluster autoscaler to adjust castai-agent requests/limits.
