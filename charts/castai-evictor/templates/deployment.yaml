@@ -76,6 +76,14 @@ spec:
               value: "/config/config.yaml"
             - name: CYCLE_INTERVAL
               value: {{ .Values.cycleInterval | quote }}
+            {{- if .Values.clusterIdConfigMapKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.clusterIdConfigMapKeyRef.name }}
+                  key: {{ .Values.clusterIdConfigMapKeyRef.key }}
+                  optional: false
+            {{- end }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
