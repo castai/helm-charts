@@ -166,3 +166,10 @@ containerSecurityContext:
   capabilities:
     drop:
       - ALL
+
+# The referenced ConfigMap must provide the ClusterID in .data[<<.Values.clusterIdConfigMapKeyRef.key>>]
+clusterIdConfigMapKeyRef:
+  # clusterIdConfigMapKeyRef.name -- name and of the config map with cluster id
+  name: ""
+  # clusterIdConfigMapKeyRef.key -- key of the cluster id value in the config map
+  key: "CLUSTER_ID"
