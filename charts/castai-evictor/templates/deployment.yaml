@@ -64,6 +64,8 @@ spec:
               value: {{ .Values.dryRun | quote }}
             - name: AGGRESSIVE_MODE
               value: {{ .Values.aggressiveMode | quote }}
+            - name: LIVE_MIGRATION_ENABLED
+              value: {{ .Values.liveMigration.enabled | quote }}
             - name: SCOPED_MODE
               value: {{ .Values.scopedMode | quote }}
             - name: NODE_GRACE_PERIOD_MINUTES
@@ -74,6 +76,14 @@ spec:
               value: "/config/config.yaml"
             - name: CYCLE_INTERVAL
               value: {{ .Values.cycleInterval | quote }}
+            {{- if .Values.clusterIdConfigMapKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.clusterIdConfigMapKeyRef.name }}
+                  key: {{ .Values.clusterIdConfigMapKeyRef.key }}
+                  optional: false
+            {{- end }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"

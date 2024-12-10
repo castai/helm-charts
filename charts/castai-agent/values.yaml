@@ -91,7 +91,7 @@ trustedCACert: ""
 trustedCACertSecretRef: ""
 
 # provider -- Name of the Kubernetes service provider
-# one of: "eks", "gks", "aks", "kops".
+# one of: "eks", "gks", "aks", "kops", "anywhere".
 provider: ""
 
 # allowReadIngress -- Allow to read ingress resources. Needed for k8s security and compliance.
@@ -165,3 +165,11 @@ topologySpreadConstraints:
     labelSelector:
       matchLabels:
         app.kubernetes.io/name: castai-agent
+
+metadataStore:
+  # metadataStore.enabled -- specifies whether agent should store metadata in a config map
+  enabled: false
+  # metadataStore.configMapName -- name of config map to store metadata
+  configMapName: castai-agent-metadata
+  # metadataStore.configMapName -- namespace of config map to store metadata
+  configMapNamespace: castai-agent

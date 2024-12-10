@@ -4,7 +4,8 @@ metadata:
   name: {{ include "name" . }}-envoy-config
   labels:
     {{- include "labels" . | nindent 4 }}
-    app.kubernetes.io/name: {{ include "name" . }}
+  annotations:
+    {{- include "annotations" . | nindent 4 }}
 data:
   envoy-config.yaml: |-
     node:
@@ -159,7 +160,10 @@ data:
         - name: query_processor_service
           type: LOGICAL_DNS
           connect_timeout: 1s
-          http2_protocol_options: {}
+          http2_protocol_options:
+            max_concurrent_streams: 100
+            initial_stream_window_size: 1048576
+            initial_connection_window_size: 1048576
           load_assignment:
             cluster_name: query_processor_service
             endpoints:
