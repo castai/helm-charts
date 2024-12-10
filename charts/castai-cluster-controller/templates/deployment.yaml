@@ -1,3 +1,12 @@
+{{ $clusterIdParamCount := ternary 1 0 (or (not (empty .Values.castai.clusterID)) (not (empty .Values.clusterID))) }}
+{{ $clusterIdParamCount = add $clusterIdParamCount (ternary 1 0 (ne .Values.castai.clusterIdSecretKeyRef.name "")) }}
+{{ $clusterIdParamCount = add $clusterIdParamCount (ternary 1 0 (ne .Values.castai.clusterIdConfigMapKeyRef.name "")) }}
+{{ if gt $clusterIdParamCount 1 }}
+{{ fail "clusterID, clusterIdSecretKeyRef and clusterIdConfigMapKeyRef are mutually exclusive" }}
+{{ end }}
+{{ if eq $clusterIdParamCount 0 }}
+{{ fail "clusterID, clusterIdSecretKeyRef or clusterIdConfigMapKeyRef must be provided" }}
+{{ end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -116,19 +125,18 @@ spec:
             - name: {{ $k }}
               value: "{{ $v }}"
           {{- end }}
-          {{- if .Values.castai.clusterIdSecretKeyRef.name }}          
-            {{- if and (ne .Values.castai.clusterID "") (ne .Values.clusterID "") }}
-            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
-            {{- end }}
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
             - name: CLUSTER_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ required "clusterID or clusterIdSecretKeyRef must be provided" .Values.castai.clusterIdSecretKeyRef.name }}
+                  name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
-          {{- else }}
-            {{- if not .Values.castai.clusterID }}
-            {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
-            {{- end }}
+          {{- else if .Values.castai.clusterIdConfigMapKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.clusterIdConfigMapKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdConfigMapKeyRef.key }}
           {{- end }}
           envFrom:
           {{- if .Values.trustedCACert }}
@@ -214,19 +222,18 @@ spec:
             - name: {{ $k }}
               value: "{{ $v }}"
           {{- end }}
-          {{- if .Values.castai.clusterIdSecretKeyRef.name }}          
-            {{- if and (ne .Values.castai.clusterID "") (ne .Values.clusterID "") }}
-            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
-            {{- end }}
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
             - name: CLUSTER_ID
               valueFrom:
                 secretKeyRef:
-                  name: {{ required "clusterID or clusterIdSecretKeyRef must be provided" .Values.castai.clusterIdSecretKeyRef.name }}
+                  name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
-          {{- else }}
-            {{- if not .Values.castai.clusterID }}
-            {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
-            {{- end }}
+          {{- else if .Values.castai.clusterIdConfigMapKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.clusterIdConfigMapKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdConfigMapKeyRef.key }}
           {{- end }}
           envFrom:
           {{- if .Values.trustedCACert }}
