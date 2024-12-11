@@ -56,12 +56,18 @@ castai:
   apiURL: "https://api.cast.ai"
 
   # castai.clusterID -- CASTAI Cluster unique identifier.
-  # clusterID and clusterIdSecretKeyRef are mutually exclusive
+  # clusterID, clusterIdSecretKeyRef and clusterIdConfigMapKeyRef are mutually exclusive
   clusterID: ""
   # clusterIdSecretKeyRef -- Name and Key of secret with ClusterID
   # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
   clusterIdSecretKeyRef:
     name: ""
+    key: "CLUSTER_ID"
+  # The referenced ConfigMap must provide the ClusterID in .data[<<.Values.castai.clusterIdConfigMapKeyRef.key>>]
+  clusterIdConfigMapKeyRef:
+    # clusterIdConfigMapKeyRef.name -- name and of the config map with cluster id
+    name: ""
+    # clusterIdConfigMapKeyRef.key -- key of the cluster id value in the config map
     key: "CLUSTER_ID"
 
 # podAnnotations -- Annotations added to each pod.
