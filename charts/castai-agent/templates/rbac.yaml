@@ -90,16 +90,6 @@ rules:
       - list
       - watch
   - apiGroups:
-      - "coordination.k8s.io"
-    resources:
-      - leases
-    verbs:
-      - create
-      - get
-      - list
-      - watch
-      - update
-  - apiGroups:
       - "metrics.k8s.io"
     resources:
       - pods
@@ -236,6 +226,19 @@ metadata:
     {{- include "castai-agent.annotations" . | nindent 4 }}
   {{- end }}
 rules:
+  # ---
+  # Required for lease election
+  # ---
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
   # ---
   # Required for cost savings estimation features.
   # ---
