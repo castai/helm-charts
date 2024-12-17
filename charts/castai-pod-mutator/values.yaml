@@ -83,6 +83,10 @@ global:
   # -- Annotations to add to all resources.
   commonAnnotations: {}
 
+mutator:
+  # processingDelay -- Delay in seconds before the pod-mutator processes the pod. Default is 30s
+  processingDelay: "30s"
+
 castai:
   # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
   # apiKey and apiKeySecretRef are mutually exclusive

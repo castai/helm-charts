@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.9](https://img.shields.io/badge/Version-0.0.9-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.5](https://img.shields.io/badge/AppVersion-v0.0.5-informational?style=flat-square)
+![Version: 0.0.10](https://img.shields.io/badge/Version-0.0.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.6](https://img.shields.io/badge/AppVersion-v0.0.6-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -29,6 +29,7 @@ CAST AI Pod Mutator.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/pod-mutator"` |  |
 | image.tag | string | `""` |  |
+| mutator.processingDelay | string | `"30s"` |  |
 | nameOverride | string | `""` |  |
 | podAnnotations | object | `{}` | Annotations added to each pod. |
 | podLabels | object | `{}` |  |
