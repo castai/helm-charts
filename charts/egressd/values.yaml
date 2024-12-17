@@ -15,7 +15,13 @@ castai:
   apiURL: "https://api.cast.ai"
 
   # CASTAI Cluster unique identifier.
+  # clusterID and clusterIdSecretKeyRef are mutually exclusive
   clusterID: ""
+  # clusterIdSecretKeyRef -- Name of secret with ClusterID
+  # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -126,7 +132,7 @@ exporter:
     {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
       castai:
         http:
-          url: "{{.Values.castai.apiURL}}/v1/kubernetes/clusters/{{.Values.castai.clusterID}}/egressd-metrics"
+          url: "{{.Values.castai.apiURL}}/v1/kubernetes/clusters/${CLUSTER_ID}/egressd-metrics"
           compression: gzip
           encoding: protobuf
           method: POST
