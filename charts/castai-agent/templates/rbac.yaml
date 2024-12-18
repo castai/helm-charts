@@ -90,16 +90,6 @@ rules:
       - list
       - watch
   - apiGroups:
-      - "coordination.k8s.io"
-    resources:
-      - leases
-    verbs:
-      - create
-      - get
-      - list
-      - watch
-      - update
-  - apiGroups:
       - "metrics.k8s.io"
     resources:
       - pods
@@ -237,6 +227,19 @@ metadata:
   {{- end }}
 rules:
   # ---
+  # Required for lease election
+  # ---
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+  # ---
   # Required for cost savings estimation features.
   # ---
   - apiGroups:
@@ -247,6 +250,14 @@ rules:
       - get
       - list
       - watch
+      {{- if or .Values.metadataStore.enabled (eq .Values.provider "anywhere") }}
+      # ---
+      # Required for Anywhere clusters to be able to store metadata into a config map.
+      # ---
+      - create
+      - update
+      - patch
+      {{- end }}
   {{- if .Values.clusterVPA.enabled }}
   # ---
   # Required for proportional vertical cluster autoscaler to adjust castai-agent requests/limits.

@@ -4,13 +4,14 @@ metadata:
   name: {{ include "name" . }}
   labels:
     {{- include "labels" . | nindent 4 }}
-    app.kubernetes.io/name: {{ include "name" . }}
+  annotations:
+    {{- include "annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "name" . }}
+      {{- include "selectorLabels" . | nindent 6 }}
   strategy:
     rollingUpdate:
       maxSurge: 100%
@@ -20,8 +21,14 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/envoy_config.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
-        app.kubernetes.io/name: {{ include "name" . }}
+        {{- include "selectorLabels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
       terminationGracePeriodSeconds: 60
       {{- with .Values.nodeSelector }}
@@ -99,13 +106,15 @@ spec:
             - name: METRICS_PORT
               value: "2112"
             - name: PEERS_URL
-              value: {{ include "name" . }}
+              value: headless-{{ include "name" . }}
             - name: CACHE_GROUP_ID
               value: {{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." | quote }}
             - name: OWN_IP
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
+            - name: QUERY_CACHE_SIZE
+              value: {{ required "queryCacheSize must be provided" .Values.queryProcessor.queryCacheSize | quote}}
 
           readinessProbe:
             tcpSocket:

@@ -15,7 +15,7 @@ metadata:
     {{- include "evictor.annotations" . | nindent 4 }}
   {{- end }}
 spec:
-  replicas: 1
+  replicas: {{ if gt (int .Values.replicaCount) 0 }}1{{ else }}0{{ end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "evictor.fullname" . }}-cpvpa

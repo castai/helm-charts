@@ -32,6 +32,10 @@ gpuMetricsExporter:
     readOnlyRootFilesystem: true
     runAsNonRoot: true
   port: 6061
+  tolerations:
+    - key: "nvidia.com/gpu"
+      value: "true"
+      effect: "NoSchedule"
 
 dcgmExporter:
   enabled: true
