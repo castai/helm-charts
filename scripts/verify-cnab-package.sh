@@ -75,6 +75,7 @@ main() {
 
     echo "Verifying CNAB package.."
     docker run --rm -v /var/run/docker.sock:/var/run/docker.sock -v "$PWD/.cpa-stage/$chartName":/data  "$PACKAGING_IMAGE" /bin/bash -c 'cd /data ; cpa verify --telemetryOptOut'
+
 }
 
 main
