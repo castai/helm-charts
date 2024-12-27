@@ -46,7 +46,7 @@ jobs:
         run: ct lint --debug --config ct.yaml
 
       - name: Lint Code Base
-        uses: docker://github/super-linter:v3.12.0
+        uses: docker://github/super-linter:v7.2.1
         env:
           FILTER_REGEX_EXCLUDE: .*(README\.md|Chart\.yaml|NOTES.txt|lint-test\.yaml).*
           VALIDATE_ALL_CODEBASE: false
