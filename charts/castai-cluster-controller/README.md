@@ -47,7 +47,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | resources.limits.memory | string | `"1Gi"` |  |
 | resources.requests.cpu | string | `"50m"` |  |
 | resources.requests.memory | string | `"100Mi"` |  |
-| securityContext | object | `{}` |  |
+| securityContext | object | `{"fsGroup":65532,"runAsGroup":65532,"runAsNonRoot":true,"runAsUser":65532}` | User 65532 is non-root user for gcr distorless images |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
