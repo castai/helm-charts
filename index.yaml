@@ -3802,6 +3802,23 @@ entries:
     version: 0.1.0
   castai-evictor:
   - annotations:
+      release-date: 2025-01-08T13:57:14
+    apiVersion: v2
+    appVersion: 5152b5ef5a5ec160e04e988bdfec91d0c17eb1c1
+    created: "2025-01-08T14:16:27.404781121Z"
+    dependencies:
+    - condition: castai-evictor-ext.enabled
+      name: castai-evictor-ext
+      repository: file://child-charts/castai-evictor-ext
+      version: 0.1.0
+    description: Cluster utilization defragmentation tool
+    digest: 2fa0e07be2a00ea7c7db89fc8dcaa4c2bc75114df4cf35a88b90aaae70c2e7b2
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.31.15/castai-evictor-0.31.15.tgz
+    version: 0.31.15
+  - annotations:
       release-date: 2025-01-08T10:50:04
     apiVersion: v2
     appVersion: 266cb0d1969c4a61fa2c640cda04d67e8c878fcc
@@ -14376,4 +14393,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/gpu-metrics-exporter-0.1.1/gpu-metrics-exporter-0.1.1.tgz
     version: 0.1.1
-generated: "2025-01-08T11:21:38.476678763Z"
+generated: "2025-01-08T14:16:27.406688717Z"
