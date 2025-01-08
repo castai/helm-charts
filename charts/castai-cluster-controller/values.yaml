@@ -118,7 +118,13 @@ affinity:
 
 # Pod security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
-securityContext: {}
+# https://github.com/GoogleContainerTools/distroless/blob/530158861eebdbbf149f7e7e67bfe45eb433a35c/common/variables.bzl#L18
+# securityContext -- User 65532 is non-root user for gcr distorless images
+securityContext:
+  runAsNonRoot: true
+  fsGroup: 65532
+  runAsGroup: 65532
+  runAsUser: 65532
 
 serviceAccount:
   create: true
