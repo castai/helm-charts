@@ -1,4 +1,5 @@
-provider: "" # gke | eks | aks
+# possible provider values: gke | eks | aks
+provider: "eks"
 imagePullSecrets: []
 
 serviceAccount:
@@ -9,6 +10,9 @@ serviceAccount:
 castai:
   apiKey: ""
   clusterId: ""
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
 
 gpuMetricsExporter:
   image:
