@@ -71,11 +71,11 @@ spec:
         {{- if not .Values.castai.clusterIdSecretKeyRef.name }}
         {{- fail "either clusterID or clusterIdSecretKeyRef should be passed" }}
         {{- end }}
-        - name: CLUSTER_ID     
+        - name: CLUSTER_ID
           valueFrom:
             secretKeyRef:
               name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
-              key: {{ .Values.castai.clusterIdSecretKeyRef.key }}       
+              key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
         {{- end }}
         {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
         - name: API_KEY
@@ -85,9 +85,6 @@ spec:
                 {{- fail "`collector.extraArgs.send-traffic-delta` should be set to `true` when CAST AI is used as sink" }}
               {{- else }}
                 {{- if .Values.castai.apiKey }}
-                {{- if ne .Values.castai.apiKeySecretRef "" }}
-                {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
-                {{- end }}
                 name: "{{- include "egressd.fullname" . }}"
                 key: API_KEY
                 {{- else if  .Values.castai.apiKeySecretRef }}
