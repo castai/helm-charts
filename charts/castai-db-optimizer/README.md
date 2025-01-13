@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.3.3-rc.1](https://img.shields.io/badge/Version-0.3.3--rc.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -25,6 +25,7 @@ CAST AI database cache deployment.
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
+| queryProcessor.concurrency | int | `10` | Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage. |
 | queryProcessor.logLevel | string | `"warn"` | Default query-processor log level. |
 | queryProcessor.queryCacheSize | int | `100000` | Default query-processor query cache size. |
 | queryProcessorImage.pullPolicy | string | `"IfNotPresent"` |  |

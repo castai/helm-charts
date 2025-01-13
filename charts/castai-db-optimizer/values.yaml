@@ -56,6 +56,8 @@ queryProcessor:
   logLevel: "warn"
   # -- Default query-processor query cache size.
   queryCacheSize: 100000
+  # -- Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage.
+  concurrency: 10
 
 
 queryProcessorImage:

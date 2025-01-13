@@ -115,6 +115,8 @@ spec:
                   fieldPath: status.podIP
             - name: QUERY_CACHE_SIZE
               value: {{ required "queryCacheSize must be provided" .Values.queryProcessor.queryCacheSize | quote}}
+            - name: PARALLEL_WORKERS
+              value: {{ required "concurrency must be provided" .Values.queryProcessor.concurrency | quote}}
 
           readinessProbe:
             tcpSocket:
