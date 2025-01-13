@@ -25,6 +25,7 @@ CAST AI database cache deployment.
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
+| queryProcessor.concurrency | int | `10` | Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage. |
 | queryProcessor.logLevel | string | `"warn"` | Default query-processor log level. |
 | queryProcessor.queryCacheSize | int | `100000` | Default query-processor query cache size. |
 | queryProcessorImage.pullPolicy | string | `"IfNotPresent"` |  |
