@@ -47,11 +47,11 @@ spec:
       {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
       {{- end }}
-      {{- if and (.Capabilities.APIVersions.Has "scheduling.k8s.io/v1") (semverCompare ">= 1.18-0" .Capabilities.KubeVersion.Version) (.Values.priorityClass | default dict).enabled }}
       volumes:
         - name: shared-metadata
           emptyDir:
             sizeLimit: 10Mi
+      {{- if and (.Capabilities.APIVersions.Has "scheduling.k8s.io/v1") (semverCompare ">= 1.18-0" .Capabilities.KubeVersion.Version) (.Values.priorityClass | default dict).enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
       serviceAccountName: {{ .Values.serviceAccount.name }}
@@ -116,7 +116,7 @@ spec:
             - name: {{ $k }}
               value: "{{ $v }}"
           {{- end }}
-          {{- if .Values.castai.clusterIdSecretKeyRef.name }}          
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
             {{- if and (ne .Values.castai.clusterID "") (ne .Values.clusterID "") }}
             {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
             {{- end }}
@@ -214,7 +214,7 @@ spec:
             - name: {{ $k }}
               value: "{{ $v }}"
           {{- end }}
-          {{- if .Values.castai.clusterIdSecretKeyRef.name }}          
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
             {{- if and (ne .Values.castai.clusterID "") (ne .Values.clusterID "") }}
             {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
             {{- end }}
@@ -249,4 +249,3 @@ spec:
                 name: castai-cluster-controller
           resources:
             {{- .Values.monitor.resources | default dict | toYaml | nindent 12 }}
-
