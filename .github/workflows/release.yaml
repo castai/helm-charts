@@ -23,6 +23,10 @@ jobs:
       - name: Add dependencies
         run: |
           helm repo add vector https://helm.vector.dev
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add incubator https://charts.helm.sh/incubator
+          helm repo add elasticsearch https://helm.elastic.co  
+          helm repo add grafana https://grafana.github.io/helm-charts
 
       - name: Install Helm
         uses: azure/setup-helm@v1
