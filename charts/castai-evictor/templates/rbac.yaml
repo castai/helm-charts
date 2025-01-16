@@ -1,4 +1,3 @@
-{{- if .Values.clusterVPA.enabled }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -12,6 +11,20 @@ metadata:
     {{- include "evictor.annotations" . | nindent 4 }}
   {{- end }}
 rules:
+  # ------------------------------------------------
+  # Leader election
+  # ------------------------------------------------
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
+  {{- if .Values.clusterVPA.enabled }}
   # ---
   # Required for proportional vertical cluster autoscaler to adjust evictor requests/limits.
   # ---
@@ -23,6 +36,7 @@ rules:
       - {{ include "evictor.fullname" . }}
     verbs:
       - patch
+  {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
@@ -43,4 +57,3 @@ subjects:
   - kind: ServiceAccount
     name: {{ include "evictor.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
-{{- end }}
