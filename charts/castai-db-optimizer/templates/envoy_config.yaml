@@ -80,10 +80,17 @@ data:
                   tls_socket_config:
                     common_tls_context:
                       tls_certificates:
+                      {{ if not (((.Values.proxy).certificates).listener.secret | empty) }}
+                        - certificate_chain:
+                            filename: certs/{{ .Values.proxy.certificates.listener.serverCert | required "serverCert must be provided" }}
+                          private_key:
+                            filename: certs/{{ .Values.proxy.certificates.listener.serverKey  | required "serverKey must be provided" }}
+                      {{ else }}
                         - certificate_chain:
                             filename: "cert.pem"
                           private_key:
                             filename: "key.pem"
+                      {{ end }}
           socket_options:
             - description: "enable keep-alive"
               level: 1 # means socket level options

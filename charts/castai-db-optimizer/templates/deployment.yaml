@@ -50,6 +50,11 @@ spec:
         - name: envoy-config
           configMap:
             name: {{ include "name" . }}-envoy-config
+        {{ if ((((.Values.proxy).certificates).listener).secret) }}
+        - name: envoy-listener-certificate
+          secret:
+            secretName: {{ .Values.proxy.certificates.listener.secret }}
+        {{ end }}
         - name: temp-storage
           emptyDir: {}
         - name: data-storage
@@ -178,3 +183,7 @@ spec:
               mountPath: /tmp
             - name: data-storage
               mountPath: /data
+            {{ if ((((.Values.proxy).certificates).listener).secret) }}
+            - name: envoy-listener-certificate
+              mountPath: /home/polyscale/certs
+            {{ end }}
