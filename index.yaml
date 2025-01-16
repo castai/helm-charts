@@ -14609,6 +14609,45 @@ entries:
   temporal:
   - apiVersion: v2
     appVersion: 1.26.2
+    created: "2025-01-16T19:30:48.495986431Z"
+    dependencies:
+    - condition: cassandra.enabled
+      name: cassandra
+      repository: https://charts.helm.sh/incubator
+      version: 0.14.3
+    - condition: prometheus.enabled
+      name: prometheus
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 25.22.0
+    - condition: elasticsearch.enabled
+      name: elasticsearch
+      repository: https://helm.elastic.co
+      version: 7.17.3
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 8.0.2
+    description: Temporal is a distributed, scalable, durable, and highly available
+      orchestration engine to execute asynchronous long-running business logic in
+      a scalable and resilient way.
+    digest: c1f7306a9bd2a3183761f628456d3682b354f3b2ac90a7de8def74fec84d0625
+    home: https://temporal.io/
+    keywords:
+    - temporal
+    - workflow
+    - orchestration
+    maintainers:
+    - name: temporalio
+      url: https://temporal.io/
+    name: temporal
+    sources:
+    - https://github.com/temporalio/temporal
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/temporal-0.54.2/temporal-0.54.2.tgz
+    version: 0.54.2
+  - apiVersion: v2
+    appVersion: 1.26.2
     created: "2025-01-16T15:06:27.756919115Z"
     dependencies:
     - condition: cassandra.enabled
@@ -14646,4 +14685,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2025-01-16T18:07:39.466914043Z"
+generated: "2025-01-16T19:30:48.497478975Z"
