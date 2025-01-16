@@ -1,0 +1,102 @@
+{{- if $.Values.admintools.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "temporal.componentname" (list $ "admintools") }}
+  annotations:
+    {{- include "temporal.resourceAnnotations" (list $ "admintools" "deployment") | nindent 4 }}
+  labels:
+    {{- include "temporal.resourceLabels" (list $ "admintools" "deployment") | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "temporal.name" $ }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: admintools
+  template:
+    metadata:
+      annotations:
+        {{- include "temporal.resourceAnnotations" (list $ "admintools" "pod") | nindent 8 }}
+      labels:
+        {{- include "temporal.resourceLabels" (list $ "admintools" "pod") | nindent 8 }}
+    spec:
+      {{ include "temporal.serviceAccount" $ }}
+      {{- if $.Values.admintools.additionalInitContainers }}
+      initContainers:
+        {{- toYaml $.Values.admintools.additionalInitContainers | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: admin-tools
+          image: "{{ .Values.admintools.image.repository }}:{{ .Values.admintools.image.tag }}"
+          imagePullPolicy: {{ .Values.admintools.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 22
+              protocol: TCP
+          env:
+            # TEMPORAL_CLI_ADDRESS is deprecated, use TEMPORAL_ADDRESS instead
+            - name: TEMPORAL_CLI_ADDRESS
+              {{- if and (hasKey .Values.server "internalFrontend") .Values.server.internalFrontend.enabled }}
+              value: {{ include "temporal.fullname" $ }}-internal-frontend:{{ .Values.server.internalFrontend.service.port }}
+              {{- else }}
+              value: {{ include "temporal.fullname" $ }}-frontend:{{ .Values.server.frontend.service.port }}
+              {{- end }}
+            - name: TEMPORAL_ADDRESS
+              {{- if and (hasKey .Values.server "internalFrontend") .Values.server.internalFrontend.enabled }}
+              value: {{ include "temporal.fullname" $ }}-internal-frontend:{{ .Values.server.internalFrontend.service.port }}
+              {{- else }}
+              value: {{ include "temporal.fullname" $ }}-frontend:{{ .Values.server.frontend.service.port }}
+              {{- end }}
+          {{- if .Values.admintools.additionalEnv }}
+          {{- toYaml .Values.admintools.additionalEnv | nindent 12 }}
+          {{- end }}
+          {{- if .Values.admintools.additionalEnvSecretName }}
+          envFrom:
+            - secretRef:
+                name: {{ .Values.admintools.additionalEnvSecretName }}
+          {{- end }}
+          livenessProbe:
+              exec:
+                command:
+                - ls
+                - /
+              initialDelaySeconds: 5
+              periodSeconds: 5
+          {{- if $.Values.admintools.additionalVolumeMounts }}
+          volumeMounts:
+            {{- toYaml $.Values.admintools.additionalVolumeMounts | nindent 12}}
+          {{- end }}
+          {{- with .Values.admintools.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.admintools.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.admintools.securityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $.Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if $.Values.admintools.additionalVolumes }}
+      volumes:
+        {{- toYaml $.Values.admintools.additionalVolumes | nindent 8}}
+      {{- end }}
+      {{- with .Values.admintools.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.admintools.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.admintools.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+{{- end }}
