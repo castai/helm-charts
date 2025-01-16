@@ -44,10 +44,9 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | nodeSelector | object | `{}` |  |
 | pdbMinAvailable | int | `1` |  |
 | podAnnotations | object | `{}` | Annotations added to each pod. |
-| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector | string | `nil` |  |
-| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].matchExpressions[0].key | string | `"app.kubernetes.io/name"` |  |
-| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].matchExpressions[0].operator | string | `"In"` |  |
-| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].matchExpressions[0].values[0] | string | `"castai-cluster-controller"` |  |
+| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].key | string | `"app.kubernetes.io/name"` |  |
+| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].operator | string | `"In"` |  |
+| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].values[0] | string | `"castai-cluster-controller"` |  |
 | podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
 | podLabels | object | `{}` |  |
 | priorityClass | object | `{"enabled":true,"name":"system-cluster-critical"}` | K8s priority class of castai-cluster-controller |
