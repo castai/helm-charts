@@ -99,13 +99,13 @@ nodeSelector: {}
 enablePodAntiAffinity: true
 podAntiAffinity:
   requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-        matchExpressions:
-          - key: app.kubernetes.io/name
-            operator: In
-            values:
-              - castai-cluster-controller
-        topologyKey: kubernetes.io/hostname
+    - labelSelector:
+      matchExpressions:
+        - key: app.kubernetes.io/name
+          operator: In
+          values:
+            - castai-cluster-controller
+      topologyKey: kubernetes.io/hostname
 
 # affinity -- Pod affinity rules. Don't schedule application on windows node
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
