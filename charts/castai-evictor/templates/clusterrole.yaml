@@ -62,6 +62,19 @@ rules:
       - ""
     resources: [ "pods/eviction" ]
     verbs: [ "create" ]
+  # ------------------------------------------------
+  # Leader election
+  # ------------------------------------------------
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - list
+      - watch
+      - update
   {{- if .Values.liveMigration.enabled }}
   # ------------------------------------------------
   # Live Migration
