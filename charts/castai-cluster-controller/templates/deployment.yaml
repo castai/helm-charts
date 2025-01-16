@@ -30,6 +30,9 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
       annotations:
+        {{- if not .Values.enablePodAntiAffinity }}
+        ignore-check.kube-linter.io/no-anti-affinity: "This deployment need to ignore pod anti-affinity"
+        {{- end}}
         kubectl.kubernetes.io/default-container: "cluster-controller"
         kubectl.kubernetes.io/default-exec-container: "cluster-controller"
         checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
