@@ -149,10 +149,10 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
           command:
-            - /home/polyscale/envoy
+            - /home/castai/envoy
           args:
             - -c
-            - /home/polyscale/envoy.yaml
+            - /home/castai/envoy.yaml
             - --component-log-level
             - {{ .Values.proxy.logLevel }}
             - --file-flush-interval-msec
@@ -172,7 +172,7 @@ spec:
             {{- end }}
           volumeMounts:
             - name: envoy-config
-              mountPath: /home/polyscale/envoy.yaml
+              mountPath: /home/castai/envoy.yaml
               subPath: envoy-config.yaml
             - name: temp-storage
               mountPath: /tmp
