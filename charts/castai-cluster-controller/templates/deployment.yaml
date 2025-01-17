@@ -70,11 +70,11 @@ spec:
       {{- end }}
       affinity:
         nodeAffinity:
-          {{- with .Values.nodeAffinity }}
+          {{- with .Values.affinity.nodeAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
         podAntiAffinity:
-          {{- with .Values.podAntiAffinity }}
+          {{- with .Values.affinity.podAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
       {{- if .Values.enableTopologySpreadConstraints }}

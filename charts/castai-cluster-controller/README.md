@@ -13,6 +13,13 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalEnv | object | `{"LOG_LEVEL":"5","MONITOR_METADATA":"/controller-metadata/metadata"}` | Env variables passed to castai-cluster-controller. |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].key | string | `"app.kubernetes.io/name"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].operator | string | `"In"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].values[0] | string | `"castai-cluster-controller"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
 | autoscaling | object | `{"enabled":true}` | Settings for managing autoscaling features. |
 | autoscaling.enabled | bool | `true` | Adds permissions to manage autoscaling. |
 | castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","clusterIdSecretKeyRef":{"key":"CLUSTER_ID","name":""}}` | CAST AI API configuration. |
@@ -38,16 +45,9 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | monitor.resources.requests.cpu | string | `"100m"` |  |
 | monitor.resources.requests.memory | string | `"128Mi"` |  |
 | nameOverride | string | `""` |  |
-| nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
-| nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
-| nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
 | nodeSelector | object | `{}` |  |
 | pdbMinAvailable | int | `1` |  |
 | podAnnotations | object | `{}` | Annotations added to each pod. |
-| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].key | string | `"app.kubernetes.io/name"` |  |
-| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].operator | string | `"In"` |  |
-| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].values[0] | string | `"castai-cluster-controller"` |  |
-| podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
 | podLabels | object | `{}` |  |
 | priorityClass | object | `{"enabled":true,"name":"system-cluster-critical"}` | K8s priority class of castai-cluster-controller |
 | replicas | int | `2` | Number of replicas for castai-cluster-controller deployment. |
