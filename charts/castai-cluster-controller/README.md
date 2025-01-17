@@ -24,7 +24,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | createNamespace | bool | `false` | By default namespace is expected to be created by castai-agent. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
-| enablePodAntiAffinity | bool | `true` |  |
+| enableTopologySpreadConstraints | bool | `false` |  |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -59,6 +59,10 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
 | tolerations | object | `{}` |  |
+| topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-agent"` |  |
+| topologySpreadConstraints[0].maxSkew | int | `1` |  |
+| topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
+| topologySpreadConstraints[0].whenUnsatisfiable | string | `"ScheduleAnyway"` |  |
 | trustedCACert | string | `""` | CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates. |
 | trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to the set of root certificate authorities that the client will use when verifying server certificates. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
 | updateStrategy | object | `{"type":"RollingUpdate"}` | Controls `deployment.spec.strategy` field. |

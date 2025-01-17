@@ -96,7 +96,15 @@ tolerations: {}
 nodeSelector: {}
 
 # List of additional pod antiaffinity which can be ignored
-enablePodAntiAffinity: true
+enableTopologySpreadConstraints: false
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-agent
+
 podAntiAffinity:
   requiredDuringSchedulingIgnoredDuringExecution:
     - labelSelector:

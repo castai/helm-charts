@@ -73,12 +73,16 @@ spec:
           {{- with .Values.nodeAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- if .Values.enablePodAntiAffinity }}
         podAntiAffinity:
           {{- with .Values.podAntiAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-        {{- end }}
+      {{- if .Values.enableTopologySpreadConstraints }}
+      topologySpreadConstraints:
+       {{- with .Values.topologySpreadConstraints }}
+       {{- toYaml . | nindent 8 }}
+       {{- end }}
+      {{- end }}
       securityContext:
       {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
