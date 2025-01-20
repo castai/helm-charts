@@ -15,7 +15,7 @@ lint-all: ## Lint all charts in the 'charts' directory.
 		-v $(REPO_ROOT):/repo \
 		--workdir /repo \
 		quay.io/helmpack/chart-testing:v3.6.0 \
-		ct lint --debug --config ct.yaml --charts charts/castai-cluster-controller
+		ct lint --debug --config ct.yaml --all
 
 .PHONY: validate
 validate: ## Validate the PR.
