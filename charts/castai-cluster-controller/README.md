@@ -13,7 +13,13 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | additionalEnv | object | `{"LOG_LEVEL":"5","MONITOR_METADATA":"/controller-metadata/metadata"}` | Env variables passed to castai-cluster-controller. |
-| affinity | object | `{"nodeAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"NotIn","values":["windows"]}]}]}},"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["castai-cluster-controller"]}]},"topologyKey":"kubernetes.io/hostname"}]}}` | Pod affinity rules. Don't schedule application on windows node Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].key | string | `"app.kubernetes.io/name"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].operator | string | `"In"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions[0].values[0] | string | `"castai-cluster-controller"` |  |
+| affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
 | autoscaling | object | `{"enabled":true}` | Settings for managing autoscaling features. |
 | autoscaling.enabled | bool | `true` | Adds permissions to manage autoscaling. |
 | castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","clusterIdSecretKeyRef":{"key":"CLUSTER_ID","name":""}}` | CAST AI API configuration. |
@@ -25,6 +31,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | createNamespace | bool | `false` | By default namespace is expected to be created by castai-agent. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
+| enableTopologySpreadConstraints | bool | `false` |  |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -52,6 +59,10 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
 | tolerations | object | `{}` |  |
+| topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-cluster-controller"` |  |
+| topologySpreadConstraints[0].maxSkew | int | `1` |  |
+| topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
+| topologySpreadConstraints[0].whenUnsatisfiable | string | `"ScheduleAnyway"` |  |
 | trustedCACert | string | `""` | CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates. |
 | trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to the set of root certificate authorities that the client will use when verifying server certificates. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
 | updateStrategy | object | `{"type":"RollingUpdate"}` | Controls `deployment.spec.strategy` field. |

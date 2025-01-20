@@ -95,8 +95,16 @@ tolerations: {}
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
 nodeSelector: {}
 
-# affinity -- Pod affinity rules. Don't schedule application on windows node
-# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+# List of additional pod antiaffinity which can be ignored
+enableTopologySpreadConstraints: false
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-cluster-controller
+
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
