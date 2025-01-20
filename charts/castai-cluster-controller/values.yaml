@@ -103,7 +103,7 @@ topologySpreadConstraints:
     whenUnsatisfiable: ScheduleAnyway
     labelSelector:
       matchLabels:
-        app.kubernetes.io/name: castai-agent
+        app.kubernetes.io/name: castai-cluster-controller
 
 affinity:
   nodeAffinity:
