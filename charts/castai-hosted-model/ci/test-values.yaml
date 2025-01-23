@@ -1,0 +1,19 @@
+ollama:
+  fullnameOverride: llama3-1-8b
+  replicaCount: 1
+  podLabels:
+    ai-optimizer.cast.ai/provider-id: 206c07dc-34c4-4d97-aa7f-ea23ff738955
+
+  service:
+    port: 11434
+    type: ClusterIP
+  ingress:
+    enabled: false
+
+  ollama:
+    gpu:
+      enabled: false
+    models:
+# Don't pull/run any models for tests
+      pull: []
+      run: []
