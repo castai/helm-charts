@@ -12,39 +12,8 @@ ollama:
 
   ollama:
     gpu:
-      enabled: true
-      number: 1
+      enabled: false
     models:
-      pull:
-        - llama3.1:8b
-      run:
-        - llama3.1:8b
-
-  resources:
-    limits:
-      memory: 16384Mi
-      nvidia.com/gpu: 1
-    requests:
-      cpu: 6
-      memory: 16384Mi
-      nvidia.com/gpu: 1
-
-  affinity:
-    nodeAffinity:
-      preferredDuringSchedulingIgnoredDuringExecution:
-        - preference:
-            matchExpressions:
-              - key: scheduling.cast.ai/spot
-                operator: Exists
-          weight: 1
-
-  nodeSelector:
-    nvidia.com/gpu.name: nvidia-tesla-t4
-    scheduling.cast.ai/node-template: llms-by-castai
-  tolerations:
-    - effect: NoSchedule
-      key: scheduling.cast.ai/node-template
-      operator: Equal
-      value: llms-by-castai
-    - key: scheduling.cast.ai/spot
-      operator: Exists
+# Don't pull/run any models for tests
+      pull: []
+      run: []
