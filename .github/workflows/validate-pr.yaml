@@ -27,7 +27,7 @@ jobs:
           version: 1.11.0
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.0.1
+        uses: helm/chart-testing-action@v2.7.0
 
       - name: Validate PR
         run: scripts/validate-pr.sh
