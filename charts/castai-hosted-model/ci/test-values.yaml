@@ -1,0 +1,50 @@
+ollama:
+  fullnameOverride: llama3-1-8b
+  replicaCount: 1
+  podLabels:
+    ai-optimizer.cast.ai/provider-id: 206c07dc-34c4-4d97-aa7f-ea23ff738955
+
+  service:
+    port: 11434
+    type: ClusterIP
+  ingress:
+    enabled: false
+
+  ollama:
+    gpu:
+      enabled: true
+      number: 1
+    models:
+      pull:
+        - "llama3.1:8b"
+      run:
+        - "llama3.1:8b"
+
+  resources:
+    limits:
+      memory: 16384Mi
+      nvidia.com/gpu: 1
+    requests:
+      cpu: 6
+      memory: 16384Mi
+      nvidia.com/gpu: 1
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - preference:
+            matchExpressions:
+              - key: scheduling.cast.ai/spot
+                operator: Exists
+          weight: 1
+
+  nodeSelector:
+    nvidia.com/gpu.name: nvidia-tesla-t4
+    scheduling.cast.ai/node-template: llms-by-castai
+  tolerations:
+    - effect: NoSchedule
+      key: scheduling.cast.ai/node-template
+      operator: Equal
+      value: llms-by-castai
+    - key: scheduling.cast.ai/spot
+      operator: Exists
