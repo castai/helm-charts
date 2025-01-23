@@ -10580,6 +10580,22 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-hibernate-0.1.0/castai-hibernate-0.1.0.tgz
     version: 0.1.0
+  castai-hosted-model:
+  - apiVersion: v2
+    appVersion: v0.0.1
+    created: "2025-01-23T15:09:10.877029648Z"
+    dependencies:
+    - name: ollama
+      repository: https://otwld.github.io/ollama-helm/
+      version: 1.4.0
+    description: CAST AI hosted model deployment chart. Currently, it's just a pass
+      through to ollama chart helm.
+    digest: 788a13aa400ddda46f6b4a0e95b530599abf45b4960d4342a2128f3b204db417
+    name: castai-hosted-model
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-hosted-model-0.0.2/castai-hosted-model-0.0.2.tgz
+    version: 0.0.2
   castai-kvisor:
   - apiVersion: v2
     appVersion: v1.31.0
@@ -14836,4 +14852,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2025-01-23T13:23:16.332423194Z"
+generated: "2025-01-23T15:09:10.878472037Z"
