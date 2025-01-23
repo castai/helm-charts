@@ -22,11 +22,12 @@ jobs:
           helm repo add incubator https://charts.helm.sh/incubator
           helm repo add elasticsearch https://helm.elastic.co  
           helm repo add grafana https://grafana.github.io/helm-charts
+          helm repo add ollama https://otwld.github.io/ollama-helm
 
       - name: Install Helm
-        uses: azure/setup-helm@v1
+        uses: azure/setup-helm@v4.2.0
         with:
-          version: v3.5.2
+          version: v3.17.0
 
       - name: Release CNAB package
         run: scripts/release-cnab-package.sh
