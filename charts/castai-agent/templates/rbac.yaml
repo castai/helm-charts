@@ -43,6 +43,8 @@ rules:
       - services
       - namespaces
       - events
+      - limitranges
+      - resourcequotas
     verbs:
       - get
       - list
