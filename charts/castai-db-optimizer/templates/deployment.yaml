@@ -30,7 +30,7 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      terminationGracePeriodSeconds: 120
+      terminationGracePeriodSeconds: {{ .Values.proxy.drainTimeSeconds | default 60 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -130,10 +130,12 @@ spec:
         - name: proxy
           image: "{{.Values.proxyImage.repository}}:{{default (include "defaultProxyVersion" .) .Values.proxyImage.tag}}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
+          {{- if .Values.proxy.drainTimeSeconds }}
           lifecycle:
             preStop:
               exec:
-                command: ["sleep", "120"]
+                command: ["sleep", {{ .Values.proxy.drainTimeSeconds | quote }} ]
+          {{- end}}
           {{- if .Values.proxy.readinessProbeEnabled }}
           readinessProbe:
             periodSeconds: 3
