@@ -50,6 +50,17 @@ proxy:
   # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
   dataStorageMedium:
 
+  # -- Defines custom certifcates provided by the user.
+  certificates:
+    # -- Defines certificate for the listener.
+    listener:
+      # -- Defines name of the secret containing the certificate and the key that will be attached to the proxy.
+      secret: ""
+      # -- Defines filename of the certificate provided in the secret.
+      serverCert: ""
+      # -- Defines filename of the key provided in the secret.
+      serverKey: ""
+
 
 queryProcessor:
   # -- Default query-processor log level.
