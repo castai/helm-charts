@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.10](https://img.shields.io/badge/Version-0.0.10-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.6](https://img.shields.io/badge/AppVersion-v0.0.6-informational?style=flat-square)
+![Version: 0.0.11](https://img.shields.io/badge/Version-0.0.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.7](https://img.shields.io/badge/AppVersion-v0.0.7-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -40,9 +40,9 @@ CAST AI Pod Mutator.
 | priorityClass.enabled | bool | `true` |  |
 | priorityClass.name | string | `"system-cluster-critical"` |  |
 | replicas | int | `2` |  |
-| resources.limits.memory | string | `"100Mi"` |  |
+| resources.limits.memory | string | `"512Mi"` |  |
 | resources.requests.cpu | string | `"20m"` |  |
-| resources.requests.memory | string | `"100Mi"` |  |
+| resources.requests.memory | string | `"512Mi"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
