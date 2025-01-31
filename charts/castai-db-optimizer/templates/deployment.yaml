@@ -116,7 +116,7 @@ spec:
             - name: QUERY_CACHE_SIZE
               value: {{ required "queryCacheSize must be provided" .Values.queryProcessor.queryCacheSize | quote}}
             - name: PARALLEL_WORKERS
-              value: {{ required "concurrency must be provided" .Values.queryProcessor.concurrency | quote}}
+              value: {{ .Values.queryProcessor.concurrency | default "10" | quote }}
 
           readinessProbe:
             tcpSocket:
