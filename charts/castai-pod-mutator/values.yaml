@@ -36,6 +36,17 @@ tolerations:
   - key: scheduling.cast.ai/spot
     operator: Exists
 
+# List of additional pod antiaffinity which can be ignored
+enableTopologySpreadConstraints: false
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-pod-mutator
+
+
 # Pod affinity rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 affinity:

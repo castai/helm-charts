@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.11](https://img.shields.io/badge/Version-0.0.11-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.7](https://img.shields.io/badge/AppVersion-v0.0.7-informational?style=flat-square)
+![Version: 0.0.12](https://img.shields.io/badge/Version-0.0.12-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.7](https://img.shields.io/badge/AppVersion-v0.0.7-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -21,6 +21,7 @@ CAST AI Pod Mutator.
 | castai.clusterID | string | `""` |  |
 | castai.configMapRef | string | `""` |  |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
+| enableTopologySpreadConstraints | bool | `false` |  |
 | fullnameOverride | string | `"castai-pod-mutator"` |  |
 | global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
@@ -48,6 +49,10 @@ CAST AI Pod Mutator.
 | serviceAccount.name | string | `""` |  |
 | tolerations[0].key | string | `"scheduling.cast.ai/spot"` |  |
 | tolerations[0].operator | string | `"Exists"` |  |
+| topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-pod-mutator"` |  |
+| topologySpreadConstraints[0].maxSkew | int | `1` |  |
+| topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
+| topologySpreadConstraints[0].whenUnsatisfiable | string | `"ScheduleAnyway"` |  |
 | webhook.failurePolicy | string | `"Ignore"` |  |
 | webhook.reinvocationPolicy | string | `"Never"` |  |
 | webhook.url | string | `""` |  |
