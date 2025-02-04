@@ -14,6 +14,8 @@ CAST AI database cache deployment.
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
+| configPersistence.enabled | bool | `true` | when enabled, configuration received from CAST AI will be persisted locally. This will ensure that rescheduled/restarted pods will be able to work even when CAST AI may become unreachable. |
+| configPersistence.storageClass | string | `""` | defines storage class for volumes. Will use default one if not explicitly set. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |

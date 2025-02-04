@@ -38,6 +38,9 @@ data:
           path: /v1/dbo/cache-groups/{{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." }}/cache-configurations
           hostname: {{ .Values.apiURL }}
           api_key: {{ .Values.apiKey | quote }}
+          {{- if .Values.configPersistence.enabled }}
+          persisted_path: /home/castai/config/config.json
+          {{- end }}
       - name: "castai.grpc.services"
         typed_config:
           "@type": type.googleapis.com/castai.grpc.config.v1.Services

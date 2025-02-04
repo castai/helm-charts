@@ -55,6 +55,11 @@ spec:
         - name: data-storage
           emptyDir:
             medium: {{ .Values.proxy.dataStorageMedium | default "" }}
+        {{- if .Values.configPersistence.enabled }}
+        - name: config-storage
+          persistentVolumeClaim:
+            claimName: {{ include "name" . }}-config-pvc
+        {{- end }}
       containers:
         - name: query-processor
           image: "{{.Values.queryProcessorImage.repository}}:{{default (include "defaultQueryProcessorVersion" .) .Values.queryProcessorImage.tag}}"
@@ -184,3 +189,7 @@ spec:
               mountPath: /tmp
             - name: data-storage
               mountPath: /data
+            {{- if .Values.configPersistence.enabled }}
+            - name: config-storage
+              mountPath: /home/castai/config
+            {{- end }}

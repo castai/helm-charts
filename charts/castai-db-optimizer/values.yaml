@@ -38,6 +38,12 @@ resources:
     cpu: "2"
     memory: "1Gi"
 
+configPersistence:
+  # -- when enabled, configuration received from CAST AI will be persisted locally. This will ensure that rescheduled/restarted pods will be able to work even when CAST AI may become unreachable.
+  enabled: true
+  # -- defines storage class for volumes. Will use default one if not explicitly set.
+  storageClass: ""
+
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"

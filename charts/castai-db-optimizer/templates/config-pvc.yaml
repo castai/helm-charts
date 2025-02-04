@@ -1,0 +1,15 @@
+{{- if .Values.configPersistence.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "name" . }}-config-pvc
+  labels:
+    {{- include "labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 50Mi
+  storageClassName: {{ .Values.configPersistence.storageClass | default "standard" }}
+{{ end }}
