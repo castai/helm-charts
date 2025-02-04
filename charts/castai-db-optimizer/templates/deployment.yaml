@@ -16,7 +16,7 @@ spec:
   {{- if .Values.configPersistence.enabled }}
   volumeClaimTemplates:
     - metadata:
-        name: {{ include "name" . }}-config-pvc
+        name: config-storage
         labels:
           {{- include "labels" . | nindent 4 }}
       spec:
