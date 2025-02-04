@@ -19,7 +19,7 @@ spec:
     - metadata:
         name: config-storage
         labels:
-          {{- include "labels" . | nindent 4 }}
+          {{- include "labels" . | nindent 10 }}
       spec:
         accessModes:
           - ReadWriteOnce
