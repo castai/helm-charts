@@ -7,6 +7,7 @@ metadata:
   annotations:
     {{- include "annotations" . | nindent 4 }}
 spec:
+  serviceName: headless-{{ include "name" . }}
   replicas: {{ .Values.replicas }}
   revisionHistoryLimit: 0
   selector:
