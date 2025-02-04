@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "name" . }}
   labels:
@@ -12,11 +12,22 @@ spec:
   selector:
     matchLabels:
       {{- include "selectorLabels" . | nindent 6 }}
-  strategy:
-    rollingUpdate:
-      maxSurge: 100%
-      maxUnavailable: 0
-    type: RollingUpdate
+
+  {{- if .Values.configPersistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: {{ include "name" . }}-config-pvc
+        labels:
+          {{- include "labels" . | nindent 4 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Mi
+        storageClassName: {{ .Values.configPersistence.storageClass | default "standard" }}
+  {{- end }}
+
   template:
     metadata:
       annotations:
@@ -55,11 +66,7 @@ spec:
         - name: data-storage
           emptyDir:
             medium: {{ .Values.proxy.dataStorageMedium | default "" }}
-        {{- if .Values.configPersistence.enabled }}
-        - name: config-storage
-          persistentVolumeClaim:
-            claimName: {{ include "name" . }}-config-pvc
-        {{- end }}
+
       containers:
         - name: query-processor
           image: "{{.Values.queryProcessorImage.repository}}:{{default (include "defaultQueryProcessorVersion" .) .Values.queryProcessorImage.tag}}"
