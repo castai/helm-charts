@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "name" . }}
   labels:
@@ -7,16 +7,28 @@ metadata:
   annotations:
     {{- include "annotations" . | nindent 4 }}
 spec:
+  serviceName: headless-{{ include "name" . }}
   replicas: {{ .Values.replicas }}
   revisionHistoryLimit: 0
   selector:
     matchLabels:
       {{- include "selectorLabels" . | nindent 6 }}
-  strategy:
-    rollingUpdate:
-      maxSurge: 100%
-      maxUnavailable: 0
-    type: RollingUpdate
+
+  {{- if .Values.configPersistence.enabled }}
+  volumeClaimTemplates:
+    - metadata:
+        name: config-storage
+        labels:
+          {{- include "labels" . | nindent 10 }}
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 50Mi
+        storageClassName: {{ .Values.configPersistence.storageClass | default "standard" }}
+  {{- end }}
+
   template:
     metadata:
       annotations:
@@ -55,6 +67,7 @@ spec:
         - name: data-storage
           emptyDir:
             medium: {{ .Values.proxy.dataStorageMedium | default "" }}
+
       containers:
         - name: query-processor
           image: "{{.Values.queryProcessorImage.repository}}:{{default (include "defaultQueryProcessorVersion" .) .Values.queryProcessorImage.tag}}"
@@ -184,3 +197,7 @@ spec:
               mountPath: /tmp
             - name: data-storage
               mountPath: /data
+            {{- if .Values.configPersistence.enabled }}
+            - name: config-storage
+              mountPath: /home/castai/config
+            {{- end }}
