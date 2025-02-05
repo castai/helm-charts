@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -22,7 +22,6 @@ CAST AI database cache deployment.
 | proxy.dnsLookupFamily | string | `"V4_PREFERRED"` | DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead. |
 | proxy.drainTimeSeconds | int | `60` | Default drain time in seconds. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
-| proxy.readinessProbeEnabled | bool | `true` | Ensure proxy has retrieved initial cache configuration before accepting connections. |
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
