@@ -38,6 +38,11 @@ resources:
     cpu: "2"
     memory: "1Gi"
 
+# -- Hostname of the upstream Postgres instance.
+upstreamPostgresHostname: ""
+# -- Port of the upstream Postgres instance.
+upstreamPostgresPort: 5432
+
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"
@@ -51,7 +56,6 @@ proxy:
   dataStorageMedium: Memory
   # -- Default drain time in seconds.
   drainTimeSeconds: 60
-
 
 queryProcessor:
   # -- Default query-processor log level.
