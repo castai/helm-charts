@@ -5,12 +5,12 @@ metadata:
   name: {{ .Release.Namespace }}
   labels:
   {{- include "castai-agent.labels" . | nindent 4 }}
-  {{ if gt (len .Values.commonAnnotations) 0 -}}
   {{- if eq .Values.provider "eks" }}
     aws.conformance.vendor: castai
     aws.conformance.vendor-solution: castai
     aws.conformance.vendor-solution-version: {{ .Chart.Version }}
   {{- end }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
   {{- include "castai-agent.annotations" . | nindent 4 }}
   {{- end -}}
