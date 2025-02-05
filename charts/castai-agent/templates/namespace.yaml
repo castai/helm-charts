@@ -9,7 +9,7 @@ metadata:
   {{- if eq .Values.provider "eks" }}
     aws.conformance.vendor: castai
     aws.conformance.vendor-solution: castai
-    aws.conformance.vendor-solution-version: {{ .Chart.version }}
+    aws.conformance.vendor-solution-version: {{ .Chart.Version }}
   {{- end }}
   annotations:
   {{- include "castai-agent.annotations" . | nindent 4 }}
