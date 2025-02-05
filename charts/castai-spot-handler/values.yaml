@@ -64,7 +64,7 @@ resources:
 rbac:
   enabled: true
 
-priorityClassName: ""
+priorityClassName: "system-cluster-critical"
 
 serviceAccount:
   # serviceAccount.annotation -- Annotations to add to the service account.
