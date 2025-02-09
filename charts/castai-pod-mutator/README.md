@@ -19,6 +19,8 @@ CAST AI Pod Mutator.
 | castai.apiKeySecretRef | string | `""` |  |
 | castai.apiUrl | string | `"https://api.cast.ai"` |  |
 | castai.clusterID | string | `""` |  |
+| castai.clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
+| castai.clusterIdSecretKeyRef.name | string | `""` |  |
 | castai.configMapRef | string | `""` |  |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | fullnameOverride | string | `"castai-pod-mutator"` |  |
