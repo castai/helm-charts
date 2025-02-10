@@ -112,9 +112,22 @@ spec:
       nodeSelector:
       {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
       affinity:
-      {{- toYaml . | nindent 8 }}
+        nodeAffinity:
+          {{- with .Values.affinity.nodeAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- if not .Values.enableTopologySpreadConstraints }}
+        podAntiAffinity:
+          {{- with .Values.affinity.podAntiAffinity }}
+          {{- toYaml . | nindent 10 }}
+          {{- end }}
+        {{- end }}
+      {{- if .Values.enableTopologySpreadConstraints }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+       {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:

@@ -1,2 +1,2 @@
-{{- define "defaultProxyVersion" -}}4.51.2{{- end -}}
-{{- define "defaultQueryProcessorVersion" -}}v0.3.1{{- end -}}
+{{- define "defaultProxyVersion" -}}4.53.0{{- end -}}
+{{- define "defaultQueryProcessorVersion" -}}v0.5.0-rc.1{{- end -}}

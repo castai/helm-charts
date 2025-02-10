@@ -26,30 +26,34 @@ podAnnotations: {}
 resources:
   proxy:
     cpu: "500m"
-    memoryRequest: "200Mi"
-    memoryLimit: "200Mi"
+    memoryRequest: "2Gi"
+    memoryLimit: "2Gi"
     # -- defines how much of proxy container disk space is allocated for cache.
     ephemeralStorage: 10Gi
     # -- max allowed database size in disk.
-    cacheDbSizeBytes: 10000000000
+    cacheDbSizeBytes: 1000000000
     # -- maximum number of entries to keep in the proxy.
     maxCacheEntries: 1000000000
   queryProcessor:
-    cpu: "500m"
-    memory: "500Mi"
+    cpu: "2"
+    memory: "1Gi"
+
+# -- Hostname of the upstream Postgres instance.
+upstreamPostgresHostname: ""
+# -- Port of the upstream Postgres instance.
+upstreamPostgresPort: 5432
 
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"
-  # -- Ensure proxy has retrieved initial cache configuration before accepting connections.
-  readinessProbeEnabled: true
   # -- Number of parallel processing streams. This needs to be balanced with cpu resoures for proxy and QP.
   concurrency: 12
   # -- DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead.
   dnsLookupFamily: V4_PREFERRED
   # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
-  dataStorageMedium:
-
+  dataStorageMedium: Memory
+  # -- Default drain time in seconds.
+  drainTimeSeconds: 60
 
 queryProcessor:
   # -- Default query-processor log level.
