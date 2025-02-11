@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.13](https://img.shields.io/badge/Version-0.0.13-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.8](https://img.shields.io/badge/AppVersion-v0.0.8-informational?style=flat-square)
+![Version: 0.0.14](https://img.shields.io/badge/Version-0.0.14-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.8](https://img.shields.io/badge/AppVersion-v0.0.8-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -19,6 +19,8 @@ CAST AI Pod Mutator.
 | castai.apiKeySecretRef | string | `""` |  |
 | castai.apiUrl | string | `"https://api.cast.ai"` |  |
 | castai.clusterID | string | `""` |  |
+| castai.clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
+| castai.clusterIdSecretKeyRef.name | string | `""` |  |
 | castai.configMapRef | string | `""` |  |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | enableTopologySpreadConstraints | bool | `false` |  |
