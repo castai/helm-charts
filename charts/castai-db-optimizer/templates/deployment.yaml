@@ -76,6 +76,13 @@ spec:
             - name: metrics
               containerPort: 2112
               protocol: TCP
+          envFrom:
+            - secretRef:
+              {{- if .Values.apiKey }}
+                name: {{ include "name" . -}}
+              {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+              {{- end }}
           env:
             - name: CHART_VERSION
               value: {{ .Chart.Version }}
@@ -165,6 +172,13 @@ spec:
             limits:
               memory: {{ .Values.resources.proxy.memoryLimit }}
             {{- end }}
+          envFrom:
+            - secretRef:
+              {{- if .Values.apiKey }}
+                name: {{ include "name" . -}}
+              {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+              {{- end }}
           volumeMounts:
             - name: envoy-config
               mountPath: /home/castai/envoy.yaml
