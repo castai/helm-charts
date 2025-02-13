@@ -60,11 +60,23 @@ data:
               port_value: 5432
           filter_chains:
             - filters:
+              {{- if .Values.proxy.networkDebug | default false }}
+                - name: castai.filters.dump
+                  typed_config:
+                    "@type": type.googleapis.com/castai.filters.dump.v1.Dump
+                    name: frontend
+              {{- end }}
                 - name: castai.filters.postgres
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.postgres.v1.PostgresConfig
                     common:
                       stat_prefix: postgres
+              {{- if .Values.proxy.networkDebug | default false }}
+                - name: castai.filters.dump
+                  typed_config:
+                    "@type": type.googleapis.com/castai.filters.dump.v1.Dump
+                    name: backend
+              {{- end }}
                 - name: castai.filters.router
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.router.v1.RouterConfig
