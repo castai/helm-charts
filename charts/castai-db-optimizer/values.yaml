@@ -28,6 +28,9 @@ podLabels: {}
 # -- Extra annotations to add to the pod.
 podAnnotations: {}
 
+# -- Deploy extra network debug logging.
+networkDebug: false
+
 resources:
   proxy:
     cpu: "500m"
