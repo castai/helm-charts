@@ -60,7 +60,7 @@ data:
               port_value: 5432
           filter_chains:
             - filters:
-              {{- if $.Values.networkDebug }}
+              {{- if .Values.proxy.networkDebug | default false }}
                 - name: castai.filters.dump
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.dump.v1.Dump
@@ -71,7 +71,7 @@ data:
                     "@type": type.googleapis.com/castai.filters.postgres.v1.PostgresConfig
                     common:
                       stat_prefix: postgres
-              {{- if $.Values.networkDebug }}
+              {{- if .Values.proxy.networkDebug | default false }}
                 - name: castai.filters.dump
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.dump.v1.Dump
