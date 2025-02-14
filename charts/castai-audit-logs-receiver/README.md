@@ -12,9 +12,9 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
-| config.exporters.logging.sampling_initial | int | `5` |  |
-| config.exporters.logging.sampling_thereafter | int | `200` |  |
-| config.exporters.logging.verbosity | string | `"detailed"` |  |
+| config.exporters.debug.sampling_initial | int | `5` |  |
+| config.exporters.debug.sampling_thereafter | int | `200` |  |
+| config.exporters.debug.verbosity | string | `"detailed"` |  |
 | config.extensions.health_check.endpoint | string | `"0.0.0.0:13133"` |  |
 | config.receivers.castai_audit_logs.api.key | string | `"${env:CASTAI_API_KEY}"` |  |
 | config.receivers.castai_audit_logs.api.url | string | `"${env:CASTAI_API_URL}"` |  |
