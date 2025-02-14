@@ -24,7 +24,7 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | config.receivers.castai_audit_logs.storage.filename | string | `"/var/lib/otelcol/file_storage/audit_logs_poll_data.json"` |  |
 | config.receivers.castai_audit_logs.storage.type | string | `"persistent"` |  |
 | config.service.extensions[0] | string | `"health_check"` |  |
-| config.service.pipelines.logs.exporters[0] | string | `"logging"` |  |
+| config.service.pipelines.logs.exporters[0] | string | `"debug"` |  |
 | config.service.pipelines.logs.receivers[0] | string | `"castai_audit_logs"` |  |
 | config.service.telemetry.logs.level | string | `"debug"` |  |
 | configMap.create | bool | `true` | Specifies whether a configMap should be created. |
