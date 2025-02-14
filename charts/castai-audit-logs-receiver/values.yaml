@@ -113,7 +113,7 @@ config:
         cluster_id: ""
 
   exporters:
-    logging:
+    debug:
       verbosity: detailed
       sampling_initial: 5
       sampling_thereafter: 200
@@ -133,4 +133,4 @@ config:
     pipelines:
       logs:
         receivers: [castai_audit_logs]
-        exporters: [logging]
+        exporters: [debug]
