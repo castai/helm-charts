@@ -36,6 +36,17 @@ tolerations:
   - key: scheduling.cast.ai/spot
     operator: Exists
 
+# List of additional pod antiaffinity which can be ignored
+enableTopologySpreadConstraints: false
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-pod-mutator
+
+
 # Pod affinity rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 affinity:
@@ -68,9 +79,9 @@ webhook:
 resources:
   requests:
     cpu: 20m
-    memory: 100Mi
+    memory: 512Mi
   limits:
-    memory: 100Mi
+    memory: 512Mi
 
 hostNetwork: false
 # dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
@@ -99,5 +110,10 @@ castai:
   apiKey: ""
   # apiUrl -- URL of the CAST AI API.
   apiUrl: "https://api.cast.ai"
-  # clusterID -- ID of the cluster the pod-mutator is deployed in.
+  # clusterID and clusterIdSecretKeyRef are mutually exclusive
   clusterID: ""
+  # clusterIdSecretKeyRef -- Name and Key of secret with ClusterID
+  # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"

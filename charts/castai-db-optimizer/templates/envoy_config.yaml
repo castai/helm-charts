@@ -37,7 +37,6 @@ data:
           "@type": type.googleapis.com/castai.cluster_control.v1.ClusterControlConfig
           path: /v1/dbo/cache-groups/{{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." }}/cache-configurations
           hostname: {{ .Values.apiURL }}
-          api_key: {{ .Values.apiKey | quote }}
       - name: "castai.grpc.services"
         typed_config:
           "@type": type.googleapis.com/castai.grpc.config.v1.Services
@@ -61,17 +60,29 @@ data:
               port_value: 5432
           filter_chains:
             - filters:
+              {{- if .Values.proxy.networkDebug | default false }}
+                - name: castai.filters.dump
+                  typed_config:
+                    "@type": type.googleapis.com/castai.filters.dump.v1.Dump
+                    name: frontend
+              {{- end }}
                 - name: castai.filters.postgres
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.postgres.v1.PostgresConfig
                     common:
                       stat_prefix: postgres
+              {{- if .Values.proxy.networkDebug | default false }}
+                - name: castai.filters.dump
+                  typed_config:
+                    "@type": type.googleapis.com/castai.filters.dump.v1.Dump
+                    name: backend
+              {{- end }}
                 - name: castai.filters.router
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.router.v1.RouterConfig
                     tcp_proxy_config:
                       stat_prefix: proxy_egress
-                      cluster: dummy
+                      cluster: postgres_upstream
                       idle_timeout: 0s
               transport_socket:
                 name: envoy.transport_sockets.starttls
@@ -106,17 +117,32 @@ data:
               int_value: 2 # number of failed probes
               state: STATE_PREBIND
       clusters:
-        - name: dummy
+        - name: postgres_upstream
+          type: LOGICAL_DNS
+          dns_lookup_family: ALL
           connect_timeout: 1s
           load_assignment:
-            cluster_name: dummy
+            cluster_name: postgres_upstream
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: 127.0.0.1
-                          port_value: 1234
+                          address: {{ required "upstreamPostgresHostname must be provided" .Values.upstreamPostgresHostname }}
+                          port_value: {{ .Values.upstreamPostgresPort | default 5432 }}
+          transport_socket:
+            name: envoy.transport_sockets.start_tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.UpstreamStartTlsConfig
+              tls_socket_config:
+                sni: {{ required "upstreamPostgresHostname must be provided" .Values.upstreamPostgresHostname }}
+                common_tls_context:
+                  tls_params:
+                    tls_maximum_protocol_version: TLSv1_3
+          upstream_config:
+            name: castai.upstream.pool
+            typed_config:
+              "@type": type.googleapis.com/castai.upstream.v1.CastaiConnectionPoolProto
 
         - name: {{ .Values.apiURL }}
           type: LOGICAL_DNS

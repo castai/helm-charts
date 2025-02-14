@@ -30,7 +30,7 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      terminationGracePeriodSeconds: 60
+      terminationGracePeriodSeconds: {{ .Values.proxy.drainTimeSeconds | default 60 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -76,6 +76,13 @@ spec:
             - name: metrics
               containerPort: 2112
               protocol: TCP
+          envFrom:
+            - secretRef:
+              {{- if .Values.apiKey }}
+                name: {{ include "name" . -}}
+              {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+              {{- end }}
           env:
             - name: CHART_VERSION
               value: {{ .Chart.Version }}
@@ -83,8 +90,6 @@ spec:
               value: {{ required "log level must be provided" .Values.queryProcessor.logLevel }}
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | printf "https://%s" }}
-            - name: API_KEY
-              value: {{ .Values.apiKey | quote }}
             - name: PROXY_METRICS_PORT
               value: "9901"
             - name: INSTANCE_ID
@@ -116,7 +121,7 @@ spec:
             - name: QUERY_CACHE_SIZE
               value: {{ required "queryCacheSize must be provided" .Values.queryProcessor.queryCacheSize | quote}}
             - name: PARALLEL_WORKERS
-              value: {{ required "concurrency must be provided" .Values.queryProcessor.concurrency | quote}}
+              value: {{ .Values.queryProcessor.concurrency | default "10" | quote }}
 
           readinessProbe:
             tcpSocket:
@@ -130,16 +135,11 @@ spec:
         - name: proxy
           image: "{{.Values.proxyImage.repository}}:{{default (include "defaultProxyVersion" .) .Values.proxyImage.tag}}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
-          {{- if .Values.proxy.readinessProbeEnabled }}
-          readinessProbe:
-            periodSeconds: 3
-            exec:
-              command:
-              - /bin/bash
-              - '-c'
-              - |-
-                 health=$(curl --silent localhost:9901/clusters | grep {{ .Values.apiURL }} | grep -c health_flags::healthy);
-                 if [[ $health -ne 1 ]]; then echo "Initial cache configuration wasn't pulled yet" && exit 1; fi
+          {{- if .Values.proxy.drainTimeSeconds }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["sleep", {{ .Values.proxy.drainTimeSeconds | quote }} ]
           {{- end}}
           securityContext:
             capabilities:
@@ -170,6 +170,13 @@ spec:
             limits:
               memory: {{ .Values.resources.proxy.memoryLimit }}
             {{- end }}
+          envFrom:
+            - secretRef:
+              {{- if .Values.apiKey }}
+                name: {{ include "name" . -}}
+              {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+              {{- end }}
           volumeMounts:
             - name: envoy-config
               mountPath: /home/castai/envoy.yaml
