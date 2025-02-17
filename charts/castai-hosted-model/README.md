@@ -8,3 +8,8 @@ CAST AI hosted model deployment chart. Currently, it's just a pass through to ol
 |------------|------|---------|
 | https://otwld.github.io/ollama-helm/ | ollama | 1.4.0 |
 
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| ollama.enabled | bool | `true` |  |
