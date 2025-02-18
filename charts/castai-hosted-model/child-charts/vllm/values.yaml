@@ -1,0 +1,36 @@
+image:
+  repository: "vllm/vllm-openai"
+  tag: "v0.7.2"
+
+container:
+  port: 8080
+
+service:
+  type: ClusterIP
+  port: 8080
+
+# -- Readiness probe configuration
+readinessProbe:
+  # -- Number of seconds after the container has started before readiness probe is initiated
+  initialDelaySeconds: 5
+  # -- How often (in seconds) to perform the readiness probe
+  periodSeconds: 5
+  # -- Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not ready
+  failureThreshold: 3
+   # -- Configuration of the Kubelet http request on the server
+  httpGet:
+    # -- Path to access on the HTTP server
+    path: /health
+
+# -- Liveness probe configuration
+livenessProbe:
+ # -- Number of seconds after the container has started before liveness probe is initiated
+  initialDelaySeconds: 15
+  # -- Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not alive
+  failureThreshold: 3
+  # -- How often (in seconds) to perform the liveness probe
+  periodSeconds: 10
+  # -- Configuration of the Kubelet http request on the server
+  httpGet:
+    # -- Path to access on the HTTP server
+    path: /health
