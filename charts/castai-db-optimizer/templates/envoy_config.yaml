@@ -20,12 +20,12 @@ data:
           path: /data/cache
           db_size_bytes: {{ .Values.resources.proxy.cacheDbSizeBytes | int }}
           max_cache_entries: {{ .Values.resources.proxy.maxCacheEntries | int }}
-          eviction_threshold: {{ .Values.proxy.evictionThreshold | default 0.5 }}}
+          eviction_threshold: {{ .Values.proxy.evictionThreshold | default 0.5 }}
           stop_caching_threshold: {{ .Values.proxy.stopCachingThreshold | default 0.95 }}
           write_batch_size: {{ .Values.proxy.writeBatchSize | default 100 }}
           write_batch_delay_ms: {{ .Values.proxy.writeBatchDelayMs | default 100 }}
           stats_thread_period_ms: {{ .Values.proxy.statsThreadPeriodMs | default 1000 }}
-          eviction_thread_period_ms: {{ .Values.proxy.evictionThreadPeriodMs | default 1000}}
+          eviction_thread_period_ms: {{ .Values.proxy.evictionThreadPeriodMs | default 1000 }}
       - name: "castai.cache_control"
         typed_config:
           "@type": type.googleapis.com/castai.cache_control.v1.CacheControlConfig
