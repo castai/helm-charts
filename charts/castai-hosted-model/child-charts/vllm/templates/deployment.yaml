@@ -40,6 +40,19 @@ spec:
             {{ if .Values.quantization }}
             - "--quantization={{ .Values.quantization }}"
             {{ end }}
+          env:
+            {{- if .Values.hfToken }}
+            - name: HUGGING_FACE_HUB_TOKEN
+              value: "{{ .Values.hfToken }}"
+            {{- else }}
+            {{- if .Values.secretName }}
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "secretName must be provided" .Values.secretName }}
+                  key: "HF_TOKEN"
+            {{- end }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.container.port }}
