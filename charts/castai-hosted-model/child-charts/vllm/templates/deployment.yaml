@@ -28,9 +28,9 @@ spec:
             - "--gpu-memory-utilization=1"
             - "--task=generate"
             - "--dtype=half"
-            - "--kv-cache-dtype=fp8"
-            - "--enable-chunked-prefill=False"
-            - "--swap-space=0.5"
+            - "--kv-cache-dtype=fp8_e5m2"
+            - "--enable-chunked-prefill=True"
+            - "--max-num-batched-tokens=10000"
             {{ if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"
             {{ end }}
