@@ -63,6 +63,18 @@ proxy:
   drainTimeSeconds: 60
   # -- Extra network debug logging.
   networkDebug: false
+  # -- Ratio of used available bytes or entries from which we start evicting.
+  evictionThreshold: 0.5
+  # -- Ratio of used available bytes or entries from which we stop caching.
+  stopCachingThreshold: 0.95
+  # -- The size of one batch for writing.
+  writeBatchSize: 100
+  # -- The delay of one batch for writing.
+  writeBatchDelayMs: 100
+  # -- The period of the stats thread.
+  statsThreadPeriodMs: 1000
+  # -- The period of the evictions thread.
+  evictionThreadPeriodMs: 100
 
 queryProcessor:
   # -- Default query-processor log level.

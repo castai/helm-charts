@@ -12,9 +12,9 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
-| config.exporters.logging.sampling_initial | int | `5` |  |
-| config.exporters.logging.sampling_thereafter | int | `200` |  |
-| config.exporters.logging.verbosity | string | `"detailed"` |  |
+| config.exporters.debug.sampling_initial | int | `5` |  |
+| config.exporters.debug.sampling_thereafter | int | `200` |  |
+| config.exporters.debug.verbosity | string | `"detailed"` |  |
 | config.extensions.health_check.endpoint | string | `"0.0.0.0:13133"` |  |
 | config.receivers.castai_audit_logs.api.key | string | `"${env:CASTAI_API_KEY}"` |  |
 | config.receivers.castai_audit_logs.api.url | string | `"${env:CASTAI_API_URL}"` |  |
@@ -24,7 +24,7 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | config.receivers.castai_audit_logs.storage.filename | string | `"/var/lib/otelcol/file_storage/audit_logs_poll_data.json"` |  |
 | config.receivers.castai_audit_logs.storage.type | string | `"persistent"` |  |
 | config.service.extensions[0] | string | `"health_check"` |  |
-| config.service.pipelines.logs.exporters[0] | string | `"logging"` |  |
+| config.service.pipelines.logs.exporters[0] | string | `"debug"` |  |
 | config.service.pipelines.logs.receivers[0] | string | `"castai_audit_logs"` |  |
 | config.service.telemetry.logs.level | string | `"debug"` |  |
 | configMap.create | bool | `true` | Specifies whether a configMap should be created. |
