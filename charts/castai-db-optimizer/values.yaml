@@ -48,6 +48,15 @@ upstreamPostgresHostname: ""
 # -- Port of the upstream Postgres instance.
 upstreamPostgresPort: 5432
 
+
+endpoints:
+  - hostname: dbo-e2e-postgres.dbo-e2e-customer.svc.cluster.local
+    port: 5432
+    targetPort: 5432
+  - hostname: dbo-e2e-postgres-readonly.dbo-e2e-customer.svc.cluster.local
+    port: 5433
+    targetPort: 5432
+
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"

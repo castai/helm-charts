@@ -8,10 +8,12 @@ metadata:
     {{- include "annotations" . | nindent 4 }}
 spec:
   ports:
-    - name: postgres
-      port: 5432
-      targetPort: postgres
+    {{- range $index, $endpoint := .Values.endpoints}}
+    - name: endpoint-{{$index}}
+      port: {{$endpoint.port}}
+      targetPort: {{$endpoint.port}}
       protocol: TCP
+    {{- end }}
     - name: grpc
       port: 9050
       targetPort: grpc

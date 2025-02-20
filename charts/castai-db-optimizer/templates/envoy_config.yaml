@@ -53,36 +53,37 @@ data:
 
     static_resources:
       listeners:
-        - name: castai_postgres_listener
+        {{- range $index, $endpoint := .Values.endpoints}}
+        - name: endpoint_listener_{{$index}}
           address:
             socket_address:
               address: 0.0.0.0
-              port_value: 5432
+              port_value: {{ $endpoint.port }}
           filter_chains:
             - filters:
-              {{- if .Values.proxy.networkDebug | default false }}
+              {{- if $.Values.proxy.networkDebug | default false }}
                 - name: castai.filters.dump
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.dump.v1.Dump
-                    name: frontend
+                    name: frontend_{{ $index }}
               {{- end }}
                 - name: castai.filters.postgres
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.postgres.v1.PostgresConfig
                     common:
                       stat_prefix: postgres
-              {{- if .Values.proxy.networkDebug | default false }}
+              {{- if $.Values.proxy.networkDebug | default false }}
                 - name: castai.filters.dump
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.dump.v1.Dump
-                    name: backend
+                    name: backend_{{ $index }}
               {{- end }}
                 - name: castai.filters.router
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.router.v1.RouterConfig
                     tcp_proxy_config:
-                      stat_prefix: proxy_egress
-                      cluster: postgres_upstream
+                      stat_prefix: proxy_egress_{{ $index }}
+                      cluster: endpoint_upstream_{{ $index }}
                       idle_timeout: 0s
               transport_socket:
                 name: envoy.transport_sockets.starttls
@@ -116,26 +117,28 @@ data:
               name: 6 # the TCP_KEEPCNT parameter - The maximum number of keepalive probes TCP should send before dropping the connection
               int_value: 2 # number of failed probes
               state: STATE_PREBIND
+        {{- end }}
       clusters:
-        - name: postgres_upstream
+        {{- range $index, $endpoint := .Values.endpoints}}
+        - name: endpoint_upstream_{{ $index }}
           type: LOGICAL_DNS
           dns_lookup_family: ALL
           connect_timeout: 1s
           load_assignment:
-            cluster_name: postgres_upstream
+            cluster_name: endpoint_upstream_{{ $index }}
             endpoints:
               - lb_endpoints:
                   - endpoint:
                       address:
                         socket_address:
-                          address: {{ required "upstreamPostgresHostname must be provided" .Values.upstreamPostgresHostname }}
-                          port_value: {{ .Values.upstreamPostgresPort | default 5432 }}
+                          address: {{ required "endpoint hostname must be provided" $endpoint.hostname }}
+                          port_value: {{ required "endpoint targetPort is required" $endpoint.targetPort }}
           transport_socket:
             name: envoy.transport_sockets.start_tls
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.UpstreamStartTlsConfig
               tls_socket_config:
-                sni: {{ required "upstreamPostgresHostname must be provided" .Values.upstreamPostgresHostname }}
+                sni: {{ required "upstreamPostgresHostname must be provided" $endpoint.hostname }}
                 common_tls_context:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
@@ -143,6 +146,7 @@ data:
             name: castai.upstream.pool
             typed_config:
               "@type": type.googleapis.com/castai.upstream.v1.CastaiConnectionPoolProto
+        {{- end }}
 
         - name: {{ .Values.apiURL }}
           type: LOGICAL_DNS

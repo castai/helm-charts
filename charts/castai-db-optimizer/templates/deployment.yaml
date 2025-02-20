@@ -70,9 +70,6 @@ spec:
             - name: grpc
               containerPort: 9050
               protocol: TCP
-            - name: postgres
-              containerPort: 5432
-              protocol: TCP
             - name: metrics
               containerPort: 2112
               protocol: TCP
@@ -142,6 +139,11 @@ spec:
                 command: ["sleep", {{ .Values.proxy.drainTimeSeconds | quote }} ]
           {{- end}}
           {{- if .Values.proxy.readinessProbeEnabled }}
+          ports:
+            {{- range $index, $endpoint := .Values.endpoints}}
+            - containerPort: {{$endpoint.port}}
+              protocol: TCP
+            {{- end }}
           readinessProbe:
             periodSeconds: 3
             exec:
