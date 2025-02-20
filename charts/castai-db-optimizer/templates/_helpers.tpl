@@ -25,7 +25,9 @@ Define common labels.
 {{- end }}
 {{- end }}
 app.kubernetes.io/managed-by: Helm
+{{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
 app.kubernetes.io/name: {{ include "name" . }}
 helm.sh/chart: {{ include "chart" . }}
 {{- end }}

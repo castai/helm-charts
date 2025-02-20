@@ -9,10 +9,12 @@ metadata:
 spec:
   ports:
     {{- range $index, $endpoint := .Values.endpoints}}
+    {{- if empty $endpoint.name }}
     - name: endpoint-{{$index}}
       port: {{$endpoint.port}}
       targetPort: {{$endpoint.port}}
       protocol: TCP
+    {{- end }}
     {{- end }}
     - name: grpc
       port: 9050
@@ -24,3 +26,29 @@ spec:
       protocol: TCP
   selector:
     {{- include "selectorLabels" . | nindent 4 }}
+
+
+# for each named port, define a named service
+{{- range $index, $endpoint := .Values.endpoints}}
+{{- if not ( empty $endpoint.name ) }}
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "name" $ }}-{{$endpoint.name}}
+  labels:
+    {{- include "labels" $ | nindent 4 }}
+  annotations:
+    {{- include "annotations" $ | nindent 4 }}
+spec:
+  ports:
+    - name: endpoint
+      port: {{$endpoint.servicePort}}
+      targetPort: {{$endpoint.port}}
+      protocol: TCP
+  selector:
+    {{- include "selectorLabels" $ | nindent 4 }}
+
+{{- end }}
+{{- end }}

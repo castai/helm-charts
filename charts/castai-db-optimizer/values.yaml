@@ -54,6 +54,8 @@ endpoints:
     port: 5432
     targetPort: 5432
   - hostname: dbo-e2e-postgres-readonly.dbo-e2e-customer.svc.cluster.local
+    name: readonly
+    servicePort: 5432
     port: 5433
     targetPort: 5432
 
