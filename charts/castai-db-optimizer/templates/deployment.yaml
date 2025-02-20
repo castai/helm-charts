@@ -138,12 +138,12 @@ spec:
               exec:
                 command: ["sleep", {{ .Values.proxy.drainTimeSeconds | quote }} ]
           {{- end}}
-          {{- if .Values.proxy.readinessProbeEnabled }}
           ports:
             {{- range $index, $endpoint := .Values.endpoints}}
             - containerPort: {{$endpoint.port}}
               protocol: TCP
             {{- end }}
+          {{- if .Values.proxy.readinessProbeEnabled }}
           readinessProbe:
             periodSeconds: 3
             exec:
