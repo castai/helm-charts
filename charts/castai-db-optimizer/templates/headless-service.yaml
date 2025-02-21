@@ -9,9 +9,9 @@ metadata:
 spec:
   clusterIP: None
   ports:
-    - name: postgres
-      port: 5432
-      targetPort: postgres
+    - name: grpc
+      port: 9050
+      targetPort: grpc
       protocol: TCP
   selector:
     {{- include "selectorLabels" . | nindent 4 }}
