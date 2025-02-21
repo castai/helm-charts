@@ -2,7 +2,7 @@
 Expand the name of the chart.
 */}}
 {{- define "vllm.fullname" -}}
-{{- printf "%s-%s" "vllm" .Values.modelName }}
+{{ .Values.service.name }}
 {{- end }}
 
 {{/*
