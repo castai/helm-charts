@@ -49,8 +49,8 @@ upstreamPostgresHostname: ""
 upstreamPostgresPort: 5432
 
 
-# -- A list of upstream database endpoints
 endpoints:
+  # -- A list of upstream database endpoints
   - # -- Hostname of the upstream database instance.
     hostname: dbo-e2e-postgres.dbo-e2e-customer.svc.cluster.local
     # -- Port for the endpoint on DBO pod.
