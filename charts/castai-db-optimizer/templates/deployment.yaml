@@ -141,7 +141,9 @@ spec:
               exec:
                 command: ["sleep", {{ .Values.proxy.drainTimeSeconds | quote }} ]
           {{- end}}
-          {{- if .Values.proxy.readinessProbeEnabled }}
+
+          {{ $readinessProbeEnabled := not (eq (toString .Values.proxy.readinessProbeEnabled) "false")}}
+          {{- if $readinessProbeEnabled  }}
           readinessProbe:
             periodSeconds: 3
             exec:
