@@ -1,11 +1,12 @@
 # castai-hosted-model
 
-CAST AI hosted model deployment chart. Currently, it's just a pass through to ollama chart helm.
+CAST AI hosted model deployment chart.
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
+| file://child-charts/vllm | vllm | 0.0.1 |
 | https://otwld.github.io/ollama-helm/ | ollama | 1.4.0 |
 
 ## Values
@@ -13,3 +14,4 @@ CAST AI hosted model deployment chart. Currently, it's just a pass through to ol
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | ollama.enabled | bool | `true` |  |
+| vllm.enabled | bool | `false` |  |
