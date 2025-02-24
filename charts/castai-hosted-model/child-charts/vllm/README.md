@@ -23,3 +23,6 @@ CAST AI hosted model deployment chart for vLLM.
 | readinessProbe.periodSeconds | int | `5` | How often (in seconds) to perform the readiness probe |
 | service.port | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
+| startupProbe.failureThreshold | int | `200` |  |
+| startupProbe.initialDelaySeconds | int | `20` |  |
+| startupProbe.periodSeconds | int | `6` |  |
