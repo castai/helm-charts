@@ -3,11 +3,19 @@ image:
   tag: "v0.7.2"
 
 container:
-  port: 8080
+  port: 8000
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 8000
+
+startupProbe:
+  initialDelaySeconds: 20
+  periodSeconds: 6
+  # Allow for up to 20 minutes of startup time
+  failureThreshold: 200
+  httpGet:
+    path: /health
 
 # -- Readiness probe configuration
 readinessProbe:
@@ -24,7 +32,7 @@ readinessProbe:
 
 # -- Liveness probe configuration
 livenessProbe:
- # -- Number of seconds after the container has started before liveness probe is initiated
+  # -- Number of seconds after the container has started before liveness probe is initiated
   initialDelaySeconds: 15
   # -- Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not alive
   failureThreshold: 3
