@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -26,6 +26,7 @@ CAST AI database cache deployment.
 | proxy.evictionThreshold | float | `0.5` | Ratio of used available bytes or entries from which we start evicting. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxy.networkDebug | bool | `false` | Extra network debug logging. |
+| proxy.readinessProbeEnabled | bool | `true` | Ensure proxy has retrieved initial cache configuration before accepting connections. |
 | proxy.statsThreadPeriodMs | int | `1000` | The period of the stats thread. |
 | proxy.stopCachingThreshold | float | `0.95` | Ratio of used available bytes or entries from which we stop caching. |
 | proxy.writeBatchDelayMs | int | `100` | The delay of one batch for writing. |
