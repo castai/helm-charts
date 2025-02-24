@@ -6,7 +6,7 @@ CAST AI hosted model deployment chart for vLLM.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| container.port | int | `8080` |  |
+| container.port | int | `8000` |  |
 | image.repository | string | `"vllm/vllm-openai"` |  |
 | image.tag | string | `"v0.7.2"` |  |
 | livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10}` | Liveness probe configuration |
@@ -21,8 +21,9 @@ CAST AI hosted model deployment chart for vLLM.
 | readinessProbe.httpGet.path | string | `"/health"` | Path to access on the HTTP server |
 | readinessProbe.initialDelaySeconds | int | `5` | Number of seconds after the container has started before readiness probe is initiated |
 | readinessProbe.periodSeconds | int | `5` | How often (in seconds) to perform the readiness probe |
-| service.port | int | `8080` |  |
+| service.port | int | `8000` |  |
 | service.type | string | `"ClusterIP"` |  |
 | startupProbe.failureThreshold | int | `200` |  |
+| startupProbe.httpGet.path | string | `"/health"` |  |
 | startupProbe.initialDelaySeconds | int | `20` |  |
 | startupProbe.periodSeconds | int | `6` |  |
