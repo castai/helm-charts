@@ -21,7 +21,7 @@ spec:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-c", "vllm", "serve"]
+          command: ["vllm", "serve"]
           args:
             - {{ .Values.model | quote }}
             - "--trust-remote-code"
