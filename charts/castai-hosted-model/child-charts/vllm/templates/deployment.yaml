@@ -17,6 +17,14 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{ if .Values.tensorParallelSize }}
+      volumes:
+        # vLLM needs to access the host's shared memory for tensor parallel inference.
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: "2Gi"
+      {{ end }}
       containers:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
@@ -44,7 +52,10 @@ spec:
           env:
             {{- if .Values.hfToken }}
             - name: HUGGING_FACE_HUB_TOKEN
-              value: "{{ .Values.hfToken }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vllm.fullname" . }}
+                  key: "HF_TOKEN"
             {{- else }}
             {{- if .Values.secretName }}
             - name: HUGGING_FACE_HUB_TOKEN
@@ -85,6 +96,11 @@ spec:
             timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.readinessProbe.successThreshold }}
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          {{ if .Values.tensorParallelSize }}
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+          {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
