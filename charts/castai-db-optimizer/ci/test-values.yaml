@@ -7,6 +7,9 @@ resources:
   proxy:
     ephemeralStorage: 5Mi
 
+proxy:
+  readinessProbeEnabled: true
+
 podLabels:
   podLabel: label
 
