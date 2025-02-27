@@ -160,17 +160,6 @@ spec:
                  health=$(curl --silent localhost:9901/clusters | grep {{ .Values.apiURL }} | grep -c health_flags::healthy);
                  if [[ $health -ne 1 ]]; then echo "Initial cache configuration wasn't pulled yet" && exit 1; fi
           {{- end}}
-          {{- if .Values.proxy.readinessProbeEnabled }}
-          readinessProbe:
-            periodSeconds: 3
-            exec:
-              command:
-              - /bin/bash
-              - '-c'
-              - |-
-                 health=$(curl --silent localhost:9901/clusters | grep {{ .Values.apiURL }} | grep -c health_flags::healthy);
-                 if [[ $health -ne 1 ]]; then echo "Initial cache configuration wasn't pulled yet" && exit 1; fi
-          {{- end}}
           securityContext:
             capabilities:
               drop:
