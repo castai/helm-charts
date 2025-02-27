@@ -17,15 +17,26 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{ if .Values.tensorParallelSize }}
+      volumes:
+        # vLLM needs to access the host's shared memory for tensor parallel inference.
+        - name: shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: "2Gi"
+      {{ end }}
       containers:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["/bin/sh", "-c", "vllm", "serve"]
+          command: ["vllm", "serve"]
           args:
             - {{ .Values.model | quote }}
+            - "--port={{ .Values.container.port }}"
             - "--trust-remote-code"
-            - "--gpu-memory-utilization=1"
+            {{ if .Values.gpuMemoryUtilization }}
+            - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
+            {{ end }}
             - "--task=generate"
             - "--dtype=half"
             - "--kv-cache-dtype=fp8_e5m2"
@@ -43,7 +54,10 @@ spec:
           env:
             {{- if .Values.hfToken }}
             - name: HUGGING_FACE_HUB_TOKEN
-              value: "{{ .Values.hfToken }}"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "vllm.fullname" . }}
+                  key: "HF_TOKEN"
             {{- else }}
             {{- if .Values.secretName }}
             - name: HUGGING_FACE_HUB_TOKEN
@@ -59,9 +73,16 @@ spec:
               protocol: TCP
           resources: 
             {{ toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.startupProbe.httpGet.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
           livenessProbe:
             httpGet:
-              path: {{ .Values.livenessProbe.path }}
+              path: {{ .Values.livenessProbe.httpGet.path }}
               port: http
             initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
@@ -70,13 +91,18 @@ spec:
             failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: {{ .Values.readinessProbe.path }}
+              path: {{ .Values.readinessProbe.httpGet.path }}
               port: http
             initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.readinessProbe.successThreshold }}
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          {{ if .Values.tensorParallelSize }}
+          volumeMounts:
+            - name: shm
+              mountPath: /dev/shm
+          {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
