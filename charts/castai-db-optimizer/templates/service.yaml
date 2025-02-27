@@ -8,6 +8,12 @@ metadata:
     {{- include "annotations" . | nindent 4 }}
 spec:
   ports:
+    {{- if .Values.upstreamPostgresHostname }}
+    - name: postgres
+      port: 5432
+      targetPort: postgres
+      protocol: TCP
+    {{- end}}
     {{- range $index, $endpoint := .Values.endpoints}}
     {{- if empty $endpoint.name }}
     - name: endpoint-{{$index}}

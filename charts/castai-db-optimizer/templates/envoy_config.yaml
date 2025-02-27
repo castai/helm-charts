@@ -53,6 +53,72 @@ data:
 
     static_resources:
       listeners:
+        {{- if .Values.upstreamPostgresHostname}}
+        - name: castai_postgres_listener
+          address:
+            socket_address:
+              address: 0.0.0.0
+              port_value: 5432
+          filter_chains:
+            - filters:
+              {{- if .Values.proxy.networkDebug | default false }}
+                - name: castai.filters.dump
+                  typed_config:
+                    "@type": type.googleapis.com/castai.filters.dump.v1.Dump
+                    name: frontend
+              {{- end }}
+                - name: castai.filters.postgres
+                  typed_config:
+                    "@type": type.googleapis.com/castai.filters.postgres.v1.PostgresConfig
+                    common:
+                      stat_prefix: postgres
+              {{- if .Values.proxy.networkDebug | default false }}
+                - name: castai.filters.dump
+                  typed_config:
+                    "@type": type.googleapis.com/castai.filters.dump.v1.Dump
+                    name: backend
+              {{- end }}
+                - name: castai.filters.router
+                  typed_config:
+                    "@type": type.googleapis.com/castai.filters.router.v1.RouterConfig
+                    tcp_proxy_config:
+                      stat_prefix: proxy_egress
+                      cluster: postgres_upstream
+                      idle_timeout: 0s
+              transport_socket:
+                name: envoy.transport_sockets.starttls
+                typed_config:
+                  "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
+                  tls_socket_config:
+                    common_tls_context:
+                      tls_certificates:
+                        - certificate_chain:
+                            filename: "cert.pem"
+                          private_key:
+                            filename: "key.pem"
+          socket_options:
+            - description: "enable keep-alive"
+              level: 1 # means socket level options
+              name: 9 # means the keep-alive parameter
+              int_value: 1 # a nonzero value means "yes"
+              state: STATE_PREBIND
+            - description: "idle time before first keep-alive probe is sent"
+              level: 6 # IPPROTO_TCP
+              name: 4 # TCP_KEEPIDLE parameter - The time (in seconds) the connection needs to remain idle before TCP starts sending keepalive probes
+              int_value: 60 # seconds
+              state: STATE_PREBIND
+            - description: "keep-alive interval"
+              level: 6 # IPPROTO_TCP
+              name: 5 # the TCP_KEEPINTVL parameter - The time (in seconds) between individual keepalive probes.
+              int_value: 20 # seconds
+              state: STATE_PREBIND
+            - description: "keep-alive probes count"
+              level: 6 # IPPROTO_TCP
+              name: 6 # the TCP_KEEPCNT parameter - The maximum number of keepalive probes TCP should send before dropping the connection
+              int_value: 2 # number of failed probes
+              state: STATE_PREBIND
+        {{- end}}
+
         {{- range $index, $endpoint := .Values.endpoints}}
         - name: endpoint_listener_{{$index}}
           address:
@@ -119,6 +185,35 @@ data:
               state: STATE_PREBIND
         {{- end }}
       clusters:
+        {{- if .Values.upstreamPostgresHostname}}
+        - name: postgres_upstream
+          type: LOGICAL_DNS
+          dns_lookup_family: ALL
+          connect_timeout: 1s
+          load_assignment:
+            cluster_name: postgres_upstream
+            endpoints:
+              - lb_endpoints:
+                  - endpoint:
+                      address:
+                        socket_address:
+                          address: {{ required "upstreamPostgresHostname must be provided" .Values.upstreamPostgresHostname }}
+                          port_value: {{ .Values.upstreamPostgresPort | default 5432 }}
+          transport_socket:
+            name: envoy.transport_sockets.start_tls
+            typed_config:
+              "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.UpstreamStartTlsConfig
+              tls_socket_config:
+                sni: {{ required "upstreamPostgresHostname must be provided" .Values.upstreamPostgresHostname }}
+                common_tls_context:
+                  tls_params:
+                    tls_maximum_protocol_version: TLSv1_3
+          upstream_config:
+            name: castai.upstream.pool
+            typed_config:
+              "@type": type.googleapis.com/castai.upstream.v1.CastaiConnectionPoolProto
+        {{- end }}
+
         {{- range $index, $endpoint := .Values.endpoints}}
         - name: endpoint_upstream_{{ $index }}
           type: LOGICAL_DNS
