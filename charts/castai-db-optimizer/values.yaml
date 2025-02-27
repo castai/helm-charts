@@ -54,7 +54,7 @@ endpoints:
   - # -- Hostname of the upstream database instance.
     hostname: dbo-e2e-postgres.dbo-e2e-customer.svc.cluster.local
     # -- Port for the endpoint on DBO pod.
-    port: 5432
+    port: 5433
     # -- Port of the upstream database instance.
     targetPort: 5432
     # -- Name of the service. If this value is not empty, then additional cluster IP service will be deployed, using provided name as a suffix

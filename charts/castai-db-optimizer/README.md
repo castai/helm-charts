@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.16.1](https://img.shields.io/badge/Version-0.16.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.17.0](https://img.shields.io/badge/Version-0.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -15,10 +15,10 @@ CAST AI database cache deployment.
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
-| endpoints[0] | object | `{"hostname":"dbo-e2e-postgres.dbo-e2e-customer.svc.cluster.local","name":null,"port":5432,"servicePort":5432,"targetPort":5432}` | A list of upstream database endpoints |
+| endpoints[0] | object | `{"hostname":"dbo-e2e-postgres.dbo-e2e-customer.svc.cluster.local","name":null,"port":5433,"servicePort":5432,"targetPort":5432}` | A list of upstream database endpoints |
 | endpoints[0].hostname | string | `"dbo-e2e-postgres.dbo-e2e-customer.svc.cluster.local"` | Hostname of the upstream database instance. |
 | endpoints[0].name | string | `nil` | Name of the service. If this value is not empty, then additional cluster IP service will be deployed, using provided name as a suffix |
-| endpoints[0].port | int | `5432` | Port for the endpoint on DBO pod. |
+| endpoints[0].port | int | `5433` | Port for the endpoint on DBO pod. |
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
