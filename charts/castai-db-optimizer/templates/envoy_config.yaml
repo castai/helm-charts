@@ -233,7 +233,7 @@ data:
             typed_config:
               "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.UpstreamStartTlsConfig
               tls_socket_config:
-                sni: {{ required "upstreamPostgresHostname must be provided" $endpoint.hostname }}
+                sni: {{ required "endpoint hostname must be provided" $endpoint.hostname }}
                 common_tls_context:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
