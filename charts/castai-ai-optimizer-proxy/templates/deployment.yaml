@@ -28,28 +28,6 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
-        - name: {{ .Chart.Name }}-router
-          securityContext:
-            {{- toYaml .Values.securityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - name: router-rest
-              containerPort: {{ .Values.routerContainerPort }}
-              protocol: TCP
-          livenessProbe:
-            httpGet:
-              port: router-rest
-              path: /healthz
-          readinessProbe:
-            httpGet:
-              port: router-rest
-              path: /healthz
-          resources:
-            {{- toYaml .Values.routerResources | nindent 12 }}
-          env:
-            - name: APP
-              value: "router"
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -102,6 +80,28 @@ spec:
               {{- else }}
                 name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}
               {{- end }}
+        - name: {{ .Chart.Name }}-router
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: router-rest
+              containerPort: {{ .Values.routerContainerPort }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: router-rest
+              path: /healthz
+          readinessProbe:
+            httpGet:
+              port: router-rest
+              path: /healthz
+          resources:
+            {{- toYaml .Values.routerResources | nindent 12 }}
+          env:
+            - name: APP
+              value: "router"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
