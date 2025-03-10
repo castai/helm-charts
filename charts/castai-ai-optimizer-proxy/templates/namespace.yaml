@@ -4,6 +4,7 @@ kind: Namespace
 metadata:
   name: castai-llms
   labels:
+    omni.cast.ai/enable-scheduling: true
   {{- include "ai-optimizer-proxy.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
