@@ -53,6 +53,19 @@ spec:
                   fieldPath: status.podIP
             - name: CASTAI_API_URL
               value: {{ required "apiURL must be provided" .Values.castai.apiURL | quote }}
+            {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+            {{- if ne .Values.castai.clusterID "" }}
+            {{- fail "choose clusterID OR clusterIdSecretKeyRef only" }}
+            {{- end }}
+            - name: CASTAI_CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
+            {{- else }}
+            - name: CASTAI_CLUSTER_ID
+              value: {{ .Values.castai.clusterID | quote }}
+            {{- end }}
           volumeMounts:
             {{- if .Values.configMap.create }}
             - mountPath: /etc/otel
@@ -76,11 +89,14 @@ spec:
               port: 13133
           envFrom:
             - secretRef:
-          {{- if .Values.castai.apiKey  }}
+                {{- if .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
                 name: {{ include "castai-audit-logs-receiver.fullname" . -}}
-          {{- else }}
-                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}
-          {{- end }}
+                {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.tolerations }}

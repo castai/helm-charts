@@ -19,7 +19,16 @@ castai:
   # castai.apiKeySecretRef -- Name of secret with Token to be used for authorizing access to the API.
   # apiKey and apiKeySecretRef are mutually exclusive.
   # The referenced secret must provide the token in .data["CASTAI_API_KEY"].
-  apiKeySecretRef: ""
+  apiKeySecretRef: "audit-logs-receiver-apikey-secret"
+
+  # Optional filter of logs using the Cluster ID.
+  # castai.clusterID -- Cluster ID to be used for filtering audit logs.
+  clusterID: ""
+  # castai.clusterIdConfigMapKeyRef -- Name of the Secret with the Cluster ID.
+  # clusterID needs to be in base64 format in the secret.
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CASTAI_CLUSTER_ID"
 
   # castai.apiURL -- CASTAI public api url.
   apiURL: "https://api.cast.ai"
@@ -110,7 +119,7 @@ config:
       # config.receivers.castai-audit-logs.filters -- Optional configuration for filtering scraped audit logs
       filters:
         # config.receivers.castai-audit-logs.filters.cluster_id -- This optional parameters defines cluster id for which logs should be scraped.
-        cluster_id: ""
+        cluster_id: ${env:CASTAI_CLUSTER_ID}
 
   exporters:
     debug:
