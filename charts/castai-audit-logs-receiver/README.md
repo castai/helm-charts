@@ -10,6 +10,9 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | castai.apiKey | string | `""` | Token to be used for authorizing access to the CASTAI API. |
 | castai.apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing access to the API. apiKey and apiKeySecretRef are mutually exclusive. The referenced secret must provide the token in .data["CASTAI_API_KEY"]. |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
+| castai.clusterID | string | `""` | Cluster id to be used for filtering audit logs. |
+| castai.clusterIdSecretKeyRef.key | string | `"CASTAI_CLUSTER_ID"` |  |
+| castai.clusterIdSecretKeyRef.name | string | `""` |  |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | config.exporters.debug.sampling_initial | int | `5` |  |
@@ -18,9 +21,9 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | config.extensions.health_check.endpoint | string | `"0.0.0.0:13133"` |  |
 | config.receivers.castai_audit_logs.api.key | string | `"${env:CASTAI_API_KEY}"` |  |
 | config.receivers.castai_audit_logs.api.url | string | `"${env:CASTAI_API_URL}"` |  |
-| config.receivers.castai_audit_logs.filters.cluster_id | string | `""` |  |
+| config.receivers.castai_audit_logs.filters.cluster_id | string | `"${env:CASTAI_CLUSTER_ID}"` |  |
 | config.receivers.castai_audit_logs.page_limit | int | `100` |  |
-| config.receivers.castai_audit_logs.poll_interval_sec | int | `10` |  |
+| config.receivers.castai_audit_logs.poll_interval_sec | int | `30` |  |
 | config.receivers.castai_audit_logs.storage.filename | string | `"/var/lib/otelcol/file_storage/audit_logs_poll_data.json"` |  |
 | config.receivers.castai_audit_logs.storage.type | string | `"persistent"` |  |
 | config.service.extensions[0] | string | `"health_check"` |  |
