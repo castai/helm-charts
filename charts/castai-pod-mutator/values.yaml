@@ -114,6 +114,11 @@ castai:
   organizationID: ""
   # clusterID and clusterIdSecretKeyRef are mutually exclusive
   clusterID: ""
+  # organizationIdSecretKeyRef -- Name and Key of secret with OrganizationID
+  # The referenced secret must provide the OrganizationID in .data[<<.Values.castai.organizationIdSecretKeyRef.key>>]
+  organizationIdSecretKeyRef:
+    name: ""
+    key: "ORGANIZATION_ID"
   # clusterIdSecretKeyRef -- Name and Key of secret with ClusterID
   # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
   clusterIdSecretKeyRef:
