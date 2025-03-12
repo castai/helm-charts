@@ -18,6 +18,7 @@ CAST AI Pod Mutator.
 | castai.apiKey | string | `""` |  |
 | castai.apiKeySecretRef | string | `""` |  |
 | castai.apiUrl | string | `"https://api.cast.ai"` |  |
+| castai.organizationID | string | `""` |  |
 | castai.clusterID | string | `""` |  |
 | castai.clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai.clusterIdSecretKeyRef.name | string | `""` |  |
