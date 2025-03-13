@@ -8,6 +8,7 @@ CAST AI Pod Mutator.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| additionalEnv | object | `{}` | Used to set additional environment variables for the pod-mutator container. |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |

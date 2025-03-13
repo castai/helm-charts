@@ -59,6 +59,10 @@ spec:
               value: "true"
             - name: CERTS_SECRET
               value: {{ include "pod-mutator.certsSecretName" . }}
+            {{- range $name, $value := .Values.additionalEnv }}
+            - name: "{{ $name }}"
+              value: "{{ $value }}"
+            {{- end }}
           {{- if .Values.castai.organizationIdSecretKeyRef.name }}          
             {{- if ne .Values.castai.organizationID "" }}
             {{- fail "organizationID and organizationIdSecretKeyRef are mutually exclusive" }}

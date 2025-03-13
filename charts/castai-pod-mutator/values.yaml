@@ -28,6 +28,9 @@ podAnnotations: {}
 # podLabels - Labels added to each pod.
 podLabels: {}
 
+# -- Used to set additional environment variables for the pod-mutator container.
+additionalEnv: {}
+
 priorityClass:
   enabled: true
   name: system-cluster-critical
