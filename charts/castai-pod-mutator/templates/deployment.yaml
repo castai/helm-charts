@@ -59,6 +59,24 @@ spec:
               value: "true"
             - name: CERTS_SECRET
               value: {{ include "pod-mutator.certsSecretName" . }}
+          {{- if .Values.castai.organizationIdSecretKeyRef.name }}          
+            {{- if ne .Values.castai.organizationID "" }}
+            {{- fail "organizationID and organizationIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
+
+            {{- if ne .Values.castai.configMapRef "" }}
+            {{- fail "configMapRef and organizationIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
+            - name: ORGANIZATION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "organizationID or organizationIdSecretKeyRef must be provided" .Values.castai.organizationIdSecretKeyRef.name }}
+                  key: {{ .Values.castai.organizationIdSecretKeyRef.key }}
+          {{- else }}
+            {{- if and (not .Values.castai.organizationID) (not .Values.castai.configMapRef) }}
+            {{- fail "either organizationID configMapRef or organizationIdSecretKeyRef must be provided" }}
+            {{- end }}
+          {{- end }}
           {{- if .Values.castai.clusterIdSecretKeyRef.name }}          
             {{- if ne .Values.castai.clusterID "" }}
             {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
