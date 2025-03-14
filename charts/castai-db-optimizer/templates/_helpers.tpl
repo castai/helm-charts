@@ -13,6 +13,14 @@ Create chart name and version as used by the chart label.
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{- define "queryProcessorImage" -}}
+{{-  default (include "defaultQueryProcessorVersion" .) .Values.queryProcessorImage.tag }}
+{{- end }}
+
+{{- define "proxyImage" -}}
+{{-  default (include "defaultProxyVersion" .) .Values.proxyImage.tag }}
+{{- end }}
+
 {{/*
 Define common labels.
 */}}
