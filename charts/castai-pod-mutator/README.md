@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.17](https://img.shields.io/badge/Version-0.0.17-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.11](https://img.shields.io/badge/AppVersion-v0.0.11-informational?style=flat-square)
+![Version: 0.0.18](https://img.shields.io/badge/Version-0.0.18-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.11](https://img.shields.io/badge/AppVersion-v0.0.11-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -8,6 +8,7 @@ CAST AI Pod Mutator.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| additionalEnv | object | `{}` | Used to set additional environment variables for the pod-mutator container. |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
