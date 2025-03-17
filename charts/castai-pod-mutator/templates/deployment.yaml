@@ -109,13 +109,13 @@ spec:
                 {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
                 {{- end }}
-            {{- if or (.Values.castai.clusterID) (.Values.castai.configMapRef) }}
+            {{- if or .Values.castai.apiUrl .Values.castai.organizationID .Values.castai.clusterID .Values.castai.configMapRef }}
             - configMapRef:
-                {{- if .Values.castai.clusterID }}
+              {{- if .Values.castai.configMapRef }}
+                name: {{ .Values.castai.configMapRef }}
+              {{- else }}
                 name: pod-mutator
-                {{- else }}
-                name: {{ required "configMapRef or (clusterID and apiUrl) must be provided" .Values.castai.configMapRef }}
-                {{- end }}
+              {{- end }}
             {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
