@@ -57,7 +57,7 @@ spec:
             medium: {{ .Values.proxy.dataStorageMedium | default "" }}
       containers:
         - name: query-processor
-          image: "{{.Values.queryProcessorImage.repository}}:{{default (include "defaultQueryProcessorVersion" .) .Values.queryProcessorImage.tag}}"
+          image: "{{.Values.queryProcessorImage.repository}}:{{ include "queryProcessorImage" . }}"
           imagePullPolicy: {{.Values.queryProcessorImage.pullPolicy}}
           securityContext:
             capabilities:
@@ -101,6 +101,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: QUERY_PROCESSOR_IMAGE
+              value: {{ include "queryProcessorImage" . }}
+            - name: PROXY_IMAGE
+              value: {{ include "proxyImage" . }}
             - name: K8S_SERVICE_NAME
               value: {{ include "name" . }}
             - name: SERVER_PORT
@@ -130,7 +134,7 @@ spec:
             limits:
               memory: {{ .Values.resources.queryProcessor.memory }}
         - name: proxy
-          image: "{{.Values.proxyImage.repository}}:{{default (include "defaultProxyVersion" .) .Values.proxyImage.tag}}"
+          image: "{{.Values.proxyImage.repository}}:{{ include "proxyImage" . }}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
           {{- if .Values.proxy.drainTimeSeconds }}
           lifecycle:
