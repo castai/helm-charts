@@ -1,5 +1,16 @@
 apiVersion: v1
 entries:
+  apa-agent:
+  - apiVersion: v2
+    appVersion: linas/agent-deploy
+    created: "2025-03-20T07:45:56.252606457Z"
+    description: CAST AI APA agent
+    digest: 245bd8d5414284616ae66ae671ceec43178326af4da0ab216bffa755f9a8f291
+    name: apa-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/apa-agent-0.1.1/apa-agent-0.1.1.tgz
+    version: 0.1.1
   castai-agent:
   - apiVersion: v2
     appVersion: v0.83.0
@@ -16770,4 +16781,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2025-03-19T10:17:22.976268481Z"
+generated: "2025-03-20T07:45:56.273808651Z"
