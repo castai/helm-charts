@@ -178,3 +178,6 @@ clusterIdConfigMapKeyRef:
 clusterIdSecretKeyRef:
   name: ""
   key: "CLUSTER_ID"
+
+# -- Used to set additional environment variables for the evictor container via configMaps or secrets.
+envFrom: []

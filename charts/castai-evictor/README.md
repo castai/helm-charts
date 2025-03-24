@@ -33,6 +33,7 @@ Cluster utilization defragmentation tool
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | dryRun | bool | `false` |  |
+| envFrom | list | `[]` | Used to set additional environment variables for the evictor container via configMaps or secrets. |
 | fullnameOverride | string | `"castai-evictor"` |  |
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
