@@ -22,6 +22,7 @@ CAST AI Pod Pinning deployment chart.
 | castai.apiURL | string | `"https://api.cast.ai"` | The CAST AI API URL. |
 | castai.clusterID | string | `""` | The CAST AI cluster ID. |
 | castai.grpcURL | string | `"grpc.cast.ai:443"` | The CAST AI gRPC URL. |
+| envFrom | list | `[]` | Used to set additional environment variables for the pod-pinner container via configMaps or secrets. |
 | global | object | `{"commonAnnotations":{},"commonLabels":{},"fullnameOverride":"","nameOverride":"","serviceAccount":{"annotations":{},"create":true,"name":""}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | global.commonLabels | object | `{}` | Labels to add to all resources. |
