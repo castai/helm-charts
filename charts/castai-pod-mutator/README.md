@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.21](https://img.shields.io/badge/Version-0.0.21-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.13](https://img.shields.io/badge/AppVersion-v0.0.13-informational?style=flat-square)
+![Version: 0.0.22](https://img.shields.io/badge/Version-0.0.22-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.13](https://img.shields.io/badge/AppVersion-v0.0.13-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -28,6 +28,7 @@ CAST AI Pod Mutator.
 | castai.organizationIdSecretKeyRef.name | string | `""` |  |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | enableTopologySpreadConstraints | bool | `false` |  |
+| envFrom | list | `[]` | Used to set additional environment variables for the pod-mutator container via configMaps or secrets. |
 | fullnameOverride | string | `"castai-pod-mutator"` |  |
 | global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
