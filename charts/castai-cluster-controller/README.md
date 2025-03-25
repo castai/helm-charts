@@ -32,6 +32,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | createNamespace | bool | `false` | By default namespace is expected to be created by castai-agent. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | enableTopologySpreadConstraints | bool | `false` |  |
+| envFrom | list | `[]` | Used to set additional environment variables for the cluster-controller container via configMaps or secrets. |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |

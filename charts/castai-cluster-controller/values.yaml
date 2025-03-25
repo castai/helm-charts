@@ -169,3 +169,6 @@ workloadManagement:
 autoscaling:
   # autoscaling.enabled -- Adds permissions to manage autoscaling.
   enabled: true
+
+# -- Used to set additional environment variables for the cluster-controller container via configMaps or secrets.
+envFrom: []
