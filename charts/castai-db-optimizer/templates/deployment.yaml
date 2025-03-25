@@ -123,6 +123,8 @@ spec:
               value: {{ required "queryCacheSize must be provided" .Values.queryProcessor.queryCacheSize | quote}}
             - name: PARALLEL_WORKERS
               value: {{ .Values.queryProcessor.concurrency | default "10" | quote }}
+            - name: ENDPOINTS
+              value: {{ .Values.endpoints | toJson | quote}}
 
           readinessProbe:
             tcpSocket:
