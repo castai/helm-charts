@@ -173,3 +173,6 @@ metadataStore:
   configMapName: castai-agent-metadata
   # metadataStore.configMapName -- namespace of config map to store metadata
   configMapNamespace: castai-agent
+
+# -- Used to set additional environment variables for the pod-mutator container via configMaps or secrets.
+envFrom: []

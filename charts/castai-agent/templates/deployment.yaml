@@ -130,6 +130,9 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
+          {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
           {{- if .Values.clusterVPA.enabled -}}
