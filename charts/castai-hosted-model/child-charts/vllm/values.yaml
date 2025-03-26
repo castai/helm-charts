@@ -1,6 +1,6 @@
 image:
   repository: "vllm/vllm-openai"
-  tag: "v0.7.2"
+  tag: "v0.8.1"
 
 container:
   port: 8000
@@ -8,6 +8,8 @@ container:
 service:
   type: ClusterIP
   port: 8000
+
+mountImageCache: false
 
 startupProbe:
   initialDelaySeconds: 20
