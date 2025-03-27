@@ -17,14 +17,20 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
-      {{ if .Values.tensorParallelSize }}
       volumes:
+        {{ if .Values.tensorParallelSize }}
         # vLLM needs to access the host's shared memory for tensor parallel inference.
         - name: shm
           emptyDir:
             medium: Memory
             sizeLimit: "2Gi"
-      {{ end }}
+        {{ end }}
+        {{ if .Values.mountImageCache }}
+        - name: llm-cache
+          hostPath:
+            path: /cache
+            type: Directory
+        {{ end }}
       containers:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
@@ -42,6 +48,7 @@ spec:
             - "--kv-cache-dtype=fp8_e5m2"
             - "--enable-chunked-prefill=True"
             - "--max-num-batched-tokens=10000"
+            - "--download-dir=/cache"
             {{ if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"
             {{ end }}
@@ -98,10 +105,14 @@ spec:
             timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.readinessProbe.successThreshold }}
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
-          {{ if .Values.tensorParallelSize }}
           volumeMounts:
+          {{ if .Values.tensorParallelSize }}
             - name: shm
               mountPath: /dev/shm
+          {{ end }}
+          {{ if .Values.mountImageCache }}
+            - name: llm-cache
+              mountPath: /cache
           {{ end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
