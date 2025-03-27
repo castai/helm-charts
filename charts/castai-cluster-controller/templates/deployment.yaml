@@ -137,10 +137,8 @@ spec:
                 secretKeyRef:
                   name: {{ required "clusterID or clusterIdSecretKeyRef must be provided" .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
-          {{- else }}
-            {{- if not .Values.castai.clusterID }}
+          {{- else if and (not .Values.castai.clusterID) (not .Values.envFrom) }}
             {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
-            {{- end }}
           {{- end }}
           envFrom:
           {{- if .Values.trustedCACert }}
@@ -150,6 +148,7 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
+          {{- if or .Values.apiKey .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
             - secretRef:
                 {{- if or .Values.apiKey .Values.castai.apiKey }}
                   {{- if ne .Values.castai.apiKeySecretRef "" }}
@@ -159,6 +158,10 @@ spec:
                 {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
                 {{- end }}
+          {{- else if not .Values.envFrom }}
+          {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+          {{- end }}
+          {{- end }}
             - configMapRef:
                 name: castai-cluster-controller
           {{- with .Values.envFrom }}
@@ -239,7 +242,7 @@ spec:
                   name: {{ required "clusterID or clusterIdSecretKeyRef must be provided" .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
           {{- else }}
-            {{- if not .Values.castai.clusterID }}
+            {{- if and (not .Values.castai.clusterID) (not .Values.envFrom) }}
             {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
             {{- end }}
           {{- end }}
@@ -251,6 +254,7 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
+          {{- if or .Values.apiKey .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
             - secretRef:
                 {{- if or .Values.apiKey .Values.castai.apiKey }}
                   {{- if ne .Values.castai.apiKeySecretRef "" }}
@@ -260,7 +264,14 @@ spec:
                 {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
                 {{- end }}
+          {{- else if not .Values.envFrom }}
+          {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+          {{- end }}
+          {{- end }}
             - configMapRef:
                 name: castai-cluster-controller
+          {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- .Values.monitor.resources | default dict | toYaml | nindent 12 }}
