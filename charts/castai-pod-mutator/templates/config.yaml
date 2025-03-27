@@ -10,10 +10,22 @@ metadata:
     {{- include "pod-mutator.annotations" . | nindent 4 }}
   {{- end }}
 data:
-  API_URL: {{ required "castai.apiUrl must be provided" .Values.castai.apiUrl | quote }}
+  {{- if .Values.castai.apiUrl }}
+  API_URL: {{ .Values.castai.apiUrl | quote }}
+  {{- else if not .Values.envFrom }}
+  {{- fail "castai.apiUrl must be provided" }}
+  {{- end }}
   {{- if not .Values.castai.organizationIdSecretKeyRef.name }}
-  ORGANIZATION_ID: {{ required "organizationID must be provided" .Values.castai.organizationID | quote }}
+  {{- if .Values.castai.organizationID }}
+  ORGANIZATION_ID: {{ .Values.castai.organizationID | quote }}
+  {{- else if not .Values.envFrom }}
+  {{- fail "organizationID must be provided" }}
+  {{- end }}
   {{- end }}
   {{- if not .Values.castai.clusterIdSecretKeyRef.name }}
-  CLUSTER_ID: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
+  {{- if .Values.castai.clusterID }}
+  CLUSTER_ID: {{ .Values.castai.clusterID | quote }}
+  {{- else if not .Values.envFrom }}
+  {{- fail "clusterID must be provided" }}
+  {{- end }}
   {{- end }}
