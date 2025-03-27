@@ -127,7 +127,6 @@ spec:
           {{- else if not .Values.envFrom }}
           {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
           {{- end }}
-          {{- end }}
           {{- if .Values.trustedCACert }}
             - secretRef:
                 name: {{ include "castai-agent.fullname" . -}}-tls-cert
