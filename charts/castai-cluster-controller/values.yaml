@@ -134,6 +134,12 @@ securityContext:
   runAsGroup: 65532
   runAsUser: 65532
 
+# Container security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+
+  
 serviceAccount:
   create: true
   # Annotations to add to the service account.
