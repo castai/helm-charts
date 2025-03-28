@@ -116,6 +116,10 @@ spec:
             - name: KUBECLIENT_QPS
               value: {{ .Values.k8sApiClient.rateLimit.qps | quote }}
           {{- end }}
+          {{- if not .Values.autoscaling.enabled }}
+            - name: AUTOSCALING_DISABLED
+              value: "true"
+          {{- end }}
             - name: KUBERNETES_NODE_NAME
               valueFrom:
                 fieldRef:
@@ -210,10 +214,6 @@ spec:
               value: "{{ .Values.leaderElectionLeaseDuration }}"
             - name: LEADER_ELECTION_LEASE_RENEW_DEADLINE
               value: "{{ .Values.leaderElectionRenewDeadline }}"
-          {{- end }}
-          {{- if not .Values.autoscaling.enabled }}
-            - name: AUTOSCALING_DISABLED
-              value: "true"
           {{- end }}
           {{- if .Values.k8sApiClient.rateLimit.burst }}
             - name: KUBECLIENT_BURST
