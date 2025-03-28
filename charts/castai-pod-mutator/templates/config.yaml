@@ -13,19 +13,19 @@ data:
   {{- if .Values.castai.apiUrl }}
   API_URL: {{ .Values.castai.apiUrl | quote }}
   {{- else if not .Values.envFrom }}
-  {{- fail "castai.apiUrl must be provided" }}
+  {{- fail "castai.apiUrl or envFrom must be provided" }}
   {{- end }}
   {{- if not .Values.castai.organizationIdSecretKeyRef.name }}
   {{- if .Values.castai.organizationID }}
   ORGANIZATION_ID: {{ .Values.castai.organizationID | quote }}
   {{- else if not .Values.envFrom }}
-  {{- fail "organizationID must be provided" }}
+  {{- fail "organizationID or envFrom must be provided" }}
   {{- end }}
   {{- end }}
   {{- if not .Values.castai.clusterIdSecretKeyRef.name }}
   {{- if .Values.castai.clusterID }}
   CLUSTER_ID: {{ .Values.castai.clusterID | quote }}
   {{- else if not .Values.envFrom }}
-  {{- fail "clusterID must be provided" }}
+  {{- fail "clusterID or envFrom must be provided" }}
   {{- end }}
   {{- end }}

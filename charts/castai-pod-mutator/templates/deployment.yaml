@@ -78,7 +78,7 @@ spec:
                   key: {{ .Values.castai.organizationIdSecretKeyRef.key }}
           {{- else }}
             {{- if and (not .Values.castai.organizationID) (not .Values.castai.configMapRef) (not .Values.envFrom) }}
-            {{- fail "either organizationID configMapRef or organizationIdSecretKeyRef must be provided" }}
+            {{- fail "either organizationID configMapRef, organizationIdSecretKeyRef or envFrom must be provided" }}
             {{- end }}
           {{- end }}
           {{- if .Values.castai.clusterIdSecretKeyRef.name }}          
@@ -96,7 +96,7 @@ spec:
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
           {{- else }}
             {{- if and (not .Values.castai.clusterID) (not .Values.castai.configMapRef) (not .Values.envFrom) }}
-            {{- fail "either clusterID configMapRef or clusterIdSecretKeyRef must be provided" }}
+            {{- fail "either clusterID configMapRef, clusterIdSecretKeyRef or envFrom must be provided" }}
             {{- end }}
           {{- end }}
           envFrom:
@@ -111,7 +111,7 @@ spec:
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
                 {{- end }}
           {{- else if not .Values.envFrom }}
-          {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+          {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
           {{- end }}
             {{- if or .Values.castai.apiUrl .Values.castai.organizationID .Values.castai.clusterID .Values.castai.configMapRef }}
             - configMapRef:
