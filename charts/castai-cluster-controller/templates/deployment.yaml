@@ -211,6 +211,10 @@ spec:
             - name: LEADER_ELECTION_LEASE_RENEW_DEADLINE
               value: "{{ .Values.leaderElectionRenewDeadline }}"
           {{- end }}
+          {{- if not .Values.autoscaling.enabled }}
+            - name: AUTOSCALING_DISABLED
+              value: "true"
+          {{- end }}
           {{- if .Values.k8sApiClient.rateLimit.burst }}
             - name: KUBECLIENT_BURST
               value: {{ .Values.k8sApiClient.rateLimit.burst | quote }}
