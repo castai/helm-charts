@@ -15,13 +15,6 @@ data:
   {{- else if not .Values.envFrom }}
   {{- fail "castai.apiUrl or envFrom must be provided" }}
   {{- end }}
-  {{- if not .Values.castai.organizationIdSecretKeyRef.name }}
-  {{- if .Values.castai.organizationID }}
-  ORGANIZATION_ID: {{ .Values.castai.organizationID | quote }}
-  {{- else if not .Values.envFrom }}
-  {{- fail "organizationID or envFrom must be provided" }}
-  {{- end }}
-  {{- end }}
   {{- if not .Values.castai.clusterIdSecretKeyRef.name }}
   {{- if .Values.castai.clusterID }}
   CLUSTER_ID: {{ .Values.castai.clusterID | quote }}

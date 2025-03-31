@@ -63,25 +63,7 @@ spec:
             - name: "{{ $name }}"
               value: "{{ $value }}"
             {{- end }}
-          {{- if .Values.castai.organizationIdSecretKeyRef.name }}          
-            {{- if ne .Values.castai.organizationID "" }}
-            {{- fail "organizationID and organizationIdSecretKeyRef are mutually exclusive" }}
-            {{- end }}
-
-            {{- if ne .Values.castai.configMapRef "" }}
-            {{- fail "configMapRef and organizationIdSecretKeyRef are mutually exclusive" }}
-            {{- end }}
-            - name: ORGANIZATION_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ required "organizationID or organizationIdSecretKeyRef must be provided" .Values.castai.organizationIdSecretKeyRef.name }}
-                  key: {{ .Values.castai.organizationIdSecretKeyRef.key }}
-          {{- else }}
-            {{- if and (not .Values.castai.organizationID) (not .Values.castai.configMapRef) (not .Values.envFrom) }}
-            {{- fail "either organizationID configMapRef, organizationIdSecretKeyRef or envFrom must be provided" }}
-            {{- end }}
-          {{- end }}
-          {{- if .Values.castai.clusterIdSecretKeyRef.name }}          
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
             {{- if ne .Values.castai.clusterID "" }}
             {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
             {{- end }}
@@ -113,7 +95,7 @@ spec:
           {{- else if not .Values.envFrom }}
           {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
           {{- end }}
-            {{- if or .Values.castai.apiUrl .Values.castai.organizationID .Values.castai.clusterID .Values.castai.configMapRef }}
+            {{- if or .Values.castai.apiUrl .Values.castai.clusterID .Values.castai.configMapRef }}
             - configMapRef:
               {{- if .Values.castai.configMapRef }}
                 name: {{ .Values.castai.configMapRef }}
