@@ -19,6 +19,7 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | castai.provider | string | `""` | Cloud provider (azure, gcp, aws). |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
+| envFrom | list | `[]` | Used to set additional environment variables for the spot handler container via configMaps or secrets. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/spot-handler"` |  |
 | image.tag | string | `""` |  |
