@@ -72,7 +72,7 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
-            {{- else}}
+            {{- else if not .Values.envFrom}}
             {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
             {{- end }}
           {{- end }}
@@ -97,6 +97,9 @@ spec:
                 # Re-use shared secret from cluster-controller.
                 name: castai-cluster-controller
                 {{- end }}
+          {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- with .Values.resources }}
           resources:
           {{- toYaml . | nindent 12 }}
