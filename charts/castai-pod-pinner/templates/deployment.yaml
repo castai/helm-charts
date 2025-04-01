@@ -116,14 +116,14 @@ spec:
               value: "{{ $value }}"
             {{- end }}
           envFrom:
-            - secretRef:
           {{- if .Values.castai.apiKey }}
-            {{- if ne .Values.castai.apiKeySecretRef "" }}
-            {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
-            {{- end }}
+            - secretRef:
                 name: {{ include "pod-pinner.fullname" . -}}
-          {{- else }}
-                name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef -}}
+          {{- else if .Values.castai.apiKeySecretRef }}
+            - secretRef:
+                name: {{ .Values.castai.apiKeySecretRef -}}
+          {{- else if not .Values.envFrom }}
+          {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
           {{- end }}
           {{- with .Values.envFrom }}
             {{- toYaml . | nindent 12 }}
