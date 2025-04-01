@@ -29,6 +29,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | castai.clusterID | string | `""` | CASTAI Cluster unique identifier. clusterID and clusterIdSecretKeyRef are mutually exclusive |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
+| containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | createNamespace | bool | `false` | By default namespace is expected to be created by castai-agent. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | enableTopologySpreadConstraints | bool | `false` |  |
