@@ -126,7 +126,7 @@ spec:
             - name: ENDPOINTS
               value: {{ .Values.endpoints | toJson | quote}}
             - name: PROTOCOL
-              value: {{ .Values.protocol }}
+              value: {{ .Values.protocol | default "PostgreSQL" }}
 
           readinessProbe:
             tcpSocket:
