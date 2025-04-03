@@ -125,6 +125,8 @@ spec:
               value: {{ .Values.queryProcessor.concurrency | default "10" | quote }}
             - name: ENDPOINTS
               value: {{ .Values.endpoints | toJson | quote}}
+            - name: PROTOCOL
+              value: {{ .Values.protocol }}
 
           readinessProbe:
             tcpSocket:
