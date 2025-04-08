@@ -48,6 +48,7 @@ rules:
     verbs:
       - get
       - list
+      - watch
   - apiGroups:
       - "policy"
     resources:
@@ -75,7 +76,7 @@ rules:
       - list
       - watch
       - update
-  {{- if .Values.liveMigration.enabled }}
+{{- if .Values.liveMigration.enabled }}
   # ------------------------------------------------
   # Live Migration
   # ------------------------------------------------
@@ -89,4 +90,4 @@ rules:
       - watch
       - patch
       - update
-  {{- end }}
+{{- end }}
