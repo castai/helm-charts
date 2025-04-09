@@ -44,7 +44,7 @@ rules:
     resources: [ "deployments" ]
     verbs: [ "patch" ]
   {{- end}}
-  {{- if .Values.autoscaling.enabled }}
+  {{- if .Values.nodeManagement.enabled }}
   # For advertising extended resources
   - apiGroups: [ "" ]
     resources: [ "nodes/status" ]
@@ -74,6 +74,8 @@ rules:
     resources: [ "signers" ]
     resourceNames: [ "kubernetes.io/kubelet-serving", "kubernetes.io/kube-apiserver-client-kubelet" ]
     verbs: [ "approve" ]
+  {{- end}}
+  {{- if .Values.autoscaling.enabled }}
   # For creating events.
   - apiGroups: [ "" ]
     resources: [ "events" ]
