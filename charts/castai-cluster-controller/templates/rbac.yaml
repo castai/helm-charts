@@ -44,7 +44,7 @@ rules:
     resources: [ "deployments" ]
     verbs: [ "patch" ]
   {{- end}}
-  {{- if .Values.nodeManagement.enabled }}
+  {{- if .Values.autoscaling.enabled }}
   # For advertising extended resources
   - apiGroups: [ "" ]
     resources: [ "nodes/status" ]
@@ -74,17 +74,15 @@ rules:
     resources: [ "signers" ]
     resourceNames: [ "kubernetes.io/kubelet-serving", "kubernetes.io/kube-apiserver-client-kubelet" ]
     verbs: [ "approve" ]
-  {{- end}}
-  {{- if .Values.autoscaling.enabled }}
   # For creating events.
   - apiGroups: [ "" ]
     resources: [ "events" ]
     verbs: [ "create", "patch" ]
+  {{- end}}
   # For CAST autoscaling CRDs management.
   - apiGroups: [ "autoscaling.cast.ai" ]
     resources: [ "*" ]
     verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
-  {{- end}}
   # For installing/updating CAST AI components.
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles" ]
