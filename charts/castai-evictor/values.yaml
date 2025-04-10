@@ -58,7 +58,8 @@ woop:
   enabled: false
   # If true, Evictor will use a cache for its WOOP-specific client.
   # This should reduce the amount of read requests issued to the API server when working with WOOP recommendations.
-  useK8sClientCache: false
+  # When false, all WOOP-related read requests will go to the API server.
+  useK8sClientCache: true
 
 # leaderElection -- Specifies leader election parameters.
 leaderElection:
