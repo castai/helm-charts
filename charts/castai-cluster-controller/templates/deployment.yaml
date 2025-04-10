@@ -180,6 +180,9 @@ spec:
             - containerPort: 6060
               name: http
               protocol: TCP
+            - containerPort: 9090
+              name: metrics
+              protocol: TCP
           livenessProbe:
             httpGet:
               port: http
