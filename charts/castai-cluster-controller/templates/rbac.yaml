@@ -78,11 +78,11 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "events" ]
     verbs: [ "create", "patch" ]
+  {{- end}}
   # For CAST autoscaling CRDs management.
   - apiGroups: [ "autoscaling.cast.ai" ]
     resources: [ "*" ]
     verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
-  {{- end}}
   # For installing/updating CAST AI components.
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles" ]
