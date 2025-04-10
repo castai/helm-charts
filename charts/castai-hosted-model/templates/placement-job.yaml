@@ -39,7 +39,7 @@ spec:
           imagePullPolicy: {{ .Values.placementJob.image.pullPolicy | quote }}
           command: ["/bin/sh", "-c", "echo Node placement job finished."]
           resources:
-            {{- toYaml .Values.routerResources | nindent 12 }}
+            {{- toYaml .Values.placementJob.resources | nindent 12 }}
       nodeSelector:
         scheduling.cast.ai/node-template: "{{ $nodeTemplateName }}"
       tolerations:
