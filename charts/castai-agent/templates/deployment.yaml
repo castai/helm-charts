@@ -155,6 +155,8 @@ spec:
           ports:
             - containerPort: 9876
               name: healthz
+            - containerPort: 9877
+              name: metrics
           readinessProbe:
             httpGet:
               port: healthz
