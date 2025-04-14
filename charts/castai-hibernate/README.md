@@ -18,7 +18,7 @@ CAST AI hibernate CronJobs used to pause and resume Kubernetes cluster on a defi
 | concurrencyPolicy | string | `"Forbid"` |  |
 | configMapName | string | `"castai-cluster-controller"` |  |
 | hibernateNode | string | `""` | Set the HIBERNATE_NODE environment variable to override the default node sizing selections. Make sure the size selected is appropriate for your cloud. |
-| hibernateNodeLabels | string | `""` | Set the HIBERNATE_NODE_LABELS comma separated list, do not use duplicate keys, "imaginary.devops/requirements=true, acme.io/infra=true" |
+| hibernateNodeLabels | string | `""` |  |
 | image.pullPolicy | string | `"Always"` |  |
 | image.repository | string | `"castai/hibernate"` |  |
 | image.tag | string | `""` | Tag is set using Chart.yaml appVersion field. |
