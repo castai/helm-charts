@@ -49,18 +49,6 @@ liveMigration:
   # as long as they can be scheduled somewhere else.
   enabled: false
 
-# woop -- Specifies settings for working with WOOP recommendations.
-woop:
-  # If true, Evictor will use take WOOP recommendations into account when running its simulations.
-  # For example, if WOOP recommendation instructs the pod to increase its requests,
-  # Evictor will account for that in its simulation, checking if it will be able to reschedule it even with the increase in requests.
-  # Same for downscaling.
-  enabled: true
-  # If true, Evictor will use a cache for its WOOP-specific client.
-  # This should reduce the amount of read requests issued to the API server when working with WOOP recommendations.
-  # When false, all WOOP-related read requests will go to the API server.
-  useK8sClientCache: true
-
 # leaderElection -- Specifies leader election parameters.
 leaderElection:
   # leaderElection.enabled -- Whether to enable leader election.
