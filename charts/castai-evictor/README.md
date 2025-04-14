@@ -66,3 +66,4 @@ Cluster utilization defragmentation tool
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. |
 | tolerations | list | `[]` |  |
 | updateStrategy | object | `{"type":"Recreate"}` | Controls `deployment.spec.strategy` field. |
+| woop | object | `{"enabled":true,"useK8sClientCache":true}` | Specifies settings for working with WOOP recommendations. |
