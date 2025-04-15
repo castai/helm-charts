@@ -44,6 +44,8 @@ spec:
                 value: "{{ .Values.cloud }}"
               - name: HIBERNATE_NODE
                 value: "{{ .Values.hibernateNode }}"
+              - name: HIBERNATE_NODE_LABELS
+                value: "{{ .Values.hibernateNodeLabels }}"
               - name: NAMESPACES_TO_KEEP
                 value: "{{ .Values.namespacesToKeep }}"
               - name: PROTECT_REMOVAL_DISABLED
