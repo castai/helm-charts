@@ -50,7 +50,6 @@ Cluster utilization defragmentation tool
 | nodeSelector | object | `{}` |  |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
-| podSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | rbac.enabled | bool | `true` |  |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |

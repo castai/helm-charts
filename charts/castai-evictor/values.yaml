@@ -102,8 +102,6 @@ hostNetwork:
 # dnsPolicy -- DNS Policy Override - Needed when using some custom CNI's.
 dnsPolicy: ""
 
-podSecurityContext:
-  readOnlyRootFilesystem: true
 
 # Pod security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
