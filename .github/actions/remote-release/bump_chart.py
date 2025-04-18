@@ -1,5 +1,5 @@
-import sys
 import re
+import sys
 
 if len(sys.argv) < 2 or sys.argv[1] == '':
     raise 'Chart.yaml path should be passed as first argument'
@@ -8,7 +8,7 @@ new_app_version = ''
 if len(sys.argv) >= 3 and sys.argv[2] != '':
     new_app_version = sys.argv[2]
 
-chart_yaml_path=sys.argv[1]
+chart_yaml_path = sys.argv[1]
 
 with open(chart_yaml_path, 'r') as chart_file:
     chart_yaml = chart_file.read()
@@ -24,7 +24,7 @@ if match:
     parts = current_version.split('.')
     current_major = parts[0]
     current_minor = parts[1]
-    new_patch = int(parts[2])+1
+    new_patch = int(parts[2]) + 1
     new_version = f'{current_major}.{current_minor}.{new_patch}'
     updated_yaml = updated_yaml.replace(current_version, new_version)
     print(f'Updated version: {new_version}')
