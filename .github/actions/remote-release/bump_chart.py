@@ -4,9 +4,9 @@ import re
 if len(sys.argv) < 2 or sys.argv[1] == '':
     raise 'Chart.yaml path should be passed as first argument'
 
-new_app_version=''
+new_app_version = ''
 if len(sys.argv) >= 3 and sys.argv[2] != '':
-    new_app_version=sys.argv[2]
+    new_app_version = sys.argv[2]
 
 chart_yaml_path=sys.argv[1]
 
