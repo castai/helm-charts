@@ -1,0 +1,149 @@
+name: "Remote Release"
+description: "Used to enable releasing a CAST AI chart from a different repository. Mostly used when you want just one source of truth for your app's chart."
+
+inputs:
+  helm-charts-repo-token:
+    description: "GitHub token with permissions to do actions on the castai/helm-charts repo"
+    required: true
+  chart-path:
+    description: "Path to the chart to be released"
+    required: true
+  chart-releaser-configfile:
+    description: "Path to a cr.yaml file"
+    required: true
+  chart-releaser-index-path:
+    description: "Path to index file"
+    required: true
+    default: "${{ github.workspace }}/.cr-index"
+  chart-releaser-package-path:
+    description: "Path to where the chart packages will be stored"
+    required: true
+    default: "${{ github.workspace }}/.cr-release-packages"
+  chart-releaser-tool-path:
+    description: "Path to where the chart releaser tool will be stored"
+    required: true
+    default: "${{ github.workspace }}/.cr-tool"
+  helm-upgrade-summary:
+    description: "Override the default helm upgrade summary"
+    required: false
+  sync-chart:
+    description: "Sync chart with helm-charts github"
+    required: true
+    default: "false"
+
+outputs: {}
+
+runs:
+  using: "composite"
+
+  steps:
+
+    - name: Get release tag
+      run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+    - name: Checkout helm-charts
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        repository: castai/helm-charts
+        path: helm-charts
+        token: ${{ inputs.helm-charts-repo-token }}
+
+    - name: Configure Git for helm-charts
+      run: |
+        cd helm-charts
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+    - name: Install Helm
+      uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4
+      with:
+        version: v3.5.2
+
+    - name: Install CR tool
+      run: |
+        mkdir "${{ inputs.chart-releaser-tool-path }}"
+        mkdir "${{ inputs.chart-releaser-package-path }}"
+        mkdir "${{ inputs.chart-releaser-index-path }}"
+        curl -sSLo cr.tar.gz "https://github.com/helm/chart-releaser/releases/download/v1.4.0/chart-releaser_1.4.0_linux_amd64.tar.gz"
+        tar -xzf cr.tar.gz -C "${{ inputs.chart-releaser-tool-path }}"
+        rm -f cr.tar.gz
+
+    - name: Bump chart version
+      run: |
+        python ${{ github.action_path }}/bump_chart.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+
+    - name: Parse Chart.yaml
+      id: parse-chart
+      run: |
+        description=$(yq ".description" < ${{ inputs.chart-path }}/Chart.yaml)
+        name=$(yq ".name" < ${{ inputs.chart-path }}/Chart.yaml)
+        version=$(yq ".version" < ${{ inputs.chart-path }}/Chart.yaml)
+        echo "::set-output name=chartpath::${{ inputs.chart-path }}"
+        echo "::set-output name=desc::${description}"
+        echo "::set-output name=tagname::${name}-${version}"
+        echo "::set-output name=packagename::${name}-${version}"
+        echo "::set-output name=name::${name}"
+
+    - name: Create helm package
+      run: |
+        "${{ inputs.chart-releaser-tool-path }}/cr" package "${{ steps.parse-chart.outputs.chartpath }}" --config "${{ inputs.chart-releaser-configfile }}" --package-path "${{ inputs.chart-releaser-package-path }}"
+        echo "Result of chart package:"
+        ls -l "${{ inputs.chart-releaser-package-path }}"
+        git status
+
+    - name: Make helm charts github release
+      uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
+      with:
+        body: |
+          ${{ steps.parse-chart.outputs.desc }}
+
+          Source commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
+        files: |
+          ${{ inputs.chart-releaser-package-path }}/${{ steps.parse-chart.outputs.packagename }}.tgz
+          ${{ inputs.chart-releaser-package-path }}/${{ steps.parse-chart.outputs.packagename }}.tgz.prov
+        repository: castai/helm-charts
+        tag_name: ${{ steps.parse-chart.outputs.tagname }}
+        token: ${{ inputs.helm-charts-repo-token }}
+
+    - name: Update helm repo index.yaml
+      run: |
+        cd helm-charts
+        "${{ inputs.chart-releaser-tool-path}}/cr" index --config "${{ inputs.chart-releaser-configfile }}" --token "${{ inputs.helm-charts-repo-token }}" --index-path "${{ inputs.chart-releaser-index-path }}" --package-path "${{ inputs.chart-releaser-package-path }}" --push
+
+    - name: Commit Chart.yaml changes
+      run: |
+        git status
+        git diff
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        git checkout main
+        git add ${{ inputs.chart-path }}/Chart.yaml
+        git commit -m "[Release] Update Chart.yaml"
+        git push
+
+    - name: Summary
+      run: |
+        echo "**Upgrade with helm:**" >> $GITHUB_STEP_SUMMARY
+        
+        if [ -n "${{ inputs.helm-upgrade-summary }}" ]; then
+          echo "${{ inputs.helm-upgrade-summary }}" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "helm repo update && helm upgrade -i ${{ steps.parse-chart.outputs.name }} castai-helm/${{ steps.parse-chart.outputs.name }} --reset-then-reuse-values" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Sync chart with helm-charts github
+      run: |
+        if [ "${{ inputs.sync-chart }}" != "true" ]; then
+          echo "Sync chart with helm-charts github is disabled"
+          exit 0
+        fi
+        
+        cd helm-charts
+        git config user.name "$GITHUB_ACTOR"
+        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        git checkout main
+        cp -r ${{ inputs.chart-path }}/* ./charts/${{ steps.parse-chart.outputs.name }}
+        git add charts/${{ steps.parse-chart.outputs.name }}
+        git commit -m "[${{ steps.parse-chart.outputs.name }}] Update ${{ steps.parse-chart.outputs.name }} chart to ${{env.RELEASE_TAG}}"
+        git push
