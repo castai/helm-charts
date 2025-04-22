@@ -9,6 +9,7 @@ resources:
 
 proxy:
   readinessProbeEnabled: true
+  livenessProbeEnabled: true
 
 podLabels:
   podLabel: label
