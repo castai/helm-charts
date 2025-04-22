@@ -30,6 +30,9 @@ inputs:
     description: "Sync chart with helm-charts github"
     required: true
     default: "false"
+  release-tag:
+    description: "Release tag to be used. If not provided, the tag will be taken from the GITHUB_REF"
+    required: false
 
 outputs: {}
 
@@ -40,12 +43,11 @@ runs:
 
     - name: Get release tag
       shell: bash
-        # Check if tag is present. If not, use the commit SHA.
-        if [ -z "${GITHUB_REF#refs/tags/}" ] || [ "${GITHUB_REF}" = "${GITHUB_REF#refs/tags/}" ]; then
-          echo "RELEASE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+      run: |
+        if [ -n "${{ inputs.release-tag }}" ]; then
+          echo "RELEASE_TAG=${{ inputs.release-tag }}" >> $GITHUB_ENV
         else
-          echo "RELEASE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
-        fi
+          echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
     - name: Checkout helm-charts
       uses: actions/checkout@v4
