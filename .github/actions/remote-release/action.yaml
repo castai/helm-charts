@@ -40,7 +40,12 @@ runs:
 
     - name: Get release tag
       shell: bash
-      run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENVa
+        # Check if tag is present. If not, use the commit SHA.
+        if [ -z "${GITHUB_REF#refs/tags/}" ] || [ "${GITHUB_REF}" = "${GITHUB_REF#refs/tags/}" ]; then
+          echo "RELEASE_TAG=$(git rev-parse --short HEAD)" >> $GITHUB_ENV
+        else
+          echo "RELEASE_TAG=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+        fi
 
     - name: Checkout helm-charts
       uses: actions/checkout@v4
