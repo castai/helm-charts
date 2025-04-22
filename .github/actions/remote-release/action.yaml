@@ -48,6 +48,7 @@ runs:
           echo "RELEASE_TAG=${{ inputs.release-tag }}" >> $GITHUB_ENV
         else
           echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+        fi
 
     - name: Checkout helm-charts
       uses: actions/checkout@v4
