@@ -39,7 +39,8 @@ runs:
   steps:
 
     - name: Get release tag
-      run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+      shell: bash
+      run: echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENVa
 
     - name: Checkout helm-charts
       uses: actions/checkout@v4
@@ -50,6 +51,7 @@ runs:
         token: ${{ inputs.helm-charts-repo-token }}
 
     - name: Configure Git for helm-charts
+      shell: bash
       run: |
         cd helm-charts
         git config user.name "$GITHUB_ACTOR"
@@ -61,6 +63,7 @@ runs:
         version: v3.5.2
 
     - name: Install CR tool
+      shell: bash
       run: |
         mkdir "${{ inputs.chart-releaser-tool-path }}"
         mkdir "${{ inputs.chart-releaser-package-path }}"
@@ -70,11 +73,13 @@ runs:
         rm -f cr.tar.gz
 
     - name: Bump chart version
+      shell: bash
       run: |
         python ${{ github.action_path }}/bump_chart.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
 
     - name: Parse Chart.yaml
       id: parse-chart
+      shell: bash
       run: |
         description=$(yq ".description" < ${{ inputs.chart-path }}/Chart.yaml)
         name=$(yq ".name" < ${{ inputs.chart-path }}/Chart.yaml)
@@ -86,6 +91,7 @@ runs:
         echo "::set-output name=name::${name}"
 
     - name: Create helm package
+      shell: bash
       run: |
         "${{ inputs.chart-releaser-tool-path }}/cr" package "${{ steps.parse-chart.outputs.chartpath }}" --config "${{ inputs.chart-releaser-configfile }}" --package-path "${{ inputs.chart-releaser-package-path }}"
         echo "Result of chart package:"
@@ -107,11 +113,13 @@ runs:
         token: ${{ inputs.helm-charts-repo-token }}
 
     - name: Update helm repo index.yaml
+      shell: bash
       run: |
         cd helm-charts
         "${{ inputs.chart-releaser-tool-path}}/cr" index --config "${{ inputs.chart-releaser-configfile }}" --token "${{ inputs.helm-charts-repo-token }}" --index-path "${{ inputs.chart-releaser-index-path }}" --package-path "${{ inputs.chart-releaser-package-path }}" --push
 
     - name: Commit Chart.yaml changes
+      shell: bash
       run: |
         git status
         git diff
@@ -123,6 +131,7 @@ runs:
         git push
 
     - name: Summary
+      shell: bash
       run: |
         echo "**Upgrade with helm:**" >> $GITHUB_STEP_SUMMARY
         
@@ -133,6 +142,7 @@ runs:
         fi
 
     - name: Sync chart with helm-charts github
+      shell: bash
       run: |
         if [ "${{ inputs.sync-chart }}" != "true" ]; then
           echo "Sync chart with helm-charts github is disabled"
