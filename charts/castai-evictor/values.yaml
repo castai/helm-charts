@@ -189,5 +189,10 @@ clusterIdSecretKeyRef:
   name: ""
   key: "CLUSTER_ID"
 
-# -- Used to set additional environment variables for the evictor container via configMaps or secrets.
+# -- If set to true, completely overrides the default `envFrom` section for the evictor container.
+# When false (default), values provided here will be appended to the chart's defaults.
+overrideEnvFrom: false
+
+# -- Additional environment sources for the evictor container.
+# Accepts a list of `configMapRef` or `secretRef` entries, following the standard `envFrom` format.
 envFrom: []

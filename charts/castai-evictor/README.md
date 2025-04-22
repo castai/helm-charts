@@ -33,7 +33,7 @@ Cluster utilization defragmentation tool
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | dryRun | bool | `false` |  |
-| envFrom | list | `[]` | Used to set additional environment variables for the evictor container via configMaps or secrets. |
+| envFrom | list | `[]` | Additional environment sources for the evictor container. Accepts a list of `configMapRef` or `secretRef` entries, following the standard `envFrom` format. |
 | fullnameOverride | string | `"castai-evictor"` |  |
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -48,6 +48,7 @@ Cluster utilization defragmentation tool
 | nameOverride | string | `""` |  |
 | nodeGracePeriodMinutes | int | `5` | Specifies the grace period after a node is created before it is considered for eviction The number of minutes a node must exist before it will be considered. |
 | nodeSelector | object | `{}` |  |
+| overrideEnvFrom | bool | `false` | If set to true, completely overrides the default `envFrom` section for the evictor container. When false (default), values provided here will be appended to the chart's defaults. |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
 | rbac.enabled | bool | `true` |  |
