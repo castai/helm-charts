@@ -189,5 +189,6 @@ clusterIdSecretKeyRef:
   name: ""
   key: "CLUSTER_ID"
 
-# -- Used to set additional environment variables for the evictor container via configMaps or secrets.
+# envFrom -- Define environment variables for the evictor container via configMaps or secrets.
+# If envFrom is defined it will completely override the default envFrom section for the evictor container.
 envFrom: []

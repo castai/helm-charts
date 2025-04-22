@@ -102,6 +102,10 @@ spec:
             - name: "{{ $name }}"
               value: "{{ $value }}"
             {{- end }}
+          {{- if .Values.envFrom }}
+          envFrom:
+            {{- toYaml .Values.envFrom | nindent 12 }}
+          {{- else }}
           envFrom:
             - secretRef:
                 {{- if .Values.apiKeySecretRef }}
@@ -123,8 +127,6 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
             {{- end }}
-          {{- with .Values.envFrom }}
-            {{- toYaml . | nindent 12 }}
           {{- end }}
           {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
