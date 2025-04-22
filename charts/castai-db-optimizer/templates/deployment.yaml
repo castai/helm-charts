@@ -177,9 +177,9 @@ spec:
                 - /bin/sh
                 - -c
                 - |-
-                  curl --silent localhost:9901/stats | grep 'cache.writer_errors:' | awk '{print $2}' | grep -q '^0$'
+                  curl --silent localhost:9901/stats | grep 'cache.writer_blocked:' | awk '{print $2}' | grep -q '^0$'
             initialDelaySeconds: 120
-            periodSeconds: 30
+            periodSeconds: 5
           {{- end}}
           securityContext:
             capabilities:
