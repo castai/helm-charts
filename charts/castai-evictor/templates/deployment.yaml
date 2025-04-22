@@ -80,7 +80,7 @@ spec:
               value: "/config/config.yaml"
             - name: CYCLE_INTERVAL
               value: {{ .Values.cycleInterval | quote }}
-            {{- if .Values.clusterIdSecretKeyRef.name }}          
+            {{- if .Values.clusterIdSecretKeyRef.name }}
             {{- if ne .Values.clusterIdConfigMapKeyRef.name "" }}
             {{- fail "clusterIdConfigMapKeyRef and clusterIdSecretKeyRef are mutually exclusive" }}
             {{- end }}
@@ -102,11 +102,10 @@ spec:
             - name: "{{ $name }}"
               value: "{{ $value }}"
             {{- end }}
-          {{- if and .Values.envFrom .Values.overrideEnvFrom}}
           envFrom:
+          {{- if and .Values.envFrom .Values.overrideEnvFrom}}
             {{- toYaml .Values.envFrom | nindent 12 }}
           {{- else }}
-          envFrom:
             - secretRef:
                 {{- if .Values.apiKeySecretRef }}
                 name: {{ .Values.apiKeySecretRef }}
