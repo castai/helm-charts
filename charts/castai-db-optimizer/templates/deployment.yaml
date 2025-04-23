@@ -169,6 +169,18 @@ spec:
                  health=$(curl --silent localhost:9901/clusters | grep {{ .Values.apiURL }} | grep -c health_flags::healthy);
                  if [[ $health -ne 1 ]]; then echo "Initial cache configuration wasn't pulled yet" && exit 1; fi
           {{- end}}
+          {{ $livenessProbeEnabled := not (eq (toString .Values.proxy.livenessProbeEnabled) "false")}}
+          {{- if $livenessProbeEnabled  }}
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - |-
+                  curl --silent localhost:9901/stats | grep 'cache.writer_blocked:' | awk '{print $2}' | grep -q '^0$'
+            initialDelaySeconds: 120
+            periodSeconds: 5
+          {{- end}}
           securityContext:
             capabilities:
               drop:
