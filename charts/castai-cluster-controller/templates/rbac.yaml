@@ -119,6 +119,7 @@ kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: castai-cluster-controller
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
@@ -135,6 +136,7 @@ kind: RoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   name: castai-cluster-controller
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
