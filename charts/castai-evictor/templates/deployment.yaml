@@ -80,6 +80,10 @@ spec:
               value: "/config/config.yaml"
             - name: CYCLE_INTERVAL
               value: {{ .Values.cycleInterval | quote }}
+            - name: K8S_CLIENT_RATE_LIMITER_QPS
+              value: {{ .Values.kubernetesClient.rateLimiter.qps | quote }}
+            - name: K8S_CLIENT_RATE_LIMITER_BURST
+              value: {{ .Values.kubernetesClient.rateLimiter.burst | quote }}
             {{- if .Values.clusterIdSecretKeyRef.name }}
             {{- if ne .Values.clusterIdConfigMapKeyRef.name "" }}
             {{- fail "clusterIdConfigMapKeyRef and clusterIdSecretKeyRef are mutually exclusive" }}
