@@ -4,10 +4,10 @@ metadata:
   name: castai-spot-handler
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "castai-agent.labels" . | nindent 4 }}
+    {{- include "spot-handler.labels" . | nindent 4 }}
   annotations:
     ignore-check.kube-linter.io/host-network: "Spot handler need host network to access instance metadata endpoints for spot interrupts checks."
-    {{- include "castai-agent.annotations" . | nindent 4 }}
+    {{- include "spot-handler.annotations" . | nindent 4 }}
 spec:
   updateStrategy:
     {{- .Values.updateStrategy | toYaml | nindent 4 }}
