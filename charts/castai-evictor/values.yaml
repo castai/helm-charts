@@ -77,7 +77,9 @@ kubernetesClient:
 
 # updateStrategy -- Controls `deployment.spec.strategy` field.
 updateStrategy:
-  type: Recreate
+  type: RollingUpdate
+  rollingUpdate:
+    maxSurge: 0
 
 image:
   repository: us-docker.pkg.dev/castai-hub/library/evictor
