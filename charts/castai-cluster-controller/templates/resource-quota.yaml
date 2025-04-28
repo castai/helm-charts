@@ -2,13 +2,13 @@
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: {{ include "castai-agent.fullname" . }}-critical-pods
+  name: {{ include "cluster-controller.fullname" . }}-critical-pods
   namespace: {{ .Values.namespace }}
   labels:
-    {{- include "castai-agent.labels" . | nindent 4 }}
+    {{- include "cluster-controller.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
-    {{- include "castai-agent.annotations" . | nindent 4 }}
+    {{- include "cluster-controller.annotations" . | nindent 4 }}
   {{- end }}
 spec:
   scopeSelector:
