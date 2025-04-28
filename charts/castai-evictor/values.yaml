@@ -71,9 +71,9 @@ kubernetesClient:
   rateLimiter:
     # kubernetesClient.rateLimiter.qps -- QPS or queries per second.
     # Controls how many queries per second the client should be allowed to issue, not accounting for bursts.
-    qps: 50
+    qps: 100
     # kubernetesClient.rateLimiter.burst -- Burst controls the maximum queries per second that the client is allowed to issue in a short burst.
-    burst: 100
+    burst: 200
 
 # updateStrategy -- Controls `deployment.spec.strategy` field.
 updateStrategy:
