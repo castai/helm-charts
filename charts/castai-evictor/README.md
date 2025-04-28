@@ -40,6 +40,9 @@ Cluster utilization defragmentation tool
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
+| kubernetesClient | object | `{"rateLimiter":{"burst":100,"qps":50}}` | Specifies Kubernetes client settings. |
+| kubernetesClient.rateLimiter.burst | int | `100` | Burst controls the maximum queries per second that the client is allowed to issue in a short burst. |
+| kubernetesClient.rateLimiter.qps | int | `50` | QPS or queries per second. Controls how many queries per second the client should be allowed to issue, not accounting for bursts. |
 | leaderElection | object | `{"enabled":true}` | Specifies leader election parameters. |
 | leaderElection.enabled | bool | `true` | Whether to enable leader election. |
 | liveMigration | object | `{"enabled":false}` | Specifies LIVE migration settings. This options assumes that the CAST AI LIVE components are already installed in the cluster. |
