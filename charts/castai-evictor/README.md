@@ -18,8 +18,6 @@ Cluster utilization defragmentation tool
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
 | aggressiveMode | bool | `false` | Specifies whether the Evictor can behave as aggressive if true, evictor will start considering single replica pods as long as they can be scheduled somewhere else. |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing evictor access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
-| clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` | key of the cluster id value in the config map |
-| clusterIdConfigMapKeyRef.name | string | `""` | name and of the config map with cluster id |
 | clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
 | clusterIdSecretKeyRef.name | string | `""` |  |
 | clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"registry.k8s.io/cpa/cpvpa","resources":{},"version":"v0.8.4"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |

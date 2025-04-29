@@ -85,22 +85,11 @@ spec:
             - name: K8S_CLIENT_RATE_LIMITER_BURST
               value: {{ .Values.kubernetesClient.rateLimiter.burst | quote }}
             {{- if .Values.clusterIdSecretKeyRef.name }}
-            {{- if ne .Values.clusterIdConfigMapKeyRef.name "" }}
-            {{- fail "clusterIdConfigMapKeyRef and clusterIdSecretKeyRef are mutually exclusive" }}
-            {{- end }}
             - name: CLUSTER_ID
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.clusterIdSecretKeyRef.key }}
-            {{- end }}
-            {{- if .Values.clusterIdConfigMapKeyRef.name }}
-            - name: CLUSTER_ID
-              valueFrom:
-                configMapKeyRef:
-                  name: {{ .Values.clusterIdConfigMapKeyRef.name }}
-                  key: {{ .Values.clusterIdConfigMapKeyRef.key }}
-                  optional: false
             {{- end }}
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
