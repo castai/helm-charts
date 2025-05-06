@@ -17,6 +17,7 @@ Common labels
 */}}
 {{- define "vllm.labels" -}}
 helm.sh/chart: {{ include "vllm.chart" . }}
+model.aibrix.ai/name: {{ include "vllm.fullname" . }}
 {{ include "vllm.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}

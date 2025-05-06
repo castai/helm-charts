@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "vllm.fullname" . }}
   labels:
+    model.aibrix.ai/port: {{ .Values.container.port | quote }}
     {{- include "vllm.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -46,7 +47,7 @@ spec:
             - "--task=generate"
             - "--dtype=half"
             - "--kv-cache-dtype=fp8_e5m2"
-            - "--enable-chunked-prefill=True"
+            - "--enable-chunked-prefill"
             - "--max-num-batched-tokens=10000"
             - "--download-dir=/cache"
             {{ if .Values.maxModelLen }}
