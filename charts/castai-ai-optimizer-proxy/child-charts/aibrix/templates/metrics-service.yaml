@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aibrix.fullname" . }}-controller-manager-metrics-service
+  labels:
+    app.kubernetes.io/component: aibrix-autoscaler-controller
+    control-plane: controller-manager
+  {{- include "aibrix.labels" . | nindent 4 }}
+spec:
+  type: {{ .Values.metricsService.type }}
+  selector:
+    app.kubernetes.io/component: aibrix-autoscaler-controller
+    app.kubernetes.io/managed-by: kubectl
+    app.kubernetes.io/name: aibrix
+    app.kubernetes.io/version: nightly
+    control-plane: controller-manager
+    {{- include "aibrix.selectorLabels" . | nindent 4 }}
+  ports:
+  {{- .Values.metricsService.ports | toYaml | nindent 2 }}

@@ -3,6 +3,13 @@
 
 {{ template "chart.description" . }}
 
+## AiBrix chart
+
+AiBrix does not have an official helm chart. So in order to package the AiBrix deployments, we use `helmify` to
+convert AiBrix `kustomize` resources into a helm chart.
+
+In order to update the chart, use the [helmify-aibrix.sh](./helmify-aibrix.sh) script.
+
 {{ template "chart.homepageLine" . }}
 
 {{ template "chart.maintainersSection" . }}
