@@ -4,9 +4,9 @@ kind: Namespace
 metadata:
   name: {{ .Release.Namespace }}
   labels:
-  {{- include "castai-agent.labels" . | nindent 4 }}
+  {{- include "spot-handler.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
-    {{- include "castai-agent.annotations" . | nindent 4 }}
+    {{- include "spot-handler.annotations" . | nindent 4 }}
   {{- end }}
 {{- end }}
