@@ -99,3 +99,26 @@ castai:
   apiKey: ""
   apiKeySecretRef: ""
   clusterID: ""
+
+aibrix:
+  enabled: false
+  fullnameOverride: castai-aibrix
+  controllerManager:
+    manager:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/aibrix/controller-manager
+        tag: 0ca6da25cc3915015fbfd756637a22341d62b50f
+      resources:
+        limits:
+          memory: 64Mi
+        requests:
+          cpu: 10m
+          memory: 64Mi
+      args:
+        - --leader-elect
+        - --leader-election-id=castai-aibrix-pod-autoscaler-controller
+        - --health-probe-bind-address=:8081
+        - --metrics-bind-address=0
+        - --controllers=pod-autoscaler-controller
+        - --disable-webhook
+        - --leader-election-namespace=castai-agent

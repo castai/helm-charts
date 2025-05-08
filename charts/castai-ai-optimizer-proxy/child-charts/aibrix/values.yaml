@@ -1,0 +1,38 @@
+controllerManager:
+  manager:
+    args:
+    - --leader-elect
+    - --leader-election-id=aibrix-pod-autoscaler-controller
+    - --health-probe-bind-address=:8081
+    - --metrics-bind-address=0
+    - --controllers=pod-autoscaler-controller
+    - --disable-webhook
+    containerSecurityContext:
+      allowPrivilegeEscalation: false
+      capabilities:
+        drop:
+        - ALL
+    image:
+      repository: aibrix/controller-manager
+      tag: nightly
+    imagePullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 500m
+        memory: 512Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+  podSecurityContext:
+    runAsNonRoot: true
+  replicas: 1
+  serviceAccount:
+    annotations: {}
+kubernetesClusterDomain: cluster.local
+metricsService:
+  ports:
+  - name: http
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  type: ClusterIP
