@@ -82,11 +82,10 @@ rules:
   - apiGroups:
       - cast.ai
     resources:
-      - livepodextensions
+      - migrations
     verbs:
       - get
       - list
       - watch
-      - patch
-      - update
+      - create
   {{- end }}
