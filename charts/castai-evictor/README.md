@@ -45,7 +45,7 @@ Cluster utilization defragmentation tool
 | kubernetesClient.rateLimiter.qps | int | `100` | QPS or queries per second. Controls how many queries per second the client should be allowed to issue, not accounting for bursts. |
 | leaderElection | object | `{"enabled":true}` | Specifies leader election parameters. |
 | leaderElection.enabled | bool | `true` | Whether to enable leader election. |
-| liveMigration | object | `{"enabled":false}` | Specifies LIVE migration settings. This options assumes that the CAST AI LIVE components are already installed in the cluster. |
+| liveMigration | object | `{"enabled":false,"useK8sClientCache":true}` | Specifies LIVE migration settings. This options assumes that the CAST AI LIVE components are already installed in the cluster. |
 | managedByCASTAI | bool | `true` | Specifies whether the Evictor was installed using mothership and is automatically updated by CAST AI. Alternative scenarios are, when CAST AI is not managing charts, and customers' are install them with Argo CD/Terraform or something else. |
 | maxNodesToEvictPerCycle | int | `20` | Specifies the max nodes evictor can evict in a single cycle. |
 | nameOverride | string | `""` |  |
