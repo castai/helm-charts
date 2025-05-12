@@ -23,15 +23,6 @@ podSecurityContext:
   runAsGroup: 1005
   runAsUser: 1005
 
-# Container security context.
-# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
-containerSecurityContext:
-  allowPrivilegeEscalation: false
-  readOnlyRootFilesystem: true
-  capabilities:
-    drop:
-      - ALL
-
 # podAnnotations -- Annotations added to each pod.
 podAnnotations: {}
 # podLabels - Labels added to each pod.
@@ -57,6 +48,7 @@ topologySpreadConstraints:
     labelSelector:
       matchLabels:
         app.kubernetes.io/name: castai-pod-mutator
+
 
 # Pod affinity rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity

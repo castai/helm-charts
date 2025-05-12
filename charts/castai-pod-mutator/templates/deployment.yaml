@@ -106,10 +106,8 @@ spec:
           {{- with .Values.envFrom }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with .Values.containerSecurityContext }}
           securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
+            readOnlyRootFilesystem: true
           volumeMounts:
             - mountPath: /certs
               name: certs
