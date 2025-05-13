@@ -33,7 +33,7 @@ In order to update the chart, use the [helmify-aibrix.sh](./helmify-aibrix.sh) s
 | aibrix.controllerManager.manager.resources.limits.memory | string | `"64Mi"` |  |
 | aibrix.controllerManager.manager.resources.requests.cpu | string | `"10m"` |  |
 | aibrix.controllerManager.manager.resources.requests.memory | string | `"64Mi"` |  |
-| aibrix.enabled | bool | `false` |  |
+| aibrix.enabled | bool | `true` |  |
 | aibrix.fullnameOverride | string | `"castai-aibrix"` |  |
 | castai.apiKey | string | `""` |  |
 | castai.apiKeySecretRef | string | `""` |  |
