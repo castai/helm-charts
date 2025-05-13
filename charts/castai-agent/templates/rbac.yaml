@@ -193,6 +193,17 @@ rules:
       - "version"
     verbs:
       - get
+  # ---
+  # Required for Agentic AI workflows.
+  # ---
+  - apiGroups:
+      - "runbooks.cast.ai"
+    resources:
+      - recommendationsyncs
+    verbs:
+      - get
+      - list
+      - watch
   {{- end }}
 
 ---
