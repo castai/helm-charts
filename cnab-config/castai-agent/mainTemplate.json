@@ -128,7 +128,7 @@
     {
       "type": "Microsoft.ContainerService/managedClusters",
       "condition" : "[parameters('createNewCluster')]",
-      "apiVersion": "2023-05-01",
+      "apiVersion": "2025-01-01",
       "name": "[parameters('clusterResourceName')]",
       "location": "[parameters('location')]",
       "dependsOn": [],
@@ -184,7 +184,7 @@
     },
     {
       "type": "Microsoft.KubernetesConfiguration/extensions",
-      "apiVersion": "2023-05-01",
+      "apiVersion": "2025-01-01",
       "name": "[variables('extensionResourceName')]",
       "properties": {
         "extensionType": "[variables('clusterExtensionTypeName')]",
