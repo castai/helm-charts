@@ -83,7 +83,7 @@ tolerations: []
 
 affinity: {}
 
-# Used to set additional environment variables for the pod-pinner container.
+# Used to set additional environment variables for the proxy container.
 additionalEnv: {}
 
 # commonLabels -- Labels to add to all resources.
@@ -101,7 +101,7 @@ castai:
   clusterID: ""
 
 aibrix:
-  enabled: false
+  enabled: true
   fullnameOverride: castai-aibrix
   controllerManager:
     manager:
