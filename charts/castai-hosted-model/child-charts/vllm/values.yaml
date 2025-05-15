@@ -44,3 +44,6 @@ livenessProbe:
   httpGet:
     # -- Path to access on the HTTP server
     path: /health
+
+deployment:
+  labels:
