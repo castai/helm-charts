@@ -121,6 +121,11 @@ data:
 
         {{- range $index, $endpoint := .Values.endpoints}}
         - name: endpoint_listener_{{$index}}
+          upstream_connection_options:
+            tcp_keepalive:
+              keepalive_probes: 5
+              keepalive_time: 300
+              keepalive_interval: 60
           address:
             socket_address:
               address: 0.0.0.0
