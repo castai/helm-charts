@@ -38,7 +38,7 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "events" ]
     verbs: [ "list" ]
-  {{- if .Values.workloadAutoscaling.enabled }}
+  {{- if eq (include "cluster-controller.workloadAutoscalingEnabled" .) "true" }}
     # For CAST autoscaling CRDs management.
   - apiGroups: [ "autoscaling.cast.ai" ]
     resources: [ "*" ]
