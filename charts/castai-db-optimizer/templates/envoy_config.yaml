@@ -121,11 +121,6 @@ data:
 
         {{- range $index, $endpoint := .Values.endpoints}}
         - name: endpoint_listener_{{$index}}
-          upstream_connection_options:
-            tcp_keepalive:
-              keepalive_probes: 5
-              keepalive_time: 300
-              keepalive_interval: 60
           address:
             socket_address:
               address: 0.0.0.0
@@ -205,6 +200,11 @@ data:
           type: LOGICAL_DNS
           dns_lookup_family: ALL
           connect_timeout: 1s
+          upstream_connection_options:
+            tcp_keepalive:
+              keepalive_probes: 5
+              keepalive_time: 300
+              keepalive_interval: 60
           load_assignment:
             cluster_name: postgres_upstream
             endpoints:
