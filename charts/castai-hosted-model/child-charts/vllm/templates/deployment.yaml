@@ -5,6 +5,9 @@ metadata:
   labels:
     model.aibrix.ai/port: {{ .Values.container.port | quote }}
     {{- include "vllm.labels" . | nindent 4 }}
+    {{- with .Values.deployment.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:                                                                                                                                  

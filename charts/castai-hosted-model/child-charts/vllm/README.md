@@ -7,6 +7,7 @@ CAST AI hosted model deployment chart for vLLM.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | container.port | int | `8000` |  |
+| deployment.labels | string | `nil` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
 | image.tag | string | `"v0.8.5"` |  |
 | livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10}` | Liveness probe configuration |

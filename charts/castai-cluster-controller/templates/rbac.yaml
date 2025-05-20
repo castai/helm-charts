@@ -38,11 +38,11 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "events" ]
     verbs: [ "list" ]
-  {{- if .Values.workloadManagement.enabled }}
-  # For workload management
-  - apiGroups: [ "apps" ]
-    resources: [ "deployments" ]
-    verbs: [ "patch" ]
+  {{- if eq (include "cluster-controller.workloadAutoscalingEnabled" .) "true" }}
+    # For CAST autoscaling CRDs management.
+  - apiGroups: [ "autoscaling.cast.ai" ]
+    resources: [ "*" ]
+    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
   {{- end}}
   {{- if .Values.autoscaling.enabled }}
   # For advertising extended resources
@@ -79,10 +79,6 @@ rules:
     resources: [ "events" ]
     verbs: [ "create", "patch" ]
   {{- end}}
-  # For CAST autoscaling CRDs management.
-  - apiGroups: [ "autoscaling.cast.ai" ]
-    resources: [ "*" ]
-    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
   # For installing/updating CAST AI components.
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles" ]

@@ -102,6 +102,8 @@ spec:
           env:
             - name: APP
               value: "router"
+            - name: HOSTED_VLLM_API_KEY
+              value: "fake-api-key"
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

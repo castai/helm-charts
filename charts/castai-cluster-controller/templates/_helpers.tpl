@@ -76,3 +76,11 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "cluster-controller.workloadAutoscalingEnabled" -}}
+  {{- $workloadAutoscalingEnabled := true -}}
+  {{- if .Values.workloadAutoscaling -}}
+    {{- $workloadAutoscalingEnabled = .Values.workloadAutoscaling.enabled -}}
+  {{- end -}}
+  {{- printf "%v" $workloadAutoscalingEnabled -}}
+{{- end -}}
