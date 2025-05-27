@@ -203,7 +203,7 @@ data:
           circuit_breakers:
             thresholds:
               - priority: DEFAULT
-                max_connections: {{ .Values.proxy.connectionLimits.maxConnections | 1024 }}
+                max_connections: {{ .Values.proxy.connectionLimits.maxConnections | default 1024 }}
                 max_pending_requests: {{ .Values.proxy.connectionLimits.maxPendingRequests | default 1024 }}
                 max_requests: {{ .Values.proxy.connectionLimits.maxRequests | default 1024 }}
                 max_retries: {{ .Values.proxy.connectionLimits.maxRetries | default 3 }}
