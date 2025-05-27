@@ -200,6 +200,13 @@ data:
           type: LOGICAL_DNS
           dns_lookup_family: ALL
           connect_timeout: 1s
+          circuit_breakers:
+            thresholds:
+              - priority: DEFAULT
+                max_connections: {{ .Values.proxy.connectionLimits.maxConnections | 1024 }}
+                max_pending_requests: {{ .Values.proxy.connectionLimits.maxPendingRequests | default 1024 }}
+                max_requests: {{ .Values.proxy.connectionLimits.maxRequests | default 1024 }}
+                max_retries: {{ .Values.proxy.connectionLimits.maxRetries | default 3 }}
           load_assignment:
             cluster_name: postgres_upstream
             endpoints:
@@ -229,6 +236,13 @@ data:
           type: LOGICAL_DNS
           dns_lookup_family: ALL
           connect_timeout: 1s
+          circuit_breakers:
+            thresholds:
+              - priority: DEFAULT
+                max_connections: {{ .Values.proxy.connectionLimits.maxConnections | 1024 }}
+                max_pending_requests: {{ .Values.proxy.connectionLimits.maxPendingRequests | default 1024 }}
+                max_requests: {{ .Values.proxy.connectionLimits.maxRequests | default 1024 }}
+                max_retries: {{ .Values.proxy.connectionLimits.maxRetries | default 3 }}
           load_assignment:
             cluster_name: endpoint_upstream_{{ $index }}
             endpoints:
