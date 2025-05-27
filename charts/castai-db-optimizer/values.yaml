@@ -95,7 +95,7 @@ proxy:
   statsThreadPeriodMs: 1000
   # -- The period of the evictions thread.
   evictionThreadPeriodMs: 100
-  # -- Envoy upstreap connection limits, numbers given are the envoy defaults.
+  # -- Envoy upstream connection limits, numbers given are the envoy defaults.
   connectionLimits:
     maxConnections: 1024           # Maximum connections per cluster
     maxPendingRequests: 1024       # Maximum requests queued while waiting for a connection
