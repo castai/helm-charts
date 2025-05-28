@@ -43,7 +43,7 @@ In order to update the chart, use the [helmify-aibrix.sh](./helmify-aibrix.sh) s
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | createNamespace | bool | `false` | By default castai-llms namespace is expected to be created explicitly during onboarding. |
 | deploy | bool | `true` |  |
-| fullnameOverride | string | `""` |  |
+| fullnameOverride | string | `"castai-ai-optimizer-proxy"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/ai-optimizer-proxy"` |  |
 | image.tag | string | `""` |  |
