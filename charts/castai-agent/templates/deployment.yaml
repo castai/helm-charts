@@ -40,6 +40,9 @@ spec:
       volumes:
         - name: shared-metadata
           emptyDir: {}
+        {{- with .Values.extraVolumes }}
+        {{ toYaml . | indent 8 }}
+        {{- end }}
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
@@ -81,6 +84,9 @@ spec:
           volumeMounts:
             - name: shared-metadata
               mountPath: /agent-metadata
+            {{- with .Values.extraVolumeMounts }}
+            {{ toYaml . | indent 12 }}
+            {{- end }}
           env:
             - name: SELF_POD_NAME
               valueFrom:
