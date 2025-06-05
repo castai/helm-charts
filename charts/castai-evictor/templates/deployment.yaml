@@ -173,7 +173,7 @@ spec:
           configMap:
             name: {{ include "evictor.name" . }}-config
         {{- with .Values.extraVolumes }}
-        {{ toYaml . | indent 8 }}
+        {{- toYaml . | nindent 8 }}
         {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
