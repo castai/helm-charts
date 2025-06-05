@@ -166,7 +166,7 @@ spec:
               name: cfg
               readOnly: true
             {{- with .Values.extraVolumeMounts }}
-            {{ toYaml . | indent 12 }}
+            {{- toYaml . | nindent 12 }}
             {{- end }}
       volumes:
         - name: cfg
