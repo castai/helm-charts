@@ -34,6 +34,8 @@ Cluster utilization defragmentation tool
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | dryRun | bool | `false` |  |
 | envFrom | list | `[]` | Additional environment sources for the evictor container. Accepts a list of `configMapRef` or `secretRef` entries, following the standard `envFrom` format. |
+| extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
+| extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-evictor"` |  |
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
