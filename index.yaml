@@ -13679,6 +13679,25 @@ entries:
   castai-hosted-model:
   - apiVersion: v2
     appVersion: v0.0.1
+    created: "2025-06-06T12:38:10.850275084Z"
+    dependencies:
+    - condition: ollama.enabled
+      name: ollama
+      repository: https://otwld.github.io/ollama-helm/
+      version: 1.16.0
+    - condition: vllm.enabled
+      name: vllm
+      repository: file://child-charts/vllm
+      version: 0.0.8
+    description: CAST AI hosted model deployment chart.
+    digest: a17fab7a297e9ec13e676b598f106df795b88f9d3c218aea0cbf1ca02c6922f5
+    name: castai-hosted-model
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-hosted-model-0.0.14/castai-hosted-model-0.0.14.tgz
+    version: 0.0.14
+  - apiVersion: v2
+    appVersion: v0.0.1
     created: "2025-05-15T09:28:38.293887249Z"
     dependencies:
     - condition: ollama.enabled
@@ -19870,4 +19889,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2025-06-06T12:38:01.557773517Z"
+generated: "2025-06-06T12:38:10.852254134Z"
