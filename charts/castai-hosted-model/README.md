@@ -19,7 +19,7 @@ CAST AI hosted model deployment chart.
 | placementJob.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/busybox"` | The image to use for the job |
 | placementJob.image.tag | string | `"1.37.0"` | The image tag |
 | placementJob.requiredGPUTotalMemoryMiB | string | `nil` | Total GPU memory MiB (GPU count * GPU memory MiB) of the node that should be provisioned for this job |
-| placementJob.resources | object | `{}` | Resources for the job |
+| placementJob.resources | object | `{"limits":{"nvidia.com/gpu":1},"requests":{"nvidia.com/gpu":1}}` | Resources for the job |
 | podAutoscaler.downFluctuationTolerance | float | `0.2` | which means no scaling down will occur unless the currentMetricValue is less than the targetValue by more than downFluctuationTolerance |
 | podAutoscaler.enabled | bool | `false` | Specifies if pod autoscaler should be enabled. It is only relevant for vllm deployments |
 | podAutoscaler.maxReplicas | int | `3` | Max number of replicas |

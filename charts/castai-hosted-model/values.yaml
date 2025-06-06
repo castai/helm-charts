@@ -20,7 +20,11 @@ placementJob:
     pullPolicy: IfNotPresent
 
   # -- Resources for the job
-  resources: {}
+  resources:
+    requests:
+      nvidia.com/gpu: 1
+    limits:
+      nvidia.com/gpu: 1
 podAutoscaler:
   # -- Specifies if pod autoscaler should be enabled. It is only relevant for vllm deployments
   enabled: false
