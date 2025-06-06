@@ -6,7 +6,7 @@ metadata:
   {{- include "pod-mutator.labels" . | nindent 4 }}
 spec:
   ports:
-    - name: https
+    - name: {{ .Values.service.webhookPortName | default "https" }}
       protocol: TCP
       port: 443
       targetPort: 9443
