@@ -8,6 +8,12 @@ replicas: 2
 nameOverride: ""
 fullnameOverride: castai-pod-mutator
 
+# Added to allow overriding the name of the webhook port in the Service definition.
+# This is useful when using Istio, which expects known names like "http", "http-webhook" for correct traffic handling.
+service:
+  webhookPortName: "https"  # Change to "http-webhook" or similar to avoid Istio warnings
+
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
