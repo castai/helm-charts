@@ -15431,6 +15431,20 @@ entries:
     version: 0.16.7
   castai-live:
   - apiVersion: v2
+    appVersion: v0.25.0
+    created: "2025-06-06T12:38:01.544571224Z"
+    dependencies:
+    - name: castai-live-crds
+      repository: file://dependencies/crds
+      version: 0.0.3
+    description: CAST AI live migration components deployment chart.
+    digest: ae9b356b90de58daef82177f0851bda503e008d648e8ade72491f9b702adf042
+    name: castai-live
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-live-0.1.38/castai-live-0.1.38.tgz
+    version: 0.1.38
+  - apiVersion: v2
     appVersion: v0.24.1
     created: "2025-06-03T13:25:56.930501144Z"
     dependencies:
@@ -19856,4 +19870,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2025-06-05T15:50:22.783697031Z"
+generated: "2025-06-06T12:38:01.557773517Z"
