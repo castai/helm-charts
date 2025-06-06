@@ -29,6 +29,8 @@ CAST AI agent deployment chart.
 | createNamespace | bool | `true` | Specifies whether a namespace should be created. |
 | dnsPolicy | string | `""` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-mutator container via configMaps or secrets. |
+| extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
+| extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-agent"` |  |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
