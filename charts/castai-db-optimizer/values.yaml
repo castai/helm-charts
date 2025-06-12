@@ -36,8 +36,6 @@ resources:
     cpu: "500m"
     memoryRequest: "2Gi"
     memoryLimit: "2Gi"
-    # -- defines how much of proxy container disk space is allocated for cache.
-    ephemeralStorage: 10Gi
     # -- max allowed database size in disk.
     cacheDbSizeBytes: 1000000000
     # -- maximum number of entries to keep in the proxy.

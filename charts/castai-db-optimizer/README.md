@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.26.0](https://img.shields.io/badge/Version-0.26.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.27.0](https://img.shields.io/badge/Version-0.27.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -52,7 +52,6 @@ CAST AI database cache deployment.
 | replicas | int | `2` |  |
 | resources.proxy.cacheDbSizeBytes | int | `1000000000` | max allowed database size in disk. |
 | resources.proxy.cpu | string | `"500m"` |  |
-| resources.proxy.ephemeralStorage | string | `"10Gi"` | defines how much of proxy container disk space is allocated for cache. |
 | resources.proxy.maxCacheEntries | int | `1000000000` | maximum number of entries to keep in the proxy. |
 | resources.proxy.memoryLimit | string | `"2Gi"` |  |
 | resources.proxy.memoryRequest | string | `"2Gi"` |  |
