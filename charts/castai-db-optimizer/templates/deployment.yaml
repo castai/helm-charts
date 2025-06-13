@@ -200,6 +200,12 @@ spec:
             - --enable-core-dump
             - --concurrency
             - "{{ .Values.proxy.concurrency }}"
+            - --drain-strategy
+            - immediate
+            - --parent-shutdown-time-s
+            - "10"
+            - --drain-time-s
+            - "5"
 
           resources:
             requests:
