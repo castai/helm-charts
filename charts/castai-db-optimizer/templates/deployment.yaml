@@ -140,12 +140,6 @@ spec:
         - name: proxy
           image: "{{.Values.proxyImage.repository}}:{{ include "proxyImage" . }}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
-          {{- if .Values.proxy.drainTimeSeconds }}
-          lifecycle:
-            preStop:
-              exec:
-                command: ["sleep", {{ .Values.proxy.drainTimeSeconds | quote }} ]
-          {{- end}}
           ports:
             {{- if .Values.upstreamPostgresHostname }}
             - name: postgres
