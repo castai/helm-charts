@@ -201,9 +201,9 @@ spec:
             - --drain-strategy
             - immediate
             - --parent-shutdown-time-s
-            - "10"
+            - "30"
             - --drain-time-s
-            - "5"
+            - "25"
 
           resources:
             requests:
