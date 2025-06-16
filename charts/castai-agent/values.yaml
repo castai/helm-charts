@@ -175,3 +175,9 @@ metadataStore:
 
 # -- Used to set additional environment variables for the pod-mutator container via configMaps or secrets.
 envFrom: []
+
+# -- Used to set additional volumes.
+extraVolumes: []
+
+# -- Used to set additional volume mounts.
+extraVolumeMounts: []

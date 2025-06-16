@@ -77,6 +77,8 @@ proxy:
   dnsLookupFamily: V4_PREFERRED
   # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
   dataStorageMedium: Memory
+  # -- Predrain timeout in seconds.
+  drainPreHook: 10
   # -- Default drain time in seconds.
   drainTimeSeconds: 60
   # -- Extra network debug logging.
