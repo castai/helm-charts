@@ -78,7 +78,7 @@ proxy:
   # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
   dataStorageMedium: Memory
   # -- Predrain timeout in seconds.
-  drainPreHook: 10
+  drainPreHook: 2
   # -- Default drain time in seconds.
   drainTimeSeconds: 60
   # -- Extra network debug logging.
