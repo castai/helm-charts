@@ -124,7 +124,7 @@ data:
           address:
             socket_address:
               address: 0.0.0.0
-              port_value: {{ $endpoint.port }}
+              port_value: {{ $endpoint.listenerPort }}
           filter_chains:
             - filters:
               {{- if $.Values.proxy.networkDebug | default false }}
