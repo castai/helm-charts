@@ -3,16 +3,43 @@ apiKey: "456"
 
 upstreamPostgresHostname: random.hostname
 
+protocol: "PostgreSQL"  # protocol configuration required for endpoints
+
+endpoints:
+  # named endpoints (will create separate named services)
+  - name: "db1"  # This will create a named service: <chart-name>-db1
+    hostname: "db1.example.com"  # Upstream database DNS address
+    port: 5433  # Port on which the proxy will listen
+    targetPort: 5432  # Port on the target database
+    servicePort: 5433  # Port exposed by the service
+
+  - name: "db2"
+    hostname: "db2.example.com"
+    port: 5434
+    targetPort: 5432
+    servicePort: 5434
+
+  # unnamed endpoint (will not create a separate named service)
+  - hostname: "db3.example.com"
+    port: 5435
+    targetPort: 5432
+    servicePort: 5435
+
 proxy:
   readinessProbeEnabled: true
   livenessProbeEnabled: true
+  connectionLimits:
+    maxConnections: 1024
+    maxPendingRequests: 1024
+    maxRequests: 1024
+    maxRetries: 3
+  dnsLookupFamily: V4_ONLY
 
 podLabels:
   podLabel: label
 
 podAnnotations:
   podAnnotation: annotation
-
 
 commonLabels:
   commonLabel: label
