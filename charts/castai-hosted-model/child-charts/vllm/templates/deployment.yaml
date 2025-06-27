@@ -47,10 +47,12 @@ spec:
             {{ if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
             {{ end }}
-            - "--task=generate"
+            - "--task={{ required "Required value 'task' must be defined" .Values.task }}"
             - "--dtype=half"
             - "--kv-cache-dtype=fp8_e5m2"
+            {{ if .Values.enableChunkedPrefill }}
             - "--enable-chunked-prefill"
+            {{ end }}
             - "--max-num-batched-tokens=10000"
             - "--download-dir=/cache"
             {{ if .Values.maxModelLen }}

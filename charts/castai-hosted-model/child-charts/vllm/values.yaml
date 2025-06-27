@@ -10,6 +10,8 @@ service:
   port: 8000
 
 mountImageCache: false
+task: "generate"
+enableChunkedPrefill: true
 
 startupProbe:
   initialDelaySeconds: 20
