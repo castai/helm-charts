@@ -53,7 +53,9 @@ spec:
             {{ if .Values.enableChunkedPrefill }}
             - "--enable-chunked-prefill"
             {{ end }}
-            - "--max-num-batched-tokens=10000"
+            {{ if .Values.maxNumBatchedTokens }}
+            - "--max-num-batched-tokens={{ .Values.maxNumBatchedTokens }}"
+            {{ end }}
             - "--download-dir=/cache"
             {{ if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"

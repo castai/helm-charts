@@ -17,6 +17,7 @@ CAST AI hosted model deployment chart for vLLM.
 | livenessProbe.httpGet.path | string | `"/health"` | Path to access on the HTTP server |
 | livenessProbe.initialDelaySeconds | int | `15` | Number of seconds after the container has started before liveness probe is initiated |
 | livenessProbe.periodSeconds | int | `10` | How often (in seconds) to perform the liveness probe |
+| maxNumBatchedTokens | int | `10000` |  |
 | mountImageCache | bool | `false` |  |
 | readinessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":5,"periodSeconds":5}` | Readiness probe configuration |
 | readinessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not ready |
