@@ -8,6 +8,7 @@ CAST AI hosted model deployment chart for vLLM.
 |-----|------|---------|-------------|
 | container.port | int | `8000` |  |
 | deployment.labels | string | `nil` |  |
+| enableChunkedPrefill | bool | `true` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
 | image.tag | string | `"v0.8.5"` |  |
 | livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10}` | Liveness probe configuration |
@@ -29,3 +30,4 @@ CAST AI hosted model deployment chart for vLLM.
 | startupProbe.httpGet.path | string | `"/health"` |  |
 | startupProbe.initialDelaySeconds | int | `20` |  |
 | startupProbe.periodSeconds | int | `6` |  |
+| task | string | `"generate"` |  |
