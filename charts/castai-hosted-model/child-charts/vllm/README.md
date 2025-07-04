@@ -8,6 +8,7 @@ CAST AI hosted model deployment chart for vLLM.
 |-----|------|---------|-------------|
 | container.port | int | `8000` |  |
 | deployment.labels | string | `nil` |  |
+| enableAutoToolChoice | bool | `false` |  |
 | enableChunkedPrefill | bool | `true` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
 | image.tag | string | `"v0.8.5"` |  |

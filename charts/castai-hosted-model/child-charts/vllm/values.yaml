@@ -13,6 +13,7 @@ mountImageCache: false
 task: "generate"
 enableChunkedPrefill: true
 maxNumBatchedTokens: 10000
+enableAutoToolChoice: false
 
 startupProbe:
   initialDelaySeconds: 20
