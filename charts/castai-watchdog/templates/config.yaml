@@ -1,0 +1,17 @@
+{{- if not .Values.castai.configMapRef }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "watchdog.fullname" . }}
+  namespace: {{ .Values.namespace }}
+  labels:
+    {{- include "watchdog.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "watchdog.annotations" . | nindent 4 }}
+  {{- end }}
+data:
+  API_URL: {{ required "castai.apiUrl must be provided" .Values.castai.apiUrl | quote }}
+  CLUSTER_ID: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
+  ORGANIZATION_ID: {{ required "organizationID must be provided" .Values.castai.organizationID | quote }}
+{{- end }}

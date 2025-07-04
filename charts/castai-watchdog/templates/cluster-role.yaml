@@ -1,0 +1,58 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "watchdog.fullname" . }}
+  labels:
+  {{- include "watchdog.labels" . | nindent 4 }}
+rules:
+  # ---
+  # Required for basic Webhook functionality
+  # ---
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resourceNames:
+      - {{ include "watchdog.webhookName" . }}
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - get
+      - patch
+      - update
+  # ---
+  # Write permissions on pods to add labels/annotations about future patches
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - patch
+      - update 
+      - delete
+      - deletecollection
+  # ---
+  # Read only permissions to view pods
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+
