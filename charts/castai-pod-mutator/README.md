@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.30](https://img.shields.io/badge/Version-0.0.30-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.20](https://img.shields.io/badge/AppVersion-v0.0.20-informational?style=flat-square)
+![Version: 0.0.38](https://img.shields.io/badge/Version-0.0.38-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.26](https://img.shields.io/badge/AppVersion-v0.0.26-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -23,6 +23,9 @@ CAST AI Pod Mutator.
 | castai.clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai.clusterIdSecretKeyRef.name | string | `""` |  |
 | castai.configMapRef | string | `""` |  |
+| containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
+| containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
+| containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | enableTopologySpreadConstraints | bool | `false` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-mutator container via configMaps or secrets. |
@@ -48,6 +51,7 @@ CAST AI Pod Mutator.
 | resources.limits.memory | string | `"512Mi"` |  |
 | resources.requests.cpu | string | `"20m"` |  |
 | resources.requests.memory | string | `"512Mi"` |  |
+| service.webhookPortName | string | `"https"` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |

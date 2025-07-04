@@ -48,6 +48,10 @@ liveMigration:
   # Evictor will only consider LIVE migrations for workloads that explicitly request it.
   # as long as they can be scheduled somewhere else.
   enabled: false
+  # If true, Evictor will use a cache for its LIVE-specific client.
+  # This should reduce the amount of read requests issued to the API server when working with LIVE migrations.
+  # When false, all LIVE-related read requests will go to the API server.
+  useK8sClientCache: true
 
 # woop -- Specifies settings for working with WOOP recommendations.
 woop:
@@ -205,3 +209,9 @@ overrideEnvFrom: false
 # -- Additional environment sources for the evictor container.
 # Accepts a list of `configMapRef` or `secretRef` entries, following the standard `envFrom` format.
 envFrom: []
+
+# -- Used to set additional volumes.
+extraVolumes: []
+
+# -- Used to set additional volume mounts.
+extraVolumeMounts: []

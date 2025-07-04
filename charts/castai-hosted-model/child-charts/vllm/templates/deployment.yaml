@@ -3,7 +3,11 @@ kind: Deployment
 metadata:
   name: {{ include "vllm.fullname" . }}
   labels:
+    model.aibrix.ai/port: {{ .Values.container.port | quote }}
     {{- include "vllm.labels" . | nindent 4 }}
+    {{- with .Values.deployment.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:                                                                                                                                  
@@ -43,11 +47,15 @@ spec:
             {{ if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
             {{ end }}
-            - "--task=generate"
+            - "--task={{ required "Required value 'task' must be defined" .Values.task }}"
             - "--dtype=half"
             - "--kv-cache-dtype=fp8_e5m2"
-            - "--enable-chunked-prefill=True"
-            - "--max-num-batched-tokens=10000"
+            {{ if .Values.enableChunkedPrefill }}
+            - "--enable-chunked-prefill"
+            {{ end }}
+            {{ if .Values.maxNumBatchedTokens }}
+            - "--max-num-batched-tokens={{ .Values.maxNumBatchedTokens }}"
+            {{ end }}
             - "--download-dir=/cache"
             {{ if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"

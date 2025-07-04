@@ -13,7 +13,7 @@ castai:
   # -- The CAST AI API URL.
   apiURL: "https://api.cast.ai"
   # -- The CAST AI gRPC URL.
-  grpcURL: "api-grpc.cast.ai:443"
+  grpcURL: "grpc.cast.ai:443"
   # -- Use compression for gRPC communication.
   useCompression: true
   # -- The CAST AI API key. Either this or apiKeySecretRef must be provided.
@@ -84,7 +84,7 @@ securityContext:
   runAsUser: 1000
   capabilities:
     drop:
-    - ALL
+      - ALL
 
 resources:
   limits:

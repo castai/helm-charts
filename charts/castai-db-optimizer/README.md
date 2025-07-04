@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.23.2](https://img.shields.io/badge/Version-0.23.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.32.0](https://img.shields.io/badge/Version-0.32.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -26,8 +26,10 @@ CAST AI database cache deployment.
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
 | proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP. |
+| proxy.connectionLimits | object | `{"maxConnections":1024,"maxPendingRequests":1024,"maxRequests":1024,"maxRetries":3}` | Envoy upstream connection limits, numbers given are the envoy defaults. |
 | proxy.dataStorageMedium | string | `"Memory"` | Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk |
 | proxy.dnsLookupFamily | string | `"V4_PREFERRED"` | DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead. |
+| proxy.drainPreHook | int | `2` | Predrain timeout in seconds. |
 | proxy.drainTimeSeconds | int | `60` | Default drain time in seconds. |
 | proxy.evictionThreadPeriodMs | int | `100` | The period of the evictions thread. |
 | proxy.evictionThreshold | float | `0.5` | Ratio of used available bytes or entries from which we start evicting. |
@@ -51,7 +53,6 @@ CAST AI database cache deployment.
 | replicas | int | `2` |  |
 | resources.proxy.cacheDbSizeBytes | int | `1000000000` | max allowed database size in disk. |
 | resources.proxy.cpu | string | `"500m"` |  |
-| resources.proxy.ephemeralStorage | string | `"10Gi"` | defines how much of proxy container disk space is allocated for cache. |
 | resources.proxy.maxCacheEntries | int | `1000000000` | maximum number of entries to keep in the proxy. |
 | resources.proxy.memoryLimit | string | `"2Gi"` |  |
 | resources.proxy.memoryRequest | string | `"2Gi"` |  |

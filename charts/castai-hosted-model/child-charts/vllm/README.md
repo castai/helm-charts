@@ -7,14 +7,17 @@ CAST AI hosted model deployment chart for vLLM.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | container.port | int | `8000` |  |
-| image.repository | string | `"vllm/vllm-openai"` |  |
-| image.tag | string | `"v0.8.1"` |  |
+| deployment.labels | string | `nil` |  |
+| enableChunkedPrefill | bool | `true` |  |
+| image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
+| image.tag | string | `"v0.8.5"` |  |
 | livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10}` | Liveness probe configuration |
 | livenessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not alive |
 | livenessProbe.httpGet | object | `{"path":"/health"}` | Configuration of the Kubelet http request on the server |
 | livenessProbe.httpGet.path | string | `"/health"` | Path to access on the HTTP server |
 | livenessProbe.initialDelaySeconds | int | `15` | Number of seconds after the container has started before liveness probe is initiated |
 | livenessProbe.periodSeconds | int | `10` | How often (in seconds) to perform the liveness probe |
+| maxNumBatchedTokens | int | `10000` |  |
 | mountImageCache | bool | `false` |  |
 | readinessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":5,"periodSeconds":5}` | Readiness probe configuration |
 | readinessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not ready |
@@ -28,3 +31,4 @@ CAST AI hosted model deployment chart for vLLM.
 | startupProbe.httpGet.path | string | `"/health"` |  |
 | startupProbe.initialDelaySeconds | int | `20` |  |
 | startupProbe.periodSeconds | int | `6` |  |
+| task | string | `"generate"` |  |

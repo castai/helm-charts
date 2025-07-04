@@ -72,3 +72,15 @@ rules:
       - get
       - list
       - watch
+  # ------------------------------------------------
+  # Live Migration: retrieving and creating migrations
+  # ------------------------------------------------
+  - apiGroups:
+      - cast.ai
+    resources:
+      - migrations
+    verbs:
+      - get
+      - list
+      - watch
+      - create

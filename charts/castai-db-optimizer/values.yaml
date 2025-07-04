@@ -36,8 +36,6 @@ resources:
     cpu: "500m"
     memoryRequest: "2Gi"
     memoryLimit: "2Gi"
-    # -- defines how much of proxy container disk space is allocated for cache.
-    ephemeralStorage: 10Gi
     # -- max allowed database size in disk.
     cacheDbSizeBytes: 1000000000
     # -- maximum number of entries to keep in the proxy.
@@ -79,6 +77,8 @@ proxy:
   dnsLookupFamily: V4_PREFERRED
   # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
   dataStorageMedium: Memory
+  # -- Predrain timeout in seconds.
+  drainPreHook: 2
   # -- Default drain time in seconds.
   drainTimeSeconds: 60
   # -- Extra network debug logging.
@@ -95,6 +95,12 @@ proxy:
   statsThreadPeriodMs: 1000
   # -- The period of the evictions thread.
   evictionThreadPeriodMs: 100
+  # -- Envoy upstream connection limits, numbers given are the envoy defaults.
+  connectionLimits:
+    maxConnections: 1024           # Maximum connections per cluster
+    maxPendingRequests: 1024       # Maximum requests queued while waiting for a connection
+    maxRequests: 1024              # Maximum parallel requests per connection
+    maxRetries: 3                  # Maximum parallel retries
 
 queryProcessor:
   # -- Default query-processor log level.

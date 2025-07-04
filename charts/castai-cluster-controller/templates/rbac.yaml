@@ -5,7 +5,7 @@ metadata:
   name: {{ .Values.serviceAccount.name }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "castai-agent.labels" . | nindent 4 }}
+    {{- include "cluster-controller.labels" . | nindent 4 }}
   {{- if or .Values.serviceAccount.annotations .Values.commonAnnotations }}
   annotations:
     {{- with .Values.serviceAccount.annotations }}
@@ -22,10 +22,10 @@ kind: ClusterRole
 metadata:
   name: castai-cluster-controller
   labels:
-    {{- include "castai-agent.labels" . | nindent 4 }}
+    {{- include "cluster-controller.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
-    {{- include "castai-agent.annotations" . | nindent 4 }}
+    {{- include "cluster-controller.annotations" . | nindent 4 }}
   {{- end }}
 rules:
   # Readonly.
@@ -38,11 +38,11 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "events" ]
     verbs: [ "list" ]
-  {{- if .Values.workloadManagement.enabled }}
-  # For workload management
-  - apiGroups: [ "apps" ]
-    resources: [ "deployments" ]
-    verbs: [ "patch" ]
+  {{- if eq (include "cluster-controller.workloadAutoscalingEnabled" .) "true" }}
+    # For CAST autoscaling CRDs management.
+  - apiGroups: [ "autoscaling.cast.ai" ]
+    resources: [ "*" ]
+    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
   {{- end}}
   {{- if .Values.autoscaling.enabled }}
   # For advertising extended resources
@@ -79,10 +79,6 @@ rules:
     resources: [ "events" ]
     verbs: [ "create", "patch" ]
   {{- end}}
-  # For CAST autoscaling CRDs management.
-  - apiGroups: [ "autoscaling.cast.ai" ]
-    resources: [ "*" ]
-    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
   # For installing/updating CAST AI components.
   - apiGroups: [ "rbac.authorization.k8s.io" ]
     resources: [ "roles" ]
@@ -121,10 +117,10 @@ metadata:
   name: castai-cluster-controller
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "castai-agent.labels" . | nindent 4 }}
+    {{- include "cluster-controller.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
-    {{- include "castai-agent.annotations" . | nindent 4 }}
+    {{- include "cluster-controller.annotations" . | nindent 4 }}
   {{- end }}
 rules:
   # Controller has full access in castai-agent namespace. This is required to fully manage castai components.
@@ -138,10 +134,10 @@ metadata:
   name: castai-cluster-controller
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "castai-agent.labels" . | nindent 4 }}
+    {{- include "cluster-controller.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
-    {{- include "castai-agent.annotations" . | nindent 4 }}
+    {{- include "cluster-controller.annotations" . | nindent 4 }}
   {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -157,10 +153,10 @@ kind: ClusterRoleBinding
 metadata:
   name: castai-cluster-controller
   labels:
-    {{- include "castai-agent.labels" . | nindent 4 }}
+    {{- include "cluster-controller.labels" . | nindent 4 }}
   {{ if gt (len .Values.commonAnnotations) 0 -}}
   annotations:
-    {{- include "castai-agent.annotations" . | nindent 4 }}
+    {{- include "cluster-controller.annotations" . | nindent 4 }}
   {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io

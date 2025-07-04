@@ -90,3 +90,14 @@ rules:
       - get
       - list
       - watch
+  # ---
+  # Read permissions for PodMutation custom resources
+  # ---
+  - apiGroups:
+      - "pod-mutations.cast.ai"
+    resources:
+      - podmutations
+    verbs:
+      - get
+      - list
+      - watch

@@ -1,6 +1,6 @@
 image:
-  repository: "vllm/vllm-openai"
-  tag: "v0.8.1"
+  repository: "us-docker.pkg.dev/castai-hub/library/vllm-openai"
+  tag: "v0.8.5"
 
 container:
   port: 8000
@@ -10,6 +10,9 @@ service:
   port: 8000
 
 mountImageCache: false
+task: "generate"
+enableChunkedPrefill: true
+maxNumBatchedTokens: 10000
 
 startupProbe:
   initialDelaySeconds: 20
@@ -44,3 +47,6 @@ livenessProbe:
   httpGet:
     # -- Path to access on the HTTP server
     path: /health
+
+deployment:
+  labels:

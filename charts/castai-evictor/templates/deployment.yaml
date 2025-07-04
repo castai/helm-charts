@@ -66,6 +66,8 @@ spec:
               value: {{ .Values.aggressiveMode | quote }}
             - name: LIVE_MIGRATION_ENABLED
               value: {{ .Values.liveMigration.enabled | quote }}
+            - name: LIVE_MIGRATION_USE_K8S_CLIENT_CACHE
+              value: {{ .Values.liveMigration.useK8sClientCache | quote }}
             - name: WOOP_ENABLED
               value: {{ .Values.woop.enabled | quote }}
             - name: WOOP_USE_K8S_CLIENT_CACHE
@@ -163,10 +165,16 @@ spec:
             - mountPath: /config
               name: cfg
               readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       volumes:
         - name: cfg
           configMap:
             name: {{ include "evictor.name" . }}-config
+        {{- with .Values.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

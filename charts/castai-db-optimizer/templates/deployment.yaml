@@ -140,12 +140,10 @@ spec:
         - name: proxy
           image: "{{.Values.proxyImage.repository}}:{{ include "proxyImage" . }}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
-          {{- if .Values.proxy.drainTimeSeconds }}
           lifecycle:
             preStop:
               exec:
-                command: ["sleep", {{ .Values.proxy.drainTimeSeconds | quote }} ]
-          {{- end}}
+                command: ["sleep", {{ .Values.proxy.drainPreHook | default 10 | quote }} ]
           ports:
             {{- if .Values.upstreamPostgresHostname }}
             - name: postgres
@@ -200,12 +198,17 @@ spec:
             - --enable-core-dump
             - --concurrency
             - "{{ .Values.proxy.concurrency }}"
+            - --drain-strategy
+            - immediate
+            - --parent-shutdown-time-s
+            - "30"
+            - --drain-time-s
+            - "25"
 
           resources:
             requests:
               memory: {{ .Values.resources.proxy.memoryRequest }}
               cpu: {{ .Values.resources.proxy.cpu }}
-              ephemeral-storage: {{ .Values.resources.proxy.ephemeralStorage }}
             {{- if .Values.resources.proxy.memoryLimit }}
             limits:
               memory: {{ .Values.resources.proxy.memoryLimit }}

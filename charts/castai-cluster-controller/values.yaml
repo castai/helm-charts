@@ -165,10 +165,10 @@ k8sApiClient:
     burst: 200
     qps: 100
 
-# workloadManagement -- Settings for managing deployments and other pod controllers.
-workloadManagement:
-  # workloadManagement.enabled -- Adds permissions to patch deployments.
-  enabled: false
+# workloadAutoscaling -- Settings for managing CAST autoscaling CRDs.
+workloadAutoscaling:
+  # workloadAutoscaling.enabled -- Adds permissions to manage CAST autoscaling CRDs.
+  enabled: true
 
 # autoscaling -- Settings for managing autoscaling features.
 autoscaling:
@@ -177,3 +177,10 @@ autoscaling:
 
 # -- Used to set additional environment variables for the cluster-controller container via configMaps or secrets.
 envFrom: []
+
+# -- Used to set additional volumes
+extraVolumes: []
+
+# -- Used to set additional volume mounts
+
+extraVolumeMounts: []

@@ -34,6 +34,8 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | enableTopologySpreadConstraints | bool | `false` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the cluster-controller container via configMaps or secrets. |
+| extraVolumeMounts | list | `[]` | Used to set additional volume mounts |
+| extraVolumes | list | `[]` | Used to set additional volumes |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -68,5 +70,5 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | trustedCACert | string | `""` | CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates. |
 | trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to the set of root certificate authorities that the client will use when verifying server certificates. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
 | updateStrategy | object | `{"type":"RollingUpdate"}` | Controls `deployment.spec.strategy` field. |
-| workloadManagement | object | `{"enabled":false}` | Settings for managing deployments and other pod controllers. |
-| workloadManagement.enabled | bool | `false` | Adds permissions to patch deployments. |
+| workloadAutoscaling | object | `{"enabled":true}` | Settings for managing CAST autoscaling CRDs. |
+| workloadAutoscaling.enabled | bool | `true` | Adds permissions to manage CAST autoscaling CRDs. |

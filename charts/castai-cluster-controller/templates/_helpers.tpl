@@ -1,7 +1,7 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "castai-agent.name" -}}
+{{- define "cluster-controller.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
@@ -10,7 +10,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 If release name contains chart name it will be used as a full name.
 */}}
-{{- define "castai-agent.fullname" -}}
+{{- define "cluster-controller.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -26,21 +26,21 @@ If release name contains chart name it will be used as a full name.
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "castai-agent.chart" -}}
+{{- define "cluster-controller.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Common labels
 */}}
-{{- define "castai-agent.labels" -}}
+{{- define "cluster-controller.labels" -}}
 {{ if gt (len .Values.commonLabels) 0 -}}
 {{- with .Values.commonLabels }}
 {{- toYaml . }}
 {{- end }}
 {{- end }}
-helm.sh/chart: {{ include "castai-agent.chart" . }}
-{{ include "castai-agent.selectorLabels" . }}
+helm.sh/chart: {{ include "cluster-controller.chart" . }}
+{{ include "cluster-controller.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -50,7 +50,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Common Annotations
 */}}
-{{- define "castai-agent.annotations" -}}
+{{- define "cluster-controller.annotations" -}}
 {{ if gt (len .Values.commonAnnotations) 0 -}}
 {{- with .Values.commonAnnotations }}
 {{- toYaml . }}
@@ -61,18 +61,26 @@ Common Annotations
 {{/*
 Selector labels
 */}}
-{{- define "castai-agent.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "castai-agent.name" . }}
+{{- define "cluster-controller.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "cluster-controller.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "castai-agent.serviceAccountName" -}}
+{{- define "cluster-controller.serviceAccountName" -}}
 {{- if .Values.serviceAccount.create }}
-{{- default (include "castai-agent.fullname" .) .Values.serviceAccount.name }}
+{{- default (include "cluster-controller.fullname" .) .Values.serviceAccount.name }}
 {{- else }}
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{- define "cluster-controller.workloadAutoscalingEnabled" -}}
+  {{- $workloadAutoscalingEnabled := true -}}
+  {{- if .Values.workloadAutoscaling -}}
+    {{- $workloadAutoscalingEnabled = .Values.workloadAutoscaling.enabled -}}
+  {{- end -}}
+  {{- printf "%v" $workloadAutoscalingEnabled -}}
+{{- end -}}

@@ -13,11 +13,36 @@ placementJob:
 
   image:
     # -- The image to use for the job
-    repository: busybox
+    repository: us-docker.pkg.dev/castai-hub/library/busybox
     # -- The image tag
     tag: "1.37.0"
     # -- Image pull policy
     pullPolicy: IfNotPresent
 
   # -- Resources for the job
-  resources: {}
+  resources:
+    requests:
+      nvidia.com/gpu: 1
+    limits:
+      nvidia.com/gpu: 1
+podAutoscaler:
+  # -- Specifies if pod autoscaler should be enabled. It is only relevant for vllm deployments
+  enabled: false
+  # -- Min number of replicas
+  minReplicas: 1
+  # -- Max number of replicas
+  maxReplicas: 3
+  # -- The metric to observe for scaling decisions
+  targetMetric:
+  # -- The threshold value of observed metric to trigger scale up/down decisions
+  targetValue:
+  # -- Target metric window length
+  targetMetricWindow: 30s
+  # -- Represents the threshold before scaling up,
+  # -- which means no scaling up will occur unless the currentMetricValue exceeds the targetValue by more than upFluctuationTolerance
+  upFluctuationTolerance: 0.1
+  # -- Represents the threshold before scaling down,
+  # -- which means no scaling down will occur unless the currentMetricValue is less than the targetValue by more than downFluctuationTolerance
+  downFluctuationTolerance: 0.2
+  # -- The name of the vLLM deployment that the pod autoscaler should target
+  targetDeploymentName:
