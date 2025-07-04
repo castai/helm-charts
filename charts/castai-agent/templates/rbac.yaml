@@ -151,6 +151,14 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - "pod-mutations.cast.ai"
+    resources:
+      - podmutations
+    verbs:
+      - get
+      - list
+      - watch
   - nonResourceURLs:
       - "/version"
     verbs:
