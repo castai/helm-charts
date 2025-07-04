@@ -12,6 +12,7 @@ service:
 mountImageCache: false
 task: "generate"
 enableChunkedPrefill: true
+maxNumBatchedTokens: 10000
 
 startupProbe:
   initialDelaySeconds: 20

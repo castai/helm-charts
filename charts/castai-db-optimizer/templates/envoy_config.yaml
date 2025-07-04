@@ -236,6 +236,11 @@ data:
           type: LOGICAL_DNS
           dns_lookup_family: ALL
           connect_timeout: 1s
+          upstream_connection_options:
+            tcp_keepalive:
+              keepalive_interval: 5
+              keepalive_probes: 3
+              keepalive_time: 30
           circuit_breakers:
             thresholds:
               - priority: DEFAULT
