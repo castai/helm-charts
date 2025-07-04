@@ -19,6 +19,9 @@ data:
   evictor-autoscaler: |-
     {
       "{{ .Chart.Name }}": {
+        {{- if .Values.clusterVPA.configOverride }}
+          {{- .Values.clusterVPA.configOverride | nindent 8 }}
+        {{- else }}
         "requests": {
           "memory": {
             "base": "200Mi",
@@ -35,6 +38,7 @@ data:
             "nodesPerStep": 20
           }
         }
+        {{- end }}
       }
     }
 {{- end }}
