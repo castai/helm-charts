@@ -78,6 +78,14 @@ data:
                     "@type": type.googleapis.com/castai.filters.dump.v1.Dump
                     name: backend
               {{- end }}
+              {{- if $.Values.useDefaultRouting | default false }}
+                - name: envoy.filters.network.tcp_proxy
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                    stat_prefix: tcp
+                    cluster: postgres_upstream
+                    idle_timeout: 0s
+              {{- else }}
                 - name: castai.filters.router
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.router.v1.RouterConfig
@@ -85,6 +93,7 @@ data:
                       stat_prefix: proxy_egress
                       cluster: postgres_upstream
                       idle_timeout: 0s
+              {{- end }}
               transport_socket:
                 name: envoy.transport_sockets.starttls
                 typed_config:
@@ -154,6 +163,14 @@ data:
                     "@type": type.googleapis.com/castai.filters.dump.v1.Dump
                     name: backend_{{ $index }}
               {{- end }}
+              {{- if $.Values.useDefaultRouting | default false }}
+                - name: envoy.filters.network.tcp_proxy
+                  typed_config:
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                    stat_prefix: proxy_egress_{{ $index }}
+                    cluster: endpoint_upstream_{{ $index }}
+                    idle_timeout: 0s
+              {{- else }}
                 - name: castai.filters.router
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.router.v1.RouterConfig
@@ -161,6 +178,7 @@ data:
                       stat_prefix: proxy_egress_{{ $index }}
                       cluster: endpoint_upstream_{{ $index }}
                       idle_timeout: 0s
+              {{- end }}
               transport_socket:
                 name: envoy.transport_sockets.starttls
                 typed_config:
@@ -225,10 +243,12 @@ data:
                 common_tls_context:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
+          {{- if not ($.Values.useDefaultRouting | default false) }}
           upstream_config:
             name: castai.upstream.pool
             typed_config:
               "@type": type.googleapis.com/castai.upstream.v1.CastaiConnectionPoolProto
+          {{- end }}
         {{- end }}
 
         {{- range $index, $endpoint := .Values.endpoints}}
@@ -266,10 +286,12 @@ data:
                 common_tls_context:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
+          {{- if not ($.Values.useDefaultRouting | default false) }}
           upstream_config:
             name: castai.upstream.pool
             typed_config:
               "@type": type.googleapis.com/castai.upstream.v1.CastaiConnectionPoolProto
+          {{- end }}
         {{- end }}
 
         - name: {{ .Values.apiURL }}
