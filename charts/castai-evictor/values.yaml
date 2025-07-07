@@ -180,6 +180,24 @@ clusterVPA:
   version: v0.8.4
   pollPeriodSeconds: 300
   resources: {}
+  # configOverride -- Override the default ClusterVPA calculation configuration.
+  # configOverride: |-
+  #   "requests": {
+  #     "memory": {
+  #       "base": "200Mi",
+  #       "max": "24Gi",
+  #       "step": "256Mi",
+  #       "nodesPerStep": 20
+  #     }
+  #   },
+  #   "limits": {
+  #     "memory": {
+  #       "base": "2Gi",
+  #       "max": "24Gi",
+  #       "step": "256Mi",
+  #       "nodesPerStep": 20
+  #     }
+  #   }
 
 # Container security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
