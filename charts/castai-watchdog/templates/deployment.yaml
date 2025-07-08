@@ -63,7 +63,7 @@ spec:
             - name: GOOGLE_PROJECT
               value: {{ .Values.gcp.project | quote }}
             - name: GOOGLE_CLUSTER_ZONE
-              value: {{ .Values.gcp.zone | quote }}
+              value: {{ .Values.gcp.location | quote }}
             - name: GOOGLE_CLUSTER_NAME
               value: {{ .Values.gcp.clusterName | quote }}
             {{- end }}
