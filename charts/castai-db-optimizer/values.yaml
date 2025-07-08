@@ -31,9 +31,6 @@ podLabels: {}
 # -- Extra annotations to add to the pod.
 podAnnotations: {}
 
-# -- feature flag to support both old and new style of upstream routing
-useDefaultRouting: false
-
 resources:
   proxy:
     cpu: "500m"
