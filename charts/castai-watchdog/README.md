@@ -24,8 +24,8 @@ CAST AI Watchdog
 | fullnameOverride | string | `"castai-watchdog"` |  |
 | gcp.clusterName | string | `""` |  |
 | gcp.credentialsJSON | string | `""` |  |
+| gcp.location | string | `""` |  |
 | gcp.project | string | `""` |  |
-| gcp.zone | string | `""` |  |
 | global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | global.commonLabels | object | `{}` | Labels to add to all resources. |
