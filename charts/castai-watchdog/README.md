@@ -23,6 +23,7 @@ CAST AI Watchdog
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | fullnameOverride | string | `"castai-watchdog"` |  |
 | gcp.clusterName | string | `""` |  |
+| gcp.credentialsJSON | string | `""` |  |
 | gcp.project | string | `""` |  |
 | gcp.zone | string | `""` |  |
 | global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Values to apply for the parent and child chart resources. |
