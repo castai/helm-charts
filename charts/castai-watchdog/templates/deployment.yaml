@@ -67,6 +67,10 @@ spec:
             - name: GOOGLE_CLUSTER_NAME
               value: {{ .Values.gcp.clusterName | quote }}
             {{- end }}
+            {{- if .Values.gcp.credentialsJSON }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /gcp/credentials.json
+            {{- end }}
             {{- with .Values.additionalEnvs }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -92,6 +96,11 @@ spec:
             - mountPath: /certs
               name: certs
               readOnly: true
+            {{- if .Values.gcp.credentialsJSON }}
+            - mountPath: /gcp
+              name: gcp
+              readOnly: true
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           ports:
@@ -117,6 +126,12 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ include "watchdog.certsSecretName" . }}
+        {{- if .Values.gcp.credentialsJSON }}
+        - name: gcp
+          secret:
+            defaultMode: 420
+            secretName: {{ include "watchdog.fullname" . }}-gcp
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
       {{- toYaml . | nindent 8 }}

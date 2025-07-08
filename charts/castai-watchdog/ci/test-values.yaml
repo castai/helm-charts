@@ -1,0 +1,18 @@
+castai:
+  apiKey: "dummy"
+  clusterID: clusterId
+  organizationID: orgId
+
+gcp:
+  project: castai-12345
+  clusterName: test
+  zone: europe-central2
+  credentialsJSON: |
+    {
+      "account": "",
+      "client_id": "dummy",
+      "client_secret": "dummy",
+      "refresh_token": "dummy",
+      "type": "authorized_user",
+      "universe_domain": "googleapis.com"
+    }
