@@ -55,6 +55,11 @@ spec:
         - name: data-storage
           emptyDir:
             medium: {{ .Values.proxy.dataStorageMedium | default "" }}
+        {{- if .Values.proxy.tlsSecretName }}
+        - name: tls
+          secret:
+            secretName: {{ .Values.proxy.tlsSecretName }}
+        {{- end }}
       containers:
         - name: query-processor
           image: "{{.Values.queryProcessorImage.repository}}:{{ include "queryProcessorImage" . }}"
@@ -228,3 +233,8 @@ spec:
               mountPath: /tmp
             - name: data-storage
               mountPath: /data
+            {{- if .Values.proxy.tlsSecretName }}
+            - name: tls
+              mountPath: "/etc/tls"
+              readOnly: true
+            {{- end }}
