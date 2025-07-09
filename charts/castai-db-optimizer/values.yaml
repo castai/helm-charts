@@ -83,6 +83,8 @@ proxy:
   drainTimeSeconds: 60
   # -- Extra network debug logging.
   networkDebug: false
+  # -- Name of a Kubernetes TLS Secret that contains the key pair to use for configuring TLS in the proxy. If not set, defaults to using a built-in key pair.
+  tlsSecretName:
   # -- Ratio of used available bytes or entries from which we start evicting.
   evictionThreshold: 0.5
   # -- Ratio of used available bytes or entries from which we stop caching.

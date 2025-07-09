@@ -90,11 +90,7 @@ data:
                   "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
                   tls_socket_config:
                     common_tls_context:
-                      tls_certificates:
-                        - certificate_chain:
-                            filename: "cert.pem"
-                          private_key:
-                            filename: "key.pem"
+                      {{- include "proxy.tls.certificates" . | nindent 22 }}
           socket_options:
             - description: "enable keep-alive"
               level: 1 # means socket level options
@@ -165,11 +161,7 @@ data:
                   "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
                   tls_socket_config:
                     common_tls_context:
-                      tls_certificates:
-                        - certificate_chain:
-                            filename: "cert.pem"
-                          private_key:
-                            filename: "key.pem"
+                      {{- include "proxy.tls.certificates" $ | nindent 22  }}
           socket_options:
             - description: "enable keep-alive"
               level: 1 # means socket level options
@@ -294,11 +286,7 @@ data:
               common_tls_context:
                 tls_params:
                   tls_minimum_protocol_version: TLSv1_2
-                tls_certificates:
-                  - certificate_chain:
-                      filename: cert.pem
-                    private_key:
-                      filename: key.pem
+                {{- include "proxy.tls.certificates" . | nindent 16 }}
               sni: {{ .Values.apiURL }}
 
         - name: query_processor_service
