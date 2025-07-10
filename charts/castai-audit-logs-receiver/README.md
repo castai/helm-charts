@@ -52,5 +52,8 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | resources | object | `{}` |  |
 | rollout.rollingUpdate | object | `{}` |  |
 | rollout.strategy | string | `"RollingUpdate"` |  |
+| serviceAccount.annotations | object | `{}` | Annotations to add to the service account. |
+| serviceAccount.create | bool | `false` | Specifies whether a service account should be created. |
+| serviceAccount.name | string | `""` | The name of the service account to use. If not set, the default serviceAccount will be used. |
 | statefulset.podManagementPolicy | string | `"Parallel"` |  |
 | tolerations | list | `[]` |  |
