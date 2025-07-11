@@ -107,6 +107,8 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      serviceAccountName: {{ include "castai-audit-logs-receiver.serviceAccountName" . }}
+      automountServiceAccountToken: true
       volumes:
         {{- if .Values.configMap.create }}
         - name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-configmap
