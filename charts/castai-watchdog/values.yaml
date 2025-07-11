@@ -1,0 +1,111 @@
+image:
+  repository: us-docker.pkg.dev/castai-hub/library/watchdog
+  pullPolicy: IfNotPresent
+  tag: ""
+
+replicas: 1
+
+additionalEnvs: []
+#  - name: FORCE_ENABLE
+#    value: "true"
+
+nameOverride: ""
+fullnameOverride: castai-watchdog
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1005
+  runAsGroup: 1005
+  runAsUser: 1005
+
+# podAnnotations -- Annotations added to each pod.
+podAnnotations: {}
+# podLabels - Labels added to each pod.
+podLabels: {}
+
+priorityClass:
+  enabled: true
+  name: system-cluster-critical
+
+tolerations:
+  - key: scheduling.cast.ai/spot
+    operator: Exists
+
+# Pod affinity rules.
+# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/os
+              operator: NotIn
+              values:
+                - windows
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - castai-watchdog
+        topologyKey: kubernetes.io/hostname
+
+webhook:
+  failurePolicy: "Ignore"
+  # reinvocationPolicy -- Controls whether webhook should be reinvoked if there were changes made by other plugins.
+  # Change to "IfNeeded" to be able to apply recommendations for injected containers.
+  # Defaults to "Never".
+  reinvocationPolicy: "Never"
+  url: ""
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 100Mi
+  limits:
+    memory: 100Mi
+
+hostNetwork: false
+# dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
+dnsPolicy: ""
+
+# -- Values to apply for the parent and child chart resources.
+global:
+  # -- Labels to add to all resources.
+  commonLabels: {}
+  # -- Annotations to add to all resources.
+  commonAnnotations: {}
+
+castai:
+  # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"].
+  apiKeySecretRef: ""
+  # config map ref -- Name of the config map that contains .data["API_URL"] and .data["CLUSTER_ID"].
+  # Can be used instead of apiUrl and clusterID values.
+  configMapRef: ""
+  # apiKey -- Token to be used for authorizing agent access to the API.
+  apiKey: ""
+  # apiUrl -- URL of the CAST AI API.
+  apiUrl: "https://api.cast.ai"
+  # clusterID -- ID of the cluster the watchdog is deployed in.
+  clusterID: ""
+  # organization ID -- ID of the organization
+  organizationID: ""
+
+gcp:
+  project: ""
+  location: ""
+  clusterName: ""
+  credentialsJSON: ""
