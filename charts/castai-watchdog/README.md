@@ -54,3 +54,4 @@ CAST AI Watchdog
 | webhook.failurePolicy | string | `"Ignore"` |  |
 | webhook.reinvocationPolicy | string | `"Never"` |  |
 | webhook.url | string | `""` |  |
+| webhooks | list | `[]` | List of webhooks, where to send Watchdog events about autoscaling |
