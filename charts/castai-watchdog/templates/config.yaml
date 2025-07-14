@@ -27,7 +27,7 @@ data:
     google:
       project: {{ .Values.gcp.project | quote }}
       location: {{ .Values.gcp.location | quote }}
-      clusterName {{ .Values.gcp.clusterName | quote }}
+      clusterName: {{ .Values.gcp.clusterName | quote }}
     {{- end }}
 
     certsRotation: true

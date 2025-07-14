@@ -74,6 +74,9 @@ spec:
             - mountPath: /certs
               name: certs
               readOnly: true
+            - mountPath: /etc/cast-watchdog
+              name: config
+              readOnly: true
             {{- if .Values.gcp.credentialsJSON }}
             - mountPath: /gcp
               name: gcp
@@ -104,6 +107,9 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ include "watchdog.certsSecretName" . }}
+        - name: config
+          configMap:
+            name: {{ include "watchdog.fullname" . }}
         {{- if .Values.gcp.credentialsJSON }}
         - name: gcp
           secret:
