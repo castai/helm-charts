@@ -78,24 +78,19 @@ data:
                     "@type": type.googleapis.com/castai.filters.dump.v1.Dump
                     name: backend
               {{- end }}
-                - name: castai.filters.router
+                - name: envoy.filters.network.tcp_proxy
                   typed_config:
-                    "@type": type.googleapis.com/castai.filters.router.v1.RouterConfig
-                    tcp_proxy_config:
-                      stat_prefix: proxy_egress
-                      cluster: postgres_upstream
-                      idle_timeout: 0s
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                    stat_prefix: tcp
+                    cluster: postgres_upstream
+                    idle_timeout: 0s
               transport_socket:
                 name: envoy.transport_sockets.starttls
                 typed_config:
                   "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
                   tls_socket_config:
                     common_tls_context:
-                      tls_certificates:
-                        - certificate_chain:
-                            filename: "cert.pem"
-                          private_key:
-                            filename: "key.pem"
+                      {{- include "proxy.tls.certificates" . | nindent 22 }}
           socket_options:
             - description: "enable keep-alive"
               level: 1 # means socket level options
@@ -154,24 +149,19 @@ data:
                     "@type": type.googleapis.com/castai.filters.dump.v1.Dump
                     name: backend_{{ $index }}
               {{- end }}
-                - name: castai.filters.router
+                - name: envoy.filters.network.tcp_proxy
                   typed_config:
-                    "@type": type.googleapis.com/castai.filters.router.v1.RouterConfig
-                    tcp_proxy_config:
-                      stat_prefix: proxy_egress_{{ $index }}
-                      cluster: endpoint_upstream_{{ $index }}
-                      idle_timeout: 0s
+                    "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
+                    stat_prefix: proxy_egress_{{ $index }}
+                    cluster: endpoint_upstream_{{ $index }}
+                    idle_timeout: 0s
               transport_socket:
                 name: envoy.transport_sockets.starttls
                 typed_config:
                   "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
                   tls_socket_config:
                     common_tls_context:
-                      tls_certificates:
-                        - certificate_chain:
-                            filename: "cert.pem"
-                          private_key:
-                            filename: "key.pem"
+                      {{- include "proxy.tls.certificates" $ | nindent 22  }}
           socket_options:
             - description: "enable keep-alive"
               level: 1 # means socket level options
@@ -225,10 +215,6 @@ data:
                 common_tls_context:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
-          upstream_config:
-            name: castai.upstream.pool
-            typed_config:
-              "@type": type.googleapis.com/castai.upstream.v1.CastaiConnectionPoolProto
         {{- end }}
 
         {{- range $index, $endpoint := .Values.endpoints}}
@@ -266,10 +252,6 @@ data:
                 common_tls_context:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
-          upstream_config:
-            name: castai.upstream.pool
-            typed_config:
-              "@type": type.googleapis.com/castai.upstream.v1.CastaiConnectionPoolProto
         {{- end }}
 
         - name: {{ .Values.apiURL }}
@@ -304,11 +286,7 @@ data:
               common_tls_context:
                 tls_params:
                   tls_minimum_protocol_version: TLSv1_2
-                tls_certificates:
-                  - certificate_chain:
-                      filename: cert.pem
-                    private_key:
-                      filename: key.pem
+                {{- include "proxy.tls.certificates" . | nindent 16 }}
               sni: {{ .Values.apiURL }}
 
         - name: query_processor_service

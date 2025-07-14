@@ -56,6 +56,12 @@ spec:
             {{ if .Values.maxNumBatchedTokens }}
             - "--max-num-batched-tokens={{ .Values.maxNumBatchedTokens }}"
             {{ end }}
+            {{ if .Values.enableAutoToolChoice }}
+            - "--enable-auto-tool-choice"
+            {{ end }}
+            {{ if .Values.toolCallParser }}
+            - "--tool-call-parser={{ .Values.toolCallParser }}"
+            {{ end }}
             - "--download-dir=/cache"
             {{ if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"

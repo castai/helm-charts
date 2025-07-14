@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "watchdog.fullname" . }}
+  labels:
+  {{- include "watchdog.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/env-var-secret: "Linter may complain about CERTS_SECRET, which is NOT a secret value. CERTS_SECRET contains a resource name used by Cert Rotator."
+    {{- include "watchdog.annotations" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "watchdog.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+      {{- include "watchdog.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
+      serviceAccountName: {{ template "watchdog.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+      {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- if .Values.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      {{- if or .Values.dnsPolicy .Values.hostNetwork  }}
+      dnsPolicy: {{ or .Values.dnsPolicy "ClusterFirstWithHostNet" }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: WEBHOOK_NAME
+              value: {{ include "watchdog.webhookName" . }}
+            - name: SERVICE_NAME
+              value: {{ include "watchdog.fullname" . }}
+            - name: LOG_LEVEL
+              value: "0"
+            - name: CERTS_ROTATION
+              value: "true"
+            - name: CERTS_SECRET
+              value: {{ include "watchdog.certsSecretName" . }}
+            {{- if .Values.gcp.clusterName }}
+            - name: GOOGLE_PROJECT
+              value: {{ .Values.gcp.project | quote }}
+            - name: GOOGLE_CLUSTER_ZONE
+              value: {{ .Values.gcp.location | quote }}
+            - name: GOOGLE_CLUSTER_NAME
+              value: {{ .Values.gcp.clusterName | quote }}
+            {{- end }}
+            {{- if .Values.gcp.credentialsJSON }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /gcp/credentials.json
+            {{- end }}
+            {{- with .Values.additionalEnvs }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
+          envFrom:
+            - secretRef:
+                {{- if .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
+                name: {{ include "watchdog.fullname" . }}
+                {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                {{- end }}
+            - configMapRef:
+                {{- if .Values.castai.clusterID }}
+                name: {{ include "watchdog.fullname" . }}
+                {{- else }}
+                name: {{ required "configMapRef or (organizationID, clusterID and apiUrl) must be provided" .Values.castai.configMapRef }}
+                {{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
+          volumeMounts:
+            - mountPath: /certs
+              name: certs
+              readOnly: true
+            {{- if .Values.gcp.credentialsJSON }}
+            - mountPath: /gcp
+              name: gcp
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          ports:
+            - containerPort: 8081
+              name: health
+              protocol: TCP
+            - containerPort: 8080
+              name: metrics
+              protocol: TCP
+            - containerPort: 9443
+              name: webhook
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+      volumes:
+        - name: certs
+          secret:
+            defaultMode: 420
+            secretName: {{ include "watchdog.certsSecretName" . }}
+        {{- if .Values.gcp.credentialsJSON }}
+        - name: gcp
+          secret:
+            defaultMode: 420
+            secretName: {{ include "watchdog.fullname" . }}-gcp
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+{{- end }}
