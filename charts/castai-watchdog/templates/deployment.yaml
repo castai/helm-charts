@@ -49,24 +49,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: WEBHOOK_NAME
-              value: {{ include "watchdog.webhookName" . }}
-            - name: SERVICE_NAME
-              value: {{ include "watchdog.fullname" . }}
-            - name: LOG_LEVEL
-              value: "0"
-            - name: CERTS_ROTATION
-              value: "true"
-            - name: CERTS_SECRET
-              value: {{ include "watchdog.certsSecretName" . }}
-            {{- if .Values.gcp.clusterName }}
-            - name: GOOGLE_PROJECT
-              value: {{ .Values.gcp.project | quote }}
-            - name: GOOGLE_CLUSTER_ZONE
-              value: {{ .Values.gcp.location | quote }}
-            - name: GOOGLE_CLUSTER_NAME
-              value: {{ .Values.gcp.clusterName | quote }}
-            {{- end }}
             {{- if .Values.gcp.credentialsJSON }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /gcp/credentials.json
@@ -85,11 +67,7 @@ spec:
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
                 {{- end }}
             - configMapRef:
-                {{- if .Values.castai.clusterID }}
                 name: {{ include "watchdog.fullname" . }}
-                {{- else }}
-                name: {{ required "configMapRef or (organizationID, clusterID and apiUrl) must be provided" .Values.castai.configMapRef }}
-                {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
           volumeMounts:
