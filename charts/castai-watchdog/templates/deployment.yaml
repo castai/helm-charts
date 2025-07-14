@@ -67,7 +67,11 @@ spec:
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
                 {{- end }}
             - configMapRef:
+                {{- if .Values.castai.configMapRef }}
+                name: {{ .Values.castai.configMapRef | quote }}
+                {{- else }}
                 name: {{ include "watchdog.fullname" . }}
+                {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
           volumeMounts:
