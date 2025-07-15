@@ -17,8 +17,8 @@ spec:
     {{- range $index, $endpoint := .Values.endpoints}}
     {{- if empty $endpoint.name }}
     - name: endpoint-{{$index}}
-      port: {{$endpoint.servicePort}}
-      targetPort: {{$endpoint.targetPort}}
+      port: {{$endpoint.port}}
+      targetPort: {{$endpoint.port}}
       protocol: TCP
     {{- end }}
     {{- end }}
@@ -51,7 +51,7 @@ spec:
   ports:
     - name: endpoint
       port: {{$endpoint.servicePort}}
-      targetPort: {{$endpoint.targetPort}}
+      targetPort: {{$endpoint.port}}
       protocol: TCP
   selector:
     {{- include "selectorLabels" $ | nindent 4 }}
