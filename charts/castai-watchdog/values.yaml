@@ -104,6 +104,35 @@ castai:
   # organization ID -- ID of the organization
   organizationID: ""
 
+# -- List of webhooks, where to send Watchdog events about autoscaling
+webhooks: []
+# - url: https://example.com/slack-webhook
+#   method: POST
+#   headers:
+#     x-header: header-value
+#   payloadTemplate: |
+#     {{- $e := .Event -}}
+#     {
+#       "attachments": [
+#         {
+#           "color": {{ if eq $e.Type "StartAutoscaling" }}"#36a64f"{{ else if eq $e.Type "StopAutoscaling" }}"#a63636"{{ else }}"#cccccc"{{ end }},
+#           "title": "{{ if eq $e.Type "StartAutoscaling" }}Autoscaling started{{ else if eq $e.Type "StopAutoscaling" }}Autoscaling stopped{{ end }}",
+#           "fields": [
+#             {
+#               "title": "Time",
+#               "value": "{{ $e.Timestamp.Format "2006-01-02 15:04:05 MST" }}",
+#               "short": true
+#             },
+#             {
+#               "title": "Reason",
+#               "value": "{{ $e.Reason }}",
+#               "short": false
+#             }
+#           ]
+#         }
+#       ]
+#     }
+
 gcp:
   project: ""
   location: ""

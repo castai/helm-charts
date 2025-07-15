@@ -49,24 +49,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
-            - name: WEBHOOK_NAME
-              value: {{ include "watchdog.webhookName" . }}
-            - name: SERVICE_NAME
-              value: {{ include "watchdog.fullname" . }}
-            - name: LOG_LEVEL
-              value: "0"
-            - name: CERTS_ROTATION
-              value: "true"
-            - name: CERTS_SECRET
-              value: {{ include "watchdog.certsSecretName" . }}
-            {{- if .Values.gcp.clusterName }}
-            - name: GOOGLE_PROJECT
-              value: {{ .Values.gcp.project | quote }}
-            - name: GOOGLE_CLUSTER_ZONE
-              value: {{ .Values.gcp.location | quote }}
-            - name: GOOGLE_CLUSTER_NAME
-              value: {{ .Values.gcp.clusterName | quote }}
-            {{- end }}
             {{- if .Values.gcp.credentialsJSON }}
             - name: GOOGLE_APPLICATION_CREDENTIALS
               value: /gcp/credentials.json
@@ -85,16 +67,19 @@ spec:
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
                 {{- end }}
             - configMapRef:
-                {{- if .Values.castai.clusterID }}
-                name: {{ include "watchdog.fullname" . }}
+                {{- if .Values.castai.configMapRef }}
+                name: {{ .Values.castai.configMapRef | quote }}
                 {{- else }}
-                name: {{ required "configMapRef or (organizationID, clusterID and apiUrl) must be provided" .Values.castai.configMapRef }}
+                name: {{ include "watchdog.fullname" . }}
                 {{- end }}
           securityContext:
             readOnlyRootFilesystem: true
           volumeMounts:
             - mountPath: /certs
               name: certs
+              readOnly: true
+            - mountPath: /etc/cast-watchdog
+              name: config
               readOnly: true
             {{- if .Values.gcp.credentialsJSON }}
             - mountPath: /gcp
@@ -126,6 +111,9 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ include "watchdog.certsSecretName" . }}
+        - name: config
+          configMap:
+            name: {{ include "watchdog.fullname" . }}
         {{- if .Values.gcp.credentialsJSON }}
         - name: gcp
           secret:

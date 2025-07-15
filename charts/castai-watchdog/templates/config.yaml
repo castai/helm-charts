@@ -11,7 +11,31 @@ metadata:
     {{- include "watchdog.annotations" . | nindent 4 }}
   {{- end }}
 data:
-  API_URL: {{ required "castai.apiUrl must be provided" .Values.castai.apiUrl | quote }}
-  CLUSTER_ID: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
-  ORGANIZATION_ID: {{ required "organizationID must be provided" .Values.castai.organizationID | quote }}
+  config.yaml: |
+    clusterId: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
+    organizationId: {{ required "organizationID must be provided" .Values.castai.organizationID | quote }}
+    api:
+      url: {{ required "castai.apiUrl must be provided" .Values.castai.apiUrl | quote }}
+
+    log:
+      level: "0"
+
+    webhookName: {{ include "watchdog.webhookName" . }}
+    serviceName: {{ include "watchdog.fullname" . }}
+
+    {{- if .Values.gcp.clusterName }}
+    google:
+      project: {{ .Values.gcp.project | quote }}
+      location: {{ .Values.gcp.location | quote }}
+      clusterName: {{ .Values.gcp.clusterName | quote }}
+    {{- end }}
+
+    certsRotation: true
+    certsSecret: {{ include "watchdog.certsSecretName" . }}
+
+    {{- with .Values.webhooks }}
+    webhooks:
+      webhooks: {{ . | toYaml | nindent 8 }}
+    {{- end }}
 {{- end }}
+
