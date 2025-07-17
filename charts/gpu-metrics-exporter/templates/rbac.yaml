@@ -64,7 +64,7 @@ metadata:
   {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: {{ if .Values.gpuMetricsExporter.rbac.clusterWide }}ClusterRoleBinding{{ else }}RoleBinding{{ end }}
+  kind: {{ if .Values.gpuMetricsExporter.rbac.clusterWide }}ClusterRole{{ else }}Role{{ end }}
   name: {{ include "gpu-metrics-exporter.fullname" . }}
   {{- if .Values.gpuMetricsExporter.rbac.clusterWide }}
   namespace: {{.Release.Namespace}}
