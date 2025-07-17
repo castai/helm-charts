@@ -13,11 +13,14 @@ metadata:
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
+kind: {{ if .Values.gpuMetricsExporter.rbac.clusterWide }}ClusterRole{{ else }}Role{{ end }}
 metadata:
   name: {{ include "gpu-metrics-exporter.fullname" . }}
   labels:
     {{- include "gpu-metrics-exporter.labels" . | nindent 4 }}
+  {{- if not .Values.gpuMetricsExporter.rbac.clusterWide }}
+  namespace: {{.Release.Namespace}}
+  {{- end }}
 rules:
 - apiGroups:
   - ""
@@ -51,15 +54,21 @@ rules:
     - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
+kind: {{ if .Values.gpuMetricsExporter.rbac.clusterWide }}ClusterRoleBinding{{ else }}RoleBinding{{ end }}
 metadata:
   name: {{ include "gpu-metrics-exporter.fullname" . }}
   labels:
     {{- include "gpu-metrics-exporter.labels" . | nindent 4 }}
+  {{- if not .Values.gpuMetricsExporter.rbac.clusterWide }}
+  namespace: {{.Release.Namespace}}
+  {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
+  kind: {{ if .Values.gpuMetricsExporter.rbac.clusterWide }}ClusterRoleBinding{{ else }}RoleBinding{{ end }}
   name: {{ include "gpu-metrics-exporter.fullname" . }}
+  {{- if .Values.gpuMetricsExporter.rbac.clusterWide }}
+  namespace: {{.Release.Namespace}}
+  {{- end }}
 subjects:
 - kind: ServiceAccount
   name: {{ include "gpu-metrics-exporter.serviceAccountName" . }}

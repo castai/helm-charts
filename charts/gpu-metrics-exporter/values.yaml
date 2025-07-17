@@ -10,6 +10,7 @@ serviceAccount:
 castai:
   apiKey: ""
   apiKeySecretRef: ""
+  apiUrl: ""
   clusterId: ""
   clusterIdSecretKeyRef:
     name: ""
@@ -36,6 +37,8 @@ gpuMetricsExporter:
     - key: "nvidia.com/gpu"
       value: "true"
       effect: "NoSchedule"
+  rbac:
+    clusterWide: true
 
 dcgmExporter:
   enabled: true
