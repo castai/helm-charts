@@ -28,6 +28,9 @@ metadata:
     {{- include "cluster-controller.annotations" . | nindent 4 }}
   {{- end }}
 rules:
+  - apiGroups: [ "mcpservers.toolhive.stacklok.dev" ]
+    resources: [ "*" ]
+    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
   # Readonly.
   - apiGroups: [ "" ]
     resources: [ "pods", "nodes" ]
