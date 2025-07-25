@@ -111,7 +111,8 @@ queryProcessor:
   queryCacheSize: 100000
   # -- Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage.
   concurrency: 10
-
+  # -- Enable additional debugging features to aid troubleshooting.
+  debug: false
 
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
