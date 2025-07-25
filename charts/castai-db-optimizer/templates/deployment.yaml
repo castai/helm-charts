@@ -78,6 +78,11 @@ spec:
             - name: metrics
               containerPort: 2112
               protocol: TCP
+            {{- if .Values.queryProcessor.debug }}
+            - name: pprof
+              containerPort: 6060
+              protocol: TCP
+            {{- end }}
           envFrom:
             - secretRef:
               {{- if .Values.apiKey }}
