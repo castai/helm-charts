@@ -3,6 +3,9 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "watchdog.fullname" . }}
+  {{- if .Values.namespace }}
+  namespace: {{.Values.namespace}}
+  {{- end}}
 spec:
   minAvailable: 1
   selector:
