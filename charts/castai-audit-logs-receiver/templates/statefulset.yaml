@@ -67,9 +67,9 @@ spec:
               value: {{ .Values.castai.clusterID | quote }}
             {{- end }}
           volumeMounts:
-            {{- if .Values.configMap.create }}
+            {{- if or .Values.configMap.create .Values.configMap.configMapRef }}
             - mountPath: /etc/otel
-              name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-configmap
+              name: {{ include "castai-audit-logs-receiver.configmap" . }}-configmap
             {{- end }}
             {{- if and .Values.persistence.enabled }}
             - mountPath: /var/lib/otelcol/file_storage
@@ -110,10 +110,10 @@ spec:
       serviceAccountName: {{ include "castai-audit-logs-receiver.serviceAccountName" . }}
       automountServiceAccountToken: true
       volumes:
-        {{- if .Values.configMap.create }}
-        - name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-configmap
+        {{- if or .Values.configMap.create .Values.configMap.configMapRef }}
+        - name: {{ include "castai-audit-logs-receiver.configmap" . }}-configmap
           configMap:
-            name: {{ include "castai-audit-logs-receiver.fullname" . }}{{ .configmapSuffix }}
+            name: {{ include "castai-audit-logs-receiver.configmap" . }}
             items:
               - key: config
                 path: config.yaml

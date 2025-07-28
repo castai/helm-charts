@@ -67,6 +67,21 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Create the name of the configmap to use
+*/}}
+{{- define "castai-audit-logs-receiver.configmap" -}}
+{{- if and .Values.configMap.create .Values.configMap.configMapRef }}
+{{- fail "either .configMap.create or .configMap.configMapRef must be provided and cannot be both" }}
+{{- end }}
+{{- if .Values.configMap.create }}
+{{- include "castai-audit-logs-receiver.fullname" .}}
+{{- end }}
+{{- if .Values.configMap.configMapRef }}
+{{- .Values.configMap.configMapRef }}
+{{- end }}
+{{- end }}
+
+{{/*
 Common Annotations
 */}}
 {{- define "castai-audit-logs-receiver.annotations" -}}
