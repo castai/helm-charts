@@ -2,6 +2,9 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: {{ include "watchdog.fullname" . }}
+  {{- if .Values.namespace }}
+  namespace: {{.Values.namespace}}
+  {{- end}}
   labels:
   {{- include "watchdog.labels" . | nindent 4 }}
 rules:
