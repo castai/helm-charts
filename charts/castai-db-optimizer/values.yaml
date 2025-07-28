@@ -31,6 +31,8 @@ podLabels: {}
 # -- Extra annotations to add to the pod.
 podAnnotations: {}
 
+useLocationInCacheConfig: true
+
 resources:
   proxy:
     cpu: "500m"
