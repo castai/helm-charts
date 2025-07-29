@@ -29,11 +29,9 @@ data:
       - name: "castai.cache_control"
         typed_config:
           "@type": type.googleapis.com/castai.cache_control.v1.CacheControlConfig
-          {{- if .Values.useLocationInCacheConfig }}
           location:
             provider: pce
             region:
-          {{- end }}
       - name: "castai.cluster_control"
         typed_config:
           "@type": type.googleapis.com/castai.cluster_control.v1.ClusterControlConfig
