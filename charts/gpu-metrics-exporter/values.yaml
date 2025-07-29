@@ -1,5 +1,4 @@
-# possible provider values: gke | eks | aks
-provider: "eks"
+provider: "" # gke | eks | aks
 imagePullSecrets: []
 
 serviceAccount:
@@ -9,11 +8,8 @@ serviceAccount:
 
 castai:
   apiKey: ""
-  apiKeySecretRef: ""
   clusterId: ""
-  clusterIdSecretKeyRef:
-    name: ""
-    key: "CLUSTER_ID"
+  apiUrl: ""
 
 gpuMetricsExporter:
   image:
@@ -33,9 +29,12 @@ gpuMetricsExporter:
     runAsNonRoot: true
   port: 6061
   tolerations:
-    - key: "nvidia.com/gpu"
-      value: "true"
-      effect: "NoSchedule"
+    - effect: "NoExecute"
+      operator: "Exists"
+    - effect: "NoExecute"
+      operator: "Exists"
+  rbac:
+    clusterWide: true
 
 dcgmExporter:
   enabled: true
