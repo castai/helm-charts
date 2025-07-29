@@ -2,7 +2,7 @@ apiVersion: v2
 name: castai-hosted-model
 description: CAST AI hosted model deployment chart.
 type: application
-version: 0.0.17
+version: 0.0.18
 appVersion: "v0.0.1"
 dependencies:
   - name: ollama
@@ -10,6 +10,6 @@ dependencies:
     repository: https://otwld.github.io/ollama-helm/
     condition: ollama.enabled
   - name: vllm
-    version: 0.0.11
+    version: 0.0.12
     repository: file://child-charts/vllm
     condition: vllm.enabled

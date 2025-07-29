@@ -1,6 +1,6 @@
 image:
   repository: "us-docker.pkg.dev/castai-hub/library/vllm-openai"
-  tag: "v0.8.5"
+  tag: "v0.9.2"
 
 container:
   port: 8000
@@ -14,6 +14,7 @@ task: "generate"
 enableChunkedPrefill: true
 maxNumBatchedTokens: 10000
 enableAutoToolChoice: false
+dtype: "half"
 
 startupProbe:
   initialDelaySeconds: 20
