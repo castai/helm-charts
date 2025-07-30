@@ -1,10 +1,10 @@
 provider: "" # gke | eks | aks
-imagePullSecrets: []
+imagePullSecrets: [ ]
 
 serviceAccount:
   create: true
   automount: true
-  annotations: {}
+  annotations: { }
 
 castai:
   apiKey: ""
@@ -12,11 +12,15 @@ castai:
   apiUrl: ""
 
 gpuMetricsExporter:
+  # the affinity field is the preffered way of adding affinity annotations
+  # for gke provider the gke.affinity will be used if this isn't defined but in the future custom affinity annotations
+  # should be defined in the gpuMetricsExporter.affinity field
+  affinity:
   image:
     repository: ghcr.io/castai/gpu-metrics-exporter/gpu-metrics-exporter
     pullPolicy: IfNotPresent
     tag: ""
-  config: {}
+  config: { }
   resources:
     limits:
       cpu: 100m
