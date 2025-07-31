@@ -48,7 +48,7 @@ spec:
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
             {{ end }}
             - "--task={{ required "Required value 'task' must be defined" .Values.task }}"
-            - "--dtype=half"
+            - "--dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }}"
             - "--kv-cache-dtype=fp8_e5m2"
             {{ if .Values.enableChunkedPrefill }}
             - "--enable-chunked-prefill"
@@ -73,6 +73,8 @@ spec:
             - "--quantization={{ .Values.quantization }}"
             {{ end }}
           env:
+            - name: LD_LIBRARY_PATH
+              value: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
             {{- if .Values.hfToken }}
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
