@@ -162,8 +162,11 @@ k8sApiClient:
   # rateLimit -- Client uses token based rate limiting. By default, client has 200 api request burst limit set.
   # Buffer is refilled with 100 tokens every second. During sustained load client will be capped at 100 requests / sec.
   rateLimit:
-    burst: 200
-    qps: 100
+    burst: 400
+    qps: 200
+
+# -- Max number of actions, which are done concurrently.
+maxActionsInProgress: 1000
 
 # workloadAutoscaling -- Settings for managing CAST autoscaling CRDs.
 workloadAutoscaling:

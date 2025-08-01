@@ -122,6 +122,10 @@ spec:
             - name: KUBECLIENT_QPS
               value: {{ .Values.k8sApiClient.rateLimit.qps | quote }}
           {{- end }}
+          {{- if .Values.maxActionsInProgress }}
+            - name: MAX_ACTIONS_IN_PROGRESS
+              value: {{ .Values.maxActionsInProgress | quote }}
+          {{- end }}
           {{- if not .Values.autoscaling.enabled }}
             - name: AUTOSCALING_DISABLED
               value: "true"
