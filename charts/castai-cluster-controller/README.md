@@ -42,10 +42,11 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/cluster-controller"` |  |
 | image.tag | string | `""` | Tag is set using Chart.yaml appVersion field. |
 | imagePullSecrets | object | `{}` |  |
-| k8sApiClient | object | `{"rateLimit":{"burst":200,"qps":100}}` | Settings for configuring k8s client used in castai-cluster-controller. |
+| k8sApiClient | object | `{"rateLimit":{"burst":400,"qps":200}}` | Settings for configuring k8s client used in castai-cluster-controller. |
 | leaderElectionEnabled | bool | `true` | When running 2+ replicas of castai-cluster-controller only one should work as a leader. |
 | leaderElectionLeaseDuration | string | `"15s"` |  |
 | leaderElectionRenewDeadline | string | `"10s"` |  |
+| maxActionsInProgress | int | `1000` | Max number of actions, which are done concurrently. |
 | monitor.resources.requests.cpu | string | `"100m"` |  |
 | monitor.resources.requests.memory | string | `"128Mi"` |  |
 | nameOverride | string | `""` |  |
