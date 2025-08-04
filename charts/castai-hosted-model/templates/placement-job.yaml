@@ -23,6 +23,14 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
+                  {{- if gt (len .Values.placementJob.blacklistedGPUNames) 0 }}
+                  - key: nvidia.com/gpu.name
+                    operator: NotIn
+                    values:
+                    {{- range .Values.placementJob.blacklistedGPUNames }}
+                      - {{ . }}
+                    {{- end }}
+                  {{- end }}
                   - key: nvidia.com/gpu.total-memory
                     operator: Gt
                     values:

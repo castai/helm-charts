@@ -14,6 +14,7 @@ CAST AI hosted model deployment chart.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | ollama.enabled | bool | `true` | Specifies if Ollama model should be deployed |
+| placementJob.blacklistedGPUNames | list | `[]` | The names of GPUs that shouldn't be used for this job. |
 | placementJob.enabled | bool | `false` | Specifies if a node placement job should be deployed |
 | placementJob.image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | placementJob.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/busybox"` | The image to use for the job |
