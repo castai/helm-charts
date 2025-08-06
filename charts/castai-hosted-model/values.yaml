@@ -11,6 +11,9 @@ placementJob:
   # -- Total GPU memory MiB (GPU count * GPU memory MiB) of the node that should be provisioned for this job
   requiredGPUTotalMemoryMiB:
 
+  # -- The names of GPUs that shouldn't be used for this job.
+  blacklistedGPUNames: []
+
   image:
     # -- The image to use for the job
     repository: us-docker.pkg.dev/castai-hub/library/busybox
