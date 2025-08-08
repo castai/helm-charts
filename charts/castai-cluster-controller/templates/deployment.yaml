@@ -130,6 +130,12 @@ spec:
             - name: AUTOSCALING_DISABLED
               value: "true"
           {{- end }}
+            - name: METRICS_EXPORT_ENABLED
+              value: {{ .Values.castai.exportMetrics.enabled | quote }}
+          {{- if .Values.castai.exportMetrics.interval }}
+            - name: METRICS_EXPORT_INTERVAL
+              value: {{ .Values.castai.exportMetrics.interval | quote }}
+          {{- end }}
             - name: KUBERNETES_NODE_NAME
               valueFrom:
                 fieldRef:

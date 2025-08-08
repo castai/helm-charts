@@ -22,11 +22,13 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
 | autoscaling | object | `{"enabled":true}` | Settings for managing autoscaling features. |
 | autoscaling.enabled | bool | `true` | Adds permissions to manage autoscaling. |
-| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","clusterIdSecretKeyRef":{"key":"CLUSTER_ID","name":""}}` | CAST AI API configuration. |
+| castai | object | `{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","clusterID":"","clusterIdSecretKeyRef":{"key":"CLUSTER_ID","name":""},"exportMetrics":{"enabled":false,"interval":""}}` | CAST AI API configuration. |
 | castai.apiKey | string | `""` | Token to be used for authorizing agent access to the CASTAI API. |
 | castai.apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing agent access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
 | castai.clusterID | string | `""` | CASTAI Cluster unique identifier. clusterID and clusterIdSecretKeyRef are mutually exclusive |
+| castai.exportMetrics.enabled | bool | `false` | Whether to export metrics to Cast AI |
+| castai.exportMetrics.interval | string | `""` | Interval how often to send metrics to Cast AI |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
