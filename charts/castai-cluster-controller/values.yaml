@@ -64,6 +64,12 @@ castai:
     name: ""
     key: "CLUSTER_ID"
 
+  exportMetrics:
+    # -- Whether to export metrics to Cast AI
+    enabled: false
+    # -- Interval how often to send metrics to Cast AI
+    interval: ""
+
 # podAnnotations -- Annotations added to each pod.
 podAnnotations: {}
 # podLabels - Labels added to each pod.
