@@ -15,6 +15,7 @@ enableChunkedPrefill: true
 maxNumBatchedTokens: 10000
 enableAutoToolChoice: false
 dtype: "half"
+kvCacheDtype: "fp8_e5m2"
 
 startupProbe:
   initialDelaySeconds: 20
