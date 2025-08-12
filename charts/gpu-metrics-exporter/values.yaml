@@ -36,7 +36,9 @@ gpuMetricsExporter:
   tolerations:
     - effect: "NoExecute"
       operator: "Exists"
-    - effect: "NoExecute"
+    - effect: "NoSchedule"
+      operator: "Exists"
+    - effect: "PreferNoSchedule"
       operator: "Exists"
   rbac:
     clusterWide: true
