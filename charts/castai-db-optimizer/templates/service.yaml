@@ -17,8 +17,8 @@ spec:
     {{- range $index, $endpoint := .Values.endpoints}}
     {{- if empty $endpoint.name }}
     - name: endpoint-{{$index}}
-      port: {{$endpoint.port}} # envoy internal port
-      targetPort: {{$endpoint.targetPort}} # upstream database port
+      port: {{$endpoint.servicePort}}
+      targetPort: {{$endpoint.targetPort}}
       protocol: TCP
     {{- end }}
     {{- end }}
@@ -50,8 +50,8 @@ metadata:
 spec:
   ports:
     - name: endpoint
-      port: {{$endpoint.port}} # envoy internal port
-      targetPort: {{$endpoint.targetPort}} # upstream database port
+      port: {{$endpoint.servicePort}}
+      targetPort: {{$endpoint.targetPort}}
       protocol: TCP
   selector:
     {{- include "selectorLabels" $ | nindent 4 }}
