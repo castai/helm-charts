@@ -10,7 +10,7 @@ metadata:
     {{- end }}
 spec:
   replicas: {{ .Values.replicaCount }}
-  selector:                                                                                                                                  
+  selector:
     matchLabels:
       {{- include "vllm.selectorLabels" . | nindent 6 }}
   template:
@@ -35,14 +35,31 @@ spec:
             path: /cache
             type: Directory
         {{ end }}
+        {{ if include "requiresRegistry" (list "gcs" .) }}
+        - name: gcs-credentials
+          secret:
+            secretName: {{ include "registrySecretName" . }}
+            items:
+              - key: gcsCredentialsJson
+                path: credentials.json
+        {{- end }}
+        - name: models
+          emptyDir: {}
       containers:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           command: ["vllm", "serve"]
           args:
-            - {{ .Values.model | quote }}
-            - "--port={{ .Values.container.port }}"
+            - "--model={{ include "modelReference" . }}"
+            - "--served-model-name={{ .Values.model.name }}"
+            {{- if .Values.loraAdapter.name }}
+            - "--enable-lora"
+            - "--max-lora-rank={{ .Values.maxLoraRank }}"
+            - "--lora-modules"
+            - '{"name": "{{ .Values.loraAdapter.name }}", "path": "/models/{{ .Values.loraAdapter.name }}", "base_model_name": "{{ .Values.model.name }}"}'
+            {{ end }}
+            - "--load-format=runai_streamer"
             - "--trust-remote-code"
             {{ if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
@@ -75,26 +92,27 @@ spec:
           env:
             - name: LD_LIBRARY_PATH
               value: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
-            {{- if .Values.hfToken }}
+            - name: AWS_REQUEST_CHECKSUM_CALCULATION
+              value: "when_required"
+            - name: AWS_RESPONSE_CHECKSUM_VALIDATION
+              value: "when_required"
+            - name: AWS_ENDPOINT_URL
+              value: "http://localhost:8080"
+            - name: AWS_ACCESS_KEY_ID
+              value: "local-identity"
+            - name: AWS_SECRET_ACCESS_KEY
+              value: "local-credential"
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "vllm.fullname" . }}
-                  key: "HF_TOKEN"
-            {{- else }}
-            {{- if .Values.secretName }}
-            - name: HUGGING_FACE_HUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ required "secretName must be provided" .Values.secretName }}
-                  key: "HF_TOKEN"
-            {{- end }}
-            {{- end }}
+                  name: {{ include "registrySecretName" . }}
+                  key: "hfToken"
+                  optional: true
           ports:
             - name: http
               containerPort: {{ .Values.container.port }}
               protocol: TCP
-          resources: 
+          resources:
             {{ toYaml .Values.resources | nindent 12 }}
           startupProbe:
             httpGet:
@@ -130,6 +148,56 @@ spec:
             - name: llm-cache
               mountPath: /cache
           {{ end }}
+            - name: models
+              mountPath: /models
+      initContainers:
+{{- if .Values.loraAdapter.name }}
+        - name: model-downloader
+          image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          args:
+            - download
+          env:
+            - name: STORAGE_TYPE
+              value: "gcs"
+            - name: GCS_CREDENTIALS_FILE
+              value: "/etc/gcs-credentials/credentials.json"
+            - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIR
+              value: "{{ .Values.loraAdapter.name }}"
+            - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
+              value: "/models/{{ .Values.loraAdapter.name }}"
+          volumeMounts:
+            - name: models
+              mountPath: /models
+            - name: gcs-credentials
+              mountPath: /etc/gcs-credentials
+              readOnly: true
+          resources:
+            {{ toYaml .Values.modelDownloader.resources | nindent 12 }}
+{{- end }}
+{{- if ne .Values.model.sourceRegistry "hf" }}
+        - name: s3proxy
+          image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
+          restartPolicy: Always
+          imagePullPolicy: IfNotPresent
+          args:
+            - s3proxy
+          ports:
+            - name: s3proxy
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: STORAGE_TYPE
+              value: "gcs"
+            - name: GCS_CREDENTIALS_FILE
+              value: "/etc/gcs-credentials/credentials.json"
+          volumeMounts:
+            - name: gcs-credentials
+              mountPath: /etc/gcs-credentials
+              readOnly: true
+          resources:
+            {{ toYaml .Values.modelDownloader.s3ProxyResources | nindent 12 }}
+{{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
