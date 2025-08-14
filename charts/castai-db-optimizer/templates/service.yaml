@@ -17,8 +17,8 @@ spec:
     {{- range $index, $endpoint := .Values.endpoints}}
     {{- if empty $endpoint.name }}
     - name: endpoint-{{$index}}
-      port: {{$endpoint.servicePort}}
-      targetPort: {{$endpoint.targetPort}}
+      port: {{$endpoint.servicePort}} # exposed service port ->
+      targetPort: {{$endpoint.port}} # -> port to DBO Proxy pod
       protocol: TCP
     {{- end }}
     {{- end }}
@@ -50,8 +50,8 @@ metadata:
 spec:
   ports:
     - name: endpoint
-      port: {{$endpoint.servicePort}}
-      targetPort: {{$endpoint.targetPort}}
+      port: {{$endpoint.servicePort}} # exposed service port ->
+      targetPort: {{$endpoint.port}} # -> port to DBO Proxy pod
       protocol: TCP
   selector:
     {{- include "selectorLabels" $ | nindent 4 }}
