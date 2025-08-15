@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.42.2](https://img.shields.io/badge/Version-0.42.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.42.3](https://img.shields.io/badge/Version-0.42.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
