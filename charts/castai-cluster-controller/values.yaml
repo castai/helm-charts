@@ -7,8 +7,8 @@ replicas: 2
 pdbMinAvailable: 1
 # leaderElectionEnabled -- When running 2+ replicas of castai-cluster-controller only one should work as a leader.
 leaderElectionEnabled: true
-leaderElectionLeaseDuration: 15s
-leaderElectionRenewDeadline: 10s
+leaderElectionLeaseDuration: 80s
+leaderElectionRenewDeadline: 60s
 
 # commonLabels -- Labels to add to all resources.
 commonLabels: {}

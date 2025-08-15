@@ -44,8 +44,8 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | imagePullSecrets | object | `{}` |  |
 | k8sApiClient | object | `{"rateLimit":{"burst":400,"qps":200}}` | Settings for configuring k8s client used in castai-cluster-controller. |
 | leaderElectionEnabled | bool | `true` | When running 2+ replicas of castai-cluster-controller only one should work as a leader. |
-| leaderElectionLeaseDuration | string | `"15s"` |  |
-| leaderElectionRenewDeadline | string | `"10s"` |  |
+| leaderElectionLeaseDuration | string | `"80s"` |  |
+| leaderElectionRenewDeadline | string | `"60s"` |  |
 | maxActionsInProgress | int | `1000` | Max number of actions, which are done concurrently. |
 | monitor.resources.requests.cpu | string | `"100m"` |  |
 | monitor.resources.requests.memory | string | `"128Mi"` |  |
