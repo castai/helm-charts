@@ -1,6 +1,6 @@
 # castai-pod-pinner
 
-![Version: 1.3.7](https://img.shields.io/badge/Version-1.3.7-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.6.5](https://img.shields.io/badge/AppVersion-v1.6.5-informational?style=flat-square)
+![Version: 1.3.8](https://img.shields.io/badge/Version-1.3.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.6.6](https://img.shields.io/badge/AppVersion-v1.6.6-informational?style=flat-square)
 
 CAST AI Pod Pinning deployment chart.
 
