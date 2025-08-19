@@ -22,20 +22,20 @@ spec:
         {{- end }}
     spec:
       volumes:
-        {{ if .Values.tensorParallelSize }}
+        {{- if .Values.tensorParallelSize }}
         # vLLM needs to access the host's shared memory for tensor parallel inference.
         - name: shm
           emptyDir:
             medium: Memory
             sizeLimit: "10Gi"
-        {{ end }}
-        {{ if .Values.mountImageCache }}
+        {{- end }}
+        {{- if .Values.mountImageCache }}
         - name: llm-cache
           hostPath:
             path: /cache
             type: Directory
-        {{ end }}
-        {{ if include "requiresRegistry" (list "gcs" .) }}
+        {{- end }}
+        {{- if include "requiresRegistry" (list "gcs" .) }}
         - name: gcs-credentials
           secret:
             secretName: {{ include "registrySecretName" . }}
@@ -58,37 +58,37 @@ spec:
             - "--max-lora-rank={{ .Values.maxLoraRank }}"
             - "--lora-modules"
             - '{"name": "{{ .Values.loraAdapter.name }}", "path": "/models/{{ .Values.loraAdapter.name }}", "base_model_name": "{{ .Values.model.name }}"}'
-            {{ end }}
+            {{- end }}
             - "--load-format=runai_streamer"
             - "--trust-remote-code"
-            {{ if .Values.gpuMemoryUtilization }}
+            {{- if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
-            {{ end }}
+            {{- end }}
             - "--task={{ required "Required value 'task' must be defined" .Values.task }}"
             - "--dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }}"
             - "--kv-cache-dtype={{ required "Required value 'kvCacheDtype' must be defined" .Values.kvCacheDtype }}"
-            {{ if .Values.enableChunkedPrefill }}
+            {{- if .Values.enableChunkedPrefill }}
             - "--enable-chunked-prefill"
-            {{ end }}
-            {{ if .Values.maxNumBatchedTokens }}
+            {{- end }}
+            {{- if .Values.maxNumBatchedTokens }}
             - "--max-num-batched-tokens={{ .Values.maxNumBatchedTokens }}"
-            {{ end }}
-            {{ if .Values.enableAutoToolChoice }}
+            {{- end }}
+            {{- if .Values.enableAutoToolChoice }}
             - "--enable-auto-tool-choice"
-            {{ end }}
-            {{ if .Values.toolCallParser }}
+            {{- end }}
+            {{- if .Values.toolCallParser }}
             - "--tool-call-parser={{ .Values.toolCallParser }}"
-            {{ end }}
+            {{- end }}
             - "--download-dir=/cache"
-            {{ if .Values.maxModelLen }}
+            {{- if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"
-            {{ end }}
-            {{ if .Values.tensorParallelSize }}
+            {{- end }}
+            {{- if .Values.tensorParallelSize }}
             - "--tensor-parallel-size={{ .Values.tensorParallelSize }}"
-            {{ end }}
-            {{ if .Values.quantization }}
+            {{- end }}
+            {{- if .Values.quantization }}
             - "--quantization={{ .Values.quantization }}"
-            {{ end }}
+            {{- end }}
           env:
             - name: LD_LIBRARY_PATH
               value: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
@@ -113,7 +113,7 @@ spec:
               containerPort: {{ .Values.container.port }}
               protocol: TCP
           resources:
-            {{ toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
           startupProbe:
             httpGet:
               path: {{ .Values.startupProbe.httpGet.path }}
@@ -140,28 +140,25 @@ spec:
             successThreshold: {{ .Values.readinessProbe.successThreshold }}
             failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
           volumeMounts:
-          {{ if .Values.tensorParallelSize }}
+          {{- if .Values.tensorParallelSize }}
             - name: shm
               mountPath: /dev/shm
-          {{ end }}
-          {{ if .Values.mountImageCache }}
+          {{- end }}
+          {{- if .Values.mountImageCache }}
             - name: llm-cache
               mountPath: /cache
-          {{ end }}
+          {{- end }}
             - name: models
               mountPath: /models
       initContainers:
-{{- if .Values.loraAdapter.name }}
+        {{- if .Values.loraAdapter.name }}
         - name: model-downloader
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           imagePullPolicy: IfNotPresent
           args:
             - download
           env:
-            - name: STORAGE_TYPE
-              value: "gcs"
-            - name: GCS_CREDENTIALS_FILE
-              value: "/etc/gcs-credentials/credentials.json"
+            {{- include "modelDownloader.sourceRegistryEnvVars" .Values.loraAdapter.sourceRegistry | nindent 12 }}
             - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIR
               value: "{{ .Values.loraAdapter.name }}"
             - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
@@ -169,13 +166,11 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /models
-            - name: gcs-credentials
-              mountPath: /etc/gcs-credentials
-              readOnly: true
+            {{- include "modelDownloader.sourceRegistryVolumeMounts" .Values.loraAdapter.sourceRegistry | nindent 12 }}
           resources:
-            {{ toYaml .Values.modelDownloader.resources | nindent 12 }}
-{{- end }}
-{{- if ne .Values.model.sourceRegistry "hf" }}
+            {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
+        {{- end }}
+        {{- if ne .Values.model.sourceRegistry "hf" }}
         - name: s3proxy
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           restartPolicy: Always
@@ -187,17 +182,12 @@ spec:
               containerPort: 8080
               protocol: TCP
           env:
-            - name: STORAGE_TYPE
-              value: "gcs"
-            - name: GCS_CREDENTIALS_FILE
-              value: "/etc/gcs-credentials/credentials.json"
+            {{- include "modelDownloader.sourceRegistryEnvVars" .Values.model.sourceRegistry | nindent 12 }}
           volumeMounts:
-            - name: gcs-credentials
-              mountPath: /etc/gcs-credentials
-              readOnly: true
+            {{- include "modelDownloader.sourceRegistryVolumeMounts" .Values.model.sourceRegistry | nindent 12 }}
           resources:
-            {{ toYaml .Values.modelDownloader.s3ProxyResources | nindent 12 }}
-{{- end }}
+            {{- toYaml .Values.modelDownloader.s3ProxyResources | nindent 12 }}
+        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

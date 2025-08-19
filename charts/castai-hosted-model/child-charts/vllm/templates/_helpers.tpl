@@ -65,3 +65,32 @@ Usage {{ include "modelReference" . }}
 s3://{{ .Values.model.name }}
 {{- end -}}
 {{- end }}
+
+{{/*
+Generate model downloader's storage environment variables based on source registry type
+Usage: {{ include "modelDownloader.sourceRegistryEnvVars" "gcs" }}
+*/}}
+{{- define "modelDownloader.sourceRegistryEnvVars" -}}
+{{- $storageType := . -}}
+{{- if eq $storageType "gcs" -}}
+- name: STORAGE_TYPE
+  value: "gcs"
+- name: GCS_CREDENTIALS_FILE
+  value: "/etc/gcs-credentials/credentials.json"
+{{- end -}}
+{{- end }}
+
+
+{{/*
+Generate model downloader's volume mounts based on source registry type
+Usage: {{ include "modelDownloader.sourceRegistryVolumeMounts "gcs" }}
+*/}}
+{{- define "modelDownloader.sourceRegistryVolumeMounts" -}}
+{{- $storageType := . -}}
+{{- if eq $storageType "gcs" -}}
+- name: gcs-credentials
+  mountPath: /etc/gcs-credentials
+  readOnly: true
+{{- end -}}
+{{- end }}
+
