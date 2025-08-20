@@ -8,6 +8,12 @@ metadata:
     {{- with .Values.deployment.labels }}
     {{- toYaml . | nindent 4 }}
     {{- end }}
+  annotations:
+    workloads.cast.ai/configuration: |
+      vertical:
+        optimization: off
+      horizontal:
+        optimization: off
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
