@@ -65,7 +65,9 @@ spec:
             - "--lora-modules"
             - '{"name": "{{ .Values.loraAdapter.name }}", "path": "/models/{{ .Values.loraAdapter.name }}", "base_model_name": "{{ .Values.model.name }}"}'
             {{- end }}
+            {{- if .Values.useRunAiStreamer }}
             - "--load-format=runai_streamer"
+            {{- end }}
             - "--trust-remote-code"
             {{- if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
@@ -98,6 +100,7 @@ spec:
           env:
             - name: LD_LIBRARY_PATH
               value: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
+            {{- if .Values.useRunAiStreamer }}
             - name: AWS_REQUEST_CHECKSUM_CALCULATION
               value: "when_required"
             - name: AWS_RESPONSE_CHECKSUM_VALIDATION
@@ -108,6 +111,7 @@ spec:
               value: "local-identity"
             - name: AWS_SECRET_ACCESS_KEY
               value: "local-credential"
+            {{- end }}
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
                 secretKeyRef:
@@ -176,7 +180,7 @@ spec:
           resources:
             {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
         {{- end }}
-        {{- if ne .Values.model.sourceRegistry "hf" }}
+        {{- if and (ne .Values.model.sourceRegistry "hf") .Values.useRunAiStreamer }}
         - name: s3proxy
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           restartPolicy: Always

@@ -54,3 +54,4 @@ CAST AI hosted model deployment chart for vLLM.
 | startupProbe.initialDelaySeconds | int | `20` |  |
 | startupProbe.periodSeconds | int | `6` |  |
 | task | string | `"generate"` |  |
+| useRunAiStreamer | bool | `false` |  |

@@ -93,4 +93,3 @@ Usage: {{ include "modelDownloader.sourceRegistryVolumeMounts "gcs" }}
   readOnly: true
 {{- end -}}
 {{- end }}
-
