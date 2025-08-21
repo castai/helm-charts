@@ -27,7 +27,7 @@ CAST AI hosted model deployment chart for vLLM.
 | model.name | string | `nil` | HF Model name or path in object storage |
 | model.sourceRegistry | string | `"hf"` |  |
 | modelDownloader.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/model-downloader"` |  |
-| modelDownloader.image.tag | string | `"35349530904f28454c3054ed05900db81e976752"` |  |
+| modelDownloader.image.tag | string | `"v0.0.1"` |  |
 | modelDownloader.resources.limits.memory | string | `"500Mi"` |  |
 | modelDownloader.resources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.resources.requests.memory | string | `"500Mi"` |  |

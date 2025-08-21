@@ -61,8 +61,10 @@ Usage {{ include "modelReference" . }}
 {{- define "modelReference" -}}
 {{- if eq .Values.model.sourceRegistry "hf" -}}
 {{ .Values.model.name }}
-{{- else -}}
+{{- else if .Values.useRunAiStreamer -}}
 s3://{{ .Values.model.name }}
+{{- else -}}
+/models/{{ .Values.model.name }}
 {{- end -}}
 {{- end }}
 
@@ -92,4 +94,19 @@ Usage: {{ include "modelDownloader.sourceRegistryVolumeMounts "gcs" }}
   mountPath: /etc/gcs-credentials
   readOnly: true
 {{- end -}}
+{{- end }}
+
+{{/*
+Generate comma-separated list of model directories
+Usage: {{ include "modelDownloader.remoteSourceDirs" . }}
+*/}}
+{{- define "modelDownloader.remoteSourceDirs" -}}
+{{- $dirs := list -}}
+{{- if .Values.loraAdapter.name -}}
+  {{- $dirs = append $dirs .Values.loraAdapter.name -}}
+{{- end -}}
+{{- if and (ne .Values.model.sourceRegistry "hf") (not .Values.useRunAiStreamer) -}}
+  {{- $dirs = append $dirs .Values.model.name -}}
+{{- end -}}
+{{- join "," $dirs -}}
 {{- end }}
