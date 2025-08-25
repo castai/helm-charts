@@ -19,6 +19,9 @@ data:
   castai-agent-autoscaler: |-
     {
       "agent": {
+        {{- if .Values.clusterVPA.configOverride }}
+          {{- .Values.clusterVPA.configOverride | nindent 8 }}
+        {{- else }}
         "requests": {
           "memory": {
             "base": "2Gi",
@@ -37,6 +40,7 @@ data:
             "coresPerStep": 480
           }
         }
+        {{- end }}
       }
     }
 {{- end }}
