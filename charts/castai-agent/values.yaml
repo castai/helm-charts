@@ -75,6 +75,9 @@ clusterVPA:
   #     }
   #   }
 
+  # affinityOverride -- Override the default affinity configuration.
+  affinityOverride: {}
+
 resources:
   requests:
     cpu: 100m
