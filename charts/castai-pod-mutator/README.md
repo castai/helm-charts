@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.41](https://img.shields.io/badge/Version-0.0.41-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.30](https://img.shields.io/badge/AppVersion-v0.0.30-informational?style=flat-square)
+![Version: 0.0.42](https://img.shields.io/badge/Version-0.0.42-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.31](https://img.shields.io/badge/AppVersion-v0.0.31-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
