@@ -1,4 +1,7 @@
 {{- if .Values.clusterVPA.enabled }}
+
+{{- $affinity := coalesce .Values.clusterVPA.affinityOverride .Values.affinity }}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -46,7 +49,7 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with $affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
