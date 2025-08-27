@@ -49,7 +49,6 @@ service:
   type: ClusterIP
   port: 8000
 
-mountImageCache: false
 task: "generate"
 enableChunkedPrefill: true
 maxNumBatchedTokens: 10000

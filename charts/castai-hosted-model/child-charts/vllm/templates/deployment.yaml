@@ -35,12 +35,6 @@ spec:
             medium: Memory
             sizeLimit: "10Gi"
         {{- end }}
-        {{- if .Values.mountImageCache }}
-        - name: llm-cache
-          hostPath:
-            path: /cache
-            type: Directory
-        {{- end }}
         {{- if include "requiresRegistry" (list "gcs" .) }}
         - name: gcs-credentials
           secret:
@@ -87,7 +81,7 @@ spec:
             {{- if .Values.toolCallParser }}
             - "--tool-call-parser={{ .Values.toolCallParser }}"
             {{- end }}
-            - "--download-dir=/cache"
+            - "--download-dir=/models"
             {{- if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"
             {{- end }}
@@ -98,6 +92,8 @@ spec:
             - "--quantization={{ .Values.quantization }}"
             {{- end }}
           env:
+            - name: HF_HOME # Otherwise transformers will not respect download dir in vLLM
+              value: /models
             - name: LD_LIBRARY_PATH
               value: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
             {{- if .Values.useRunAiStreamer }}
@@ -153,10 +149,6 @@ spec:
           {{- if .Values.tensorParallelSize }}
             - name: shm
               mountPath: /dev/shm
-          {{- end }}
-          {{- if .Values.mountImageCache }}
-            - name: llm-cache
-              mountPath: /cache
           {{- end }}
             - name: models
               mountPath: /models
