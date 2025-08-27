@@ -26,6 +26,7 @@ data:
     default_pool_size = {{ $.Values.pgbouncer.defaultPoolSize | default 20 }}
     min_pool_size = {{ $.Values.pgbouncer.minPoolSize | default 5 }}
     reserve_pool_size = {{ $.Values.pgbouncer.reservePoolSize | default 5 }}
+    max_prepared_statements = {{ $.Values.pgbouncer.maxPreparedStatements | default 100 }}
     
     # Logging
     log_connections = {{ $.Values.pgbouncer.logConnections | default 1 }}

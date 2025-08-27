@@ -30,6 +30,7 @@ CAST AI database cache deployment.
 | pgbouncer.logDisconnections | int | `1` | Log disconnections |
 | pgbouncer.logPoolerErrors | int | `1` | Log pooler errors |
 | pgbouncer.maxClientConnections | int | `100` | Maximum client connections |
+| pgbouncer.maxPreparedStatements | int | `100` | Maximum number of prepared statements |
 | pgbouncer.minPoolSize | int | `5` | Minimum pool size |
 | pgbouncer.reservePoolSize | int | `5` | Reserve pool size |
 | pgbouncer.serverCheckDelay | int | `30` | Server check delay in seconds |
@@ -38,8 +39,6 @@ CAST AI database cache deployment.
 | pgbouncer.targetDatabase | string | `"postgres"` | Target database name |
 | pgbouncer.users | list | `[]` | List of users for authentication |
 | pgbouncerImage.pullPolicy | string | `"IfNotPresent"` |  |
-| pgbouncerImage.repository | string | `nil` |  |
-| pgbouncerImage.tag | string | `"1.24.1"` |  |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
