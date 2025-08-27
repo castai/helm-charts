@@ -159,9 +159,7 @@ proxyImage:
   tag: ""  # uses values from _versions.tpl for default value
 
 pgbouncerImage:
-  repository: 
   pullPolicy: IfNotPresent
-  tag: "1.24.1"
 
 # -- Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
