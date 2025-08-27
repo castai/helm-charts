@@ -131,6 +131,8 @@ pgbouncer:
   minPoolSize: 5
   # -- Reserve pool size
   reservePoolSize: 5
+  # -- Maximum number of prepared statements
+  maxPreparedStatements: 100
   # -- Log connections
   logConnections: 1
   # -- Log disconnections
