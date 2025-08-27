@@ -60,6 +60,13 @@ spec:
           secret:
             secretName: {{ .Values.proxy.tlsSecretName }}
         {{- end }}
+        {{- if .Values.pgbouncer.enabled }}
+        {{- range $index, $endpoint := .Values.endpoints }}
+        - name: pgbouncer-config-{{ $endpoint.name }}
+          configMap:
+            name: {{ include "name" $ }}-pgbouncer-config-{{ $endpoint.name }}
+        {{- end }}
+        {{- end }}
       containers:
         - name: query-processor
           image: "{{.Values.queryProcessorImage.repository}}:{{ include "queryProcessorImage" . }}"
@@ -243,3 +250,51 @@ spec:
               mountPath: "/etc/tls"
               readOnly: true
             {{- end }}
+        {{- if .Values.pgbouncer.enabled }}
+        {{- range $index, $endpoint := .Values.endpoints }}
+        - name: pgbouncer-{{ $endpoint.name }}
+          image: pgbouncer/pgbouncer:1.24.1
+          imagePullPolicy: {{ $.Values.pgbouncerImage.pullPolicy }}
+          ports:
+            - name: pgbouncer-{{ $endpoint.name }}
+              containerPort: {{ add $endpoint.port 100 }}
+              protocol: TCP
+          env:
+            - name: ENDPOINT_PORT
+              value: "{{ add $endpoint.port 100 }}"
+            - name: ENDPOINT_HOSTNAME
+              value: "{{ $endpoint.hostname }}"
+            - name: ENDPOINT_TARGET_PORT
+              value: "{{ $endpoint.targetPort }}"
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1001
+          volumeMounts:
+            - name: pgbouncer-config-{{ $endpoint.name }}
+              mountPath: /etc/pgbouncer/pgbouncer.ini
+              subPath: pgbouncer.ini
+            - name: pgbouncer-config-{{ $endpoint.name }}
+              mountPath: /etc/pgbouncer/userlist.txt
+              subPath: userlist.txt
+            - name: temp-storage
+              mountPath: /tmp
+          resources:
+            requests:
+              memory: 128Mi
+              cpu: 100m
+          readinessProbe:
+            tcpSocket:
+              port: {{ add $endpoint.port 100 }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: {{ add $endpoint.port 100 }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+        {{- end }}
+        {{- end }}
