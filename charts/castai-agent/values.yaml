@@ -16,7 +16,7 @@ image:
   pullPolicy: IfNotPresent
 
 # imagePullSecrets -- what secret should be used for pulling the image
-imagePullSecrets: {}
+imagePullSecrets: []
 
 nameOverride: ""
 fullnameOverride: castai-agent
@@ -135,7 +135,7 @@ dnsPolicy: ""
 
 # Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-tolerations: {}
+tolerations: []
 
 # Pod node selector rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
