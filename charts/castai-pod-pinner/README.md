@@ -1,6 +1,6 @@
 # castai-pod-pinner
 
-![Version: 1.4.0](https://img.shields.io/badge/Version-1.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.7.0](https://img.shields.io/badge/AppVersion-v1.7.0-informational?style=flat-square)
+![Version: 1.4.1](https://img.shields.io/badge/Version-1.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.7.0](https://img.shields.io/badge/AppVersion-v1.7.0-informational?style=flat-square)
 
 CAST AI Pod Pinning deployment chart.
 
@@ -22,6 +22,8 @@ CAST AI Pod Pinning deployment chart.
 | castai.apiURL | string | `"https://api.cast.ai"` | The CAST AI API URL. |
 | castai.clusterID | string | `""` | The CAST AI cluster ID. |
 | castai.grpcURL | string | `"grpc.cast.ai:443"` | The CAST AI gRPC URL. |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
+| dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-pinner container via configMaps or secrets. |
 | global | object | `{"commonAnnotations":{},"commonLabels":{},"fullnameOverride":"","nameOverride":"","serviceAccount":{"annotations":{},"create":true,"name":""}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |

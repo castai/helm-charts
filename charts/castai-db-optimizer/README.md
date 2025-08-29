@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.43.1](https://img.shields.io/badge/Version-0.43.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.43.2](https://img.shields.io/badge/Version-0.43.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -15,6 +15,8 @@ CAST AI database cache deployment.
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
+| dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's |
 | endpoints | list | `[{"hostname":"sample-db-hostname","name":null,"port":5433,"servicePort":5432,"targetPort":5432}]` | A list of upstream database endpoints |
 | endpoints[0].hostname | string | `"sample-db-hostname"` | Hostname of the upstream database instance. |
 | endpoints[0].name | string | `nil` | Name of the service. If this value is not empty, then additional cluster IP service will be deployed, using provided name as a suffix |

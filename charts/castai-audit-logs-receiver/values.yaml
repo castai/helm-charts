@@ -96,6 +96,13 @@ configMap:
 # hostNetwork -- Host networking requested for this pod. Use the host's network namespace.
 hostNetwork: false
 
+# dnsPolicy -- DNS Policy Override - Needed when using custom CNI's
+dnsPolicy: ""
+
+# dnsConfig -- DNS configuration for the pod
+# ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 ## Persist collector state to a persistent volume.
 persistence:
   enabled: true

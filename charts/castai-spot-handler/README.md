@@ -19,6 +19,8 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | castai.provider | string | `""` | Cloud provider (azure, gcp, aws). |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
+| dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | envFrom | list | `[]` | Used to set additional environment variables for the spot handler container via configMaps or secrets. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/spot-handler"` |  |

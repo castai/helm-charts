@@ -5,6 +5,13 @@ image:
 replicaCount: 1
 resources: {}
 
+# dnsPolicy -- DNS Policy Override - Needed when using custom CNI's
+dnsPolicy: ""
+
+# dnsConfig -- DNS configuration for the pod
+# ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 modelDownloader:
   image:
     repository: "us-docker.pkg.dev/castai-hub/library/model-downloader"

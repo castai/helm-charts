@@ -8,6 +8,8 @@ CAST AI hosted model deployment chart for vLLM.
 |-----|------|---------|-------------|
 | container.port | int | `8000` |  |
 | deployment.labels | string | `nil` |  |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
+| dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's |
 | dtype | string | `"half"` |  |
 | enableAutoToolChoice | bool | `false` |  |
 | enableChunkedPrefill | bool | `true` |  |
@@ -34,7 +36,6 @@ CAST AI hosted model deployment chart for vLLM.
 | modelDownloader.s3ProxyResources.limits.memory | string | `"1Gi"` |  |
 | modelDownloader.s3ProxyResources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.s3ProxyResources.requests.memory | string | `"1Gi"` |  |
-| mountImageCache | bool | `false` |  |
 | readinessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":5,"periodSeconds":5}` | Readiness probe configuration |
 | readinessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not ready |
 | readinessProbe.httpGet | object | `{"path":"/health"}` | Configuration of the Kubelet http request on the server |

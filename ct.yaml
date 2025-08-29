@@ -7,6 +7,10 @@ chart-repos:
   - tetragon=https://helm.cilium.io
   - vector=https://helm.vector.dev
   - ollama=https://otwld.github.io/ollama-helm
+  - incubator=https://charts.helm.sh/incubator
+  - prometheus-community=https://prometheus-community.github.io/helm-charts
+  - elastic=https://helm.elastic.co
+  - grafana=https://grafana.github.io/helm-charts
 helm-extra-args: --timeout 600s
 validate-maintainers: false
 namespace: default

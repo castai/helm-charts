@@ -1,10 +1,17 @@
-provider: "" # gke | eks | aks
-imagePullSecrets: [ ]
+provider: ""  # gke | eks | aks
+imagePullSecrets: []
+
+# dnsPolicy -- DNS Policy Override - Needed when using custom CNI's
+dnsPolicy: ""
+
+# dnsConfig -- DNS configuration for the pod
+# ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
 
 serviceAccount:
   create: true
   automount: true
-  annotations: { }
+  annotations: {}
 
 castai:
   apiKey: ""
@@ -21,7 +28,7 @@ gpuMetricsExporter:
     repository: ghcr.io/castai/gpu-metrics-exporter/gpu-metrics-exporter
     pullPolicy: IfNotPresent
     tag: ""
-  config: { }
+  config: {}
   resources:
     limits:
       cpu: 100m

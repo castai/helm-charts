@@ -52,6 +52,10 @@ hostNetwork: false
 # dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
 dnsPolicy: ""
 
+# dnsConfig -- DNS configuration for the pod
+# ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 # -- Values to apply for the parent and child chart resources.
 global:
   # -- Labels to add to all resources.
