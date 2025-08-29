@@ -15,7 +15,7 @@ image:
   pullPolicy: IfNotPresent
 
 # imagePullSecrets -- what secret should be used for pulling the image
-imagePullSecrets: []
+imagePullSecrets: {}
 
 
 # trustedCACert -- CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates.
