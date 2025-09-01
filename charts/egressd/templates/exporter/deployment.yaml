@@ -37,6 +37,10 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "egressd.exporter.serviceAccountName" . }}
       dnsPolicy: {{.Values.exporter.dnsPolicy}}
+      {{- with .Values.exporter.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
         {{- toYaml .Values.exporter.podSecurityContext | nindent 8 }}
       containers:

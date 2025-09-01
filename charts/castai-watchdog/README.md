@@ -20,6 +20,7 @@ CAST AI Watchdog
 | castai.clusterID | string | `""` |  |
 | castai.configMapRef | string | `""` |  |
 | castai.organizationID | string | `""` |  |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | fullnameOverride | string | `"castai-watchdog"` |  |
 | gcp.clusterName | string | `""` |  |

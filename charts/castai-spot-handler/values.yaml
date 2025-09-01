@@ -51,6 +51,13 @@ additionalEnv:
 # useHostNetwork -- Host network is used to access instance metadata endpoints which are not always available from pod network.
 useHostNetwork: true
 
+# dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
+dnsPolicy: ""
+
+# dnsConfig -- DNS configuration for the pod
+# ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 # updateStrategy -- Controls `daemonset.spec.updateStrategy` field.
 updateStrategy: {}
 

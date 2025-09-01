@@ -98,6 +98,9 @@ collector:
                   - fargate
 
   dnsPolicy: ClusterFirstWithHostNet
+  # dnsConfig -- DNS configuration for the collector pod
+  # ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
 
   httpListenPort: 6061
 
@@ -196,6 +199,9 @@ exporter:
   affinity: {}
 
   dnsPolicy: ClusterFirstWithHostNet
+  # dnsConfig -- DNS configuration for the exporter pod
+  # ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+  dnsConfig: {}
 
   httpListenPort: 6060
 

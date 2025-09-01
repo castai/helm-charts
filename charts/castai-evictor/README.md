@@ -31,6 +31,7 @@ Cluster utilization defragmentation tool
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | dryRun | bool | `false` |  |
 | envFrom | list | `[]` | Additional environment sources for the evictor container. Accepts a list of `configMapRef` or `secretRef` entries, following the standard `envFrom` format. |

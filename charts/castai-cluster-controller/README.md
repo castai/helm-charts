@@ -31,6 +31,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | createNamespace | bool | `false` | By default namespace is expected to be created by castai-agent. |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
 | enableTopologySpreadConstraints | bool | `false` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the cluster-controller container via configMaps or secrets. |

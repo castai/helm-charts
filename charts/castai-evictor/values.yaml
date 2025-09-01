@@ -115,6 +115,10 @@ hostNetwork:
 # dnsPolicy -- DNS Policy Override - Needed when using some custom CNI's.
 dnsPolicy: ""
 
+# dnsConfig -- DNS configuration for the pod
+# ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 
 # Pod security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/

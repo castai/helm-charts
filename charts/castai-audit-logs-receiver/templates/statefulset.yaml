@@ -109,6 +109,13 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "castai-audit-logs-receiver.serviceAccountName" . }}
       automountServiceAccountToken: true
+      {{- if .Values.dnsPolicy }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
+      {{- end }}
+      {{- with .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
         {{- if or .Values.configMap.create .Values.configMap.configMapRef }}
         - name: {{ include "castai-audit-logs-receiver.configmap" . }}-configmap

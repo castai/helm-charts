@@ -33,6 +33,8 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | configMap.configMapRef | string | `""` | The name of the configMap to use, which contains the otel collector config. configMap.create must be false. The key should be "config" and value should be the otel collector config in YAML format. |
 | configMap.create | bool | `true` | Specifies whether a configMap should be created using the values.config as data. |
 | containerSecurityContext | object | `{}` |  |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
+| dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's |
 | fullnameOverride | string | `""` | Override the release name used for the full names of resources. |
 | hostNetwork | bool | `false` | Host networking requested for this pod. Use the host's network namespace. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |

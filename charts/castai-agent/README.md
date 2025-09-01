@@ -27,6 +27,7 @@ CAST AI agent deployment chart.
 | containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | createNamespace | bool | `true` | Specifies whether a namespace should be created. |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
 | dnsPolicy | string | `""` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-mutator container via configMaps or secrets. |
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |

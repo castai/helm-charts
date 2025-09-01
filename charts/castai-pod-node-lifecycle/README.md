@@ -1,6 +1,6 @@
 # castai-pod-node-lifecycle
 
-![Version: 0.37.0](https://img.shields.io/badge/Version-0.37.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.31.0](https://img.shields.io/badge/AppVersion-v0.31.0-informational?style=flat-square)
+![Version: 0.37.1](https://img.shields.io/badge/Version-0.37.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.31.0](https://img.shields.io/badge/AppVersion-v0.31.0-informational?style=flat-square)
 
 CAST AI spot-only K8s webhook to control workload placement during cluster migration and spot-only.
 
@@ -20,6 +20,7 @@ CAST AI spot-only K8s webhook to control workload placement during cluster migra
 | api.keySecretRef | string | `""` |  |
 | api.url | string | `"https://api.cast.ai"` |  |
 | deploy | bool | `true` |  |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
 | dnsPolicy | string | `""` |  |
 | fullnameOverride | string | `""` |  |
 | hostNetwork.enabled | bool | `false` |  |

@@ -31,6 +31,13 @@ podLabels: {}
 # -- Extra annotations to add to the pod.
 podAnnotations: {}
 
+# dnsPolicy -- DNS Policy Override - Needed when using custom CNI's
+dnsPolicy: ""
+
+# dnsConfig -- DNS configuration for the pod
+# ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+
 resources:
   proxy:
     cpu: "500m"

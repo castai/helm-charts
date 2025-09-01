@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.0.42](https://img.shields.io/badge/Version-0.0.42-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.31](https://img.shields.io/badge/AppVersion-v0.0.31-informational?style=flat-square)
+![Version: 0.0.43](https://img.shields.io/badge/Version-0.0.43-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.31](https://img.shields.io/badge/AppVersion-v0.0.31-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -26,6 +26,7 @@ CAST AI Pod Mutator.
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
+| dnsConfig | object | `{}` | DNS configuration for the pod ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | enableTopologySpreadConstraints | bool | `false` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-mutator container via configMaps or secrets. |
