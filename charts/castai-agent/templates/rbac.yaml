@@ -159,6 +159,18 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - "resource.k8s.io"
+    resources:
+      - deviceclasses
+      - resourceclaims
+      - resourceclaimtemplates
+      - resourceslices
+      - devicetaintrules
+    verbs:
+      - get
+      - list
+      - watch
   - nonResourceURLs:
       - "/version"
     verbs:
