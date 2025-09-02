@@ -1,0 +1,63 @@
+{{- if .Values.pgcat.enabled }}
+{{- range $index, $endpoint := .Values.endpoints }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "name" $ }}-pgcat-config-{{ $endpoint.name }}
+  labels:
+    {{- include "labels" $ | nindent 4 }}
+  annotations:
+    {{- include "annotations" $ | nindent 4 }}
+data:
+  pgcat.toml: |
+    [general]
+    host = "{{ $.Values.pgcat.listenAddress | default "0.0.0.0" }}"
+    port = {{ add $endpoint.port 100 }}
+    
+    # Connection settings
+    connect_timeout = {{ $.Values.pgcat.connectTimeout | default 1000 }}
+    idle_timeout = {{ $.Values.pgcat.idleTimeout | default 30000 }}
+    server_lifetime = {{ $.Values.pgcat.serverLifetime | default 86400000 }}
+    
+    # Health check settings
+    healthcheck_timeout = {{ $.Values.pgcat.healthcheckTimeout | default 1000 }}
+    healthcheck_delay = {{ $.Values.pgcat.healthcheckDelay | default 30000 }}
+    ban_time = {{ $.Values.pgcat.banTime | default 60 }}
+    
+    # Logging
+    log_client_connections = {{ $.Values.pgcat.logClientConnections | default false }}
+    log_client_disconnections = {{ $.Values.pgcat.logClientDisconnections | default false }}
+    
+    # Admin settings
+    admin_username = "admin_user"
+    admin_password = "admin_pass"
+    
+    [pools.{{ $endpoint.name | default "primary" }}]
+    pool_mode = "{{ $.Values.pgcat.poolMode | default "transaction" }}"
+    load_balancing_mode = "{{ $.Values.pgcat.loadBalancingMode | default "random" }}"
+    default_role = "{{ $.Values.pgcat.defaultRole | default "any" }}"
+    
+    [pools.{{ $endpoint.name | default "primary" }}.shards."0"]
+    database = "{{ $.Values.pgcat.targetDatabase | default "postgres" }}"
+    servers = [
+      ["{{ required "endpoint hostname must be provided" $endpoint.hostname }}", {{ required "endpoint targetPort is required" $endpoint.targetPort }}, "primary"]
+    ]
+    
+    {{- range $userIndex, $user := $.Values.pgcat.users }}
+    [pools.{{ $endpoint.name | default "primary" }}.users."{{ $userIndex }}"]
+    username = "{{ $user.username }}"
+    password = "{{ $user.password }}"
+    pool_size = {{ $.Values.pgcat.poolSize | default 20 }}
+    min_pool_size = {{ $.Values.pgcat.minPoolSize | default 5 }}
+    {{- end }}
+    
+    {{- if not $.Values.pgcat.users }}
+    [pools.{{ $endpoint.name | default "primary" }}.users."0"]
+    username = "postgres"
+    password = "postgres"
+    pool_size = {{ $.Values.pgcat.poolSize | default 20 }}
+    min_pool_size = {{ $.Values.pgcat.minPoolSize | default 5 }}
+    {{- end }}
+{{- end }}
+{{- end }}

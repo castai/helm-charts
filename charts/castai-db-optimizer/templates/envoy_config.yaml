@@ -241,9 +241,9 @@ data:
                   - endpoint:
                       address:
                         socket_address:
-                          {{- if .Values.pgbouncer.enabled }}
-                          address: 127.0.0.1 # local pgbouncer in same pod
-                          port_value: {{ add $endpoint.port 100 }} # pgbouncer port
+                          {{- if .Values.pgcat.enabled }}
+                          address: 127.0.0.1 # local pgcat in same pod
+                          port_value: {{ add $endpoint.port 100 }} # pgcat port
                           {{- else }}
                           address: {{ required "endpoint hostname must be provided" $endpoint.hostname }} # upstream database host
                           port_value: {{ required "endpoint targetPort is required" $endpoint.targetPort }} # upstream database port

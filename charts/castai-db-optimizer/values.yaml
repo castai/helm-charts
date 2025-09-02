@@ -114,37 +114,39 @@ queryProcessor:
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
 
-pgbouncer:
-  # -- Enable PgBouncer sidecar.
+pgcat:
+  # -- Enable PgCat sidecar.
   enabled: false
   # -- Target database name
   targetDatabase: "postgres"
-  # -- Listen address for PgBouncer
+  # -- Listen address for PgCat
   listenAddress: "0.0.0.0"
-  # -- Authentication type
-  authType: "md5"
-  # -- Maximum client connections
-  maxClientConnections: 100
-  # -- Default pool size
-  defaultPoolSize: 20
-  # -- Minimum pool size
+  # -- Pool mode (session or transaction)
+  poolMode: "transaction"
+  # -- Load balancing mode (random or loc)
+  loadBalancingMode: "random"
+  # -- Default role (any, primary, replica)
+  defaultRole: "any"
+  # -- Maximum pool size per user
+  poolSize: 20
+  # -- Minimum pool size per user
   minPoolSize: 5
-  # -- Reserve pool size
-  reservePoolSize: 5
-  # -- Maximum number of prepared statements
-  maxPreparedStatements: 100
-  # -- Log connections
-  logConnections: 1
-  # -- Log disconnections
-  logDisconnections: 1
-  # -- Log pooler errors
-  logPoolerErrors: 1
-  # -- Server check delay in seconds
-  serverCheckDelay: 30
-  # -- Server lifetime in seconds
-  serverLifetime: 3600
-  # -- Server idle timeout in seconds
-  serverIdleTimeout: 600
+  # -- Connect timeout in milliseconds
+  connectTimeout: 1000
+  # -- Idle timeout in milliseconds
+  idleTimeout: 30000
+  # -- Server lifetime in milliseconds
+  serverLifetime: 86400000
+  # -- Health check timeout in milliseconds
+  healthcheckTimeout: 1000
+  # -- Health check delay in milliseconds
+  healthcheckDelay: 30000
+  # -- Ban time in seconds
+  banTime: 60
+  # -- Log client connections
+  logClientConnections: false
+  # -- Log client disconnections
+  logClientDisconnections: false
   # -- List of users for authentication
   users: []
   #   - username: "user1"
@@ -160,8 +162,10 @@ proxyImage:
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
 
-pgbouncerImage:
+pgcatImage:
+  repository: ghcr.io/postgresml/pgcat
   pullPolicy: IfNotPresent
+  tag: "v1.2.0"
 
 # -- Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
