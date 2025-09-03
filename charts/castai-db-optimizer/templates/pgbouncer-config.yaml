@@ -1,0 +1,47 @@
+{{- if .Values.pgbouncer.enabled }}
+{{- range $index, $endpoint := .Values.endpoints }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "name" $ }}-pgbouncer-config-{{ $endpoint.name }}
+  labels:
+    {{- include "labels" $ | nindent 4 }}
+  annotations:
+    {{- include "annotations" $ | nindent 4 }}
+data:
+  pgbouncer.ini: |
+    [databases]
+    * = host={{ required "endpoint hostname must be provided" $endpoint.hostname }} port={{ required "endpoint targetPort is required" $endpoint.targetPort }}
+
+    [pgbouncer]
+    listen_addr = {{ $.Values.pgbouncer.listenAddress | default "0.0.0.0" }}
+    listen_port = {{ add $endpoint.port 100 }}
+    auth_type = {{ $.Values.pgbouncer.authType | default "md5" }}
+    auth_file = /etc/pgbouncer/userlist.txt
+    
+    # Connection pooling
+    pool_mode = transaction
+    max_client_conn = {{ $.Values.pgbouncer.maxClientConnections | default 100 }}
+    default_pool_size = {{ $.Values.pgbouncer.defaultPoolSize | default 20 }}
+    min_pool_size = {{ $.Values.pgbouncer.minPoolSize | default 5 }}
+    reserve_pool_size = {{ $.Values.pgbouncer.reservePoolSize | default 5 }}
+    max_prepared_statements = {{ $.Values.pgbouncer.maxPreparedStatements | default 100 }}
+    
+    # Logging
+    log_connections = {{ $.Values.pgbouncer.logConnections | default 1 }}
+    log_disconnections = {{ $.Values.pgbouncer.logDisconnections | default 1 }}
+    log_pooler_errors = {{ $.Values.pgbouncer.logPoolerErrors | default 1 }}
+    
+    # Timeouts
+    server_reset_query = DISCARD ALL
+    server_check_delay = {{ $.Values.pgbouncer.serverCheckDelay | default 30 }}
+    server_lifetime = {{ $.Values.pgbouncer.serverLifetime | default 3600 }}
+    server_idle_timeout = {{ $.Values.pgbouncer.serverIdleTimeout | default 600 }}
+
+  userlist.txt: |
+    {{- range $.Values.pgbouncer.users }}
+    "{{ .username }}" "{{ .password }}"
+    {{- end }}
+{{- end }}
+{{- end }}

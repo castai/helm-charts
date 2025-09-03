@@ -114,6 +114,42 @@ queryProcessor:
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
 
+pgbouncer:
+  # -- Enable PgBouncer sidecar.
+  enabled: false
+  # -- Target database name
+  targetDatabase: "postgres"
+  # -- Listen address for PgBouncer
+  listenAddress: "0.0.0.0"
+  # -- Authentication type
+  authType: "md5"
+  # -- Maximum client connections
+  maxClientConnections: 100
+  # -- Default pool size
+  defaultPoolSize: 20
+  # -- Minimum pool size
+  minPoolSize: 5
+  # -- Reserve pool size
+  reservePoolSize: 5
+  # -- Maximum number of prepared statements
+  maxPreparedStatements: 100
+  # -- Log connections
+  logConnections: 1
+  # -- Log disconnections
+  logDisconnections: 1
+  # -- Log pooler errors
+  logPoolerErrors: 1
+  # -- Server check delay in seconds
+  serverCheckDelay: 30
+  # -- Server lifetime in seconds
+  serverLifetime: 3600
+  # -- Server idle timeout in seconds
+  serverIdleTimeout: 600
+  # -- List of users for authentication
+  users: []
+  #   - username: "user1"
+  #     password: "password1"
+
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
   pullPolicy: IfNotPresent
@@ -123,6 +159,9 @@ proxyImage:
   repository: us-docker.pkg.dev/castai-hub/library/dbo-proxy
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
+
+pgbouncerImage:
+  pullPolicy: IfNotPresent
 
 # -- Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
