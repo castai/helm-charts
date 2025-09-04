@@ -75,12 +75,6 @@ rules:
   # ------------------------------------------------
   # Live Migration: retrieving and creating migrations
   # ------------------------------------------------
-  - apiGroups:
-      - cast.ai
-    resources:
-      - migrations
-    verbs:
-      - get
-      - list
-      - watch
-      - create
+  - apiGroups: [ "live.cast.ai" ]
+    resources: [ "*" ]
+    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]

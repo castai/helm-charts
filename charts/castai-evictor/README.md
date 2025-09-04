@@ -6,7 +6,7 @@ Cluster utilization defragmentation tool
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/castai-evictor-ext | castai-evictor-ext | 0.1.0 |
+| file://child-charts/castai-evictor-ext | castai-evictor-ext | 0.2.0 |
 
 ## Values
 
