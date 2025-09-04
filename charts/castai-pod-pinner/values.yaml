@@ -67,7 +67,7 @@ tolerations:
   - key: "scheduling.cast.ai/pod-pinning-preparing"
     operator: "Exists"
     effect: "NoSchedule"
-  
+
 # -- Affinity for the pod-pinner pod.
 affinity:
   nodeAffinity:
