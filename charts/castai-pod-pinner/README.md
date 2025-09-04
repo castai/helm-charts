@@ -48,7 +48,7 @@ CAST AI Pod Pinning deployment chart.
 | service | object | `{"port":8443,"type":"ClusterIP"}` | Service settings for the pod-pinner. |
 | service.port | int | `8443` | The service port to use. The port is restricted to certain values because the webhook server uses this port. |
 | service.type | string | `"ClusterIP"` | The service type to use. |
-| tolerations | list | `[{"effect":"NoSchedule","key":"scheduling.cast.ai/pod-pinning-preparing","operator":"Exists"}]` | Tolerations for the pod-pinner pod. |
+| tolerations | list | `[]` | Tolerations for the pod-pinner pod. |
 | webhook | object | `{"failurePolicy":"Ignore","url":""}` | Webhook settings for the pod-pinner. |
 | webhook.failurePolicy | string | `"Ignore"` | Overrides the failure policy of the webhook whose default is Ignore. |
 | webhook.url | string | `""` | Overrides webhook service routing and uses the provided url instead. |
