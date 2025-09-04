@@ -63,10 +63,7 @@ resources:
 nodeSelector: {}
 
 # -- Tolerations for the pod-pinner pod.
-tolerations:
-  - key: "scheduling.cast.ai/pod-pinning-preparing"
-    operator: "Exists"
-    effect: "NoSchedule"
+tolerations: []
 
 # -- Affinity for the pod-pinner pod.
 affinity:
