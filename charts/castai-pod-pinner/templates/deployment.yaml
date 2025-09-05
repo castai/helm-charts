@@ -171,8 +171,11 @@ spec:
         {{- end }}
 
       {{- end }}
-      {{- with .Values.tolerations }}
       tolerations:
+        - key: "scheduling.cast.ai/pod-pinning-preparing"
+          operator: "Exists"
+          effect: "NoSchedule"
+      {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
