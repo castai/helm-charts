@@ -45,11 +45,7 @@ data:
     ]
     
     [pools.{{ $database }}.users."0"]
-    {{- if $.Values.pgcat.usernameSecretRef }}
     username = "${USERNAME}"
-    {{- else }}
-    username = "${USERNAME}"
-    {{- end }}
     password = "${PASSWORD}"
     pool_size = {{ $.Values.pgcat.poolSize | default 20 }}
     min_pool_size = {{ $.Values.pgcat.minPoolSize | default 5 }}
