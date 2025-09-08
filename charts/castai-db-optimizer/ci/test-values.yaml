@@ -46,3 +46,19 @@ commonLabels:
 
 commonAnnotations:
   commonAnnotation: annotation
+
+# Test pgcat configuration with individual username/password
+pgcat:
+  enabled: true
+  targetDatabase: "test_db"
+  username: "testuser"
+  passwordSecretRef: "pgcat-test-secret"
+  poolSize: 25
+  minPoolSize: 3
+  poolMode: "transaction"
+  loadBalancingMode: "random"
+  defaultRole: "primary"
+  connectTimeout: 2000
+  idleTimeout: 45000
+  healthcheckTimeout: 2000
+  logClientConnections: true

@@ -60,7 +60,7 @@ spec:
           secret:
             secretName: {{ .Values.proxy.tlsSecretName }}
         {{- end }}
-        {{- if .Values.pgcat.enabled }}
+        {{- if and .Values.pgcat .Values.pgcat.enabled }}
         {{- range $index, $endpoint := .Values.endpoints }}
         - name: pgcat-config-{{ $endpoint.name }}
           configMap:
@@ -250,7 +250,7 @@ spec:
               mountPath: "/etc/tls"
               readOnly: true
             {{- end }}
-        {{- if .Values.pgcat.enabled }}
+        {{- if and .Values.pgcat .Values.pgcat.enabled }}
         {{- range $index, $endpoint := .Values.endpoints }}
         - name: pgcat-{{ $endpoint.name }}
           image: {{ $.Values.pgcatImage.repository }}:{{ $.Values.pgcatImage.tag }}
@@ -266,6 +266,21 @@ spec:
               value: "{{ $endpoint.hostname }}"
             - name: ENDPOINT_TARGET_PORT
               value: "{{ $endpoint.targetPort }}"
+            {{- if $.Values.pgcat.usernameSecretRef }}
+            - name: PGCAT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $.Values.pgcat.usernameSecretRef }}
+                  key: USERNAME
+            {{- else }}
+            - name: PGCAT_USERNAME
+              value: "{{ $.Values.pgcat.username | default "postgres" }}"
+            {{- end }}
+            - name: PGCAT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "pgcat.passwordSecretRef must be provided" $.Values.pgcat.passwordSecretRef }}
+                  key: PASSWORD
           securityContext:
             capabilities:
               drop:
