@@ -24,6 +24,7 @@ CAST AI database cache deployment.
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
 | pgcat.banTime | int | `60` | Ban time in seconds |
 | pgcat.connectTimeout | int | `1000` | Connect timeout in milliseconds |
+| pgcat.databases | list | `[]` | List of database names to create pools for (required when pgcat is enabled) |
 | pgcat.defaultRole | string | `"any"` | Default role (any, primary, replica) |
 | pgcat.enabled | bool | `false` | Enable PgCat sidecar. |
 | pgcat.healthcheckDelay | int | `30000` | Health check delay in milliseconds |
