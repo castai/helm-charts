@@ -34,12 +34,12 @@ CAST AI database cache deployment.
 | pgcat.logClientConnections | bool | `false` | Log client connections |
 | pgcat.logClientDisconnections | bool | `false` | Log client disconnections |
 | pgcat.minPoolSize | int | `5` | Minimum pool size per user |
-| pgcat.passwordSecretRef | string | `""` | Name of secret with password for database authentication (required) The referenced secret must provide the password in .data["PASSWORD"] |
+| pgcat.password | string | `""` | Password for database authentication |
+| pgcat.passwordSecretRef | string | `""` | Name of secret with password for database authentication password and passwordSecretRef are mutually exclusive The referenced secret must provide the password in .data["PASSWORD"] |
 | pgcat.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
 | pgcat.poolSize | int | `20` | Maximum pool size per user |
 | pgcat.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
-| pgcat.targetDatabase | string | `"postgres"` | Target database name |
-| pgcat.username | string | `"postgres"` | Username for database authentication |
+| pgcat.username | string | `""` | Username for database authentication |
 | pgcat.usernameSecretRef | string | `""` | Name of secret with username for database authentication username and usernameSecretRef are mutually exclusive The referenced secret must provide the username in .data["USERNAME"] |
 | pgcatImage.pullPolicy | string | `"IfNotPresent"` |  |
 | pgcatImage.repository | string | `"ghcr.io/postgresml/pgcat"` |  |

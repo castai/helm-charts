@@ -259,6 +259,19 @@ spec:
             - name: pgcat-{{ $endpoint.name }}
               containerPort: {{ add $endpoint.port 100 }}
               protocol: TCP
+          envFrom:
+            - secretRef:
+              {{- if $.Values.pgcat.username }}
+                name: {{ include "name" $ -}}
+              {{- else }}
+                name: {{ required "pgcat.username or pgcat.usernameSecretRef must be provided" $.Values.pgcat.usernameSecretRef -}}
+              {{- end }}
+            - secretRef:
+              {{- if $.Values.pgcat.password }}
+                name: {{ include "name" $ -}}
+              {{- else }}
+                name: {{ required "pgcat.password or pgcat.passwordSecretRef must be provided" $.Values.pgcat.passwordSecretRef -}}
+              {{- end }}
           env:
             - name: ENDPOINT_PORT
               value: "{{ add $endpoint.port 100 }}"
@@ -266,21 +279,6 @@ spec:
               value: "{{ $endpoint.hostname }}"
             - name: ENDPOINT_TARGET_PORT
               value: "{{ $endpoint.targetPort }}"
-            {{- if $.Values.pgcat.usernameSecretRef }}
-            - name: PGCAT_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $.Values.pgcat.usernameSecretRef }}
-                  key: USERNAME
-            {{- else }}
-            - name: PGCAT_USERNAME
-              value: "{{ $.Values.pgcat.username | default "postgres" }}"
-            {{- end }}
-            - name: PGCAT_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ required "pgcat.passwordSecretRef must be provided" $.Values.pgcat.passwordSecretRef }}
-                  key: PASSWORD
           securityContext:
             capabilities:
               drop:

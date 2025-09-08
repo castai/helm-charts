@@ -117,8 +117,6 @@ queryProcessor:
 pgcat:
   # -- Enable PgCat sidecar.
   enabled: false
-  # -- Target database name
-  targetDatabase: "postgres"
   # -- Listen address for PgCat
   listenAddress: "0.0.0.0"
   # -- Pool mode (session or transaction)
@@ -148,12 +146,15 @@ pgcat:
   # -- Log client disconnections
   logClientDisconnections: false
   # -- Username for database authentication
-  username: "postgres"
+  username: ""
   # -- Name of secret with username for database authentication
   # username and usernameSecretRef are mutually exclusive
   # The referenced secret must provide the username in .data["USERNAME"]
   usernameSecretRef: ""
-  # -- Name of secret with password for database authentication (required)
+  # -- Password for database authentication
+  password: ""
+  # -- Name of secret with password for database authentication
+  # password and passwordSecretRef are mutually exclusive
   # The referenced secret must provide the password in .data["PASSWORD"]
   passwordSecretRef: ""
 
