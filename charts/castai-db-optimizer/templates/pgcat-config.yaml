@@ -28,11 +28,7 @@ data:
     # Logging
     log_client_connections = {{ $.Values.pgcat.logClientConnections | default false }}
     log_client_disconnections = {{ $.Values.pgcat.logClientDisconnections | default false }}
-    
-    # Admin settings
-    admin_username = "admin_user"
-    admin_password = "admin_pass"
-    
+
     [pools.{{ $endpoint.name }}]
     pool_mode = "{{ $.Values.pgcat.poolMode | default "transaction" }}"
     load_balancing_mode = "{{ $.Values.pgcat.loadBalancingMode | default "random" }}"
