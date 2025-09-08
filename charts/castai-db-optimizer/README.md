@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.44.0-rc1](https://img.shields.io/badge/Version-0.44.0--rc1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.44.0-rc2](https://img.shields.io/badge/Version-0.44.0--rc2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -22,23 +22,28 @@ CAST AI database cache deployment.
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
-| pgbouncer.authType | string | `"md5"` | Authentication type |
-| pgbouncer.defaultPoolSize | int | `20` | Default pool size |
-| pgbouncer.enabled | bool | `false` | Enable PgBouncer sidecar. |
-| pgbouncer.listenAddress | string | `"0.0.0.0"` | Listen address for PgBouncer |
-| pgbouncer.logConnections | int | `1` | Log connections |
-| pgbouncer.logDisconnections | int | `1` | Log disconnections |
-| pgbouncer.logPoolerErrors | int | `1` | Log pooler errors |
-| pgbouncer.maxClientConnections | int | `100` | Maximum client connections |
-| pgbouncer.maxPreparedStatements | int | `100` | Maximum number of prepared statements |
-| pgbouncer.minPoolSize | int | `5` | Minimum pool size |
-| pgbouncer.reservePoolSize | int | `5` | Reserve pool size |
-| pgbouncer.serverCheckDelay | int | `30` | Server check delay in seconds |
-| pgbouncer.serverIdleTimeout | int | `600` | Server idle timeout in seconds |
-| pgbouncer.serverLifetime | int | `3600` | Server lifetime in seconds |
-| pgbouncer.targetDatabase | string | `"postgres"` | Target database name |
-| pgbouncer.users | list | `[]` | List of users for authentication |
-| pgbouncerImage.pullPolicy | string | `"IfNotPresent"` |  |
+| pgcat.banTime | int | `60` | Ban time in seconds |
+| pgcat.connectTimeout | int | `1000` | Connect timeout in milliseconds |
+| pgcat.defaultRole | string | `"any"` | Default role (any, primary, replica) |
+| pgcat.enabled | bool | `false` | Enable PgCat sidecar. |
+| pgcat.healthcheckDelay | int | `30000` | Health check delay in milliseconds |
+| pgcat.healthcheckTimeout | int | `1000` | Health check timeout in milliseconds |
+| pgcat.idleTimeout | int | `30000` | Idle timeout in milliseconds |
+| pgcat.listenAddress | string | `"0.0.0.0"` | Listen address for PgCat |
+| pgcat.loadBalancingMode | string | `"random"` | Load balancing mode (random or loc) |
+| pgcat.logClientConnections | bool | `false` | Log client connections |
+| pgcat.logClientDisconnections | bool | `false` | Log client disconnections |
+| pgcat.minPoolSize | int | `5` | Minimum pool size per user |
+| pgcat.passwordSecretRef | string | `""` | Name of secret with password for database authentication (required) The referenced secret must provide the password in .data["PASSWORD"] |
+| pgcat.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
+| pgcat.poolSize | int | `20` | Maximum pool size per user |
+| pgcat.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
+| pgcat.targetDatabase | string | `"postgres"` | Target database name |
+| pgcat.username | string | `"postgres"` | Username for database authentication |
+| pgcat.usernameSecretRef | string | `""` | Name of secret with username for database authentication username and usernameSecretRef are mutually exclusive The referenced secret must provide the username in .data["USERNAME"] |
+| pgcatImage.pullPolicy | string | `"IfNotPresent"` |  |
+| pgcatImage.repository | string | `"ghcr.io/postgresml/pgcat"` |  |
+| pgcatImage.tag | string | `"v1.2.0"` |  |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
