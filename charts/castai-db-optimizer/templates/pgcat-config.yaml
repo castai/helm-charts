@@ -1,4 +1,7 @@
 {{- if and .Values.pgcat .Values.pgcat.enabled }}
+{{- if not .Values.pgcat.databases }}
+{{- fail "pgcat.databases cannot be empty when pgcat is enabled. Please provide at least one database name." }}
+{{- end }}
 {{- range $index, $endpoint := .Values.endpoints }}
 ---
 apiVersion: v1
@@ -29,26 +32,28 @@ data:
     log_client_connections = {{ $.Values.pgcat.logClientConnections | default false }}
     log_client_disconnections = {{ $.Values.pgcat.logClientDisconnections | default false }}
 
-    [pools.{{ $endpoint.name }}]
+    {{- range $dbIndex, $database := $.Values.pgcat.databases }}
+    [pools.{{ $database }}]
     pool_mode = "{{ $.Values.pgcat.poolMode | default "transaction" }}"
     load_balancing_mode = "{{ $.Values.pgcat.loadBalancingMode | default "random" }}"
     default_role = "{{ $.Values.pgcat.defaultRole | default "any" }}"
     
-    [pools.{{ $endpoint.name }}.shards."0"]
-    database = "{{ $.Values.pgcat.targetDatabase | default "postgres" }}"
+    [pools.{{ $database }}.shards."0"]
+    database = "{{ $database }}"
     servers = [
       ["{{ required "endpoint hostname must be provided" $endpoint.hostname }}", {{ required "endpoint targetPort is required" $endpoint.targetPort }}, "primary"]
     ]
     
-    [pools.{{ $endpoint.name }}.users."0"]
+    [pools.{{ $database }}.users."0"]
     {{- if $.Values.pgcat.usernameSecretRef }}
-    username = "${PGCAT_USERNAME}"
+    username = "${USERNAME}"
     {{- else }}
-    username = "{{ $.Values.pgcat.username | default "postgres" }}"
+    username = "${USERNAME}"
     {{- end }}
-    password = "${PGCAT_PASSWORD}"
+    password = "${PASSWORD}"
     pool_size = {{ $.Values.pgcat.poolSize | default 20 }}
     min_pool_size = {{ $.Values.pgcat.minPoolSize | default 5 }}
+    {{- end }}
 
 {{- end }}
 {{- end }}

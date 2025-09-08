@@ -117,6 +117,8 @@ queryProcessor:
 pgcat:
   # -- Enable PgCat sidecar.
   enabled: false
+  # -- List of database names to create pools for (required when pgcat is enabled)
+  databases: []
   # -- Listen address for PgCat
   listenAddress: "0.0.0.0"
   # -- Pool mode (session or transaction)
