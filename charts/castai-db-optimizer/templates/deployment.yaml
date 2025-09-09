@@ -278,7 +278,7 @@ spec:
             runAsNonRoot: true
             runAsUser: 1001
           volumeMounts:
-            - name: pgcat-config-{{ $endpoint.name }}
+            - name: pgcat-config-{{ $endpointName }}
               mountPath: /etc/pgcat/pgcat.toml
               subPath: pgcat.toml
             - name: temp-storage
