@@ -241,7 +241,7 @@ data:
                   - endpoint:
                       address:
                         socket_address:
-                          {{- if and $.Values.pgcat $.Values.pgcat.enabled }}
+                          {{- if and $.Values.pooling $.Values.pooling.enabled }}
                           address: 127.0.0.1 # local pgcat in same pod
                           port_value: {{ add $endpoint.port 100 }} # pgcat port
                           {{- else }}
