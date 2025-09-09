@@ -50,8 +50,8 @@ commonAnnotations:
 # Test pgcat configuration with individual username/password
 pgcat:
   enabled: false
-  username: "testuser"
-  passwordSecretRef: "pgcat-test-secret"
+  username: ""
+  password: ""
   poolSize: 25
   minPoolSize: 3
   poolMode: "transaction"
