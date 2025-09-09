@@ -64,8 +64,8 @@ spec:
         {{- range $index, $endpoint := .Values.endpoints }}
         {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
         - name: pgcat-config-{{ $endpointName }}
-          configMap:
-            name: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
+          secret:
+            secretName: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
         {{- end }}
         {{- end }}
       containers:
@@ -261,9 +261,6 @@ spec:
             - name: pool-{{ $endpointName }}
               containerPort: {{ add $endpoint.port 100 }}
               protocol: TCP
-          envFrom:
-            - secretRef:
-                name: {{ include "name" $ }}-pooling-credentials
           env:
             - name: ENDPOINT_PORT
               value: "{{ add $endpoint.port 100 }}"
