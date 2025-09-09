@@ -66,7 +66,7 @@ webhook:
   # reinvocationPolicy -- Controls whether webhook should be reinvoked if there were changes made by other plugins.
   # Change to "IfNeeded" to be able to apply recommendations for injected containers.
   # Defaults to "Never".
-  reinvocationPolicy: "Never"
+  reinvocationPolicy: "IfNeeded"
   url: ""
 
 resources:
