@@ -103,6 +103,8 @@ proxy:
     maxPendingRequests: 1024       # Maximum requests queued while waiting for a connection
     maxRequests: 1024              # Maximum parallel requests per connection
     maxRetries: 3                  # Maximum parallel retries
+  # -- Disable core dump collection by default
+  coredumpCollectionMode: "None"
 
 queryProcessor:
   # -- Default query-processor log level.

@@ -205,8 +205,9 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
           command:
-            - /home/castai/envoy
+            - /home/castai/coredumpwrapper.sh
           args:
+            - /home/castai/envoy
             - -c
             - /home/castai/envoy.yaml
             - --component-log-level
@@ -230,6 +231,15 @@ spec:
             {{- if .Values.resources.proxy.memoryLimit }}
             limits:
               memory: {{ .Values.resources.proxy.memoryLimit }}
+            {{- end }}
+          env:
+            - name: API_URL
+              value: {{ required "apiURL must be provided" .Values.apiURL | printf "https://%s" }}
+            - name: CACHE_GROUP_ID
+              value: {{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." | quote }}
+            {{- if .Values.proxy.coredumpCollectionMode }}
+            - name: COREDUMP_COLLECTION_MODE
+              value: {{ .Values.proxy.coredumpCollectionMode }}
             {{- end }}
           envFrom:
             - secretRef:
