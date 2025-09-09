@@ -1,13 +1,14 @@
-{{- if and .Values.pgcat .Values.pgcat.enabled }}
-{{- if not .Values.pgcat.databases }}
-{{- fail "pgcat.databases cannot be empty when pgcat is enabled. Please provide at least one database name." }}
+{{- if and .Values.pooling .Values.pooling.enabled }}
+{{- if not .Values.pooling.databases }}
+{{- fail "pooling.databases cannot be empty when pooling is enabled. Please provide at least one database name." }}
 {{- end }}
 {{- range $index, $endpoint := .Values.endpoints }}
+{{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "name" $ }}-pgcat-config-{{ $endpoint.name }}
+  name: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
   labels:
     {{- include "labels" $ | nindent 4 }}
   annotations:
@@ -15,28 +16,28 @@ metadata:
 data:
   pgcat.toml: |
     [general]
-    host = "{{ $.Values.pgcat.listenAddress | default "0.0.0.0" }}"
+    host = "{{ $.Values.pooling.listenAddress | default "0.0.0.0" }}"
     port = {{ add $endpoint.port 100 }}
     
     # Connection settings
-    connect_timeout = {{ $.Values.pgcat.connectTimeout | default 1000 }}
-    idle_timeout = {{ $.Values.pgcat.idleTimeout | default 30000 }}
-    server_lifetime = {{ $.Values.pgcat.serverLifetime | default 86400000 }}
+    connect_timeout = {{ $.Values.pooling.connectTimeout | default 1000 }}
+    idle_timeout = {{ $.Values.pooling.idleTimeout | default 30000 }}
+    server_lifetime = {{ $.Values.pooling.serverLifetime | default 86400000 }}
     
     # Health check settings
-    healthcheck_timeout = {{ $.Values.pgcat.healthcheckTimeout | default 1000 }}
-    healthcheck_delay = {{ $.Values.pgcat.healthcheckDelay | default 30000 }}
-    ban_time = {{ $.Values.pgcat.banTime | default 60 }}
+    healthcheck_timeout = {{ $.Values.pooling.healthcheckTimeout | default 1000 }}
+    healthcheck_delay = {{ $.Values.pooling.healthcheckDelay | default 30000 }}
+    ban_time = {{ $.Values.pooling.banTime | default 60 }}
     
     # Logging
-    log_client_connections = {{ $.Values.pgcat.logClientConnections | default false }}
-    log_client_disconnections = {{ $.Values.pgcat.logClientDisconnections | default false }}
+    log_client_connections = {{ $.Values.pooling.logClientConnections | default false }}
+    log_client_disconnections = {{ $.Values.pooling.logClientDisconnections | default false }}
 
-    {{- range $dbIndex, $database := $.Values.pgcat.databases }}
+    {{- range $dbIndex, $database := $.Values.pooling.databases }}
     [pools.{{ $database }}]
-    pool_mode = "{{ $.Values.pgcat.poolMode | default "transaction" }}"
-    load_balancing_mode = "{{ $.Values.pgcat.loadBalancingMode | default "random" }}"
-    default_role = "{{ $.Values.pgcat.defaultRole | default "any" }}"
+    pool_mode = "{{ $.Values.pooling.poolMode | default "transaction" }}"
+    load_balancing_mode = "{{ $.Values.pooling.loadBalancingMode | default "random" }}"
+    default_role = "{{ $.Values.pooling.defaultRole | default "any" }}"
     
     [pools.{{ $database }}.shards."0"]
     database = "{{ $database }}"
@@ -47,8 +48,8 @@ data:
     [pools.{{ $database }}.users."0"]
     username = "${USERNAME}"
     password = "${PASSWORD}"
-    pool_size = {{ $.Values.pgcat.poolSize | default 20 }}
-    min_pool_size = {{ $.Values.pgcat.minPoolSize | default 5 }}
+    pool_size = {{ $.Values.pooling.poolSize | default 20 }}
+    min_pool_size = {{ $.Values.pooling.minPoolSize | default 5 }}
     {{- end }}
 
 {{- end }}

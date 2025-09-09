@@ -60,11 +60,12 @@ spec:
           secret:
             secretName: {{ .Values.proxy.tlsSecretName }}
         {{- end }}
-        {{- if and .Values.pgcat .Values.pgcat.enabled }}
+        {{- if and .Values.pooling .Values.pooling.enabled }}
         {{- range $index, $endpoint := .Values.endpoints }}
-        - name: pgcat-config-{{ $endpoint.name }}
+        {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
+        - name: pgcat-config-{{ $endpointName }}
           configMap:
-            name: {{ include "name" $ }}-pgcat-config-{{ $endpoint.name }}
+            name: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
         {{- end }}
         {{- end }}
       containers:
@@ -250,28 +251,18 @@ spec:
               mountPath: "/etc/tls"
               readOnly: true
             {{- end }}
-        {{- if and .Values.pgcat .Values.pgcat.enabled }}
+        {{- if and .Values.pooling .Values.pooling.enabled }}
         {{- range $index, $endpoint := .Values.endpoints }}
-        - name: pgcat-{{ $endpoint.name }}
+        - name: pool-{{ $endpoint.name }}
           image: {{ $.Values.pgcatImage.repository }}:{{ $.Values.pgcatImage.tag }}
           imagePullPolicy: {{ $.Values.pgcatImage.pullPolicy }}
           ports:
-            - name: pgcat-{{ $endpoint.name }}
+            - name: pool-{{ $endpoint.name }}
               containerPort: {{ add $endpoint.port 100 }}
               protocol: TCP
           envFrom:
             - secretRef:
-              {{- if $.Values.pgcat.username }}
-                name: {{ include "name" $ -}}
-              {{- else }}
-                name: {{ required "pgcat.username or pgcat.usernameSecretRef must be provided" $.Values.pgcat.usernameSecretRef -}}
-              {{- end }}
-            - secretRef:
-              {{- if $.Values.pgcat.password }}
-                name: {{ include "name" $ -}}
-              {{- else }}
-                name: {{ required "pgcat.password or pgcat.passwordSecretRef must be provided" $.Values.pgcat.passwordSecretRef -}}
-              {{- end }}
+                name: {{ include "name" $ }}-pooling-credentials
           env:
             - name: ENDPOINT_PORT
               value: "{{ add $endpoint.port 100 }}"

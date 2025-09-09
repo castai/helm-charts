@@ -114,10 +114,10 @@ queryProcessor:
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
 
-pgcat:
-  # -- Enable PgCat sidecar.
+pooling:
+  # -- Enable connection pooling sidecar.
   enabled: false
-  # -- List of database names to create pools for (required when pgcat is enabled)
+  # -- List of database names to create pools for (required when pooling is enabled)
   databases: []
   # -- Listen address for PgCat
   listenAddress: "0.0.0.0"
@@ -149,16 +149,8 @@ pgcat:
   logClientDisconnections: false
   # -- Username for database authentication
   username: ""
-  # -- Name of secret with username for database authentication
-  # username and usernameSecretRef are mutually exclusive
-  # The referenced secret must provide the username in .data["USERNAME"]
-  usernameSecretRef: ""
   # -- Password for database authentication
   password: ""
-  # -- Name of secret with password for database authentication
-  # password and passwordSecretRef are mutually exclusive
-  # The referenced secret must provide the password in .data["PASSWORD"]
-  passwordSecretRef: ""
 
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor

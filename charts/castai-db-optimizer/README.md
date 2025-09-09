@@ -22,31 +22,29 @@ CAST AI database cache deployment.
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
-| pgcat.banTime | int | `60` | Ban time in seconds |
-| pgcat.connectTimeout | int | `1000` | Connect timeout in milliseconds |
-| pgcat.databases | list | `[]` | List of database names to create pools for (required when pgcat is enabled) |
-| pgcat.defaultRole | string | `"any"` | Default role (any, primary, replica) |
-| pgcat.enabled | bool | `false` | Enable PgCat sidecar. |
-| pgcat.healthcheckDelay | int | `30000` | Health check delay in milliseconds |
-| pgcat.healthcheckTimeout | int | `1000` | Health check timeout in milliseconds |
-| pgcat.idleTimeout | int | `30000` | Idle timeout in milliseconds |
-| pgcat.listenAddress | string | `"0.0.0.0"` | Listen address for PgCat |
-| pgcat.loadBalancingMode | string | `"random"` | Load balancing mode (random or loc) |
-| pgcat.logClientConnections | bool | `false` | Log client connections |
-| pgcat.logClientDisconnections | bool | `false` | Log client disconnections |
-| pgcat.minPoolSize | int | `5` | Minimum pool size per user |
-| pgcat.password | string | `""` | Password for database authentication |
-| pgcat.passwordSecretRef | string | `""` | Name of secret with password for database authentication password and passwordSecretRef are mutually exclusive The referenced secret must provide the password in .data["PASSWORD"] |
-| pgcat.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
-| pgcat.poolSize | int | `20` | Maximum pool size per user |
-| pgcat.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
-| pgcat.username | string | `""` | Username for database authentication |
-| pgcat.usernameSecretRef | string | `""` | Name of secret with username for database authentication username and usernameSecretRef are mutually exclusive The referenced secret must provide the username in .data["USERNAME"] |
 | pgcatImage.pullPolicy | string | `"IfNotPresent"` |  |
 | pgcatImage.repository | string | `"ghcr.io/postgresml/pgcat"` |  |
 | pgcatImage.tag | string | `"v1.2.0"` |  |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
+| pooling.banTime | int | `60` | Ban time in seconds |
+| pooling.connectTimeout | int | `1000` | Connect timeout in milliseconds |
+| pooling.databases | list | `[]` | List of database names to create pools for (required when pooling is enabled) |
+| pooling.defaultRole | string | `"any"` | Default role (any, primary, replica) |
+| pooling.enabled | bool | `false` | Enable connection pooling sidecar. |
+| pooling.healthcheckDelay | int | `30000` | Health check delay in milliseconds |
+| pooling.healthcheckTimeout | int | `1000` | Health check timeout in milliseconds |
+| pooling.idleTimeout | int | `30000` | Idle timeout in milliseconds |
+| pooling.listenAddress | string | `"0.0.0.0"` | Listen address for PgCat |
+| pooling.loadBalancingMode | string | `"random"` | Load balancing mode (random or loc) |
+| pooling.logClientConnections | bool | `false` | Log client connections |
+| pooling.logClientDisconnections | bool | `false` | Log client disconnections |
+| pooling.minPoolSize | int | `5` | Minimum pool size per user |
+| pooling.password | string | `""` | Password for database authentication |
+| pooling.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
+| pooling.poolSize | int | `20` | Maximum pool size per user |
+| pooling.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
+| pooling.username | string | `""` | Username for database authentication |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
 | proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP. |
 | proxy.connectionLimits | object | `{"maxConnections":1024,"maxPendingRequests":1024,"maxRequests":1024,"maxRetries":3}` | Envoy upstream connection limits, numbers given are the envoy defaults. |
