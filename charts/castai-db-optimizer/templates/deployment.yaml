@@ -253,11 +253,12 @@ spec:
             {{- end }}
         {{- if and .Values.pooling .Values.pooling.enabled }}
         {{- range $index, $endpoint := .Values.endpoints }}
-        - name: pool-{{ $endpoint.name }}
+        {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
+        - name: pool-{{ $endpointName }}
           image: {{ $.Values.pgcatImage.repository }}:{{ $.Values.pgcatImage.tag }}
           imagePullPolicy: {{ $.Values.pgcatImage.pullPolicy }}
           ports:
-            - name: pool-{{ $endpoint.name }}
+            - name: pool-{{ $endpointName }}
               containerPort: {{ add $endpoint.port 100 }}
               protocol: TCP
           envFrom:
