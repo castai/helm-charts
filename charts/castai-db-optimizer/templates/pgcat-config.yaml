@@ -4,7 +4,7 @@
 {{- end }}
 {{- $secretName := "" }}
 {{- if .Values.pooling.credentialsSecretRef }}
-{{- $secretName = .Values.pooling.credentialsSecretRef.name }}
+{{- $secretName = .Values.pooling.credentialsSecretRef}}
 {{- else }}
 {{- $secretName = printf "%s-pooling-credentials" (include "name" .) }}
 {{- end }}
