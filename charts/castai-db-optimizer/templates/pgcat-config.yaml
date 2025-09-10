@@ -12,8 +12,13 @@
 {{- $username := "" }}
 {{- $password := "" }}
 {{- if $credentials }}
+{{- if $credentials.data.username }}
 {{- $username = ($credentials.data.username | b64dec) }}
 {{- $password = ($credentials.data.password | b64dec) }}
+{{- else }}
+{{- $username = ($credentials.data.USERNAME | b64dec) }}
+{{- $password = ($credentials.data.PASSWORD | b64dec) }}
+{{- end }}
 {{- else }}
 {{- $username = .Values.pooling.username }}
 {{- $password = .Values.pooling.password }}
@@ -35,11 +40,13 @@ stringData:
     [general]
     host = "{{ $.Values.pooling.listenAddress | default "0.0.0.0" }}"
     port = {{ add $endpoint.port 100 }}
+    admin_username = "{{ $.Values.pooling.adminUsername | default "admin" }}"
+    admin_password = "{{ $.Values.pooling.adminPassword | default "admin" }}"
     
     # Connection settings
     connect_timeout = {{ $.Values.pooling.connectTimeout | default 1000 }}
     idle_timeout = {{ $.Values.pooling.idleTimeout | default 30000 }}
-    server_lifetime = {{ $.Values.pooling.serverLifetime | default 86400000 }}
+    server_lifetime = {{ $.Values.pooling.serverLifetime | default "86400000" | int }}
     
     # Health check settings
     healthcheck_timeout = {{ $.Values.pooling.healthcheckTimeout | default 1000 }}
