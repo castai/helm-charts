@@ -57,22 +57,35 @@ dtype: "half"
 kvCacheDtype: "auto" # Same as default in the vLLM engine. It will read models config and use the same dtype for cache.
 maxLoraRank: 128
 
+# -- Startup probe configuration
 startupProbe:
+  # -- Enable or disable startup probe
+  enabled: true
   initialDelaySeconds: 20
   periodSeconds: 6
   # Allow for up to 20 minutes of startup time
   failureThreshold: 200
+  # -- Number of seconds after which the probe times out
+  timeoutSeconds: 1
+  # -- Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for startup probe)
+  successThreshold: 1
   httpGet:
     path: /health
 
 # -- Readiness probe configuration
 readinessProbe:
+  # -- Enable or disable readiness probe
+  enabled: true
   # -- Number of seconds after the container has started before readiness probe is initiated
   initialDelaySeconds: 5
   # -- How often (in seconds) to perform the readiness probe
   periodSeconds: 5
   # -- Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not ready
   failureThreshold: 3
+  # -- Number of seconds after which the probe times out
+  timeoutSeconds: 1
+  # -- Minimum consecutive successes for the probe to be considered successful after having failed
+  successThreshold: 1
    # -- Configuration of the Kubelet http request on the server
   httpGet:
     # -- Path to access on the HTTP server
@@ -80,16 +93,31 @@ readinessProbe:
 
 # -- Liveness probe configuration
 livenessProbe:
+  # -- Enable or disable liveness probe
+  enabled: true
   # -- Number of seconds after the container has started before liveness probe is initiated
   initialDelaySeconds: 15
   # -- Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not alive
   failureThreshold: 3
   # -- How often (in seconds) to perform the liveness probe
   periodSeconds: 10
+  # -- Number of seconds after which the probe times out
+  timeoutSeconds: 1
+  # -- Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for liveness probe)
+  successThreshold: 1
   # -- Configuration of the Kubelet http request on the server
   httpGet:
     # -- Path to access on the HTTP server
     path: /health
+
+# -- Additional environment variables to set in the vLLM container
+env: []
+# Example:
+# env:
+#   - name: MY_CUSTOM_VAR
+#     value: "my-value"
+#   - name: ANOTHER_VAR
+#     value: "another-value"
 
 deployment:
   labels:
