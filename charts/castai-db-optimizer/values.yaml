@@ -114,6 +114,44 @@ queryProcessor:
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
 
+pooling:
+  # -- Enable connection pooling sidecar.
+  enabled: false
+  # -- List of database names to create pools for (required when pooling is enabled)
+  databases: []
+  # -- Listen address for PgCat
+  listenAddress: "0.0.0.0"
+  # -- Pool mode (session or transaction)
+  poolMode: "transaction"
+  # -- Load balancing mode (random or loc)
+  loadBalancingMode: "random"
+  # -- Default role (any, primary, replica)
+  defaultRole: "any"
+  # -- Maximum pool size per user
+  poolSize: 20
+  # -- Minimum pool size per user
+  minPoolSize: 5
+  # -- Connect timeout in milliseconds
+  connectTimeout: 1000
+  # -- Idle timeout in milliseconds
+  idleTimeout: 30000
+  # -- Server lifetime in milliseconds
+  serverLifetime: 86400000
+  # -- Health check timeout in milliseconds
+  healthcheckTimeout: 1000
+  # -- Health check delay in milliseconds
+  healthcheckDelay: 30000
+  # -- Ban time in seconds
+  banTime: 60
+  # -- Log client connections
+  logClientConnections: false
+  # -- Log client disconnections
+  logClientDisconnections: false
+  # -- Username for database authentication
+  username: ""
+  # -- Password for database authentication
+  password: ""
+
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
   pullPolicy: IfNotPresent
@@ -123,6 +161,11 @@ proxyImage:
   repository: us-docker.pkg.dev/castai-hub/library/dbo-proxy
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
+
+pgcatImage:
+  repository: ghcr.io/postgresml/pgcat
+  pullPolicy: IfNotPresent
+  tag: "v1.2.0"
 
 # -- Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/

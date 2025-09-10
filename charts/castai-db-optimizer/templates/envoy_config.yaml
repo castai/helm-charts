@@ -241,8 +241,13 @@ data:
                   - endpoint:
                       address:
                         socket_address:
-                          address: {{ required "endpoint hostname must be provided" $endpoint.hostname }}
-                          port_value: {{ required "endpoint targetPort is required" $endpoint.targetPort }}
+                          {{- if and $.Values.pooling $.Values.pooling.enabled }}
+                          address: 127.0.0.1 # local pgcat in same pod
+                          port_value: {{ add $endpoint.port 100 }} # pgcat port
+                          {{- else }}
+                          address: {{ required "endpoint hostname must be provided" $endpoint.hostname }} # upstream database host
+                          port_value: {{ required "endpoint targetPort is required" $endpoint.targetPort }} # upstream database port
+                          {{- end }}
           transport_socket:
             name: envoy.transport_sockets.start_tls
             typed_config:

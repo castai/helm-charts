@@ -20,7 +20,7 @@ CAST AI agent deployment chart.
 | apiKey | string | `""` | Token to be used for authorizing agent access to the API. |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing agent access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
 | apiURL | string | `"https://api.cast.ai"` | URL to the CAST AI API server. |
-| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"registry.k8s.io/cpa/cpvpa","resources":{},"version":"v0.8.4"}` | Cluster proportional vertical autoscaler for the agent deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |
+| clusterVPA | object | `{"affinityOverride":{},"enabled":true,"pollPeriodSeconds":300,"repository":"registry.k8s.io/cpa/cpvpa","resources":{},"version":"v0.8.4"}` | Cluster proportional vertical autoscaler for the agent deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
@@ -35,7 +35,7 @@ CAST AI agent deployment chart.
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/agent"` |  |
-| imagePullSecrets | object | `{}` | what secret should be used for pulling the image |
+| imagePullSecrets | list | `[]` | what secret should be used for pulling the image |
 | metadataStore.configMapName | string | `"castai-agent-metadata"` | namespace of config map to store metadata |
 | metadataStore.configMapNamespace | string | `"castai-agent"` |  |
 | metadataStore.enabled | bool | `false` | specifies whether agent should store metadata in a config map |
@@ -62,7 +62,7 @@ CAST AI agent deployment chart.
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. |
-| tolerations | object | `{}` |  |
+| tolerations | list | `[]` |  |
 | topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-agent"` |  |
 | topologySpreadConstraints[0].maxSkew | int | `1` |  |
 | topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |

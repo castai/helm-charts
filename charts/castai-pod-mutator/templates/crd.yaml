@@ -2,7 +2,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.17.3
+    controller-gen.kubebuilder.io/version: v0.18.0
   name: podmutations.pod-mutations.cast.ai
 spec:
   group: pod-mutations.cast.ai
@@ -48,6 +48,70 @@ spec:
           spec:
             description: PodMutationSpec defines the desired state of PodMutation
             properties:
+              distributionGroups:
+                description: DistributionGroups defines percentage-based distribution
+                  of configurations across pods
+                items:
+                  description: DistributionGroup defines a percentage-based distribution
+                    group for configurations
+                  properties:
+                    configuration:
+                      description: Configuration defines the specific configuration
+                        to apply to pods in this distribution group
+                      properties:
+                        patches:
+                          description: Patches defines JSON patches to apply to pods
+                            in this distribution group
+                          items:
+                            properties:
+                              op:
+                                description: Op defines the operation to be performed
+                                enum:
+                                - add
+                                - remove
+                                - replace
+                                - move
+                                - copy
+                                - test
+                                type: string
+                              path:
+                                description: Path defines the path to the value to
+                                  be patched
+                                type: string
+                              value:
+                                description: Value defines the value to be patched
+                                x-kubernetes-preserve-unknown-fields: true
+                            required:
+                            - op
+                            - path
+                            - value
+                            type: object
+                          type: array
+                        spotMode:
+                          description: SpotMode defines the spot mode for pods in
+                            this distribution group
+                          enum:
+                          - optional-spot
+                          - only-spot
+                          - preferred-spot
+                          type: string
+                      type: object
+                    name:
+                      description: Name uniquely identifies the distribution group
+                      minLength: 1
+                      type: string
+                    percentage:
+                      description: Percentage defines the percentage of pods (0-100)
+                        that should receive this configuration
+                      maximum: 100
+                      minimum: 0
+                      type: integer
+                  required:
+                  - configuration
+                  - name
+                  - percentage
+                  type: object
+                type: array
               filter:
                 description: Filter defines the criteria for selecting pods to mutate
                 properties:

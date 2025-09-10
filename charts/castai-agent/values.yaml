@@ -16,7 +16,7 @@ image:
   pullPolicy: IfNotPresent
 
 # imagePullSecrets -- what secret should be used for pulling the image
-imagePullSecrets: {}
+imagePullSecrets: []
 
 nameOverride: ""
 fullnameOverride: castai-agent
@@ -54,6 +54,29 @@ clusterVPA:
   version: v0.8.4
   pollPeriodSeconds: 300
   resources: {}
+  ## configOverride -- Override the default ClusterVPA calculation configuration.
+  # configOverride: |-
+  #   "requests": {
+  #     "memory": {
+  #       "base": "2Gi",
+  #       "max": "8Gi",
+  #       "step": "256Mi",
+  #       "nodesPerStep": 20,
+  #       "coresPerStep": 480
+  #     }
+  #   },
+  #   "limits": {
+  #     "memory": {
+  #       "base": "2Gi",
+  #       "max": "8Gi",
+  #       "step": "256Mi",
+  #       "nodesPerStep": 20
+  #       "coresPerStep": 480
+  #     }
+  #   }
+
+  # affinityOverride -- Override the default affinity configuration.
+  affinityOverride: {}
 
 resources:
   requests:
@@ -112,7 +135,7 @@ dnsPolicy: ""
 
 # Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-tolerations: {}
+tolerations: []
 
 # Pod node selector rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
