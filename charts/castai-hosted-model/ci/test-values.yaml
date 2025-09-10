@@ -1,19 +1,46 @@
-ollama:
-  fullnameOverride: llama3-1-8b
+ vllm:
   replicaCount: 1
-  podLabels:
-    ai-optimizer.cast.ai/provider-id: 206c07dc-34c4-4d97-aa7f-ea23ff738955
-
   service:
+    name: vllm-test
     port: 11434
     type: ClusterIP
-  ingress:
+  image:
+    repository: "magglish/vllm"
+    tag: "cpu-no-optim"
+
+  dtype: "auto"
+  model:
+    name: "dummy/model"
+    sourceRegistry: "hf"
+  env:
+    - name: HF_HUB_DISABLE_PROGRESS_BARS
+      value: "1"
+    - name: HF_HUB_DISABLE_TELEMETRY
+      value: "1"
+    - name: VLLM_DO_NOT_TRACK
+      value: "1"
+    # Environment variables that will cause vllm to fail fast without downloading
+    - name: HF_HUB_OFFLINE
+      value: "1"
+    - name: HF_DATASETS_OFFLINE
+      value: "1"
+    - name: TRANSFORMERS_OFFLINE
+      value: "1"
+
+  # Minimal resource requirements for testing
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "200m"
+    limits:
+      memory: "512Mi"
+
+  # Disable probes since the service will fail to start (expected)
+  startupProbe:
+    enabled: false
+  livenessProbe:
+    enabled: false
+  readinessProbe:
     enabled: false
 
-  ollama:
-    gpu:
-      enabled: false
-    models:
-      # Don't pull/run any models for tests
-      pull: []
-      run: []
+
