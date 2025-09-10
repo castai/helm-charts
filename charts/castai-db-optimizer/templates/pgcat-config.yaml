@@ -2,22 +2,17 @@
 {{- if not .Values.pooling.databases }}
 {{- fail "pooling.databases cannot be empty when pooling is enabled. Please provide at least one database name." }}
 {{- end }}
-{{- $secretName := "" }}
-{{- if .Values.pooling.credentialsSecretRef }}
-{{- $secretName = .Values.pooling.credentialsSecretRef}}
-{{- else }}
-{{- $secretName = printf "%s-pooling-credentials" (include "name" .) }}
-{{- end }}
-{{- $credentials := (lookup "v1" "Secret" .Release.Namespace $secretName) }}
 {{- $username := "" }}
 {{- $password := "" }}
+{{- if .Values.pooling.credentialsSecretRef }}
+{{- $credentials := (lookup "v1" "Secret" .Release.Namespace .Values.pooling.credentialsSecretRef) }}
 {{- if $credentials }}
 {{- if $credentials.data.username }}
 {{- $username = ($credentials.data.username | b64dec) }}
 {{- $password = ($credentials.data.password | b64dec) }}
+{{- end }}
 {{- else }}
-{{- $username = ($credentials.data.USERNAME | b64dec) }}
-{{- $password = ($credentials.data.PASSWORD | b64dec) }}
+{{- fail (printf "credentialsSecretRef secret '%s' not found" .Values.pooling.credentialsSecretRef) }}
 {{- end }}
 {{- else }}
 {{- $username = .Values.pooling.username }}
