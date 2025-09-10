@@ -57,10 +57,6 @@ CAST AI hosted model deployment chart for vLLM.
 | service.type | string | `"ClusterIP"` |  |
 | startupProbe | object | `{"enabled":true,"failureThreshold":200,"httpGet":{"path":"/health"},"initialDelaySeconds":20,"periodSeconds":6,"successThreshold":1,"timeoutSeconds":1}` | Startup probe configuration |
 | startupProbe.enabled | bool | `true` | Enable or disable startup probe |
-| startupProbe.failureThreshold | int | `200` |  |
-| startupProbe.httpGet.path | string | `"/health"` |  |
-| startupProbe.initialDelaySeconds | int | `20` |  |
-| startupProbe.periodSeconds | int | `6` |  |
 | startupProbe.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for startup probe) |
 | startupProbe.timeoutSeconds | int | `1` | Number of seconds after which the probe times out |
 | task | string | `"generate"` |  |
