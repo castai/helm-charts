@@ -27,7 +27,6 @@ jobs:
           helm repo add incubator https://charts.helm.sh/incubator
           helm repo add elasticsearch https://helm.elastic.co  
           helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add ollama https://otwld.github.io/ollama-helm
 
       - name: Install Helm
         uses: azure/setup-helm@v4.2.0
