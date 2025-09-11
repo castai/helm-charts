@@ -6,7 +6,8 @@ CAST AI Watchdog
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalEnvs | list | `[]` |  |
+| additionalEnvs[0].name | string | `"HEALTHCHECK_SNAPSHOTPROCESSINGTIMEOUT"` |  |
+| additionalEnvs[0].value | string | `"3m"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
