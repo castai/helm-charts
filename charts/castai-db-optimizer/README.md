@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.44.0-rc2](https://img.shields.io/badge/Version-0.44.0--rc2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.44.0-rc3](https://img.shields.io/badge/Version-0.44.0--rc3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -29,6 +29,7 @@ CAST AI database cache deployment.
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | pooling.banTime | int | `60` | Ban time in seconds |
 | pooling.connectTimeout | int | `1000` | Connect timeout in milliseconds |
+| pooling.credentialsSecretRef | string | `""` | Name of secret with username for database authentication |
 | pooling.databases | list | `[]` | List of database names to create pools for (required when pooling is enabled) |
 | pooling.defaultRole | string | `"any"` | Default role (any, primary, replica) |
 | pooling.enabled | bool | `false` | Enable connection pooling sidecar. |

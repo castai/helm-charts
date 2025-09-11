@@ -20,7 +20,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/envoy_config.yaml") . | sha256sum }}
+        checksum/config: {{ cat (include (print $.Template.BasePath "/envoy_config.yaml") .) (include (print $.Template.BasePath "/pgcat-config.yaml") .) | sha256sum }}
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -64,8 +64,8 @@ spec:
         {{- range $index, $endpoint := .Values.endpoints }}
         {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
         - name: pgcat-config-{{ $endpointName }}
-          configMap:
-            name: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
+          secret:
+            secretName: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
         {{- end }}
         {{- end }}
       containers:
@@ -254,16 +254,14 @@ spec:
         {{- if and .Values.pooling .Values.pooling.enabled }}
         {{- range $index, $endpoint := .Values.endpoints }}
         {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
+        {{- $portName := printf "pool-%s" $endpointName | trunc 15 }}
         - name: pool-{{ $endpointName }}
           image: {{ $.Values.pgcatImage.repository }}:{{ $.Values.pgcatImage.tag }}
           imagePullPolicy: {{ $.Values.pgcatImage.pullPolicy }}
           ports:
-            - name: pool-{{ $endpointName }}
+            - name: {{ $portName }}
               containerPort: {{ add $endpoint.port 100 }}
               protocol: TCP
-          envFrom:
-            - secretRef:
-                name: {{ include "name" $ }}-pooling-credentials
           env:
             - name: ENDPOINT_PORT
               value: "{{ add $endpoint.port 100 }}"
