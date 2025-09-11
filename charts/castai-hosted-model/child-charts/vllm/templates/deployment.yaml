@@ -93,7 +93,7 @@ spec:
             {{- end }}
           env:
             - name: VLLM_IMAGE_FETCH_TIMEOUT # MM Models
-              value: "15"
+              value: "20"
             - name: HF_HOME # Otherwise transformers will not respect download dir in vLLM
               value: /models
             - name: LD_LIBRARY_PATH
