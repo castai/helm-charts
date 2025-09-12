@@ -139,6 +139,10 @@ pooling:
   idleTimeout: 30000
   # -- Server lifetime in milliseconds
   serverLifetime: 86400000
+  # -- Enable TLS for server connections
+  serverTLS: true
+  # -- Verify server certificate when using TLS
+  verifyServerCertificate: false
   # -- Health check timeout in milliseconds
   healthcheckTimeout: 1000
   # -- Health check delay in milliseconds

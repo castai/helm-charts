@@ -271,7 +271,7 @@ spec:
               protocol: TCP
           env:
           {{- if $.Values.pooling.credentialsSecretRef }}
-          - name: RUST_LOG
+          - name: LOG_LEVEL
             value: {{ $.Values.pooling.logLevel | default "info" }}
           - name: PGCAT_USERNAME
             valueFrom:
