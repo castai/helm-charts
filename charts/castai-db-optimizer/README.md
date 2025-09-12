@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.44.0-rc5](https://img.shields.io/badge/Version-0.44.0--rc5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.44.0-rc6](https://img.shields.io/badge/Version-0.44.0--rc6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -46,7 +46,9 @@ CAST AI database cache deployment.
 | pooling.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
 | pooling.poolSize | int | `20` | Maximum pool size per user |
 | pooling.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
+| pooling.serverTLS | bool | `true` | Enable TLS for server connections |
 | pooling.username | string | `""` | Username for database authentication |
+| pooling.verifyServerCertificate | bool | `false` | Verify server certificate when using TLS |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
 | proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP. |
 | proxy.connectionLimits | object | `{"maxConnections":1024,"maxPendingRequests":1024,"maxRequests":1024,"maxRetries":3}` | Envoy upstream connection limits, numbers given are the envoy defaults. |
