@@ -64,8 +64,8 @@ spec:
         {{- range $index, $endpoint := .Values.endpoints }}
         {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
         - name: pgcat-config-{{ $endpointName }}
-          secret:
-            secretName: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
+          configMap:
+            name: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
         {{- end }}
         {{- end }}
       containers:
@@ -258,17 +258,41 @@ spec:
         - name: pool-{{ $endpointName }}
           image: {{ $.Values.pgcatImage.repository }}:{{ $.Values.pgcatImage.tag }}
           imagePullPolicy: {{ $.Values.pgcatImage.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mkdir -p /tmp/pgcat
+              sed -e "s|\${PGCAT_USERNAME}|$PGCAT_USERNAME|g" -e "s|\${PGCAT_PASSWORD}|$PGCAT_PASSWORD|g" /etc/pgcat/pgcat.toml > /tmp/pgcat/pgcat.toml.subst
+              exec pgcat /tmp/pgcat/pgcat.toml.subst
           ports:
             - name: {{ $portName }}
               containerPort: {{ add $endpoint.port 100 }}
               protocol: TCP
           env:
-            - name: ENDPOINT_PORT
-              value: "{{ add $endpoint.port 100 }}"
-            - name: ENDPOINT_HOSTNAME
-              value: "{{ $endpoint.hostname }}"
-            - name: ENDPOINT_TARGET_PORT
-              value: "{{ $endpoint.targetPort }}"
+          {{- if $.Values.pooling.credentialsSecretRef }}
+          - name: PGCAT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.pooling.credentialsSecretRef }}
+                key: username
+          - name: PGCAT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.pooling.credentialsSecretRef }}
+                key: password
+          {{- else }}
+          - name: PGCAT_USERNAME
+            value: "{{ $.Values.pooling.username }}"
+          - name: PGCAT_PASSWORD
+            value: "{{ $.Values.pooling.password }}"
+          {{- end }}
+          - name: ENDPOINT_PORT
+            value: "{{ add $endpoint.port 100 }}"
+          - name: ENDPOINT_HOSTNAME
+            value: "{{ $endpoint.hostname }}"
+          - name: ENDPOINT_TARGET_PORT
+            value: "{{ $endpoint.targetPort }}"
           securityContext:
             capabilities:
               drop:

@@ -2,35 +2,18 @@
 {{- if not .Values.pooling.databases }}
 {{- fail "pooling.databases cannot be empty when pooling is enabled. Please provide at least one database name." }}
 {{- end }}
-{{- $username := "" }}
-{{- $password := "" }}
-{{- if .Values.pooling.credentialsSecretRef }}
-{{- $credentials := (lookup "v1" "Secret" .Release.Namespace .Values.pooling.credentialsSecretRef) }}
-{{- if $credentials }}
-{{- if $credentials.data.username }}
-{{- $username = ($credentials.data.username | b64dec) }}
-{{- $password = ($credentials.data.password | b64dec) }}
-{{- end }}
-{{- else }}
-{{- fail (printf "credentialsSecretRef secret '%s' not found" .Values.pooling.credentialsSecretRef) }}
-{{- end }}
-{{- else }}
-{{- $username = .Values.pooling.username }}
-{{- $password = .Values.pooling.password }}
-{{- end }}
 {{- range $index, $endpoint := .Values.endpoints }}
 {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
 ---
 apiVersion: v1
-kind: Secret
+kind: ConfigMap
 metadata:
   name: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
   labels:
     {{- include "labels" $ | nindent 4 }}
   annotations:
     {{- include "annotations" $ | nindent 4 }}
-type: Opaque
-stringData:
+data:
   pgcat.toml: |
     [general]
     host = "{{ $.Values.pooling.listenAddress | default "0.0.0.0" }}"
@@ -65,8 +48,8 @@ stringData:
     ]
     
     [pools.{{ $database }}.users."0"]
-    username = "{{ $username }}"
-    password = "{{ $password }}"
+    username = "${PGCAT_USERNAME}"
+    password = "${PGCAT_PASSWORD}"
     pool_size = {{ $.Values.pooling.poolSize | default 20 }}
     min_pool_size = {{ $.Values.pooling.minPoolSize | default 5 }}
     {{- end }}
