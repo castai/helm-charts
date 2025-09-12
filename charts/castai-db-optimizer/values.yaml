@@ -117,6 +117,8 @@ queryProcessor:
 pooling:
   # -- Enable connection pooling sidecar.
   enabled: false
+  # -- Pooling log level, must be one of error, warn, info, debug, trace, off
+  logLevel: "info"
   # -- List of database names to create pools for (required when pooling is enabled)
   databases: []
   # -- Listen address for PgCat
