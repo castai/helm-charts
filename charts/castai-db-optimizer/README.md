@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.44.0-rc4](https://img.shields.io/badge/Version-0.44.0--rc4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.44.0-rc5](https://img.shields.io/badge/Version-0.44.0--rc5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -40,6 +40,7 @@ CAST AI database cache deployment.
 | pooling.loadBalancingMode | string | `"random"` | Load balancing mode (random or loc) |
 | pooling.logClientConnections | bool | `false` | Log client connections |
 | pooling.logClientDisconnections | bool | `false` | Log client disconnections |
+| pooling.logLevel | string | `"info"` | Pooling log level, must be one of error, warn, info, debug, trace, off |
 | pooling.minPoolSize | int | `5` | Minimum pool size per user |
 | pooling.password | string | `""` | Password for database authentication |
 | pooling.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
