@@ -269,19 +269,25 @@ spec:
             - name: {{ $portName }}
               containerPort: {{ add $endpoint.port 100 }}
               protocol: TCP
-          {{- if $.Values.pooling.credentialsSecretRef }}
-          envFrom:
-            - secretRef:
-                name: {{ $.Values.pooling.credentialsSecretRef }}
-          {{- end }}
           env:
-          {{- if not $.Values.pooling.credentialsSecretRef }}
+          {{- if $.Values.pooling.credentialsSecretRef }}
+          - name: PGCAT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.pooling.credentialsSecretRef }}
+                key: username
+          - name: PGCAT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: {{ $.Values.pooling.credentialsSecretRef }}
+                key: password
+          {{- else }}
           - name: PGCAT_USERNAME
             value: "{{ $.Values.pooling.username }}"
           - name: PGCAT_PASSWORD
             value: "{{ $.Values.pooling.password }}"
           {{- end }}
-          - name: ENDPOINT_PORT
+            - name: ENDPOINT_PORT
             value: "{{ add $endpoint.port 100 }}"
           - name: ENDPOINT_HOSTNAME
             value: "{{ $endpoint.hostname }}"

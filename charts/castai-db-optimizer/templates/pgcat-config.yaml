@@ -2,16 +2,6 @@
 {{- if not .Values.pooling.databases }}
 {{- fail "pooling.databases cannot be empty when pooling is enabled. Please provide at least one database name." }}
 {{- end }}
-{{- $username := "" }}
-{{- $password := "" }}
-{{- if .Values.pooling.credentialsSecretRef }}
-# NOTE: Remove lookup logic for ArgoCD compatibility if needed
-{{- $username = .Values.pooling.username }}
-{{- $password = .Values.pooling.password }}
-{{- else }}
-{{- $username = .Values.pooling.username }}
-{{- $password = .Values.pooling.password }}
-{{- end }}
 {{- range $index, $endpoint := .Values.endpoints }}
 {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
 ---
