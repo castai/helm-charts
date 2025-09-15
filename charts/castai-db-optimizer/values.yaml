@@ -63,6 +63,15 @@ endpoints:
     name:
     # -- Port of the named service
     servicePort: 5432
+    # -- Envoy service discovery settings.
+    # Ref: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto.html
+    serviceDiscovery:
+      # -- The service discovery type to use for resolving the cluster. Available options: LOGICAL_DNS and STRICT_DNS.
+      # Ref: https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/service_discovery
+      type: LOGICAL_DNS
+      dns_lookup_family: ALL
+      respect_dns_ttl: true
+      dns_refresh_rate: 5000ms
 
 proxy:
   # -- Default proxy log level.

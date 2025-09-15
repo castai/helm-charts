@@ -219,8 +219,14 @@ data:
 
         {{- range $index, $endpoint := .Values.endpoints}}
         - name: endpoint_upstream_{{ $index }}
-          type: LOGICAL_DNS
-          dns_lookup_family: ALL
+          type: {{ if $endpoint.serviceDiscovery }}{{ default "LOGICAL_DNS" $endpoint.serviceDiscovery.type }}{{ else }}LOGICAL_DNS{{ end }}
+          dns_lookup_family: {{ if $endpoint.serviceDiscovery }}{{ default "ALL" $endpoint.serviceDiscovery.dns_lookup_family }}{{ else }}ALL{{ end }}
+          {{- if and $endpoint.serviceDiscovery $endpoint.serviceDiscovery.respect_dns_ttl }}
+          respect_dns_ttl: {{ $endpoint.serviceDiscovery.respect_dns_ttl }}
+          {{- end }}
+          {{- if and $endpoint.serviceDiscovery $endpoint.serviceDiscovery.dns_refresh_rate }}
+          dns_refresh_rate: {{ $endpoint.serviceDiscovery.dns_refresh_rate }}
+          {{- end }}
           connect_timeout: 1s
           upstream_connection_options:
             tcp_keepalive:
