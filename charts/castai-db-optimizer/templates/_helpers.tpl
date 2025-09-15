@@ -21,6 +21,10 @@ Create chart name and version as used by the chart label.
 {{-  default (include "defaultProxyVersion" .) .Values.proxyImage.tag }}
 {{- end }}
 
+{{-define "indexAdvisorImage" -}}
+{{-  default (include "defaultProxyVersion" .) .Values.indexAdvisor.image.tag }}
+{{- end }}
+
 {{/*
 Helpers for customizing proxy TLS settings.
 */}}

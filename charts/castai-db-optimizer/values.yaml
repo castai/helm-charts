@@ -232,3 +232,27 @@ affinity:
               operator: In
               values:
                 - cast.ai
+
+indexAdvisor:
+  enabled: false
+  image:
+    repository: us-docker.pkg.dev/castai-hub/library/dbo-collector
+    pullPolicy: IfNotPresent
+    tag: ""  # uses values from _versions.tpl for default value
+  logLevel: info
+  organizationID: ""
+  databaseID: ""
+  database:
+    host: ""
+    port: 5432
+    username: ""
+    password: ""
+    database: ""
+  gRPCEndpoint: api-grpc.dev.cast.ai
+  collectors:
+    explain:
+      runsEvery: 15m
+    metadata:
+      runsEvery: 30m
+    stats:
+      runsEvery: 15m

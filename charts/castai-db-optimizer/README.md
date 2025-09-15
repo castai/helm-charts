@@ -23,6 +23,22 @@ CAST AI database cache deployment.
 | endpoints[0].serviceDiscovery.type | string | `"LOGICAL_DNS"` | The service discovery type to use for resolving the cluster. Available options: LOGICAL_DNS and STRICT_DNS. Ref: https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/service_discovery |
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
+| indexAdvisor.collectors.explain.runsEvery | string | `"15m"` |  |
+| indexAdvisor.collectors.metadata.runsEvery | string | `"30m"` |  |
+| indexAdvisor.collectors.stats.runsEvery | string | `"15m"` |  |
+| indexAdvisor.database.database | string | `""` |  |
+| indexAdvisor.database.host | string | `""` |  |
+| indexAdvisor.database.password | string | `""` |  |
+| indexAdvisor.database.port | int | `5432` |  |
+| indexAdvisor.database.username | string | `""` |  |
+| indexAdvisor.databaseID | string | `""` |  |
+| indexAdvisor.enabled | bool | `false` |  |
+| indexAdvisor.gRPCEndpoint | string | `"api-grpc.dev.cast.ai"` |  |
+| indexAdvisor.image.pullPolicy | string | `"IfNotPresent"` |  |
+| indexAdvisor.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-collector"` |  |
+| indexAdvisor.image.tag | string | `""` |  |
+| indexAdvisor.logLevel | string | `"info"` |  |
+| indexAdvisor.organizationID | string | `""` |  |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
 | pgcatImage.pullPolicy | string | `"IfNotPresent"` |  |
 | pgcatImage.repository | string | `"ghcr.io/postgresml/pgcat"` |  |
