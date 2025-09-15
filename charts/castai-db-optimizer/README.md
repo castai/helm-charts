@@ -48,10 +48,13 @@ CAST AI database cache deployment.
 | pooling.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
 | pooling.poolSize | int | `20` | Maximum pool size per user |
 | pooling.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
+| pooling.serverTLS | bool | `true` | Enable TLS for server connections |
 | pooling.username | string | `""` | Username for database authentication |
+| pooling.verifyServerCertificate | bool | `false` | Verify server certificate when using TLS |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
 | proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP. |
 | proxy.connectionLimits | object | `{"maxConnections":1024,"maxPendingRequests":1024,"maxRequests":1024,"maxRetries":3}` | Envoy upstream connection limits, numbers given are the envoy defaults. |
+| proxy.coredumpCollectionMode | string | `"None"` | Disable core dump collection by default |
 | proxy.dataStorageMedium | string | `"Memory"` | Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk |
 | proxy.dnsLookupFamily | string | `"V4_PREFERRED"` | DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead. |
 | proxy.drainPreHook | int | `2` | Predrain timeout in seconds. |

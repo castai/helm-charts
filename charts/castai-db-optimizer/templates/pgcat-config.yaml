@@ -25,7 +25,9 @@ data:
     connect_timeout = {{ $.Values.pooling.connectTimeout | default 1000 }}
     idle_timeout = {{ $.Values.pooling.idleTimeout | default 30000 }}
     server_lifetime = {{ $.Values.pooling.serverLifetime | default "86400000" | int }}
-    
+    server_tls = {{ $.Values.pooling.serverTLS | default true }}
+    verify_server_certificate = {{ $.Values.pooling.verifyServerCertificate | default false }}
+
     # Health check settings
     healthcheck_timeout = {{ $.Values.pooling.healthcheckTimeout | default 1000 }}
     healthcheck_delay = {{ $.Values.pooling.healthcheckDelay | default 30000 }}
