@@ -41,7 +41,7 @@ CAST AI hosted model deployment chart for vLLM.
 | readinessProbe.initialDelaySeconds | int | `5` | Number of seconds after the container has started before readiness probe is initiated |
 | readinessProbe.periodSeconds | int | `5` | How often (in seconds) to perform the readiness probe |
 | registries.createSecret | bool | `true` |  |
-| registries.gcs.credentialsJson | string | `nil` |  |
+| registries.gcs.credentialsJsonBase64 | string | `nil` |  |
 | registries.hf.token | string | `nil` |  |
 | registries.secretName | string | `nil` |  |
 | replicaCount | int | `1` |  |
