@@ -27,8 +27,8 @@ data:
     server_lifetime = {{ $.Values.pooling.serverLifetime | default "86400000" | int }}
     server_tls = {{ $.Values.pooling.serverTLS | default true }}
     verify_server_certificate = {{ $.Values.pooling.verifyServerCertificate | default false }}
-    tls_certificate = "{{ $.Values.pooling.tlsCertificate | default "/etc/tls/cert.pem" }}"
-    tls_private_key = "{{ $.Values.pooling.tlsPrivateKey | default "/etc/tls/key.pem" }}"
+    tls_certificate = "{{ $.Values.pooling.tlsCertificateFilePath | default "/etc/tls/cert.pem" }}"
+    tls_private_key = "{{ $.Values.pooling.tlsPrivateKeyFilePath | default "/etc/tls/key.pem" }}"
 
     # Health check settings
     healthcheck_timeout = {{ $.Values.pooling.healthcheckTimeout | default 1000 }}

@@ -49,8 +49,8 @@ CAST AI database cache deployment.
 | pooling.poolSize | int | `20` | Maximum pool size per user |
 | pooling.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
 | pooling.serverTLS | bool | `true` | Enable TLS for server connections |
-| pooling.tlsCertificate | string | `""` | TLS certificate for server connections (PEM format) |
-| pooling.tlsPrivateKey | string | `""` | TLS private key for server connections (PEM format) |
+| pooling.tlsCertificateFilePath | string | `""` | Path to TLS certificate for server connections (PEM format) |
+| pooling.tlsPrivateKeyFilePath | string | `""` | Path to TLS private key for server connections (PEM format) |
 | pooling.username | string | `""` | Username for database authentication |
 | pooling.verifyServerCertificate | bool | `false` | Verify server certificate when using TLS |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
