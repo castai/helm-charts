@@ -65,24 +65,4 @@ pooling:
   logClientConnections: false
 
 indexAdvisor:
-  enabled: true
-  image:
-    repository: us-docker.pkg.dev/castai-hub/library/dbo-collector
-    pullPolicy: IfNotPresent
-  logLevel: debug
-  organizationID: "123"
-  databaseID: "456"
-  database:
-    host: "db1.example.com"
-    port: 5432
-    username: "postgres"
-    password: "sup3r_s3kr3t"
-    database: "dbc_test"
-  gRPCEndpoint: api-grpc.dev.cast.ai
-  collectors:
-    explain:
-      runsEvery: 15m
-    metadata:
-      runsEvery: 30m
-    stats:
-      runsEvery: 15m
+  enabled: false
