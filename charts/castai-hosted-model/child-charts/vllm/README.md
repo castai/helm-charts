@@ -34,7 +34,6 @@ CAST AI hosted model deployment chart for vLLM.
 | modelDownloader.s3ProxyResources.limits.memory | string | `"1Gi"` |  |
 | modelDownloader.s3ProxyResources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.s3ProxyResources.requests.memory | string | `"1Gi"` |  |
-| mountImageCache | bool | `false` |  |
 | readinessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":5,"periodSeconds":5}` | Readiness probe configuration |
 | readinessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not ready |
 | readinessProbe.httpGet | object | `{"path":"/health"}` | Configuration of the Kubelet http request on the server |
@@ -42,7 +41,7 @@ CAST AI hosted model deployment chart for vLLM.
 | readinessProbe.initialDelaySeconds | int | `5` | Number of seconds after the container has started before readiness probe is initiated |
 | readinessProbe.periodSeconds | int | `5` | How often (in seconds) to perform the readiness probe |
 | registries.createSecret | bool | `true` |  |
-| registries.gcs.credentialsJson | string | `nil` |  |
+| registries.gcs.credentialsJsonBase64 | string | `nil` |  |
 | registries.hf.token | string | `nil` |  |
 | registries.secretName | string | `nil` |  |
 | replicaCount | int | `1` |  |
