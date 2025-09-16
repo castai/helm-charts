@@ -50,25 +50,25 @@ spec:
             runAsUser: 1000
           env:
             - name: LOG_LEVEL
-              value: {{ required "log level must be provided" .Values.indexAdvisor.logLevel }}
+              value: "{{ required "log level must be provided" .Values.indexAdvisor.logLevel }}"
             - name: ORGANIZATION_ID
-              value: {{ required "organization ID must be provided" .Values.indexAdvisor.organizationID }}
+              value: "{{ required "organization ID must be provided" .Values.indexAdvisor.organizationID }}"
             - name: DATABASE_ID
-              value: {{ required "database ID must be provided" .Values.indexAdvisor.databaseID }}
+              value: "{{ required "database ID must be provided" .Values.indexAdvisor.databaseID }}"
             - name: DATABASE_HOST
-              value: {{ required "target database host must be provided" .Values.indexAdvisor.database.host }}
+              value: "{{ required "target database host must be provided" .Values.indexAdvisor.database.host }}"
             - name: DATABASE_PORT
-              value: {{ required "target database port must be provided" .Values.indexAdvisor.database.port }}
+              value: "{{ required "target database port must be provided" .Values.indexAdvisor.database.port }}"
             - name: DATABASE_DATABASE
-              value: {{ required "target database name must be provided" .Values.indexAdvisor.database.database }}
+              value: "{{ required "target database name must be provided" .Values.indexAdvisor.database.database }}"
             - name: INDEX_ADVISOR_CLIENT_GRPC_ENDPOINT
-              value: {{ required "gRPC endpoint must be provided" .Values.indexAdvisor.gRPCEndpoint }}
+              value: "{{ required "gRPC endpoint must be provided" .Values.indexAdvisor.gRPCEndpoint }}"
             - name: COLLECTORS_EXPLAIN_RUNS_EVERY
-              value: {{ required "explain collector run frequency must be provided" .Values.indexAdvisor.collectors.explain.runsEvery }}
+              value: "{{ required "explain collector run frequency must be provided" .Values.indexAdvisor.collectors.explain.runsEvery }}"
             - name: COLLECTORS_METADATA_RUNS_EVERY
-              value: {{ required "metadata collector run frequency must be provided" .Values.indexAdvisor.collectors.metadata.runsEvery }}
+              value: "{{ required "metadata collector run frequency must be provided" .Values.indexAdvisor.collectors.metadata.runsEvery }}"
             - name: COLLECTORS_STATS_RUNS_EVERY
-              value: {{ required "stats collector run frequency must be provided" .Values.indexAdvisor.collectors.stats.runsEvery }}
+              value: "{{ required "stats collector run frequency must be provided" .Values.indexAdvisor.collectors.stats.runsEvery }}"
           envFrom:
             - secretRef:
                 name: {{ include "name" $ }}-index-advisor-collector
