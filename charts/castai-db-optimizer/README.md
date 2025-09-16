@@ -15,10 +15,12 @@ CAST AI database cache deployment.
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
-| endpoints | list | `[{"hostname":"sample-db-hostname","name":null,"port":5433,"servicePort":5432,"targetPort":5432}]` | A list of upstream database endpoints |
+| endpoints | list | `[{"hostname":"sample-db-hostname","name":null,"port":5433,"serviceDiscovery":{"dns_lookup_family":"ALL","dns_refresh_rate":"5000ms","respect_dns_ttl":true,"type":"LOGICAL_DNS"},"servicePort":5432,"targetPort":5432}]` | A list of upstream database endpoints |
 | endpoints[0].hostname | string | `"sample-db-hostname"` | Hostname of the upstream database instance. |
 | endpoints[0].name | string | `nil` | Name of the service. If this value is not empty, then additional cluster IP service will be deployed, using provided name as a suffix |
 | endpoints[0].port | int | `5433` | Port for the endpoint on DBO pod. |
+| endpoints[0].serviceDiscovery | object | `{"dns_lookup_family":"ALL","dns_refresh_rate":"5000ms","respect_dns_ttl":true,"type":"LOGICAL_DNS"}` | Envoy service discovery settings. Ref: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto.html |
+| endpoints[0].serviceDiscovery.type | string | `"LOGICAL_DNS"` | The service discovery type to use for resolving the cluster. Available options: LOGICAL_DNS and STRICT_DNS. Ref: https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/service_discovery |
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
