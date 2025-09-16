@@ -16,6 +16,10 @@ endpoints:
     port: 5434
     targetPort: 5432
     servicePort: 5434
+    serviceDiscovery:
+      type: STRICT_DNS
+      dns_lookup_family: ALL
+      respect_dns_ttl: true
 
   # unnamed endpoint (will not create a separate named service)
   - hostname: "db3.example.com"
