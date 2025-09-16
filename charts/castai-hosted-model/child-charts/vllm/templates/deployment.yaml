@@ -156,13 +156,17 @@ spec:
               mountPath: /models
       initContainers:
         {{- if or .Values.loraAdapter.name (and (ne .Values.model.sourceRegistry "hf") (not .Values.useRunAiStreamer)) }}
+        {{- $sourceRegistry := .Values.model.sourceRegistry }}
+        {{- if .Values.loraAdapter.name }}
+        {{- $sourceRegistry = .Values.loraAdapter.sourceRegistry }}
+        {{- end }}
         - name: model-downloader
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           imagePullPolicy: IfNotPresent
           args:
             - download
           env:
-            {{- include "modelDownloader.sourceRegistryEnvVars" .Values.loraAdapter.sourceRegistry | nindent 12 }}
+            {{- include "modelDownloader.sourceRegistryEnvVars" $sourceRegistry | nindent 12 }}
             - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIRS
               value: "{{ include "modelDownloader.remoteSourceDirs" . }}"
             - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
@@ -170,7 +174,7 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /models
-            {{- include "modelDownloader.sourceRegistryVolumeMounts" .Values.loraAdapter.sourceRegistry | nindent 12 }}
+            {{- include "modelDownloader.sourceRegistryVolumeMounts" $sourceRegistry | nindent 12 }}
           resources:
             {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
         {{- end }}
