@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.45.0](https://img.shields.io/badge/Version-0.45.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.45.1-rc1](https://img.shields.io/badge/Version-0.45.1--rc1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -49,6 +49,8 @@ CAST AI database cache deployment.
 | pooling.poolSize | int | `20` | Maximum pool size per user |
 | pooling.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
 | pooling.serverTLS | bool | `true` | Enable TLS for server connections |
+| pooling.tlsCertificate | string | `""` | TLS certificate for server connections (PEM format) |
+| pooling.tlsPrivateKey | string | `""` | TLS private key for server connections (PEM format) |
 | pooling.username | string | `""` | Username for database authentication |
 | pooling.verifyServerCertificate | bool | `false` | Verify server certificate when using TLS |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
