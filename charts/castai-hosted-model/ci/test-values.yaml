@@ -5,8 +5,10 @@ vllm:
     port: 11434
     type: ClusterIP
   image:
-    repository: "magglish/vllm"
-    tag: "cpu-no-optim"
+#    repository: "magglish/vllm"
+    repository: "public.ecr.aws/q9t5s3a7/vllm-cpu-release-repo"
+#    tag: "cpu-no-optim"
+    tag: "v0.9.2"
 
   dtype: "auto"
   model:
