@@ -114,6 +114,10 @@ rules:
     resourceNames: [ "castai-pod-pinner" ]
     resources: [ "mutatingwebhookconfigurations" ]
     verbs: [ "get", "patch" ]
+  # For creating pod mutations-related custom resources
+  - apiGroups: [ "pod-mutations.cast.ai" ]
+    resources: [ "*" ]
+    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
