@@ -11,7 +11,9 @@ metadata:
 data:
   API_KEY: {{ .Values.apiKey | b64enc | quote }}
   DATABASE_USERNAME: {{ .Values.indexAdvisor.database.username | b64enc | quote }}
+  {{- if ne .Values.indexAdvisor.database.password "" }}
   DATABASE_PASSWORD: {{ .Values.indexAdvisor.database.password | b64enc | quote }}
+  {{- end }}
 type: Opaque
 
 ---
@@ -72,4 +74,8 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ include "name" $ }}-index-advisor-collector
+            {{- if ne .Values.indexAdvisor.database.passwordSecretRef "" }}
+            - secretRef:
+                name: {{ .Values.indexAdvisor.database.passwordSecretRef }}
+            {{- end }}
 {{- end }}
