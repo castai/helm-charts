@@ -6,7 +6,7 @@ CAST AI hosted model deployment chart.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/vllm | vllm | 0.0.22  |
+| file://child-charts/vllm | vllm | 0.0.22 |
 
 ## Values
 
