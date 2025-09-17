@@ -245,15 +245,22 @@ indexAdvisor:
   database:
     host: ""
     port: 5432
-    username: ""
-    password: ""
+    # -- Database name to connect to
     database: ""
-    passwordSecretRef: ""
+    # -- Username for database authentication
+    username: ""
+    # -- Password for database authentication
+    password: ""
+    # -- Name of secret with username for database authentication
+    credentialsSecretRef: ""
   gRPCEndpoint: api-grpc.dev.cast.ai
   collectors:
     explain:
+      # -- Frequency in which execution plans are collected
       runsEvery: 15m
     metadata:
+      # -- Frequency in which table metadata is collected
       runsEvery: 30m
     stats:
+      # -- Frequency in which index statistics are collected
       runsEvery: 15m

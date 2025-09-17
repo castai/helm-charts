@@ -10,8 +10,8 @@ metadata:
     {{- include "annotations" . | nindent 4 }}
 data:
   API_KEY: {{ .Values.apiKey | b64enc | quote }}
+  {{- if and (ne .Values.indexAdvisor.database.username "") (ne .Values.indexAdvisor.database.password "") }}
   DATABASE_USERNAME: {{ .Values.indexAdvisor.database.username | b64enc | quote }}
-  {{- if ne .Values.indexAdvisor.database.password "" }}
   DATABASE_PASSWORD: {{ .Values.indexAdvisor.database.password | b64enc | quote }}
   {{- end }}
 type: Opaque
@@ -74,8 +74,8 @@ spec:
           envFrom:
             - secretRef:
                 name: {{ include "name" $ }}-index-advisor-collector
-            {{- if ne .Values.indexAdvisor.database.passwordSecretRef "" }}
+            {{- if ne .Values.indexAdvisor.database.credentialsSecretRef "" }}
             - secretRef:
-                name: {{ .Values.indexAdvisor.database.passwordSecretRef }}
+                name: {{ .Values.indexAdvisor.database.credentialsSecretRef }}
             {{- end }}
 {{- end }}
