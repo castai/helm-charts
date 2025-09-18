@@ -36,6 +36,7 @@ proxy:
     maxRequests: 1024
     maxRetries: 3
   dnsLookupFamily: V4_ONLY
+  coredumpCollectionMode: "Full"
 
 podLabels:
   podLabel: label

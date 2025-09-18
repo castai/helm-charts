@@ -197,6 +197,12 @@ spec:
             initialDelaySeconds: 120
             periodSeconds: 5
           {{- end}}
+          {{- if eq .Values.proxy.coredumpCollectionMode "Full"}}
+          securityContext:
+            readOnlyRootFilesystem: false
+            runAsNonRoot: false
+            runAsUser: 0
+          {{- else }}
           securityContext:
             capabilities:
               drop:
@@ -204,6 +210,7 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
+          {{- end }}
           command:
             - /home/castai/coredumpwrapper.sh
           args:
