@@ -5,10 +5,6 @@ type: application
 version: 0.0.30
 appVersion: "v0.0.1"
 dependencies:
-  - name: ollama
-    version: 1.16.0
-    repository: https://otwld.github.io/ollama-helm/
-    condition: ollama.enabled
   - name: vllm
     version: 0.0.23
     repository: file://child-charts/vllm

@@ -13,7 +13,6 @@ CAST AI hosted model deployment chart.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| ollama.enabled | bool | `true` | Specifies if Ollama model should be deployed |
 | placementJob.blacklistedGPUNames | list | `[]` | The names of GPUs that shouldn't be used for this job. |
 | placementJob.enabled | bool | `false` | Specifies if a node placement job should be deployed |
 | placementJob.image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
@@ -30,4 +29,4 @@ CAST AI hosted model deployment chart.
 | podAutoscaler.targetMetricWindow | string | `"30s"` | Target metric window length |
 | podAutoscaler.targetValue | string | `nil` | The threshold value of observed metric to trigger scale up/down decisions |
 | podAutoscaler.upFluctuationTolerance | float | `0.1` | which means no scaling up will occur unless the currentMetricValue exceeds the targetValue by more than upFluctuationTolerance |
-| vllm.enabled | bool | `false` | Specifies if vLLM model should be deployed |
+| vllm.enabled | bool | `true` | Specifies if vLLM model should be deployed |

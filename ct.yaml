@@ -6,7 +6,6 @@ chart-dirs:
 chart-repos:
   - tetragon=https://helm.cilium.io
   - vector=https://helm.vector.dev
-  - ollama=https://otwld.github.io/ollama-helm
 helm-extra-args: --timeout 600s
 validate-maintainers: false
 namespace: default

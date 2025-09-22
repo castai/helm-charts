@@ -87,6 +87,48 @@ spec:
                             - value
                             type: object
                           type: array
+                        patchesV2:
+                          description: PatchesV2 defines multiple independent sequences
+                            of JSON patch operations to be applies to the pod
+                          items:
+                            properties:
+                              operations:
+                                description: Operations defines a sequence of JSON
+                                  patch operations to be applied in order
+                                items:
+                                  properties:
+                                    from:
+                                      description: From defines the source path for
+                                        move and copy operations
+                                      type: string
+                                    op:
+                                      description: Op defines the operation to be
+                                        performed
+                                      enum:
+                                      - add
+                                      - remove
+                                      - replace
+                                      - move
+                                      - copy
+                                      - test
+                                      type: string
+                                    path:
+                                      description: Path defines the path to the value
+                                        to be patched
+                                      type: string
+                                    value:
+                                      description: Value defines the value to be patched
+                                      x-kubernetes-preserve-unknown-fields: true
+                                  required:
+                                  - from
+                                  - op
+                                  - path
+                                  type: object
+                                type: array
+                            required:
+                            - operations
+                            type: object
+                          type: array
                         spotMode:
                           description: SpotMode defines the spot mode for pods in
                             this distribution group
@@ -238,6 +280,47 @@ spec:
                   - value
                   type: object
                 type: array
+              patchesV2:
+                description: Patches v2 defines multiple independent sequences of
+                  JSON patch operations to be applies to the pod.
+                items:
+                  properties:
+                    operations:
+                      description: Operations defines a sequence of JSON patch operations
+                        to be applied in order
+                      items:
+                        properties:
+                          from:
+                            description: From defines the source path for move and
+                              copy operations
+                            type: string
+                          op:
+                            description: Op defines the operation to be performed
+                            enum:
+                            - add
+                            - remove
+                            - replace
+                            - move
+                            - copy
+                            - test
+                            type: string
+                          path:
+                            description: Path defines the path to the value to be
+                              patched
+                            type: string
+                          value:
+                            description: Value defines the value to be patched
+                            x-kubernetes-preserve-unknown-fields: true
+                        required:
+                        - from
+                        - op
+                        - path
+                        type: object
+                      type: array
+                  required:
+                  - operations
+                  type: object
+                type: array
               restartPolicy:
                 description: RestartPolicy defines the policy for restarting the pod
                 enum:
@@ -266,7 +349,6 @@ spec:
                 type: object
             required:
             - filter
-            - patches
             type: object
           status:
             description: PodMutationStatus defines the observed state of PodMutation
