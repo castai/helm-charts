@@ -12,7 +12,7 @@ CAST AI hosted model deployment chart for vLLM.
 | enableAutoToolChoice | bool | `false` |  |
 | enableChunkedPrefill | bool | `true` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
-| image.tag | string | `"v0.9.2"` |  |
+| image.tag | string | `"v0.10.2"` |  |
 | kvCacheDtype | string | `"auto"` |  |
 | livenessProbe | object | `{"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10}` | Liveness probe configuration |
 | livenessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not alive |

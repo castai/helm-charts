@@ -6,7 +6,7 @@ CAST AI hosted model deployment chart.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/vllm | vllm | 0.0.21 |
+|  | vllm | 0.0.22 |
 | https://otwld.github.io/ollama-helm/ | ollama | 1.16.0 |
 
 ## Values
