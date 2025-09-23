@@ -13,7 +13,7 @@ CAST AI hosted model deployment chart for vLLM.
 | enableChunkedPrefill | bool | `true` |  |
 | env | list | `[]` | Additional environment variables to set in the vLLM container |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
-| image.tag | string | `"v0.9.2"` |  |
+| image.tag | string | `"v0.10.2"` |  |
 | kvCacheDtype | string | `"auto"` |  |
 | livenessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}` | Liveness probe configuration |
 | livenessProbe.enabled | bool | `true` | Enable or disable liveness probe |
