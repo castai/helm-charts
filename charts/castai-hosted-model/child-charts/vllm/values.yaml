@@ -63,8 +63,8 @@ startupProbe:
   enabled: true
   initialDelaySeconds: 20
   periodSeconds: 6
-  # Allow for up to 20 minutes of startup time
-  failureThreshold: 200
+  # Allow for up to 40 minutes of startup time
+  failureThreshold: 400
   # -- Number of seconds after which the probe times out
   timeoutSeconds: 1
   # -- Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for startup probe)
