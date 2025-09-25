@@ -180,8 +180,9 @@ spec:
                           type: object
                         type: array
                       excludeLabelsOperator:
-                        description: ExcludeLabelsOperator defines how to combine
-                          multiple labels in ExcludeLabelsFilter
+                        description: |-
+                          ExcludeLabelsOperator defines how to combine multiple labels in ExcludeLabelsFilter.
+                          If not specified, defaults to "and".
                         enum:
                         - and
                         - or
@@ -205,8 +206,9 @@ spec:
                           type: object
                         type: array
                       labelsOperator:
-                        description: LabelsOperator defines how to combine multiple
-                          label filters
+                        description: |-
+                          LabelsOperator defines how to combine multiple label filters.
+                          If not specified, defaults to "and".
                         enum:
                         - and
                         - or
