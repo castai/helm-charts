@@ -1,4 +1,4 @@
-provider: "" # gke | eks | aks
+provider: "" # gke | eks | aks | omni
 imagePullSecrets: [ ]
 
 serviceAccount:
@@ -7,10 +7,19 @@ serviceAccount:
   annotations: { }
 
 castai:
+  # Token to be used for authorizing agent access to the CASTAI API
   apiKey: ""
+  
+  # Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"]
   apiKeySecretRef: ""
+  
+  # CASTAI Cluster unique identifier.
   clusterId: ""
-  apiUrl: ""
+  
+  # CASTAI public api url.
+  apiUrl: "https://api.cast.ai"
 
 gpuMetricsExporter:
   # the affinity field is the preffered way of adding affinity annotations
@@ -22,6 +31,11 @@ gpuMetricsExporter:
     pullPolicy: IfNotPresent
     tag: ""
   config: { }
+  # config: 
+  #   # address of the DCGM exporter instance
+  #   DCGM_HOST: "" 
+  #   # comma-separated list of labels that the DCGM instances have
+  #   DCGM_LABELS: ""
   resources:
     limits:
       cpu: 100m

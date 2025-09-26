@@ -25,7 +25,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if eq (required ".Values.provider is required (gke|eks|aks)" .Values.provider) "eks" }}
+      {{- if eq (required ".Values.provider is required (gke|eks|aks|omni)" .Values.provider) "eks" }}
       priorityClassName: system-node-critical
       {{- end }}
       serviceAccountName: {{ include "gpu-metrics-exporter.serviceAccountName" . }}
@@ -88,6 +88,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+           {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
             - name: "API_KEY"
               valueFrom:
                 secretKeyRef:
@@ -97,6 +98,9 @@ spec:
                   name: {{ include "gpu-metrics-exporter.fullname" . }}
                   {{- end}}
                   key: API_KEY
+            {{ else }}
+              {{- fail "one of apiKey or apiKeySecretRef should be set" }}
+            {{- end }}
           {{- if .Values.dcgmExporter.enabled }}
             - name: "DCGM_HOST"
               value: "localhost"
