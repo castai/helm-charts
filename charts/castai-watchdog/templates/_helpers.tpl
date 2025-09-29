@@ -55,10 +55,6 @@ app.kubernetes.io/name: {{ include "watchdog.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{- define "watchdog.webhookName" -}}
-{{ include "watchdog.fullname" . }}
-{{- end }}
-
 {{/*
 Create the name of the service account to use
 */}}

@@ -22,7 +22,7 @@ data:
     log:
       level: "0"
 
-    webhookName: {{ include "watchdog.webhookName" . }}
+    webhookName: {{ required "webhook.name must be provided" .Values.webhook.name }}
     serviceName: {{ include "watchdog.fullname" . }}
 
     {{- if .Values.gcp.clusterName }}

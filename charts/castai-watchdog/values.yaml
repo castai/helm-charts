@@ -8,8 +8,6 @@ replicas: 1
 additionalEnvs:
   - name: HEALTHCHECK_SNAPSHOTPROCESSINGTIMEOUT
     value: 3m
-#  - name: FORCE_ENABLE
-#    value: "true"
 
 nameOverride: ""
 fullnameOverride: castai-watchdog
@@ -70,6 +68,7 @@ webhook:
   # Defaults to "Never".
   reinvocationPolicy: "IfNeeded"
   url: ""
+  name: "zzz-castai-watchdog"
 
 resources:
   requests:
