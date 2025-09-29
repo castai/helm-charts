@@ -53,6 +53,7 @@ CAST AI Watchdog
 | tolerations[0].key | string | `"scheduling.cast.ai/spot"` |  |
 | tolerations[0].operator | string | `"Exists"` |  |
 | webhook.failurePolicy | string | `"Ignore"` |  |
+| webhook.name | string | `"zzz-castai-watchdog"` |  |
 | webhook.reinvocationPolicy | string | `"IfNeeded"` |  |
 | webhook.url | string | `""` |  |
 | webhooks | list | `[]` | List of webhooks, where to send Watchdog events about autoscaling |
