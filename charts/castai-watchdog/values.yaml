@@ -8,6 +8,8 @@ replicas: 1
 additionalEnvs:
   - name: HEALTHCHECK_SNAPSHOTPROCESSINGTIMEOUT
     value: 3m
+#  - name: FORCE_ENABLE
+#    value: "true"
 
 nameOverride: ""
 fullnameOverride: castai-watchdog
