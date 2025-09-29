@@ -11,6 +11,7 @@ CAST AI hosted model deployment chart for vLLM.
 | dtype | string | `"half"` |  |
 | enableAutoToolChoice | bool | `false` |  |
 | enableChunkedPrefill | bool | `true` |  |
+| enableEager | bool | `false` |  |
 | env | list | `[]` | Additional environment variables to set in the vLLM container |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
 | image.tag | string | `"v0.10.2"` |  |
