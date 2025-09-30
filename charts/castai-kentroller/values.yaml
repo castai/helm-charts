@@ -17,3 +17,12 @@ resources:
     memory: 25Mi
   limits:
     memory: 25Mi
+
+# Pod security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  fsGroup: 1003
+  runAsGroup: 1003
+  runAsUser: 1003
