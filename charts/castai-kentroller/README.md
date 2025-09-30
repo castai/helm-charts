@@ -13,6 +13,11 @@ A Helm chart for Kubernetes
 | resources.limits.memory | string | `"25Mi"` |  |
 | resources.requests.cpu | string | `"20m"` |  |
 | resources.requests.memory | string | `"25Mi"` |  |
+| securityContext.fsGroup | int | `1003` |  |
+| securityContext.readOnlyRootFilesystem | bool | `true` |  |
+| securityContext.runAsGroup | int | `1003` |  |
+| securityContext.runAsNonRoot | bool | `true` |  |
+| securityContext.runAsUser | int | `1003` |  |
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
-| serviceAccount.name | string | `"castai-cluster-controller"` |  |
+| serviceAccount.name | string | `"castai-kentroller"` |  |
