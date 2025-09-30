@@ -11,11 +11,13 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/name: {{ include "name" . }}-index-advisor
+      app.kubernetes.io/component: index-advisor
   template:
     metadata:
       labels:
-        {{- include "selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ include "name" . }}-index-advisor
+        app.kubernetes.io/component: index-advisor
         {{- with .Values.podLabels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
