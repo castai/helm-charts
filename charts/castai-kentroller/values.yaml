@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  repository: us-docker.pkg.dev/castai-hub/library/kentroller
+  pullPolicy: IfNotPresent
+  tag: ""
+
+serviceAccount:
+  create: true
+  # Annotations to add to the service account.
+  annotations: {}
+  name: "castai-kentroller"
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 25Mi
+  limits:
+    memory: 25Mi
+
