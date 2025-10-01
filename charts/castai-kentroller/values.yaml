@@ -1,0 +1,28 @@
+replicaCount: 1
+
+image:
+  repository: us-docker.pkg.dev/castai-hub/library/kentroller
+  pullPolicy: IfNotPresent
+  tag: ""
+
+serviceAccount:
+  create: true
+  # Annotations to add to the service account.
+  annotations: {}
+  name: "castai-kentroller"
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 25Mi
+  limits:
+    memory: 25Mi
+
+# Pod security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext:
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  fsGroup: 1003
+  runAsGroup: 1003
+  runAsUser: 1003
