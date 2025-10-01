@@ -48,6 +48,8 @@ spec:
           image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           env:
+            - name: WEBHOOK_NAME
+              value: "{{ required "webhook.name must be provided" .Values.webhook.name }}"
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:

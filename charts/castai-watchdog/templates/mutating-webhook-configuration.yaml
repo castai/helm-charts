@@ -1,7 +1,7 @@
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
-  name: {{ include "watchdog.webhookName" . }}
+  name: "{{ required "webhook.name must be provided" .Values.webhook.name }}"
   {{- if .Values.namespace }}
   namespace: {{.Values.namespace}}
   {{- end}}
