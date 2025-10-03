@@ -38,8 +38,8 @@ spec:
               value: "{{ required "log level must be provided" .Values.indexAdvisor.logLevel }}"
             - name: ORGANIZATION_ID
               value: "{{ required "organization ID must be provided" .Values.indexAdvisor.organizationID }}"
-            - name: DATABASE_ID
-              value: "{{ required "database ID must be provided" .Values.indexAdvisor.databaseID }}"
+            - name: CACHE_GROUP_ID
+              value: "{{ required "cache group ID must be provided" .Values.indexAdvisor.cacheGroupID }}"
             - name: DATABASE_HOST
               value: "{{ required "target database host must be provided" .Values.indexAdvisor.database.host }}"
             - name: DATABASE_PORT
