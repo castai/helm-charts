@@ -2,6 +2,7 @@ apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
   name: {{ include "pod-pinner.fullname" . }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "pod-pinner.labels" . | nindent 4 -}}
   {{- if gt (len .Values.global.commonAnnotations) 0 }}
