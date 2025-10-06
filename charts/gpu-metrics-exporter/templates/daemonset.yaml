@@ -88,6 +88,21 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+           {{- if or .Values.castai.clusterId .Values.castai.clusterIdSecretRef }}
+            - name: "CLUSTER_ID"
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.castai.clusterIdSecretRef }}
+                  name: {{ .Values.castai.clusterIdSecretRef }}
+                  key: CLUSTER_ID
+                  {{- else }}
+                  # Inline clusterId fallback: chart creates a Secret with CLUSTER_ID
+                  name: {{ include "gpu-metrics-exporter.fullname" . }}
+                  key: CLUSTER_ID
+                  {{- end }}
+            {{- else }}
+              {{- fail "one of castai.clusterId or castai.clusterIdSecretRef must be set" }}
+            {{- end }}
            {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
             - name: "API_KEY"
               valueFrom:
