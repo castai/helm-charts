@@ -17,9 +17,11 @@ castai:
   
   # CASTAI Cluster unique identifier.
   clusterId: ""
+
+  clusterIdSecretRef: 
   
   # CASTAI public api url.
-  apiUrl: "https://api.cast.ai"
+  apiUrl: "https://api.cast.ai" 
 
 gpuMetricsExporter:
   # the affinity field is the preffered way of adding affinity annotations
