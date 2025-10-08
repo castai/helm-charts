@@ -1,2 +1,3 @@
 {{- define "defaultProxyVersion" -}}v4.66.0-rc.1{{- end -}}
 {{- define "defaultQueryProcessorVersion" -}}v0.19.4{{- end -}}
+{{- define "defaultIndexAdvisorCollectorVersion" -}}v0.3.0{{- end -}}
