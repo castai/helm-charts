@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "name" $ }}
+  labels:
+    {{- include "labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "name" . }}
+    spec:
+      containers:
+        - name: index-advisor-collector
+          image: "{{.Values.image.repository}}:{{ include "indexAdvisorCollectorImage" . }}"
+          imagePullPolicy: {{.Values.image.pullPolicy}}
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          env:
+            - name: LOG_LEVEL
+              value: "{{ required "log level must be provided" .Values.logLevel }}"
+            - name: ORGANIZATION_ID
+              value: "{{ required "organization ID must be provided" .Values.organizationID }}"
+            - name: CACHE_GROUP_ID
+              value: "{{ required "cache group ID must be provided" .Values.cacheGroupID }}"
+            - name: DATABASE_HOST
+              value: "{{ required "target database host must be provided" .Values.database.host }}"
+            - name: DATABASE_PORT
+              value: "{{ required "target database port must be provided" .Values.database.port }}"
+            - name: INDEX_ADVISOR_CLIENT_GRPC_ENDPOINT
+              value: "{{ required "gRPC endpoint must be provided" .Values.gRPCEndpoint }}"
+            - name: COLLECTORS_EXPLAIN_RUNS_EVERY
+              value: "{{ required "explain collector run frequency must be provided" .Values.collectors.explain.runsEvery }}"
+            - name: COLLECTORS_METADATA_RUNS_EVERY
+              value: "{{ required "metadata collector run frequency must be provided" .Values.collectors.metadata.runsEvery }}"
+            - name: COLLECTORS_STATS_RUNS_EVERY
+              value: "{{ required "stats collector run frequency must be provided" .Values.collectors.stats.runsEvery }}"
+          envFrom:
+            - secretRef:
+                name: {{ include "name" $ }}
+            {{- if ne .Values.database.credentialsSecretRef "" }}
+            - secretRef:
+                name: {{ .Values.database.credentialsSecretRef }}
+            {{- end }}
