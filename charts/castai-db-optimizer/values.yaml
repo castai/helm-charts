@@ -108,7 +108,7 @@ proxy:
   evictionThreadPeriodMs: 100
   # -- Envoy upstream connection limits, numbers given are the envoy defaults.
   connectionLimits:
-    maxConnections: 1024           # Maximum connections per cluster
+    maxConnections: 10000          # Maximum number of connections per instance.
     maxPendingRequests: 1024       # Maximum requests queued while waiting for a connection
     maxRequests: 1024              # Maximum parallel requests per connection
     maxRetries: 3                  # Maximum parallel retries
