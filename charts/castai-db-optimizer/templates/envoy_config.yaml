@@ -29,9 +29,6 @@ data:
       - name: "castai.cache_control"
         typed_config:
           "@type": type.googleapis.com/castai.cache_control.v1.CacheControlConfig
-          location:
-            provider: pce
-            region:
       - name: "castai.cluster_control"
         typed_config:
           "@type": type.googleapis.com/castai.cluster_control.v1.ClusterControlConfig
@@ -70,8 +67,6 @@ data:
                 - name: castai.filters.postgres
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.postgres.v1.PostgresConfig
-                    common:
-                      stat_prefix: postgres
               {{- if .Values.proxy.networkDebug | default false }}
                 - name: castai.filters.dump
                   typed_config:
@@ -132,14 +127,10 @@ data:
                 - name: castai.filters.postgres
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.postgres.v1.PostgresConfig
-                    common:
-                      stat_prefix: postgres
               {{- else if eq $.Values.protocol "MySQL" }}
                 - name: castai.filters.mysql
                   typed_config:
                     "@type": type.googleapis.com/castai.filters.mysql.v1.MySQLConfig
-                    common:
-                      stat_prefix: mysql
               {{- else }}
               {{- fail (printf "invalid protocol value '%s', available values: 'PostgreSQL', 'MySQL'" .Values.protocol ) -}}
               {{- end }}
