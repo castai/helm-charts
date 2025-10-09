@@ -15,8 +15,8 @@ spec:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
       containers:
-        - name: index-advisor-collector
-          image: "{{.Values.image.repository}}:{{ include "indexAdvisorCollectorImage" . }}"
+        - name: dbo-collector
+          image: "{{.Values.image.repository}}:{{ include "dboCollectorImage" . }}"
           imagePullPolicy: {{.Values.image.pullPolicy}}
           securityContext:
             capabilities:

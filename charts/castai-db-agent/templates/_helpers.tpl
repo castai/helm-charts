@@ -28,7 +28,7 @@ helm.sh/chart: {{ include "chart" . }}
 {{/*
 Define image version.
 */}}
-{{- define "defaultIndexAdvisorCollectorVersion" -}}v0.3.0{{- end -}}
-{{- define "indexAdvisorCollectorImage" -}}
-{{-  default (include "defaultIndexAdvisorCollectorVersion" .) .Values.image.tag }}
+{{- define "defaultDboCollectorVersion" -}}v0.3.0{{- end -}}
+{{- define "dboCollectorImage" -}}
+{{-  default (include "defaultDboCollectorVersion" .) .Values.image.tag }}
 {{- end }}
