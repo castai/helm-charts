@@ -1,0 +1,30 @@
+# -- Token to be used for authorizing access to the CAST AI API.
+apiKey: ""
+image:
+  repository: us-docker.pkg.dev/castai-hub/library/dbo-collector
+  pullPolicy: IfNotPresent
+  tag: ""  # uses values from _versions.tpl for default value
+logLevel: info
+organizationID: ""
+cacheGroupID: ""
+database:
+  host: ""
+  port: 5432
+  # -- Username for database authentication
+  username: ""
+  # -- Password for database authentication
+  password: ""
+  # -- Name of secret with username for database authentication
+  credentialsSecretRef: ""
+# -- URL to the CAST AI API gRPC endpoint.
+gRPCEndpoint: ""
+collectors:
+  explain:
+    # -- Frequency in which execution plans are collected
+    runsEvery: 15m
+  metadata:
+    # -- Frequency in which table metadata is collected
+    runsEvery: 30m
+  stats:
+    # -- Frequency in which index statistics are collected
+    runsEvery: 15m
