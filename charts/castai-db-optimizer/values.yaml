@@ -116,7 +116,7 @@ proxy:
   coredumpCollectionMode: "None"
   # -- Enable experimental cache in dbo proxy.
   experimentalCache: false
-  cache: # Currently only used if experimentalCache is true
+  cache:                          # Currently only used if experimentalCache is true
     # -- Maximum cache size in bytes, _should_ be divisible by cacheShards
     cacheSizeBytes: 2147483648    # 2 GiB
     # -- Number of cache shards _must_ be power of 2
