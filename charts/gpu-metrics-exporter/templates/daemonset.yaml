@@ -100,9 +100,7 @@ spec:
                   name: {{ include "gpu-metrics-exporter.fullname" . }}
                   key: CLUSTER_ID
                   {{- end }}
-            {{- else }}
-              {{- fail "one of castai.clusterId or castai.clusterIdSecretRef must be set" }}
-            {{- end }}
+           {{- end }}
            {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
             - name: "API_KEY"
               valueFrom:
