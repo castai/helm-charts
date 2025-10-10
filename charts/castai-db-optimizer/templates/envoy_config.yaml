@@ -13,6 +13,16 @@ data:
       id: castai-router
 
     bootstrap_extensions:
+      {{- if .Values.proxy.experimentalCache | default false }}
+      - name: "castai.cache.cappuccino"
+        typed_config:
+          "@type": type.googleapis.com/castai.cache.cappuccino.v1.CappuccinoConfig
+          stats_prefix: cache
+          max_cache_bytes: {{ .Values.proxy.cacheSizeBytes | default 2147483648 }}
+          cache_shards: {{ .Values.proxy.cacheShards | default 64 }}
+          max_pending_bytes: {{ .Values.proxy.pendingSizeBytes | default 134217728 }}
+          pending_shards: {{ .Values.proxy.pendingShards | default 64 }}
+      {{- else }}
       - name: "castai.cache.lmdb_cache"
         typed_config:
           "@type": type.googleapis.com/castai.cache.lmdb_cache.v1.LmdbCacheConfig
@@ -26,6 +36,7 @@ data:
           write_batch_delay_ms: {{ .Values.proxy.writeBatchDelayMs | default 100 }}
           stats_thread_period_ms: {{ .Values.proxy.statsThreadPeriodMs | default 1000 }}
           eviction_thread_period_ms: {{ .Values.proxy.evictionThreadPeriodMs | default 1000 }}
+      {{- end }}
       - name: "castai.cache_control"
         typed_config:
           "@type": type.googleapis.com/castai.cache_control.v1.CacheControlConfig
