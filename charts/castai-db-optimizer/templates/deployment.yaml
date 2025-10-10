@@ -6,6 +6,7 @@ metadata:
     {{- include "labels" . | nindent 4 }}
   annotations:
     {{- include "annotations" . | nindent 4 }}
+    {{- include "workloads-annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   revisionHistoryLimit: 0
@@ -153,6 +154,7 @@ spec:
           resources:
             requests:
               cpu: {{ .Values.resources.queryProcessor.cpu }}
+              memory: {{ .Values.resources.queryProcessor.memory }}
             limits:
               memory: {{ .Values.resources.queryProcessor.memory }}
         - name: proxy
