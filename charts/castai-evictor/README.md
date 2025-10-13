@@ -72,3 +72,4 @@ Cluster utilization defragmentation tool
 | tolerations | list | `[]` |  |
 | updateStrategy | object | `{"type":"Recreate"}` | Controls `deployment.spec.strategy` field. |
 | woop | object | `{"enabled":true,"useK8sClientCache":true}` | Specifies settings for working with WOOP recommendations. |
+| kent | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources (Karpenter Enterprise). |

@@ -75,6 +75,29 @@ rules:
   # ------------------------------------------------
   # Live Migration: retrieving and creating migrations
   # ------------------------------------------------
-  - apiGroups: [ "live.cast.ai" ]
-    resources: [ "*" ]
-    verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
+  - apiGroups:
+      - live.cast.ai
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - create
+      - delete
+      - update
+  # ------------------------------------------------
+  # Kent (Karpenter Enterprise): accessing NodePool and NodeClaim resources
+  # ------------------------------------------------
+  - apiGroups:
+      - karpenter.sh
+    resources:
+      - nodepools
+      - nodepool
+      - nodeclaims
+      - nodeclaim
+    verbs:
+      - get
+      - list
+      - watch
