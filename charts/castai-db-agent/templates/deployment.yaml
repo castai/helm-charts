@@ -46,8 +46,15 @@ spec:
               value: "{{ required "stats collector run frequency must be provided" .Values.collectors.stats.runsEvery }}"
           envFrom:
             - secretRef:
-                name: {{ include "name" $ }}
-            {{- if ne .Values.database.credentialsSecretRef "" }}
+              {{- if .Values.apiKey }}
+                name: {{ include "name" . -}}-api-key
+              {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
+              {{- end }}
+            {{- if and .Values.database.username .Values.database.password }}
             - secretRef:
-                name: {{ .Values.database.credentialsSecretRef }}
+                name: {{ include "name" $ }}-db-user
+            {{- else }}
+            - secretRef:
+                name: {{ required "database.username/database.password or database.credentialsSecretRef must be provided" .Values.database.credentialsSecretRef -}}
             {{- end }}
