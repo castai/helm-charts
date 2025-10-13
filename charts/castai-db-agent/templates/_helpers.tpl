@@ -28,7 +28,7 @@ helm.sh/chart: {{ include "chart" . }}
 {{/*
 Define image version.
 */}}
-{{- define "defaultDboCollectorVersion" -}}v0.3.0{{- end -}}
-{{- define "dboCollectorImage" -}}
-{{-  default (include "defaultDboCollectorVersion" .) .Values.image.tag }}
+{{- define "defaultDbAgentVersion" -}}v0.3.0{{- end -}}
+{{- define "dbAgentImage" -}}
+{{-  default (include "defaultDbAgentVersion" .) .Values.image.tag }}
 {{- end }}
