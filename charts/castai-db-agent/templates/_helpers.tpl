@@ -25,10 +25,6 @@ app.kubernetes.io/name: {{ include "name" . }}
 helm.sh/chart: {{ include "chart" . }}
 {{- end }}
 
-{{/*
-Define image version.
-*/}}
-{{- define "defaultDbAgentVersion" -}}v0.3.0{{- end -}}
 {{- define "dbAgentImage" -}}
 {{-  default (include "defaultDbAgentVersion" .) .Values.image.tag }}
 {{- end }}
