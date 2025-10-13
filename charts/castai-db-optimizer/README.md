@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.45.6](https://img.shields.io/badge/Version-0.45.6-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.47.1](https://img.shields.io/badge/Version-0.47.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -23,23 +23,6 @@ CAST AI database cache deployment.
 | endpoints[0].serviceDiscovery.type | string | `"LOGICAL_DNS"` | The service discovery type to use for resolving the cluster. Available options: LOGICAL_DNS and STRICT_DNS. Ref: https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/service_discovery |
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
-| indexAdvisor.cacheGroupID | string | `""` |  |
-| indexAdvisor.collectors.explain.runsEvery | string | `"15m"` | Frequency in which execution plans are collected |
-| indexAdvisor.collectors.metadata.runsEvery | string | `"30m"` | Frequency in which table metadata is collected |
-| indexAdvisor.collectors.stats.runsEvery | string | `"15m"` | Frequency in which index statistics are collected |
-| indexAdvisor.database.credentialsSecretRef | string | `""` | Name of secret with username for database authentication |
-| indexAdvisor.database.database | string | `""` | Database name to connect to |
-| indexAdvisor.database.host | string | `""` |  |
-| indexAdvisor.database.password | string | `""` | Password for database authentication |
-| indexAdvisor.database.port | int | `5432` |  |
-| indexAdvisor.database.username | string | `""` | Username for database authentication |
-| indexAdvisor.enabled | bool | `false` |  |
-| indexAdvisor.gRPCEndpoint | string | `"api-grpc.dev.cast.ai"` |  |
-| indexAdvisor.image.pullPolicy | string | `"IfNotPresent"` |  |
-| indexAdvisor.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-collector"` |  |
-| indexAdvisor.image.tag | string | `""` |  |
-| indexAdvisor.logLevel | string | `"info"` |  |
-| indexAdvisor.organizationID | string | `""` |  |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
 | pgcatImage.pullPolicy | string | `"IfNotPresent"` |  |
 | pgcatImage.repository | string | `"ghcr.io/postgresml/pgcat"` |  |
@@ -71,6 +54,10 @@ CAST AI database cache deployment.
 | pooling.username | string | `""` | Username for database authentication |
 | pooling.verifyServerCertificate | bool | `false` | Verify server certificate when using TLS |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
+| proxy.cache.cacheShards | int | `64` | Number of cache shards _must_ be power of 2 |
+| proxy.cache.cacheSizeBytes | int | `2147483648` | Maximum cache size in bytes, _should_ be divisible by cacheShards |
+| proxy.cache.pendingShards | int | `64` | Number of in-flight cache shards _must_ be power of 2 |
+| proxy.cache.pendingSizeBytes | float | `134217728` | Maximum size of in-flight cache entries, _should_ be divisible by pendingShards |
 | proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP. |
 | proxy.connectionLimits | object | `{"maxConnections":10000,"maxPendingRequests":1024,"maxRequests":1024,"maxRetries":3}` | Envoy upstream connection limits, numbers given are the envoy defaults. |
 | proxy.coredumpCollectionMode | string | `"None"` | Disable core dump collection by default |
@@ -80,6 +67,7 @@ CAST AI database cache deployment.
 | proxy.drainTimeSeconds | int | `60` | Default drain time in seconds. |
 | proxy.evictionThreadPeriodMs | int | `100` | The period of the evictions thread. |
 | proxy.evictionThreshold | float | `0.5` | Ratio of used available bytes or entries from which we start evicting. |
+| proxy.experimentalCache | bool | `false` | Enable experimental cache in dbo proxy. |
 | proxy.livenessProbeEnabled | bool | `true` | Ensure proxy is alive and healthy. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxy.networkDebug | bool | `false` | Extra network debug logging. |

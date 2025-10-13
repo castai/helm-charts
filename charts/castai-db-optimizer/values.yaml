@@ -114,6 +114,17 @@ proxy:
     maxRetries: 3                  # Maximum parallel retries
   # -- Disable core dump collection by default
   coredumpCollectionMode: "None"
+  # -- Enable experimental cache in dbo proxy.
+  experimentalCache: false
+  cache:                          # Currently only used if experimentalCache is true
+    # -- Maximum cache size in bytes, _should_ be divisible by cacheShards
+    cacheSizeBytes: 2147483648    # 2 GiB
+    # -- Number of cache shards _must_ be power of 2
+    cacheShards: 64
+    # -- Maximum size of in-flight cache entries, _should_ be divisible by pendingShards
+    pendingSizeBytes: 134217728.  # 128 MiB
+    # -- Number of in-flight cache shards _must_ be power of 2
+    pendingShards: 64
 
 queryProcessor:
   # -- Default query-processor log level.
@@ -232,35 +243,3 @@ affinity:
               operator: In
               values:
                 - cast.ai
-
-indexAdvisor:
-  enabled: false
-  image:
-    repository: us-docker.pkg.dev/castai-hub/library/dbo-collector
-    pullPolicy: IfNotPresent
-    tag: ""  # uses values from _versions.tpl for default value
-  logLevel: info
-  organizationID: ""
-  cacheGroupID: ""
-  database:
-    host: ""
-    port: 5432
-    # -- Database name to connect to
-    database: ""
-    # -- Username for database authentication
-    username: ""
-    # -- Password for database authentication
-    password: ""
-    # -- Name of secret with username for database authentication
-    credentialsSecretRef: ""
-  gRPCEndpoint: api-grpc.dev.cast.ai
-  collectors:
-    explain:
-      # -- Frequency in which execution plans are collected
-      runsEvery: 15m
-    metadata:
-      # -- Frequency in which table metadata is collected
-      runsEvery: 30m
-    stats:
-      # -- Frequency in which index statistics are collected
-      runsEvery: 15m

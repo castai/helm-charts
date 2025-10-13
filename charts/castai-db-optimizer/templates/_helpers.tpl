@@ -21,10 +21,6 @@ Create chart name and version as used by the chart label.
 {{-  default (include "defaultProxyVersion" .) .Values.proxyImage.tag }}
 {{- end }}
 
-{{- define "indexAdvisorImage" -}}
-{{-  default (include "defaultIndexAdvisorCollectorVersion" .) .Values.indexAdvisor.image.tag }}
-{{- end }}
-
 {{/*
 Helpers for customizing proxy TLS settings.
 */}}
@@ -73,4 +69,18 @@ Selector labels
 */}}
 {{- define "selectorLabels" -}}
 app.kubernetes.io/name: {{ include "name" . }}
+{{- end }}
+
+{{- define "workloads-annotations" -}}
+workloads.cast.ai/configuration: |
+  vertical:
+    memory:
+      optimization: off
+    containers:
+      query-processor:
+        cpu:
+          min: {{ .Values.resources.queryProcessor.cpu }}
+      proxy:
+        cpu:
+          min: {{ .Values.resources.proxy.cpu }}
 {{- end }}
