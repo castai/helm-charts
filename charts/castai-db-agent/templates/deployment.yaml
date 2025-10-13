@@ -15,8 +15,8 @@ spec:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
       containers:
-        - name: dbo-collector
-          image: "{{.Values.image.repository}}:{{ include "dboCollectorImage" . }}"
+        - name: db-agent
+          image: "{{.Values.image.repository}}:{{ include "dbAgentImage" . }}"
           imagePullPolicy: {{.Values.image.pullPolicy}}
           securityContext:
             capabilities:

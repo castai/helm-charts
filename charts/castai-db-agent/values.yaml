@@ -1,7 +1,7 @@
 # -- Token to be used for authorizing access to the CAST AI API.
 apiKey: ""
 image:
-  repository: us-docker.pkg.dev/castai-hub/library/dbo-collector
+  repository: us-docker.pkg.dev/castai-hub/library/db-agent
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
 logLevel: info
