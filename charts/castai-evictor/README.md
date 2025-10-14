@@ -42,6 +42,7 @@ Cluster utilization defragmentation tool
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
+| kent | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources (Karpenter Enterprise). |
 | kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100}}` | Specifies Kubernetes client settings. |
 | kubernetesClient.rateLimiter.burst | int | `200` | Burst controls the maximum queries per second that the client is allowed to issue in a short burst. |
 | kubernetesClient.rateLimiter.qps | int | `100` | QPS or queries per second. Controls how many queries per second the client should be allowed to issue, not accounting for bursts. |
@@ -72,4 +73,3 @@ Cluster utilization defragmentation tool
 | tolerations | list | `[]` |  |
 | updateStrategy | object | `{"type":"Recreate"}` | Controls `deployment.spec.strategy` field. |
 | woop | object | `{"enabled":true,"useK8sClientCache":true}` | Specifies settings for working with WOOP recommendations. |
-| kent | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources (Karpenter Enterprise). |
