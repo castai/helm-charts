@@ -65,8 +65,8 @@ woop:
   # When false, all WOOP-related read requests will go to the API server.
   useK8sClientCache: true
 
-# kent -- Specifies settings for working with Karpenter NodePool and NodeClaim resources (Karpenter Enterprise).
-kent:
+# KarpenterMode -- Specifies settings for working with Karpenter NodePool and NodeClaim resources.
+KarpenterMode:
   # If true, Evictor will consider Karpenter NodePool and NodeClaim information when making eviction decisions.
   # This allows the evictor to understand Karpenter's node provisioning plans and make more informed optimization decisions.
   # When enabled, the evictor will have access to read Karpenter resources for cluster optimization.
