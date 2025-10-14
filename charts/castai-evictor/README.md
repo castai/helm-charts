@@ -12,6 +12,7 @@ Cluster utilization defragmentation tool
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| KarpenterMode | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources. |
 | additionalEnv | object | `{}` | Used to set any additional environment variables. |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |

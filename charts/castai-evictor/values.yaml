@@ -65,6 +65,13 @@ woop:
   # When false, all WOOP-related read requests will go to the API server.
   useK8sClientCache: true
 
+# KarpenterMode -- Specifies settings for working with Karpenter NodePool and NodeClaim resources.
+KarpenterMode:
+  # If true, Evictor will consider Karpenter NodePool and NodeClaim information when making eviction decisions.
+  # This allows the evictor to understand Karpenter's node provisioning plans and make more informed optimization decisions.
+  # When enabled, the evictor will have access to read Karpenter resources for cluster optimization.
+  enabled: false
+
 # leaderElection -- Specifies leader election parameters.
 leaderElection:
   # leaderElection.enabled -- Whether to enable leader election.

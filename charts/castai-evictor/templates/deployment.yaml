@@ -72,6 +72,8 @@ spec:
               value: {{ .Values.woop.enabled | quote }}
             - name: WOOP_USE_K8S_CLIENT_CACHE
               value: {{ .Values.woop.useK8sClientCache | quote }}
+            - name: KARPENTER_MODE_ENABLED
+              value: {{ .Values.KarpenterMode.enabled | quote }}
             - name: SCOPED_MODE
               value: {{ .Values.scopedMode | quote }}
             - name: NODE_GRACE_PERIOD_MINUTES
