@@ -160,7 +160,11 @@ data:
               transport_socket:
                 name: envoy.transport_sockets.starttls
                 typed_config:
+                {{- if eq $.Values.protocol "MySQL" }}
+                  "@type": type.googleapis.com/castai.transport_sockets.mysql_starttls.v1.MySqlStartTlsConfig
+                {{- else }}
                   "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
+                {{- end }}
                   tls_socket_config:
                     common_tls_context:
                       {{- include "proxy.tls.certificates" $ | nindent 22  }}
