@@ -20,6 +20,7 @@ data:
     port = {{ add $endpoint.port 100 }}
     admin_username = "{{ $.Values.pooling.adminUsername | default "admin" }}"
     admin_password = "{{ $.Values.pooling.adminPassword | default "admin" }}"
+    prepared_statements_cache_size = {{ $.Values.pooling.preparedStatementsCacheSize | default 1000 }}
     
     # Connection settings
     connect_timeout = {{ $.Values.pooling.connectTimeout | default 1000 }}
