@@ -254,8 +254,11 @@ data:
                       address:
                         socket_address:
                           {{- if and $.Values.pooling $.Values.pooling.enabled }}
-                          address: 127.0.0.1 # local pgcat in same pod
+                          address: 127.0.0.1 # local pgcat container running in the same pod
                           port_value: {{ add $endpoint.port 100 }} # pgcat port
+                          {{- else if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
+                          address: 127.0.0.1 # local cloud-sql-proxy container running in the same pod
+                          port_value: {{ add $.Values.cloudSqlProxy.basePort $index }}
                           {{- else }}
                           address: {{ required "endpoint hostname must be provided" $endpoint.hostname }} # upstream database host
                           port_value: {{ required "endpoint targetPort is required" $endpoint.targetPort }} # upstream database port
