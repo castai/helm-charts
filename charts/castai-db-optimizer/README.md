@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.47.4](https://img.shields.io/badge/Version-0.47.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.47.5](https://img.shields.io/badge/Version-0.47.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -47,6 +47,7 @@ CAST AI database cache deployment.
 | pooling.password | string | `""` | Password for database authentication |
 | pooling.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
 | pooling.poolSize | int | `20` | Maximum pool size per user |
+| pooling.preparedStatementsCacheSize | int | `1000` | Size of prepared statements cache |
 | pooling.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
 | pooling.serverTLS | bool | `true` | Enable TLS for server connections |
 | pooling.tlsCertificateFilePath | string | `""` | Path to TLS certificate for server connections (PEM format) |
