@@ -76,8 +76,6 @@ endpoints:
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"
-  # -- Ensure proxy has retrieved initial cache configuration before accepting connections.
-  readinessProbeEnabled: true
   # -- Ensure proxy is alive and healthy.
   livenessProbeEnabled: true
   # -- Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP.
