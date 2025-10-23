@@ -31,6 +31,9 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- if .Values.serviceAccountName }}
+      serviceAccountName: {{ .Values.serviceAccountName }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ .Values.proxy.drainTimeSeconds | default 60 }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
@@ -45,7 +48,6 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
 
       volumes:
         - name: envoy-config
@@ -344,4 +346,26 @@ spec:
             initialDelaySeconds: 15
             periodSeconds: 20
         {{- end }}
+        {{- end }}
+        {{- if .Values.cloudSqlProxy.enabled }}
+        - name: cloud-sql-proxy
+          image: "{{.Values.cloudSqlProxyImage.repository}}:{{ include "cloudSqlProxyImage" . }}"
+          imagePullPolicy: {{ $.Values.cloudSqlProxyImage.pullPolicy }}
+          args:
+            {{- if .Values.cloudSqlProxy.privateIp }}
+            - "--private-ip"
+            {{- end }}
+            {{- if .Values.cloudSqlProxy.autoIamAuthn }}
+            - "--auto-iam-authn"
+            {{- end }}
+            - "--structured-logs"
+            {{- range $index, $endpoint := .Values.endpoints }}
+            - "{{ $endpoint.hostname }}?port={{ add $.Values.cloudSqlProxy.basePort $index }}"
+            {{- end }}
+          securityContext:
+            runAsNonRoot: true
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1"
         {{- end }}

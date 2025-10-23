@@ -49,7 +49,11 @@ data:
     [pools.{{ $database }}.shards."0"]
     database = "{{ $database }}"
     servers = [
+      {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
+      ["127.0.0.1", {{ add $.Values.cloudSqlProxy.basePort $index }}, "primary"]
+      {{- else }}
       ["{{ required "endpoint hostname must be provided" $endpoint.hostname }}", {{ required "endpoint targetPort is required" $endpoint.targetPort }}, "primary"]
+      {{- end }}
     ]
     
     [pools.{{ $database }}.users."0"]
