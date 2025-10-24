@@ -85,7 +85,7 @@ spec:
           envFrom:
           {{- if .Values.trustedCACert }}
             - secretRef:
-                name: {{ include "castai-agent.fullname" . }}-tls-cert
+                name: {{ include "spot-handler.fullname" . }}-tls-cert
           {{- else if .Values.trustedCACertSecretRef }}
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
