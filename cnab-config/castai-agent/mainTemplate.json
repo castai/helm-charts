@@ -22,7 +22,7 @@
       }
     },
     "apiKey": {
-      "type": "String"
+      "type": "SecureString"
     },
     "vmSize": {
       "type": "String",
@@ -191,8 +191,10 @@
         "autoUpgradeMinorVersion": true,
         "releaseTrain": "[variables('releaseTrain')]",
         "configurationSettings": {
-          "apiKey": "[parameters('apiKey')]",
           "provider": "[variables('provider')]"
+        },
+        "configurationProtectedSettings": {
+          "apiKey": "[parameters('apiKey')]"
         }
       },
       "plan": {
