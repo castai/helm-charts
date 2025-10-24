@@ -80,6 +80,10 @@ serviceAccount:
 tolerations:
   - operator: Exists
     effect: NoSchedule
+  - key: "kubernetes.azure.com/scalesetpriority"
+    operator: "Equal"
+    value: "spot"
+    effect: "NoSchedule"
 
 # Pod node selector rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
