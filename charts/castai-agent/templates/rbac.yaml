@@ -1,4 +1,4 @@
-{{- if .Values.rbac.enabled }}
+{{- if .Values.serviceAccount.create }}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -16,7 +16,9 @@ metadata:
     {{- toYaml . | nindent 4}}
     {{- end }}
   {{- end }}
+{{- end }}
 
+{{- if .Values.rbac.enabled }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
