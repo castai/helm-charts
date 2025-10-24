@@ -185,6 +185,18 @@ pooling:
   password: ""
   # -- Name of secret with username for database authentication
   credentialsSecretRef: ""
+  # -- Size of prepared statements cache
+  preparedStatementsCacheSize: 1000
+
+cloudSqlProxy:
+  # -- Enable Cloud SQL Proxy sidecar
+  enabled: false
+  # -- Starting number from which unique ports are sequentially assigned to each upstream Cloud SQL instance
+  basePort: 10000
+  # -- Have the proxy connect over private IP if connecting from a VPC-native GKE cluster
+  privateIp: false
+  # -- Have the proxy connect with Automatic IAM authentication
+  autoIamAuthn: false
 
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
@@ -196,10 +208,19 @@ proxyImage:
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
 
-pgcatImage:
-  repository: ghcr.io/postgresml/pgcat
+cloudSqlProxyImage:
+  repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
   pullPolicy: IfNotPresent
-  tag: "v1.2.0"
+  tag: ""  # uses values from _versions.tpl for default value
+
+pgcatImage:
+  repository: us-docker.pkg.dev/castai-hub/library/dbo-pooling-pgcat
+  pullPolicy: IfNotPresent
+  tag: "v1.2.0-embedded-ssl"
+
+# -- The name of the service account to be used by the pod.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+serviceAccountName: ""
 
 # -- Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
