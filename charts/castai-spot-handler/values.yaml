@@ -144,9 +144,16 @@ affinity:
             - key: kubernetes.io/os
               operator: NotIn
               values: ["windows"]
-        # Generic label some provisioners use
+        # Generic labels some provisioners use
         - matchExpressions:
             - key: node.kubernetes.io/lifecycle
+              operator: In
+              values: ["spot", "SpotInstance"]
+            - key: kubernetes.io/os
+              operator: NotIn
+              values: ["windows"]
+        - matchExpressions:
+            - key: kubernetes.io/lifecycle
               operator: In
               values: ["spot", "SpotInstance"]
             - key: kubernetes.io/os
