@@ -90,12 +90,12 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{- if and .Values.apiKey .Values.apiKeySecretRef }}
+          {{- if and .Values.castai.apiKey .Values.apiKeySecretRef }}
             {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
           {{- end }}
-          {{- if or .Values.apiKey .Values.apiKeySecretRef }}
+          {{- if or .Values.castai.apiKey .Values.apiKeySecretRef }}
             - secretRef:
-                {{- if .Values.apiKey }}
+                {{- if .Values.castai.apiKey }}
                 name: {{ include "spot-handler.fullname" . -}}
                 {{- else }}
                 name: {{ .Values.apiKeySecretRef -}}
