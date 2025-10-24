@@ -184,10 +184,10 @@
             "name": "apiKey",
             "type": "Microsoft.Common.PasswordBox",
             "label": {
-              "password": "CAST AI Agent API Token"
+              "password": "CAST AI Agent API Token",
+              "confirmPassword": "Confirm API Token"
             },
             "toolTip": "Go to console.cast.ai to retrieve 'Full access' API token. Instructions at https://docs.cast.ai/docs/authentication",
-            "defaultValue": "",
             "constraints": {
               "required": true,
               "regex": "^[-A-Za-z0-9+=]{50,64}$",
