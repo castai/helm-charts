@@ -79,20 +79,72 @@ tolerations:
 
 # Pod node selector rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
-nodeSelector:
-  scheduling.cast.ai/spot: "true"
+nodeSelector: {}
 
 # Pod affinity rules.
+# Default values target deploying on Spot nodes on well-known clouds out of the box. 
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 affinity:
   nodeAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       nodeSelectorTerms:
+        # EKS managed nodegroups
         - matchExpressions:
+            - key: eks.amazonaws.com/capacityType
+              operator: In
+              values: ["SPOT"]
             - key: kubernetes.io/os
               operator: NotIn
-              values:
-                - windows
+              values: ["windows"]
+        # Karpenter
+        - matchExpressions:
+            - key: karpenter.sh/capacity-type
+              operator: In
+              values: ["spot"]
+            - key: kubernetes.io/os
+              operator: NotIn
+              values: ["windows"]
+        # AKS
+        - matchExpressions:
+            - key: kubernetes.azure.com/scalesetpriority
+              operator: In
+              values: ["spot"]
+            - key: kubernetes.io/os
+              operator: NotIn
+              values: ["windows"]
+        # GKE Spot (new "spot" type)
+        - matchExpressions:
+            - key: cloud.google.com/gke-spot
+              operator: In
+              values: ["true"]
+            - key: kubernetes.io/os
+              operator: NotIn
+              values: ["windows"]
+        # GKE Preemptible (legacy "spot" type)
+        - matchExpressions:
+            - key: cloud.google.com/gke-preemptible
+              operator: In
+              values: ["true"]
+            - key: kubernetes.io/os
+              operator: NotIn
+              values: ["windows"]
+        # Generic label some provisioners use
+        - matchExpressions:
+            - key: node.kubernetes.io/lifecycle
+              operator: In
+              values: ["spot"]
+            - key: kubernetes.io/os
+              operator: NotIn
+              values: ["windows"]
+        # CAST AI spot label
+        - matchExpressions:
+            - key: scheduling.cast.ai/spot
+              operator: In
+              values: ["true"]
+            - key: kubernetes.io/os
+              operator: NotIn
+              values: ["windows"]
+
 # Pod security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 securityContext:
