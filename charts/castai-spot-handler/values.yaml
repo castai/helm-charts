@@ -153,8 +153,13 @@ securityContext:
   runAsGroup: 1003
   runAsUser: 1003
 
+# apiKey -- Token to be used for authorizing access to the API (passed as environment variable)
+# apiKey and apiKeySecretRef are mutually exclusive.
+apiKey: ""
+
 # apiKeySecretRef -- Name of secret with Token to be used for authorizing access to the API
 # The referenced secret must provide the token in .data["API_KEY"]
+# apiKey and apiKeySecretRef are mutually exclusive.
 apiKeySecretRef: ""
 
 # -- Used to set additional environment variables for the spot handler container via configMaps or secrets.

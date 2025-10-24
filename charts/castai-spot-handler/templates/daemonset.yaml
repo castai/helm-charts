@@ -90,13 +90,21 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
+          {{- if and .Values.apiKey .Values.apiKeySecretRef }}
+            {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+          {{- end }}
+          {{- if or .Values.apiKey .Values.apiKeySecretRef }}
             - secretRef:
-                {{- if .Values.apiKeySecretRef }}
-                name: {{ .Values.apiKeySecretRef }}
+                {{- if .Values.apiKey }}
+                name: {{ include "spot-handler.fullname" . -}}
                 {{- else }}
-                # Re-use shared secret from cluster-controller.
-                name: castai-cluster-controller
+                name: {{ .Values.apiKeySecretRef -}}
                 {{- end }}
+          {{- else }}
+            - secretRef:
+                # Re-use shared secret from cluster-controller (backwards compatibility with old versions).
+                name: castai-cluster-controller
+          {{- end }}
           {{- with .Values.envFrom }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
