@@ -38,18 +38,32 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[4].matchExpressions[1].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[4].matchExpressions[1].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[4].matchExpressions[1].values[0] | string | `"windows"` |  |
-| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[5].matchExpressions[0].key | string | `"node.kubernetes.io/lifecycle"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[5].matchExpressions[0].key | string | `"spotinst.io/node-lifecycle"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[5].matchExpressions[0].operator | string | `"In"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[5].matchExpressions[0].values[0] | string | `"spot"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[5].matchExpressions[1].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[5].matchExpressions[1].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[5].matchExpressions[1].values[0] | string | `"windows"` |  |
-| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[0].key | string | `"scheduling.cast.ai/spot"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[0].key | string | `"node.kubernetes.io/lifecycle"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[0].operator | string | `"In"` |  |
-| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[0].values[0] | string | `"true"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[0].values[0] | string | `"spot"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[0].values[1] | string | `"SpotInstance"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[1].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[1].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[6].matchExpressions[1].values[0] | string | `"windows"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[7].matchExpressions[0].key | string | `"kubernetes.io/lifecycle"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[7].matchExpressions[0].operator | string | `"In"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[7].matchExpressions[0].values[0] | string | `"spot"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[7].matchExpressions[0].values[1] | string | `"SpotInstance"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[7].matchExpressions[1].key | string | `"kubernetes.io/os"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[7].matchExpressions[1].operator | string | `"NotIn"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[7].matchExpressions[1].values[0] | string | `"windows"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[8].matchExpressions[0].key | string | `"scheduling.cast.ai/spot"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[8].matchExpressions[0].operator | string | `"In"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[8].matchExpressions[0].values[0] | string | `"true"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[8].matchExpressions[1].key | string | `"kubernetes.io/os"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[8].matchExpressions[1].operator | string | `"NotIn"` |  |
+| affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[8].matchExpressions[1].values[0] | string | `"windows"` |  |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing access to the API The referenced secret must provide the token in .data["API_KEY"] apiKey and apiKeySecretRef are mutually exclusive. |
 | castai.apiKey | string | `""` |  |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
