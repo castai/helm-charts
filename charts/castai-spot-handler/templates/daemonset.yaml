@@ -85,18 +85,26 @@ spec:
           envFrom:
           {{- if .Values.trustedCACert }}
             - secretRef:
-                name: {{ include "castai-agent.fullname" . }}-tls-cert
+                name: {{ include "spot-handler.fullname" . }}-tls-cert
           {{- else if .Values.trustedCACertSecretRef }}
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
+          {{- if and .Values.castai.apiKey .Values.apiKeySecretRef }}
+            {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+          {{- end }}
+          {{- if or .Values.castai.apiKey .Values.apiKeySecretRef }}
             - secretRef:
-                {{- if .Values.apiKeySecretRef }}
-                name: {{ .Values.apiKeySecretRef }}
+                {{- if .Values.castai.apiKey }}
+                name: {{ include "spot-handler.fullname" . -}}
                 {{- else }}
-                # Re-use shared secret from cluster-controller.
-                name: castai-cluster-controller
+                name: {{ .Values.apiKeySecretRef -}}
                 {{- end }}
+          {{- else }}
+            - secretRef:
+                # Re-use shared secret from cluster-controller (backwards compatibility with old versions).
+                name: castai-cluster-controller
+          {{- end }}
           {{- with .Values.envFrom }}
             {{- toYaml . | nindent 12 }}
           {{- end }}
