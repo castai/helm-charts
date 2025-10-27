@@ -87,6 +87,5 @@ jobs:
         run: |
           kubectl apply -f "${{ steps.need_mock.outputs.mock_path }}"
 
-
       - name: Run chart-testing (install)
         run: ct install --config ct.yaml
