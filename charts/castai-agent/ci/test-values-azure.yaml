@@ -10,7 +10,7 @@ global:
         image: "test2"
         digest: "test2"
 apiKey: "test"
-apiURL: "http://mock-api"
+apiURL: "http://mock-api.default.svc.cluster.local"
 provider: "eks"
 namespace: "default"
 createNamespace: false
