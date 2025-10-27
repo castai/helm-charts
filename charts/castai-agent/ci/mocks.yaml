@@ -18,12 +18,12 @@ data:
     }
   db.json: |
     {
-      "health": ["ok"]
+      "health": ["ok"],
+      "component-logs": []
     }
   routes.json: |
     {
-      "/v1/kubernetes/external-clusters": "/external-clusters",
-      "/health": "/health"
+      "/v1/kubernetes/clusters/:clusterId/component-logs": "/component-logs"
     }
 ---
 apiVersion: apps/v1
