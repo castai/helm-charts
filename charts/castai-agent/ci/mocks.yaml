@@ -1,0 +1,75 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mock-api-config
+data:
+  middleware.js: |
+    module.exports = (req, res, next) => {
+      if (req.method === 'POST' && req.path === '/v1/kubernetes/external-clusters') {
+        const requestId = req.body.id || '00000000-0000-0000-0000-000000000000';
+        res.status(200).json({
+          id: requestId,
+          organizationID: 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d'
+        });
+      } else {
+        next();
+      }
+    }
+  db.json: |
+    {
+      "health": "ok"
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mock-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mock-api
+  template:
+    metadata:
+      labels:
+        app: mock-api
+    spec:
+      containers:
+        - name: json-server
+          image: vimagick/json-server:latest
+          command: ["/bin/sh", "-c"]
+          args:
+            - "json-server --watch /data/db.json --host 0.0.0.0 --port 8080 --middlewares /data/middleware.js"
+          volumeMounts:
+            - name: config
+              mountPath: /data
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 3
+            periodSeconds: 2
+      volumes:
+        - name: config
+          configMap:
+            name: mock-api-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mock-api
+spec:
+  selector:
+    app: mock-api
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  type: ClusterIP
+---
