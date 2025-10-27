@@ -38,10 +38,12 @@ spec:
     spec:
       containers:
         - name: json-server
-          image: vimagick/json-server:latest
+          image: node:20-alpine
           command: ["/bin/sh", "-c"]
           args:
-            - "json-server --watch /data/db.json --host 0.0.0.0 --port 8080 --middlewares /data/middleware.js"
+            - |
+              npm install -g json-server@0.17.4 && \
+              json-server --watch /data/db.json --host 0.0.0.0 --port 8080 --middlewares /data/middleware.js
           volumeMounts:
             - name: config
               mountPath: /data
@@ -49,14 +51,14 @@ spec:
             httpGet:
               path: /
               port: 8080
-            initialDelaySeconds: 3
-            periodSeconds: 2
+            initialDelaySeconds: 10
+            periodSeconds: 5
           readinessProbe:
             httpGet:
               path: /
               port: 8080
-            initialDelaySeconds: 3
-            periodSeconds: 2
+            initialDelaySeconds: 10
+            periodSeconds: 5
       volumes:
         - name: config
           configMap:
