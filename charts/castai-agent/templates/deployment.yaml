@@ -173,6 +173,7 @@ spec:
             httpGet:
               port: healthz
               path: /healthz
+            initialDelaySeconds: 10
         - name: monitor
         {{ if $global.azure }}
           image: "{{ .Values.global.azure.images.agent.registry }}/{{ .Values.global.azure.images.agent.image }}@{{ .Values.global.azure.images.agent.digest }}"
