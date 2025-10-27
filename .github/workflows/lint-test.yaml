@@ -63,5 +63,29 @@ jobs:
           config: kind.yaml
         if: steps.list-changed.outputs.changed == 'true'
 
+      - name: Create mock API
+        id: need_mock
+        run: |
+          charts=$(ct list-changed --config ct.yaml)
+          needs_mock=false
+          mock_file=""
+          while IFS= read -r c; do
+            [ -z "$c" ] && continue
+            if [ -f "$c/ci/mocks.yaml" ]; then
+              needs_mock=true
+              mock_file="$c/ci/mocks.yaml"
+              break
+            fi
+          done <<< "$charts"
+          if [ "$needs_mock" = "true" ]; then
+            echo "needs_mock=true" >> $GITHUB_OUTPUT
+            echo "mock_path=$mock_file" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy chart-local mock API
+        if: steps.list-changed.outputs.changed == 'true' && steps.need_mock.outputs.needs_mock == 'true'
+        run: |
+          kubectl apply -f "${{ steps.need_mock.outputs.mock_path }}"
+
       - name: Run chart-testing (install)
         run: ct install --config ct.yaml
