@@ -92,11 +92,11 @@ runs:
         description=$(yq ".description" < ${{ inputs.chart-path }}/Chart.yaml)
         name=$(yq ".name" < ${{ inputs.chart-path }}/Chart.yaml)
         version=$(yq ".version" < ${{ inputs.chart-path }}/Chart.yaml)
-        echo "::set-output name=chartpath::${{ inputs.chart-path }}"
-        echo "::set-output name=desc::${description}"
-        echo "::set-output name=tagname::${name}-${version}"
-        echo "::set-output name=packagename::${name}-${version}"
-        echo "::set-output name=name::${name}"
+        echo "chartpath=${{ inputs.chart-path }}" >> $GITHUB_OUTPUT
+        echo "desc=${description}" >> $GITHUB_OUTPUT
+        echo "tagname=${name}-${version}" >> $GITHUB_OUTPUT
+        echo "packagename=${name}-${version}" >> $GITHUB_OUTPUT
+        echo "name=${name}" >> $GITHUB_OUTPUT
 
     - name: Create helm package
       shell: bash
