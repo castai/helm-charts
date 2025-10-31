@@ -21,10 +21,10 @@ gRPCEndpoint: ""
 collectors:
   explain:
     # -- Frequency in which execution plans are collected
-    runsEvery: 15m
+    runsEvery: 30m
   metadata:
     # -- Frequency in which table metadata is collected
-    runsEvery: 30m
+    runsEvery: 15m
   stats:
     # -- Frequency in which index statistics are collected
     runsEvery: 15m
