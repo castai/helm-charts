@@ -19,8 +19,12 @@ CAST AI Watchdog
 | castai.apiKeySecretRef | string | `""` |  |
 | castai.apiUrl | string | `"https://api.cast.ai"` |  |
 | castai.clusterID | string | `""` |  |
+| castai.clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
+| castai.clusterIdSecretKeyRef.name | string | `""` |  |
 | castai.configMapRef | string | `""` |  |
 | castai.organizationID | string | `""` |  |
+| castai.organizationIdSecretKeyRef.key | string | `"ORGANIZATION_ID"` |  |
+| castai.organizationIdSecretKeyRef.name | string | `""` |  |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | fullnameOverride | string | `"castai-watchdog"` |  |
 | gcp.clusterName | string | `""` |  |
