@@ -103,9 +103,21 @@ castai:
   # apiUrl -- URL of the CAST AI API.
   apiUrl: "https://api.cast.ai"
   # clusterID -- ID of the cluster the watchdog is deployed in.
+  # clusterID and clusterIdSecretKeyRef are mutually exclusive
   clusterID: ""
-  # organization ID -- ID of the organization
+  # clusterIdSecretKeyRef -- Name and Key of secret with ClusterID
+  # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
+  # organizationID -- ID of the organization
+  # organizationID and organizationIdSecretKeyRef are mutually exclusive
   organizationID: ""
+  # organizationIdSecretKeyRef -- Name and Key of secret with OrganizationID
+  # The referenced secret must provide the OrganizationID in .data[<<.Values.castai.organizationIdSecretKeyRef.key>>]
+  organizationIdSecretKeyRef:
+    name: ""
+    key: "ORGANIZATION_ID"
 
 # -- List of webhooks, where to send Watchdog events about autoscaling
 webhooks: []

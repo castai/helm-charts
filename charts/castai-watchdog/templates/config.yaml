@@ -14,27 +14,26 @@ metadata:
   {{- end }}
 data:
   config.yaml: |
+    {{- if .Values.castai.clusterID }}
     clusterId: {{ required "clusterID must be provided" .Values.castai.clusterID | quote }}
+    {{- end }}
+    {{- if .Values.castai.organizationID }}
     organizationId: {{ required "organizationID must be provided" .Values.castai.organizationID | quote }}
+    {{- end }}
     api:
       url: {{ required "castai.apiUrl must be provided" .Values.castai.apiUrl | quote }}
-
     log:
       level: "0"
-
     webhookName: {{ required "webhook.name must be provided" .Values.webhook.name }}
     serviceName: {{ include "watchdog.fullname" . }}
-
     {{- if .Values.gcp.clusterName }}
     google:
       project: {{ .Values.gcp.project | quote }}
       location: {{ .Values.gcp.location | quote }}
       clusterName: {{ .Values.gcp.clusterName | quote }}
     {{- end }}
-
     certsRotation: true
     certsSecret: {{ include "watchdog.certsSecretName" . }}
-
     {{- with .Values.webhooks }}
     webhooks:
       webhooks: {{ . | toYaml | nindent 8 }}
