@@ -26,6 +26,7 @@ CAST AI Pod Mutator.
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
+| dependencyCheck.enabled | bool | `true` | Enable or disable dependency check preinstall hook |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | enableTopologySpreadConstraints | bool | `false` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-mutator container via configMaps or secrets. |

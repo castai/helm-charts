@@ -1,4 +1,5 @@
 {{- $fullName := required "fullname must be provided" (include "pod-mutator.fullname" .) | printf "%s-dependency-check" -}}
+{{- if .Values.dependencyCheck.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -114,3 +115,4 @@ subjects:
   - kind: ServiceAccount
     name: {{ $fullName }}
     namespace: {{ .Release.Namespace }}
+{{- end }}
