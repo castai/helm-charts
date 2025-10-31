@@ -137,3 +137,7 @@ castai:
 
 # -- Used to set additional environment variables for the pod-mutator container via configMaps or secrets.
 envFrom: []
+
+dependencyCheck:
+  # -- Enable or disable dependency check preinstall hook
+  enabled: true
