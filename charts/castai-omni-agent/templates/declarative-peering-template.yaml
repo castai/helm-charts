@@ -1,0 +1,95 @@
+apiVersion: networking.liqo.io/v1beta1
+kind: Configuration
+metadata:
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+  name: {{ .Values.castai.clusterName }}
+  namespace: default
+spec:
+  remote:
+    cidr:
+      external:
+      - {{ .Values.network.externalCIDR }}
+      pod:
+      - {{ .Values.network.podCIDR }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+    liqo.io/tenant-namespace: 'true'
+  name: omni-{{ .Values.castai.clusterName }}
+spec: {}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+    networking.liqo.io/gateway-resource: 'true'
+  name: gw-keys
+  namespace: omni-{{ .Values.castai.clusterName }}
+type: Opaque
+data:
+  privateKey: {{ .Values.network.wireguardProviderPrivateKey | b64enc | quote }}
+  publicKey: {{ .Values.network.wireguardProviderPublicKey | b64enc | quote }}
+---
+apiVersion: networking.liqo.io/v1beta1
+kind: PublicKey
+metadata:
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+    networking.liqo.io/gateway-resource: 'true'
+  name: gw-publickey
+  namespace: omni-{{ .Values.castai.clusterName }}
+spec:
+  publicKey: {{ .Values.network.wireguardConsumerPublicKey | b64enc | quote }}
+---
+apiVersion: networking.liqo.io/v1beta1
+kind: GatewayServer
+metadata:
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+  name: server
+  namespace: omni-{{ .Values.castai.clusterName }}
+spec:
+  endpoint:
+    port: 51840
+    serviceType: LoadBalancer
+  mtu: 1340
+  secretRef:
+    name: ''
+  serverTemplateRef:
+    apiVersion: networking.liqo.io/v1beta1
+    kind: WgGatewayServerTemplate
+    name: wireguard-server
+    namespace: liqo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+  name: liqo-binding-liqo-remote-controlplane
+  namespace: omni-{{ .Values.castai.clusterName }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: liqo-remote-controlplane
+subjects:
+- apiGroup: rbac.authorization.k8s.io
+  kind: User
+  name: default
+---
+apiVersion: authentication.liqo.io/v1beta1
+kind: Tenant
+metadata:
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+  name: {{ .Values.castai.clusterName }}
+  namespace: omni-{{ .Values.castai.clusterName }}
+spec:
+  clusterID: {{ .Values.castai.clusterName }}
+  authzPolicy: TolerateNoHandshake
+  tenantCondition: Active

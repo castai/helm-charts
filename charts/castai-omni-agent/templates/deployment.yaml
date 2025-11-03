@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/component: omni-agent
+  name: omni-agent
+  namespace: {{ .Release.Namespace }}
+spec:
+  progressDeadlineSeconds: {{ .Values.deployment.progressDeadlineSeconds }}
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: omni-agent
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app.kubernetes.io/component: omni-agent
+    spec:
+      containers:
+        - env:
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  key: CLUSTER_ID
+                  name: liqo-clusterid-configmap
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: AGENT_NAMESPACE
+              value: {{ .Release.Namespace | quote }}
+            - name: API_URL
+              value: {{ .Values.castai.apiUrl | quote }}
+            - name: CLUSTER_NAME
+              value: {{ .Values.castai.clusterName | quote }}
+            - name: CLUSTER_ID
+              value: {{ .Values.castai.clusterID | quote }}
+            - name: ORGANIZATION_ID
+              value: {{ .Values.castai.organizationID | quote }}
+            {{- if not .Values.edgeMode.enabled }}
+            {{- if .Values.network.externalCIDR }}
+            - name: IPAM_EXTERNAL_CIDR
+              value: {{ .Values.network.externalCIDR | quote }}
+            {{- end }}
+            {{- if .Values.network.podCIDR }}
+            - name: POD_CIDR
+              value: {{ .Values.network.podCIDR | quote }}
+            {{- end }}
+            {{- else }}
+            {{- if .Values.castai.edgeID }}
+            - name: EDGE_ID
+              value: {{ .Values.castai.edgeID | quote }}
+            {{- end }}
+            - name: EDGE_MODE
+              value: "true"
+            {{- end }}
+          envFrom:
+            {{- if .Values.castai.apiKey }}
+            - secretRef:
+                name: {{ include "omni-agent.fullname" . }}
+            {{- else if .Values.castai.apiKeySecretRef }}
+            - secretRef:
+                name: {{ .Values.castai.apiKeySecretRef }}
+            {{- else }}
+            {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+            {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: omni-agent
+          ports:
+            - containerPort: {{ .Values.ports.webhook }}
+              name: webhook
+              protocol: TCP
+            - containerPort: {{ .Values.ports.healthz }}
+              name: healthz
+              protocol: TCP
+            - containerPort: {{ .Values.ports.metrics }}
+              name: metrics
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      {{- if .Values.edgeMode.enabled }}
+      priorityClassName: {{ .Values.edgeMode.priorityClassName }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "omni-agent.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 30

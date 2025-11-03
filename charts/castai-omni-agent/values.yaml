@@ -1,0 +1,111 @@
+# -- Replica count for the omni-agent deployment.
+replicaCount: 1
+
+# -- Image settings for the omni-agent container.
+image:
+  # -- The image repository to use.
+  repository: us-docker.pkg.dev/castai-hub/library/omni-agent
+  # -- The image pull policy.
+  pullPolicy: Always
+  # -- Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+# -- Image pull secrets to use for the omni-agent pod.
+imagePullSecrets: []
+
+# commonLabels -- Labels to add to all resources.
+commonLabels: {}
+
+# commonAnnotations -- Annotations to add to all resources.
+commonAnnotations: {}
+
+# -- Extra annotations to add to the pod.
+podAnnotations: {}
+
+# -- Extra labels to add to the pod.
+podLabels: {}
+
+# -- Pod security context.
+podSecurityContext:
+  fsGroup: 1000
+  runAsGroup: 1000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# -- Security context for the omni-agent container.
+securityContext:
+  allowPrivilegeEscalation: false
+
+# -- Omni-agent container resources.
+resources:
+  requests:
+    cpu: 50m
+    memory: 100Mi
+
+# -- Node selector for the omni-agent pod.
+nodeSelector: {}
+
+# -- Tolerations for the omni-agent pod.
+tolerations: []
+
+# -- Affinity for the omni-agent pod.
+affinity: {}
+
+serviceAccount:
+  # serviceAccount.create -- Specifies whether a service account should be created.
+  create: true
+  # serviceAccount.annotations -- Annotations to add to the service account.
+  annotations: {}
+  # serviceAccount.name -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  name: "omni-agent"
+
+# -- Port configuration for the omni-agent container.
+ports:
+  webhook: 9443
+  healthz: 8081
+  metrics: 8080
+
+# -- Deployment settings
+deployment:
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 10
+
+# -- Edge mode configuration
+edgeMode:
+  # -- Enable edge mode
+  enabled: false
+  # -- Priority class name for edge mode (only applied if edgeMode.enabled is true)
+  priorityClassName: system-cluster-critical
+
+# -- CAST AI settings for the omni-agent.
+castai:
+  # -- URL of the CAST AI API.
+  apiUrl: "https://api.cast.ai"
+  # -- Token to be used for authorizing agent access to the API.
+  apiKey: ""
+  # -- Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"].
+  apiKeySecretRef: ""
+  # -- ID of the organization
+  organizationID: ""
+  # -- ID of the master cluster
+  clusterID: ""
+  # -- Name of the master cluster
+  clusterName: ""
+  # -- Edge ID (only used when edgeMode.enabled is true)
+  edgeID: ""
+
+# -- Network configuration for declarative peering
+network:
+  # -- External CIDR for peering
+  externalCIDR: ""
+  # -- Pod CIDR for peering
+  podCIDR: ""
+  # -- Wireguard provider private key
+  wireguardProviderPrivateKey: ""
+  # -- Wireguard provider public key
+  wireguardProviderPublicKey: ""
+  # -- Wireguard consumer public key
+  wireguardConsumerPublicKey: ""
