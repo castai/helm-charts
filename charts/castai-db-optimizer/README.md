@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.47.2](https://img.shields.io/badge/Version-0.47.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.48.0](https://img.shields.io/badge/Version-0.48.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -13,6 +13,13 @@ CAST AI database cache deployment.
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing DBO access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
 | apiURL | string | `"api.cast.ai"` | URL to the CAST AI API server. |
 | cacheGroupID | string | `""` | ID of the cache group for which cache configuration should be pulled.  |
+| cloudSqlProxy.autoIamAuthn | bool | `false` | Have the proxy connect with Automatic IAM authentication |
+| cloudSqlProxy.basePort | int | `10000` | Starting number from which unique ports are sequentially assigned to each upstream Cloud SQL instance |
+| cloudSqlProxy.enabled | bool | `false` | Enable Cloud SQL Proxy sidecar |
+| cloudSqlProxy.privateIp | bool | `false` | Have the proxy connect over private IP if connecting from a VPC-native GKE cluster |
+| cloudSqlProxyImage.pullPolicy | string | `"IfNotPresent"` |  |
+| cloudSqlProxyImage.repository | string | `"gcr.io/cloud-sql-connectors/cloud-sql-proxy"` |  |
+| cloudSqlProxyImage.tag | string | `""` |  |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | endpoints | list | `[{"hostname":"sample-db-hostname","name":null,"port":5433,"serviceDiscovery":{"dns_lookup_family":"ALL","dns_refresh_rate":"5000ms","respect_dns_ttl":true,"type":"LOGICAL_DNS"},"servicePort":5432,"targetPort":5432}]` | A list of upstream database endpoints |
@@ -25,8 +32,8 @@ CAST AI database cache deployment.
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
 | pgcatImage.pullPolicy | string | `"IfNotPresent"` |  |
-| pgcatImage.repository | string | `"ghcr.io/postgresml/pgcat"` |  |
-| pgcatImage.tag | string | `"v1.2.0"` |  |
+| pgcatImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-pooling-pgcat"` |  |
+| pgcatImage.tag | string | `"v1.2.0-embedded-ssl"` |  |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | pooling.banTime | int | `60` | Ban time in seconds |
@@ -47,6 +54,7 @@ CAST AI database cache deployment.
 | pooling.password | string | `""` | Password for database authentication |
 | pooling.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
 | pooling.poolSize | int | `20` | Maximum pool size per user |
+| pooling.preparedStatementsCacheSize | int | `1000` | Size of prepared statements cache |
 | pooling.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
 | pooling.serverTLS | bool | `true` | Enable TLS for server connections |
 | pooling.tlsCertificateFilePath | string | `""` | Path to TLS certificate for server connections (PEM format) |
@@ -95,6 +103,7 @@ CAST AI database cache deployment.
 | resources.proxy.memoryRequest | string | `"2Gi"` |  |
 | resources.queryProcessor.cpu | string | `"2"` |  |
 | resources.queryProcessor.memory | string | `"1Gi"` |  |
+| serviceAccountName | string | `""` | The name of the service account to be used by the pod. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/ |
 | tolerations | object | `{}` | Pod toleration rules. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |
 | upstreamPostgresHostname | string | `""` | deprecated: Hostname of the upstream Postgres instance. |
 | upstreamPostgresPort | int | `5432` | deprecated: Port of the upstream Postgres instance. |

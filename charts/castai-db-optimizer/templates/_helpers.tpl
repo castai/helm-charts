@@ -21,6 +21,10 @@ Create chart name and version as used by the chart label.
 {{-  default (include "defaultProxyVersion" .) .Values.proxyImage.tag }}
 {{- end }}
 
+{{- define "cloudSqlProxyImage" -}}
+{{-  default (include "defaultCloudSqlProxyVersion" .) .Values.cloudSqlProxyImage.tag }}
+{{- end }}
+
 {{/*
 Helpers for customizing proxy TLS settings.
 */}}
