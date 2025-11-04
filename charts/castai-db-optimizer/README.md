@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.48.0](https://img.shields.io/badge/Version-0.48.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.49.0](https://img.shields.io/badge/Version-0.49.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -79,7 +79,6 @@ CAST AI database cache deployment.
 | proxy.livenessProbeEnabled | bool | `true` | Ensure proxy is alive and healthy. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxy.networkDebug | bool | `false` | Extra network debug logging. |
-| proxy.readinessProbeEnabled | bool | `true` | Ensure proxy has retrieved initial cache configuration before accepting connections. |
 | proxy.statsThreadPeriodMs | int | `1000` | The period of the stats thread. |
 | proxy.stopCachingThreshold | float | `0.95` | Ratio of used available bytes or entries from which we stop caching. |
 | proxy.tlsSecretName | string | `nil` | Name of a Kubernetes TLS Secret that contains the key pair to use for configuring TLS in the proxy. If not set, defaults to using a built-in key pair. |
