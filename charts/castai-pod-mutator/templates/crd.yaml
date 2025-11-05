@@ -64,6 +64,10 @@ spec:
                             in this distribution group
                           items:
                             properties:
+                              from:
+                                description: From defines the source path for move
+                                  and copy operations
+                                type: string
                               op:
                                 description: Op defines the operation to be performed
                                 enum:
@@ -84,7 +88,6 @@ spec:
                             required:
                             - op
                             - path
-                            - value
                             type: object
                           type: array
                         patchesV2:
@@ -120,7 +123,6 @@ spec:
                                       description: Value defines the value to be patched
                                       x-kubernetes-preserve-unknown-fields: true
                                   required:
-                                  - from
                                   - op
                                   - path
                                   type: object
@@ -255,11 +257,251 @@ spec:
                         type: array
                     type: object
                 type: object
+              filterV2:
+                description: FilterV2 defines the criteria for selecting pods to mutate
+                properties:
+                  pod:
+                    description: Pod defines the pod filter
+                    properties:
+                      excludeLabels:
+                        description: |-
+                          ExcludeLabels defines labels that should exclude pods
+                          from matching the mutation even if the pod matches labels in Labels.
+                        properties:
+                          matchers:
+                            description: Matchers defines more complex label matching
+                              rules
+                            items:
+                              properties:
+                                keyMatcher:
+                                  description: KeyMatcher is the key to match
+                                  properties:
+                                    type:
+                                      description: Type is the type of matcher
+                                      enum:
+                                      - exact
+                                      - regex
+                                      type: string
+                                    value:
+                                      description: Value is the value to match
+                                      type: string
+                                  required:
+                                  - type
+                                  - value
+                                  type: object
+                                valueMatcher:
+                                  description: ValueMatcher is the value to match
+                                  properties:
+                                    type:
+                                      description: Type is the type of matcher
+                                      enum:
+                                      - exact
+                                      - regex
+                                      type: string
+                                    value:
+                                      description: Value is the value to match
+                                      type: string
+                                  required:
+                                  - type
+                                  - value
+                                  type: object
+                              required:
+                              - keyMatcher
+                              - valueMatcher
+                              type: object
+                            type: array
+                          operator:
+                            description: Operator defines how to combine multiple
+                              label filters
+                            enum:
+                            - and
+                            - or
+                            type: string
+                        type: object
+                      labels:
+                        description: |-
+                          Labels defines labels that should match pods
+                          for the mutation to be applied.
+                        properties:
+                          matchers:
+                            description: Matchers defines more complex label matching
+                              rules
+                            items:
+                              properties:
+                                keyMatcher:
+                                  description: KeyMatcher is the key to match
+                                  properties:
+                                    type:
+                                      description: Type is the type of matcher
+                                      enum:
+                                      - exact
+                                      - regex
+                                      type: string
+                                    value:
+                                      description: Value is the value to match
+                                      type: string
+                                  required:
+                                  - type
+                                  - value
+                                  type: object
+                                valueMatcher:
+                                  description: ValueMatcher is the value to match
+                                  properties:
+                                    type:
+                                      description: Type is the type of matcher
+                                      enum:
+                                      - exact
+                                      - regex
+                                      type: string
+                                    value:
+                                      description: Value is the value to match
+                                      type: string
+                                  required:
+                                  - type
+                                  - value
+                                  type: object
+                              required:
+                              - keyMatcher
+                              - valueMatcher
+                              type: object
+                            type: array
+                          operator:
+                            description: Operator defines how to combine multiple
+                              label filters
+                            enum:
+                            - and
+                            - or
+                            type: string
+                        type: object
+                    type: object
+                  workload:
+                    description: Workload defines the workload filter
+                    properties:
+                      excludeKinds:
+                        description: |-
+                          ExcludeKinds defines patterns which should be excluded from
+                          kind matching even if they match patterns in Kinds.
+                        items:
+                          properties:
+                            type:
+                              description: Type is the type of matcher
+                              enum:
+                              - exact
+                              - regex
+                              type: string
+                            value:
+                              description: Value is the value to match
+                              type: string
+                          required:
+                          - type
+                          - value
+                          type: object
+                        type: array
+                      excludeNames:
+                        description: |-
+                          ExcludeNames defines patterns which should be excluded from
+                          name matching even if they match patterns in Names.
+                        items:
+                          properties:
+                            type:
+                              description: Type is the type of matcher
+                              enum:
+                              - exact
+                              - regex
+                              type: string
+                            value:
+                              description: Value is the value to match
+                              type: string
+                          required:
+                          - type
+                          - value
+                          type: object
+                        type: array
+                      excludeNamespaces:
+                        description: |-
+                          ExcludeNamespaces defines patterns which should be excluded from
+                          namespace matching even if they match patterns in Namespaces.
+                        items:
+                          properties:
+                            type:
+                              description: Type is the type of matcher
+                              enum:
+                              - exact
+                              - regex
+                              type: string
+                            value:
+                              description: Value is the value to match
+                              type: string
+                          required:
+                          - type
+                          - value
+                          type: object
+                        type: array
+                      kinds:
+                        description: Kinds defines the types of objects to match
+                        items:
+                          properties:
+                            type:
+                              description: Type is the type of matcher
+                              enum:
+                              - exact
+                              - regex
+                              type: string
+                            value:
+                              description: Value is the value to match
+                              type: string
+                          required:
+                          - type
+                          - value
+                          type: object
+                        type: array
+                      names:
+                        description: Names defines the names of objects to match
+                        items:
+                          properties:
+                            type:
+                              description: Type is the type of matcher
+                              enum:
+                              - exact
+                              - regex
+                              type: string
+                            value:
+                              description: Value is the value to match
+                              type: string
+                          required:
+                          - type
+                          - value
+                          type: object
+                        type: array
+                      namespaces:
+                        description: Namespaces defines the namespaces to match
+                        items:
+                          properties:
+                            type:
+                              description: Type is the type of matcher
+                              enum:
+                              - exact
+                              - regex
+                              type: string
+                            value:
+                              description: Value is the value to match
+                              type: string
+                          required:
+                          - type
+                          - value
+                          type: object
+                        type: array
+                    type: object
+                type: object
               patches:
                 description: Patches defines the JSON patches to be applied to the
                   pod
                 items:
                   properties:
+                    from:
+                      description: From defines the source path for move and copy
+                        operations
+                      type: string
                     op:
                       description: Op defines the operation to be performed
                       enum:
@@ -279,7 +521,6 @@ spec:
                   required:
                   - op
                   - path
-                  - value
                   type: object
                 type: array
               patchesV2:
@@ -314,7 +555,6 @@ spec:
                             description: Value defines the value to be patched
                             x-kubernetes-preserve-unknown-fields: true
                         required:
-                        - from
                         - op
                         - path
                         type: object
@@ -349,8 +589,6 @@ spec:
                     - preferred-spot
                     type: string
                 type: object
-            required:
-            - filter
             type: object
           status:
             description: PodMutationStatus defines the observed state of PodMutation
