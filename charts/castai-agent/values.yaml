@@ -180,6 +180,13 @@ containerSecurityContext:
     drop:
       - ALL
 
+startupProbe:
+  httpGet:
+    path: /healthz
+    port: healthz
+  failureThreshold: 30
+  periodSeconds: 10
+
 topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: kubernetes.io/hostname
