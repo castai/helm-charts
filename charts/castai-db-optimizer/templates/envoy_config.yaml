@@ -40,11 +40,6 @@ data:
       - name: "castai.cache_control"
         typed_config:
           "@type": type.googleapis.com/castai.cache_control.v1.CacheControlConfig
-      - name: "castai.cluster_control"
-        typed_config:
-          "@type": type.googleapis.com/castai.cluster_control.v1.ClusterControlConfig
-          path: /v1/dbo/cache-groups/{{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." }}/cache-configurations
-          hostname: {{ .Values.apiURL }}
       - name: "castai.grpc.services"
         typed_config:
           "@type": type.googleapis.com/castai.grpc.config.v1.Services
@@ -273,31 +268,6 @@ data:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
         {{- end }}
-
-        - name: {{ .Values.apiURL }}
-          type: LOGICAL_DNS
-          dns_lookup_family: {{ .Values.proxy.dnsLookupFamily }}
-          connect_timeout: 2s
-          load_assignment:
-            cluster_name: {{ .Values.apiURL }}
-            endpoints:
-              - lb_endpoints:
-                  - endpoint:
-                      address:
-                        socket_address:
-                          address: {{ .Values.apiURL }}
-                          port_value: 443
-
-          health_checks:
-            - timeout: 1s
-              interval: 5s
-              no_traffic_interval: 5s
-              unhealthy_threshold: 3
-              healthy_threshold: 1
-              custom_health_check:
-                name: "castai.cluster_control.health_check"
-                typed_config:
-                  "@type": type.googleapis.com/castai.cluster_control.v1.ClusterControlHealthCheck
 
           transport_socket:
             name: envoy.transport_sockets.tls
