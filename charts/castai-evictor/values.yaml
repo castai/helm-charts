@@ -215,6 +215,14 @@ containerSecurityContext:
     drop:
       - ALL
 
+
+startupProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  failureThreshold: 30
+  periodSeconds: 10
+
 # The referenced ConfigMap must provide the ClusterID in .data[<<.Values.clusterIdConfigMapKeyRef.key>>]
 clusterIdConfigMapKeyRef:
   # clusterIdConfigMapKeyRef.name -- name and of the config map with cluster id
