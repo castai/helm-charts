@@ -12,7 +12,6 @@ Cluster utilization defragmentation tool
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| KarpenterMode | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources. |
 | additionalEnv | object | `{}` | Used to set any additional environment variables. |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
@@ -43,6 +42,7 @@ Cluster utilization defragmentation tool
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
+| karpenterMode | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources. |
 | kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100}}` | Specifies Kubernetes client settings. |
 | kubernetesClient.rateLimiter.burst | int | `200` | Burst controls the maximum queries per second that the client is allowed to issue in a short burst. |
 | kubernetesClient.rateLimiter.qps | int | `100` | QPS or queries per second. Controls how many queries per second the client should be allowed to issue, not accounting for bursts. |
