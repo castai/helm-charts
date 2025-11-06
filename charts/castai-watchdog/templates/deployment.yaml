@@ -61,6 +61,26 @@ spec:
             {{- with .Values.additionalEnvs }}
               {{- toYaml . | nindent 12 }}
             {{- end }}
+            {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+            {{- if .Values.castai.clusterID }}
+            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
+            - name: CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "clusterID or clusterIdSecretKeyRef must be provided" .Values.castai.clusterIdSecretKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
+            {{- end }}
+            {{- if .Values.castai.organizationIdSecretKeyRef.name }}
+            {{- if .Values.castai.organizationID }}
+            {{- fail "organizationID and organizationIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
+            - name: ORGANIZATION_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "organizationID or organizationIdSecretKeyRef must be provided" .Values.castai.organizationIdSecretKeyRef.name }}
+                  key: {{ .Values.castai.organizationIdSecretKeyRef.key }}
+            {{- end }}
           envFrom:
             - secretRef:
                 {{- if .Values.castai.apiKey }}
@@ -68,8 +88,10 @@ spec:
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
                 name: {{ include "watchdog.fullname" . }}
+                {{- else if .Values.castai.apiKeySecretRef }}
+                name: {{ .Values.castai.apiKeySecretRef }}
                 {{- else }}
-                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                name: {{ include "watchdog.fullname" . }}
                 {{- end }}
             - configMapRef:
                 {{- if .Values.castai.configMapRef }}
@@ -136,4 +158,4 @@ spec:
       {{- with .Values.tolerations }}
       tolerations:
       {{- toYaml . | nindent 8 }}
-{{- end }}
+      {{- end }}
