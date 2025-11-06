@@ -62,7 +62,7 @@ CAST AI agent deployment chart.
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. |
-| startupProbe.failureThreshold | int | `40` |  |
+| startupProbe.failureThreshold | int | `30` |  |
 | startupProbe.httpGet.path | string | `"/healthz"` |  |
 | startupProbe.httpGet.port | string | `"healthz"` |  |
 | startupProbe.periodSeconds | int | `10` |  |
