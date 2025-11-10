@@ -269,16 +269,6 @@ data:
                     tls_maximum_protocol_version: TLSv1_3
         {{- end }}
 
-          transport_socket:
-            name: envoy.transport_sockets.tls
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
-              common_tls_context:
-                tls_params:
-                  tls_minimum_protocol_version: TLSv1_2
-                {{- include "proxy.tls.certificates" . | nindent 16 }}
-              sni: {{ .Values.apiURL }}
-
         - name: query_processor_service
           type: LOGICAL_DNS
           connect_timeout: 1s
