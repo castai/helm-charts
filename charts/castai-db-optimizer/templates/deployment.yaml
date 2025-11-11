@@ -335,7 +335,7 @@ spec:
             periodSeconds: 20
         {{- end }}
         {{- end }}
-        {{- if .Values.cloudSqlProxy.enabled }}
+        {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
         - name: cloud-sql-proxy
           image: "{{.Values.cloudSqlProxyImage.repository}}:{{ include "cloudSqlProxyImage" . }}"
           imagePullPolicy: {{ $.Values.cloudSqlProxyImage.pullPolicy }}
