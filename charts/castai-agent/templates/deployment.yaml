@@ -163,6 +163,10 @@ spec:
               name: healthz
             - containerPort: 9877
               name: metrics
+          {{- with .Values.startupProbe }}
+          startupProbe:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           readinessProbe:
             httpGet:
               port: healthz
