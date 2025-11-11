@@ -120,7 +120,7 @@ proxy:
     # -- Number of cache shards _must_ be power of 2
     cacheShards: 64
     # -- Maximum size of in-flight cache entries, _should_ be divisible by pendingShards
-    pendingSizeBytes: 134217728.  # 128 MiB
+    pendingSizeBytes: 134217728  # 128 MiB
     # -- Number of in-flight cache shards _must_ be power of 2
     pendingShards: 64
 
