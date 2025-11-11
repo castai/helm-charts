@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.49.3](https://img.shields.io/badge/Version-0.49.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.49.4](https://img.shields.io/badge/Version-0.49.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -65,7 +65,7 @@ CAST AI database cache deployment.
 | proxy.cache.cacheShards | int | `64` | Number of cache shards _must_ be power of 2 |
 | proxy.cache.cacheSizeBytes | int | `2147483648` | Maximum cache size in bytes, _should_ be divisible by cacheShards |
 | proxy.cache.pendingShards | int | `64` | Number of in-flight cache shards _must_ be power of 2 |
-| proxy.cache.pendingSizeBytes | float | `134217728` | Maximum size of in-flight cache entries, _should_ be divisible by pendingShards |
+| proxy.cache.pendingSizeBytes | int | `134217728` | Maximum size of in-flight cache entries, _should_ be divisible by pendingShards |
 | proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP. |
 | proxy.connectionLimits | object | `{"maxConnections":10000,"maxPendingRequests":1024,"maxRequests":1024,"maxRetries":3}` | Envoy upstream connection limits, numbers given are the envoy defaults. |
 | proxy.coredumpCollectionMode | string | `"None"` | Disable core dump collection by default |
