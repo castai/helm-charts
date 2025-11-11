@@ -82,7 +82,8 @@
                 "request": {
                   "method": "GET",
                   "path": "[concat(subscription().id, '/resourcegroups/', resourceGroup().name,  '/providers/Microsoft.ContainerService/managedClusters?api-version=2022-03-01')]"
-                }
+                },
+                "toolTip": "Retrieves available AKS clusters in the selected resource group"
               },
               {
                 "name": "existingClusterResourceName",
@@ -107,7 +108,8 @@
                 "request": {
                   "method": "GET",
                   "path": "[concat(subscription().id, '/providers/Microsoft.ContainerService/locations/', location(),  '/orchestrators?api-version=2019-04-01&resource-type=managedClusters')]"
-                }
+                },
+                "toolTip": "Retrieves available Kubernetes versions for the selected location"
               },
               {
                 "name": "newClusterResourceName",
