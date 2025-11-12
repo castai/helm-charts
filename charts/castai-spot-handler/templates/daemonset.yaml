@@ -59,34 +59,30 @@ spec:
                   fieldPath: spec.nodeName
             - name: API_URL
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+          {{- $clusterIdCount := 0 }}
+          {{- if .Values.castai.clusterID }}{{ $clusterIdCount = add1 $clusterIdCount }}{{ end }}
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}{{ $clusterIdCount = add1 $clusterIdCount }}{{ end }}
+          {{- if .Values.castai.clusterIdConfigMapKeyRef.name }}{{ $clusterIdCount = add1 $clusterIdCount }}{{ end }}
+          {{- if gt $clusterIdCount 1 }}
+            {{- fail "clusterID, clusterIdSecretKeyRef and clusterIdConfigMapKeyRef are mutually exclusive" }}
+          {{- end }}
           {{- if .Values.castai.clusterID }}
-            {{- if ne .Values.castai.clusterIdSecretKeyRef.name "" }}
-            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
-            {{- end }}
-            {{- if ne .Values.castai.clusterIdConfigMapKeyRef.name "" }}
-            {{- fail "clusterID and clusterIdConfigMapKeyRef are mutually exclusive" }}
-            {{- end }}
             - name: CLUSTER_ID
-              value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
-          {{- else }}
-            {{- if .Values.castai.clusterIdSecretKeyRef.name }}
-              {{- if .Values.castai.clusterIdConfigMapKeyRef.name }}
-              {{- fail "clusterIdSecretKeyRef and clusterIdConfigMapKeyRef are mutually exclusive" }}
-              {{- end }}
+              value: {{ .Values.castai.clusterID | quote }}
+          {{- else if .Values.castai.clusterIdSecretKeyRef.name }}
             - name: CLUSTER_ID
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
-            {{- else if .Values.castai.clusterIdConfigMapKeyRef.name }}
+          {{- else if .Values.castai.clusterIdConfigMapKeyRef.name }}
             - name: CLUSTER_ID
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.castai.clusterIdConfigMapKeyRef.name }}
                   key: {{ .Values.castai.clusterIdConfigMapKeyRef.key }}
-            {{- else if not .Values.envFrom}}
+          {{- else if not .Values.envFrom }}
             {{- fail "either clusterID, clusterIdSecretKeyRef or clusterIdConfigMapKeyRef must be provided" }}
-            {{- end }}
           {{- end }}
             - name: PROVIDER
               value: {{ required "castai.provider must be provided" .Values.castai.provider | quote }}
