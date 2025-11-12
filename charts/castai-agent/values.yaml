@@ -190,7 +190,7 @@ topologySpreadConstraints:
 
 metadataStore:
   # metadataStore.enabled -- specifies whether agent should store metadata in a config map
-  enabled: false
+  enabled: true
   # metadataStore.configMapName -- name of config map to store metadata
   configMapName: castai-agent-metadata
   # metadataStore.configMapName -- namespace of config map to store metadata
