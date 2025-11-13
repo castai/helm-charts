@@ -69,14 +69,17 @@ spec:
           {{- if .Values.castai.clusterID }}
             - name: CLUSTER_ID
               value: {{ .Values.castai.clusterID | quote }}
+              valueFrom: null
           {{- else if .Values.castai.clusterIdSecretKeyRef.name }}
             - name: CLUSTER_ID
+              value: null
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
           {{- else if .Values.castai.clusterIdConfigMapKeyRef.name }}
             - name: CLUSTER_ID
+              value: null
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.castai.clusterIdConfigMapKeyRef.name }}
