@@ -69,17 +69,17 @@ spec:
           {{- if .Values.castai.clusterID }}
             - name: CLUSTER_ID
               value: {{ .Values.castai.clusterID | quote }}
-              valueFrom: null // Works around https://github.com/helm/helm/issues/8994
+              valueFrom: null # Works around https://github.com/helm/helm/issues/8994
           {{- else if .Values.castai.clusterIdSecretKeyRef.name }}
             - name: CLUSTER_ID
-              value: null // Works around https://github.com/helm/helm/issues/8994
+              value: null # Works around https://github.com/helm/helm/issues/8994
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
           {{- else if .Values.castai.clusterIdConfigMapKeyRef.name }}
             - name: CLUSTER_ID
-              value: null // Works around https://github.com/helm/helm/issues/8994
+              value: null # Works around https://github.com/helm/helm/issues/8994
               valueFrom:
                 configMapKeyRef:
                   name: {{ .Values.castai.clusterIdConfigMapKeyRef.name }}
