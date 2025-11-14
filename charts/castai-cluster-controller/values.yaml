@@ -149,6 +149,13 @@ hostNetwork:
   # Enable host networking
   enabled: false
 
+startupProbe:
+  httpGet:
+    path: /healthz
+    port: http
+  failureThreshold: 30
+  periodSeconds: 10
+
 # dnsPolicy -- DNS Policy Override - Needed when using some custom CNI's.
 dnsPolicy: ""
 
