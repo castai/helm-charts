@@ -118,6 +118,10 @@ rules:
   - apiGroups: [ "pod-mutations.cast.ai" ]
     resources: [ "*" ]
     verbs: [ "get", "list", "watch", "patch", "create", "delete", "update" ]
+  # For getting node config by kvisor-collector
+  - apiGroups: [ "" ]
+    resources: [ "nodes/proxy" ]
+    verbs: [ "get" ]
 ---
 kind: Role
 apiVersion: rbac.authorization.k8s.io/v1
