@@ -18,10 +18,10 @@ data:
         typed_config:
           "@type": type.googleapis.com/castai.cache.cappuccino.v1.CappuccinoConfig
           stats_prefix: cache
-          max_cache_bytes: {{ .Values.proxy.cacheSizeBytes | default 2147483648 }}
-          cache_shards: {{ .Values.proxy.cacheShards | default 64 }}
-          max_pending_bytes: {{ .Values.proxy.pendingSizeBytes | default 134217728 }}
-          pending_shards: {{ .Values.proxy.pendingShards | default 64 }}
+          max_cache_bytes: {{ .Values.proxy.cache.cacheSizeBytes | default 2147483648 | int64 }}
+          cache_shards: {{ .Values.proxy.cache.cacheShards | default 64 | int }}
+          max_pending_bytes: {{ .Values.proxy.cache.pendingSizeBytes | default 134217728 | int64 }}
+          pending_shards: {{ .Values.proxy.cache.pendingShards | default 64 | int }}
       {{- else }}
       - name: "castai.cache.lmdb_cache"
         typed_config:
@@ -268,16 +268,6 @@ data:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
         {{- end }}
-
-          transport_socket:
-            name: envoy.transport_sockets.tls
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.transport_sockets.tls.v3.UpstreamTlsContext
-              common_tls_context:
-                tls_params:
-                  tls_minimum_protocol_version: TLSv1_2
-                {{- include "proxy.tls.certificates" . | nindent 16 }}
-              sni: {{ .Values.apiURL }}
 
         - name: query_processor_service
           type: LOGICAL_DNS

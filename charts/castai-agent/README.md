@@ -38,7 +38,7 @@ CAST AI agent deployment chart.
 | imagePullSecrets | list | `[]` | what secret should be used for pulling the image |
 | metadataStore.configMapName | string | `"castai-agent-metadata"` | namespace of config map to store metadata |
 | metadataStore.configMapNamespace | string | `"castai-agent"` |  |
-| metadataStore.enabled | bool | `false` | specifies whether agent should store metadata in a config map |
+| metadataStore.enabled | bool | `true` | specifies whether agent should store metadata in a config map |
 | monitor.resources.requests.cpu | string | `"100m"` |  |
 | monitor.resources.requests.memory | string | `"128Mi"` |  |
 | nameOverride | string | `""` |  |
