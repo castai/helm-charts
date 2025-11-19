@@ -34,7 +34,6 @@ rules:
     verbs:
       - get
       - list
-      - patch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -52,6 +51,46 @@ roleRef:
   name: castai-spot-handler
 subjects:
   - kind: ServiceAccount
-    name: castai-spot-handler
+    name: {{ .Values.serviceAccount.name }}
     namespace: {{ .Release.Namespace }}
+
+{{- if .Values.phase2Permissions }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: castai-spot-handler-phase2
+  labels:
+    {{- include "spot-handler.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "spot-handler.annotations" . | nindent 4 }}
+  {{- end }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: castai-spot-handler-phase2
+  labels:
+    {{- include "spot-handler.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "spot-handler.annotations" . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: castai-spot-handler-phase2
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.serviceAccount.name }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
 {{- end }}

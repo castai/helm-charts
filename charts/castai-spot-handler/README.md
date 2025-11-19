@@ -85,6 +85,7 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | podLabels | object | `{}` |  |
 | priorityClassName | string | `"system-cluster-critical"` |  |
 | rbac.enabled | bool | `true` |  |
+| rbac.phase2Permissions | bool | `true` |  |
 | resources.limits.memory | string | `"25Mi"` |  |
 | resources.requests.cpu | string | `"20m"` |  |
 | resources.requests.memory | string | `"25Mi"` |  |

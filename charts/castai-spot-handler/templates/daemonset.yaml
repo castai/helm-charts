@@ -89,6 +89,8 @@ spec:
           {{- end }}
             - name: PROVIDER
               value: {{ required "castai.provider must be provided" .Values.castai.provider | quote }}
+            - name: PHASE2_PERMISSIONS
+              value: {{ .Values.phase2Permissions | quote }}
             {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
