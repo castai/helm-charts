@@ -13,7 +13,6 @@ data:
       id: castai-router
 
     bootstrap_extensions:
-      {{- if .Values.proxy.experimentalCache | default false }}
       - name: "castai.cache.cappuccino"
         typed_config:
           "@type": type.googleapis.com/castai.cache.cappuccino.v1.CappuccinoConfig
@@ -22,21 +21,6 @@ data:
           cache_shards: {{ .Values.proxy.cache.cacheShards | default 64 | int }}
           max_pending_bytes: {{ .Values.proxy.cache.pendingSizeBytes | default 134217728 | int64 }}
           pending_shards: {{ .Values.proxy.cache.pendingShards | default 64 | int }}
-      {{- else }}
-      - name: "castai.cache.lmdb_cache"
-        typed_config:
-          "@type": type.googleapis.com/castai.cache.lmdb_cache.v1.LmdbCacheConfig
-          stats_prefix: cache
-          path: /data/cache
-          db_size_bytes: {{ .Values.resources.proxy.cacheDbSizeBytes | int }}
-          max_cache_entries: {{ .Values.resources.proxy.maxCacheEntries | int }}
-          eviction_threshold: {{ .Values.proxy.evictionThreshold | default 0.5 }}
-          stop_caching_threshold: {{ .Values.proxy.stopCachingThreshold | default 0.95 }}
-          write_batch_size: {{ .Values.proxy.writeBatchSize | default 100 }}
-          write_batch_delay_ms: {{ .Values.proxy.writeBatchDelayMs | default 100 }}
-          stats_thread_period_ms: {{ .Values.proxy.statsThreadPeriodMs | default 1000 }}
-          eviction_thread_period_ms: {{ .Values.proxy.evictionThreadPeriodMs | default 1000 }}
-      {{- end }}
       - name: "castai.cache_control"
         typed_config:
           "@type": type.googleapis.com/castai.cache_control.v1.CacheControlConfig

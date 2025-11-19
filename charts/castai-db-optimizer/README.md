@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.49.8](https://img.shields.io/badge/Version-0.49.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.50.0](https://img.shields.io/badge/Version-0.50.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -73,17 +73,10 @@ CAST AI database cache deployment.
 | proxy.dnsLookupFamily | string | `"V4_PREFERRED"` | DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead. |
 | proxy.drainPreHook | int | `2` | Predrain timeout in seconds. |
 | proxy.drainTimeSeconds | int | `60` | Default drain time in seconds. |
-| proxy.evictionThreadPeriodMs | int | `100` | The period of the evictions thread. |
-| proxy.evictionThreshold | float | `0.5` | Ratio of used available bytes or entries from which we start evicting. |
-| proxy.experimentalCache | bool | `false` | Enable experimental cache in dbo proxy. |
 | proxy.livenessProbeEnabled | bool | `true` | Ensure proxy is alive and healthy. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxy.networkDebug | bool | `false` | Extra network debug logging. |
-| proxy.statsThreadPeriodMs | int | `1000` | The period of the stats thread. |
-| proxy.stopCachingThreshold | float | `0.95` | Ratio of used available bytes or entries from which we stop caching. |
 | proxy.tlsSecretName | string | `nil` | Name of a Kubernetes TLS Secret that contains the key pair to use for configuring TLS in the proxy. If not set, defaults to using a built-in key pair. |
-| proxy.writeBatchDelayMs | int | `100` | The delay of one batch for writing. |
-| proxy.writeBatchSize | int | `100` | The size of one batch for writing. |
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
@@ -95,9 +88,7 @@ CAST AI database cache deployment.
 | queryProcessorImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/query-processor"` |  |
 | queryProcessorImage.tag | string | `""` |  |
 | replicas | int | `2` |  |
-| resources.proxy.cacheDbSizeBytes | int | `1000000000` | max allowed database size in disk. |
 | resources.proxy.cpu | string | `"500m"` |  |
-| resources.proxy.maxCacheEntries | int | `1000000000` | maximum number of entries to keep in the proxy. |
 | resources.proxy.memoryLimit | string | `"2Gi"` |  |
 | resources.proxy.memoryRequest | string | `"2Gi"` |  |
 | resources.queryProcessor.cpu | string | `"2"` |  |
