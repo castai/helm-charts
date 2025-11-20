@@ -76,8 +76,6 @@ endpoints:
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"
-  # -- Ensure proxy is alive and healthy.
-  livenessProbeEnabled: true
   # -- Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP.
   concurrency: 12
   # -- DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead.

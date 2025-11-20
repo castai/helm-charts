@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.49.8](https://img.shields.io/badge/Version-0.49.8-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.49.9-rc1](https://img.shields.io/badge/Version-0.49.9--rc1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -76,7 +76,6 @@ CAST AI database cache deployment.
 | proxy.evictionThreadPeriodMs | int | `100` | The period of the evictions thread. |
 | proxy.evictionThreshold | float | `0.5` | Ratio of used available bytes or entries from which we start evicting. |
 | proxy.experimentalCache | bool | `false` | Enable experimental cache in dbo proxy. |
-| proxy.livenessProbeEnabled | bool | `true` | Ensure proxy is alive and healthy. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxy.networkDebug | bool | `false` | Extra network debug logging. |
 | proxy.statsThreadPeriodMs | int | `1000` | The period of the stats thread. |

@@ -177,20 +177,6 @@ spec:
             - containerPort: {{$endpoint.port}}
               protocol: TCP
             {{- end }}
-          {{- if not (.Values.proxy.experimentalCache | default false) }}
-          {{ $livenessProbeEnabled := not (eq (toString .Values.proxy.livenessProbeEnabled) "false")}}
-          {{- if $livenessProbeEnabled  }}
-          livenessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - -c
-                - |-
-                  curl --silent localhost:9901/stats | grep 'cache.writer_blocked:' | awk '{print $2}' | grep -q '^0$'
-            initialDelaySeconds: 120
-            periodSeconds: 5
-          {{- end}}
-          {{- end}}
           {{- if eq .Values.proxy.coredumpCollectionMode "Full"}}
           securityContext:
             readOnlyRootFilesystem: false
