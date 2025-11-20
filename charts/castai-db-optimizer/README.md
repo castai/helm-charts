@@ -62,7 +62,7 @@ CAST AI database cache deployment.
 | pooling.username | string | `""` | Username for database authentication |
 | pooling.verifyServerCertificate | bool | `false` | Verify server certificate when using TLS |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
-| proxy.cache | object | `{"cacheShards":64,"cacheSizeBytes":2147483648,"pendingShards":64,"pendingSizeBytes":134217728}` | Enable experimental cache in dbo proxy. |
+| proxy.cache | object | `{"cacheShards":64,"cacheSizeBytes":2147483648,"pendingShards":64,"pendingSizeBytes":134217728}` | Cache configuration |
 | proxy.cache.cacheShards | int | `64` | Number of cache shards _must_ be power of 2 |
 | proxy.cache.cacheSizeBytes | int | `2147483648` | Maximum cache size in bytes, _should_ be divisible by cacheShards |
 | proxy.cache.pendingShards | int | `64` | Number of in-flight cache shards _must_ be power of 2 |
