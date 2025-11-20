@@ -63,6 +63,11 @@ useHostNetwork: true
 # updateStrategy -- Controls `daemonset.spec.updateStrategy` field.
 updateStrategy: {}
 
+# Phase 2 permissions enable node patching capabilities (taints, labels, unschedulable)
+# Phase 1 (false): Only monitoring and read permissions
+# Phase 2 (true): Include permissions for tainting nodes
+phase2Permissions: true
+
 resources:
   requests:
     cpu: 20m

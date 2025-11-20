@@ -81,6 +81,7 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | image.tag | string | `""` |  |
 | imagePullSecrets | object | `{}` | what secret should be used for pulling the image |
 | nodeSelector | object | `{}` |  |
+| phase2Permissions | bool | `true` |  |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
 | priorityClassName | string | `"system-cluster-critical"` |  |
