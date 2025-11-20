@@ -40,12 +40,6 @@ resources:
     cpu: "2"
     memory: "1Gi"
 
-# -- deprecated: Hostname of the upstream Postgres instance.
-upstreamPostgresHostname: ""
-# -- deprecated: Port of the upstream Postgres instance.
-upstreamPostgresPort: 5432
-
-
 # -- A list of upstream database endpoints
 endpoints:
   -

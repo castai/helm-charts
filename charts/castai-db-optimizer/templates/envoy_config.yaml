@@ -40,65 +40,6 @@ data:
 
     static_resources:
       listeners:
-        {{- if .Values.upstreamPostgresHostname}}
-        - name: castai_postgres_listener
-          address:
-            socket_address:
-              address: 0.0.0.0
-              port_value: 5432
-          filter_chains:
-            - filters:
-              {{- if .Values.proxy.networkDebug | default false }}
-                - name: castai.filters.dump
-                  typed_config:
-                    "@type": type.googleapis.com/castai.filters.dump.v1.Dump
-                    name: frontend
-              {{- end }}
-                - name: castai.filters.postgres
-                  typed_config:
-                    "@type": type.googleapis.com/castai.filters.postgres.v1.PostgresConfig
-              {{- if .Values.proxy.networkDebug | default false }}
-                - name: castai.filters.dump
-                  typed_config:
-                    "@type": type.googleapis.com/castai.filters.dump.v1.Dump
-                    name: backend
-              {{- end }}
-                - name: envoy.filters.network.tcp_proxy
-                  typed_config:
-                    "@type": type.googleapis.com/envoy.extensions.filters.network.tcp_proxy.v3.TcpProxy
-                    stat_prefix: tcp
-                    cluster: postgres_upstream
-                    idle_timeout: 0s
-              transport_socket:
-                name: envoy.transport_sockets.starttls
-                typed_config:
-                  "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.StartTlsConfig
-                  tls_socket_config:
-                    common_tls_context:
-                      {{- include "proxy.tls.certificates" . | nindent 22 }}
-          socket_options:
-            - description: "enable keep-alive"
-              level: 1 # means socket level options
-              name: 9 # means the keep-alive parameter
-              int_value: 1 # a nonzero value means "yes"
-              state: STATE_PREBIND
-            - description: "idle time before first keep-alive probe is sent"
-              level: 6 # IPPROTO_TCP
-              name: 4 # TCP_KEEPIDLE parameter - The time (in seconds) the connection needs to remain idle before TCP starts sending keepalive probes
-              int_value: 60 # seconds
-              state: STATE_PREBIND
-            - description: "keep-alive interval"
-              level: 6 # IPPROTO_TCP
-              name: 5 # the TCP_KEEPINTVL parameter - The time (in seconds) between individual keepalive probes.
-              int_value: 20 # seconds
-              state: STATE_PREBIND
-            - description: "keep-alive probes count"
-              level: 6 # IPPROTO_TCP
-              name: 6 # the TCP_KEEPCNT parameter - The maximum number of keepalive probes TCP should send before dropping the connection
-              int_value: 2 # number of failed probes
-              state: STATE_PREBIND
-        {{- end}}
-
         {{- range $index, $endpoint := .Values.endpoints}}
         - name: endpoint_listener_{{$index}}
           address:
@@ -169,39 +110,8 @@ data:
               int_value: 2 # number of failed probes
               state: STATE_PREBIND
         {{- end }}
-      clusters:
-        {{- if .Values.upstreamPostgresHostname}}
-        - name: postgres_upstream
-          type: LOGICAL_DNS
-          dns_lookup_family: ALL
-          connect_timeout: 1s
-          circuit_breakers:
-            thresholds:
-              - priority: DEFAULT
-                max_connections: {{ .Values.proxy.connectionLimits.maxConnections | default 10000 }}
-                max_pending_requests: {{ .Values.proxy.connectionLimits.maxPendingRequests | default 1024 }}
-                max_requests: {{ .Values.proxy.connectionLimits.maxRequests | default 1024 }}
-                max_retries: {{ .Values.proxy.connectionLimits.maxRetries | default 3 }}
-          load_assignment:
-            cluster_name: postgres_upstream
-            endpoints:
-              - lb_endpoints:
-                  - endpoint:
-                      address:
-                        socket_address:
-                          address: {{ required "upstreamPostgresHostname must be provided" .Values.upstreamPostgresHostname }}
-                          port_value: {{ .Values.upstreamPostgresPort | default 5432 }}
-          transport_socket:
-            name: envoy.transport_sockets.start_tls
-            typed_config:
-              "@type": type.googleapis.com/envoy.extensions.transport_sockets.starttls.v3.UpstreamStartTlsConfig
-              tls_socket_config:
-                sni: {{ required "upstreamPostgresHostname must be provided" .Values.upstreamPostgresHostname }}
-                common_tls_context:
-                  tls_params:
-                    tls_maximum_protocol_version: TLSv1_3
-        {{- end }}
 
+      clusters:
         {{- range $index, $endpoint := .Values.endpoints}}
         - name: endpoint_upstream_{{ $index }}
           type: {{ if $endpoint.serviceDiscovery }}{{ default "LOGICAL_DNS" $endpoint.serviceDiscovery.type }}{{ else }}LOGICAL_DNS{{ end }}

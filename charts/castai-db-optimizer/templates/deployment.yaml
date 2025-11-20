@@ -167,12 +167,6 @@ spec:
               exec:
                 command: ["sleep", {{ .Values.proxy.drainPreHook | default 10 | quote }} ]
           ports:
-            {{- if .Values.upstreamPostgresHostname }}
-            - name: postgres
-              containerPort: 5432
-              protocol: TCP
-            {{- end }}
-
             {{- range $index, $endpoint := .Values.endpoints}}
             - containerPort: {{$endpoint.port}}
               protocol: TCP
