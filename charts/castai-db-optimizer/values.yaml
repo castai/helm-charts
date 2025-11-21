@@ -36,19 +36,9 @@ resources:
     cpu: "500m"
     memoryRequest: "2Gi"
     memoryLimit: "2Gi"
-    # -- max allowed database size in disk.
-    cacheDbSizeBytes: 1000000000
-    # -- maximum number of entries to keep in the proxy.
-    maxCacheEntries: 1000000000
   queryProcessor:
     cpu: "2"
     memory: "1Gi"
-
-# -- deprecated: Hostname of the upstream Postgres instance.
-upstreamPostgresHostname: ""
-# -- deprecated: Port of the upstream Postgres instance.
-upstreamPostgresPort: 5432
-
 
 # -- A list of upstream database endpoints
 endpoints:
@@ -76,8 +66,6 @@ endpoints:
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"
-  # -- Ensure proxy is alive and healthy.
-  livenessProbeEnabled: true
   # -- Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP.
   concurrency: 12
   # -- DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead.
@@ -92,18 +80,6 @@ proxy:
   networkDebug: false
   # -- Name of a Kubernetes TLS Secret that contains the key pair to use for configuring TLS in the proxy. If not set, defaults to using a built-in key pair.
   tlsSecretName:
-  # -- Ratio of used available bytes or entries from which we start evicting.
-  evictionThreshold: 0.5
-  # -- Ratio of used available bytes or entries from which we stop caching.
-  stopCachingThreshold: 0.95
-  # -- The size of one batch for writing.
-  writeBatchSize: 100
-  # -- The delay of one batch for writing.
-  writeBatchDelayMs: 100
-  # -- The period of the stats thread.
-  statsThreadPeriodMs: 1000
-  # -- The period of the evictions thread.
-  evictionThreadPeriodMs: 100
   # -- Envoy upstream connection limits, numbers given are the envoy defaults.
   connectionLimits:
     maxConnections: 10000          # Maximum number of connections per instance.
@@ -112,9 +88,8 @@ proxy:
     maxRetries: 3                  # Maximum parallel retries
   # -- Disable core dump collection by default
   coredumpCollectionMode: "None"
-  # -- Enable experimental cache in dbo proxy.
-  experimentalCache: false
-  cache:                          # Currently only used if experimentalCache is true
+  # -- Cache configuration
+  cache:
     # -- Maximum cache size in bytes, _should_ be divisible by cacheShards
     cacheSizeBytes: 2147483648    # 2 GiB
     # -- Number of cache shards _must_ be power of 2
