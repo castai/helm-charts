@@ -65,6 +65,7 @@ spec:
             - "--trust-remote-code"
             {{- if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
+            {{- end }}
             {{- if .Values.maxNumSeqs }}
             - "--max-num-seqs={{ .Values.maxNumSeqs }}"
             {{- end }}
