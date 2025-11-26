@@ -39,7 +39,9 @@ if match:
     print(f"Current appVersion: {current_app_version}")
 
     if current_app_version != release_tag:
-        updated_yaml = re.sub(r"(appVersion:\s*).+", f'\\g<1>"{release_tag}"', updated_yaml)
+        updated_yaml = re.sub(
+            r"(appVersion:\s*).+", f'\\g<1>"{release_tag}"', updated_yaml
+        )
         print(f'Updated appVersion: "{release_tag}"')
     else:
         print(f"appVersion already matches: {release_tag}")
