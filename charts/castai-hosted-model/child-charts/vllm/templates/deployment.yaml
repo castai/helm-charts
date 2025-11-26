@@ -65,6 +65,8 @@ spec:
             - "--trust-remote-code"
             {{- if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
+            {{- if .Values.maxNumSeqs }}
+            - "--max-num-seqs={{ .Values.maxNumSeqs }}"
             {{- end }}
             - "--task={{ required "Required value 'task' must be defined" .Values.task }}"
             - "--dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }}"
