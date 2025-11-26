@@ -18,27 +18,37 @@ with open(chart_yaml_path, "r") as chart_file:
 
 updated_yaml = chart_yaml
 
-# Update version to match release tag
-match = re.search(r"version:\s*(.+)", chart_yaml)
-if match:
-    current_version = match.group(1)
-    print(f"Current version: {current_version}")
+# Update version to match release tag (case-insensitive, but not apiVersion)
+match = re.search(r"^version:\s*(.+)$", chart_yaml, re.IGNORECASE | re.MULTILINE)
+if not match:
+    raise Exception(f"No 'version' field found in {chart_yaml_path}")
 
-    if current_version != new_version:
-        updated_yaml = re.sub(r"(version:\s*).+", f"\\g<1>{new_version}", updated_yaml)
-        print(f"Updated version: {new_version}")
-    else:
-        print(f"Version already matches: {new_version}")
+current_version = match.group(1)
+print(f"Current version: {current_version}")
 
-# Update appVersion to match release tag
-match = re.search(r"appVersion:\s*(.+)", chart_yaml)
+if current_version != new_version:
+    updated_yaml = re.sub(
+        r"^(version:\s*).+$",
+        f"\\g<1>{new_version}",
+        updated_yaml,
+        flags=re.IGNORECASE | re.MULTILINE,
+    )
+    print(f"Updated version: {new_version}")
+else:
+    print(f"Version already matches: {new_version}")
+
+# Update appVersion to match release tag (case-insensitive)
+match = re.search(r"appVersion:\s*(.+)", chart_yaml, re.IGNORECASE)
 if match:
     current_app_version = match.group(1).strip('"')
     print(f"Current appVersion: {current_app_version}")
 
     if current_app_version != release_tag:
         updated_yaml = re.sub(
-            r"(appVersion:\s*).+", f'\\g<1>"{release_tag}"', updated_yaml
+            r"(appVersion:\s*).+",
+            f'\\g<1>"{release_tag}"',
+            updated_yaml,
+            flags=re.IGNORECASE,
         )
         print(f'Updated appVersion: "{release_tag}"')
     else:
