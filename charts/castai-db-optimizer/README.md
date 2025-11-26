@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.49.9-rc2](https://img.shields.io/badge/Version-0.49.9--rc2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.50.0](https://img.shields.io/badge/Version-0.50.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -93,6 +93,7 @@ CAST AI database cache deployment.
 | resources.proxy.memoryRequest | string | `"2Gi"` |  |
 | resources.queryProcessor.cpu | string | `"2"` |  |
 | resources.queryProcessor.memory | string | `"1Gi"` |  |
+| service.trafficDistribution | string | `""` | Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+. Ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-distribution |
 | serviceAccountName | string | `""` | The name of the service account to be used by the pod. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/ |
 | tolerations | object | `{}` | Pod toleration rules. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |
 

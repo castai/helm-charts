@@ -50,6 +50,9 @@ commonLabels:
 commonAnnotations:
   commonAnnotation: annotation
 
+service:
+  trafficDistribution: "PreferClose"
+
 # Test pooling configuration with individual username/password
 pooling:
   enabled: false

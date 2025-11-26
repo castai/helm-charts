@@ -7,6 +7,9 @@ metadata:
   annotations:
     {{- include "annotations" . | nindent 4 }}
 spec:
+  {{- with .Values.service.trafficDistribution }}
+  trafficDistribution: {{ . }}
+  {{- end }}
   ports:
     {{- range $index, $endpoint := .Values.endpoints}}
     {{- if empty $endpoint.name }}
@@ -47,6 +50,9 @@ metadata:
   annotations:
     {{- include "annotations" $ | nindent 4 }}
 spec:
+  {{- with $.Values.service.trafficDistribution }}
+  trafficDistribution: {{ . }}
+  {{- end }}
   ports:
     - name: endpoint
       port: {{$endpoint.servicePort}} # exposed service port ->
