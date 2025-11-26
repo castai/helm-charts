@@ -66,6 +66,9 @@ spec:
             {{- if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
             {{- end }}
+            {{- if .Values.maxNumSeqs }}
+            - "--max-num-seqs={{ .Values.maxNumSeqs }}"
+            {{- end }}
             - "--task={{ required "Required value 'task' must be defined" .Values.task }}"
             - "--dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }}"
             - "--kv-cache-dtype={{ required "Required value 'kvCacheDtype' must be defined" .Values.kvCacheDtype }}"
