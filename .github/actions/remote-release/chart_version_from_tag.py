@@ -11,7 +11,7 @@ chart_yaml_path = sys.argv[1]
 release_tag = sys.argv[2]
 
 # Extract version from tag (v0.1.2 -> 0.1.2)
-new_version = release_tag.lstrip('v')
+new_version = release_tag.lstrip("v")
 
 with open(chart_yaml_path, "r") as chart_file:
     chart_yaml = chart_file.read()
@@ -25,7 +25,7 @@ if match:
     print(f"Current version: {current_version}")
 
     if current_version != new_version:
-        updated_yaml = re.sub(r"(version:\s*).+", f"\g<1>{new_version}", updated_yaml)
+        updated_yaml = re.sub(r"(version:\s*).+", f"\\g<1>{new_version}", updated_yaml)
         print(f"Updated version: {new_version}")
     else:
         print(f"Version already matches: {new_version}")
