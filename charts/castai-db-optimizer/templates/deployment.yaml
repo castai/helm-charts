@@ -148,9 +148,9 @@ spec:
           resources:
             requests:
               cpu: {{ .Values.resources.queryProcessor.cpu }}
-              memory: {{ .Values.resources.queryProcessor.memory }}
+              memory: {{ coalesce .Values.resources.queryProcessor.memoryRequest .Values.resources.queryProcessor.memory }}
             limits:
-              memory: {{ .Values.resources.queryProcessor.memory }}
+              memory: {{ coalesce .Values.resources.queryProcessor.memoryLimit .Values.resources.queryProcessor.memory }}
         - name: proxy
           image: "{{.Values.proxyImage.repository}}:{{ include "proxyImage" . }}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
