@@ -31,36 +31,8 @@ CAST AI database cache deployment.
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
-| pgcatImage.pullPolicy | string | `"IfNotPresent"` |  |
-| pgcatImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-pooling-pgcat"` |  |
-| pgcatImage.tag | string | `"v1.2.0-embedded-ssl"` |  |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
-| pooling.banTime | int | `60` | Ban time in seconds |
-| pooling.connectTimeout | int | `1000` | Connect timeout in milliseconds |
-| pooling.credentialsSecretRef | string | `""` | Name of secret with username for database authentication |
-| pooling.databases | list | `[]` | List of database names to create pools for (required when pooling is enabled) |
-| pooling.defaultRole | string | `"any"` | Default role (any, primary, replica) |
-| pooling.enabled | bool | `false` | Enable connection pooling sidecar. |
-| pooling.healthcheckDelay | int | `30000` | Health check delay in milliseconds |
-| pooling.healthcheckTimeout | int | `1000` | Health check timeout in milliseconds |
-| pooling.idleTimeout | int | `30000` | Idle timeout in milliseconds |
-| pooling.listenAddress | string | `"0.0.0.0"` | Listen address for PgCat |
-| pooling.loadBalancingMode | string | `"random"` | Load balancing mode (random or loc) |
-| pooling.logClientConnections | bool | `false` | Log client connections |
-| pooling.logClientDisconnections | bool | `false` | Log client disconnections |
-| pooling.logLevel | string | `"info"` | Pooling log level, must be one of error, warn, info, debug, trace, off |
-| pooling.minPoolSize | int | `5` | Minimum pool size per user |
-| pooling.password | string | `""` | Password for database authentication |
-| pooling.poolMode | string | `"transaction"` | Pool mode (session or transaction) |
-| pooling.poolSize | int | `20` | Maximum pool size per user |
-| pooling.preparedStatementsCacheSize | int | `1000` | Size of prepared statements cache |
-| pooling.serverLifetime | int | `86400000` | Server lifetime in milliseconds |
-| pooling.serverTLS | bool | `true` | Enable TLS for server connections |
-| pooling.tlsCertificateFilePath | string | `""` | Path to TLS certificate for server connections (PEM format) |
-| pooling.tlsPrivateKeyFilePath | string | `""` | Path to TLS private key for server connections (PEM format) |
-| pooling.username | string | `""` | Username for database authentication |
-| pooling.verifyServerCertificate | bool | `false` | Verify server certificate when using TLS |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
 | proxy.cache | object | `{"cacheShards":64,"cacheSizeBytes":2147483648,"pendingShards":64,"pendingSizeBytes":134217728}` | Cache configuration |
 | proxy.cache.cacheShards | int | `64` | Number of cache shards _must_ be power of 2 |

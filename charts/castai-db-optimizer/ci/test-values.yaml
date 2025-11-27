@@ -52,18 +52,3 @@ commonAnnotations:
 
 service:
   trafficDistribution: "PreferClose"
-
-# Test pooling configuration with individual username/password
-pooling:
-  enabled: false
-  username: ""
-  password: ""
-  poolSize: 25
-  minPoolSize: 3
-  poolMode: "transaction"
-  loadBalancingMode: "random"
-  defaultRole: "primary"
-  connectTimeout: 2000
-  idleTimeout: 45000
-  healthcheckTimeout: 2000
-  logClientConnections: false
