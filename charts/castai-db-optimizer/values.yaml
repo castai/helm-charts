@@ -44,7 +44,8 @@ resources:
     memoryLimit: "2Gi"
   queryProcessor:
     cpu: "2"
-    memory: "1Gi"
+    memoryRequest: "1Gi"
+    memoryLimit: "1Gi"
 
 # -- A list of upstream database endpoints
 endpoints:
