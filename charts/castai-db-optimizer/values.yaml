@@ -19,6 +19,12 @@ cacheGroupID: ""
 # protocol -- Specifies database protocol to be used for communication and query parsing.
 protocol: "PostgreSQL"
 
+service:
+  # -- Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic.
+  # Requires Kubernetes 1.31+.
+  # Ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-distribution
+  trafficDistribution: ""
+
 # commonLabels -- Labels to add to all resources.
 commonLabels: {}
 
