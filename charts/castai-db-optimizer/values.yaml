@@ -109,58 +109,6 @@ queryProcessor:
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
 
-pooling:
-  # -- Enable connection pooling sidecar.
-  enabled: false
-  # -- Pooling log level, must be one of error, warn, info, debug, trace, off
-  logLevel: "info"
-  # -- List of database names to create pools for (required when pooling is enabled)
-  databases: []
-  # -- Listen address for PgCat
-  listenAddress: "0.0.0.0"
-  # -- Pool mode (session or transaction)
-  poolMode: "transaction"
-  # -- Load balancing mode (random or loc)
-  loadBalancingMode: "random"
-  # -- Default role (any, primary, replica)
-  defaultRole: "any"
-  # -- Maximum pool size per user
-  poolSize: 20
-  # -- Minimum pool size per user
-  minPoolSize: 5
-  # -- Connect timeout in milliseconds
-  connectTimeout: 1000
-  # -- Idle timeout in milliseconds
-  idleTimeout: 30000
-  # -- Server lifetime in milliseconds
-  serverLifetime: 86400000
-  # -- Enable TLS for server connections
-  serverTLS: true
-  # -- Verify server certificate when using TLS
-  verifyServerCertificate: false
-  # -- Path to TLS certificate for server connections (PEM format)
-  tlsCertificateFilePath: ""
-  # -- Path to TLS private key for server connections (PEM format)
-  tlsPrivateKeyFilePath: ""
-  # -- Health check timeout in milliseconds
-  healthcheckTimeout: 1000
-  # -- Health check delay in milliseconds
-  healthcheckDelay: 30000
-  # -- Ban time in seconds
-  banTime: 60
-  # -- Log client connections
-  logClientConnections: false
-  # -- Log client disconnections
-  logClientDisconnections: false
-  # -- Username for database authentication
-  username: ""
-  # -- Password for database authentication
-  password: ""
-  # -- Name of secret with username for database authentication
-  credentialsSecretRef: ""
-  # -- Size of prepared statements cache
-  preparedStatementsCacheSize: 1000
-
 cloudSqlProxy:
   # -- Enable Cloud SQL Proxy sidecar
   enabled: false
@@ -185,11 +133,6 @@ cloudSqlProxyImage:
   repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
-
-pgcatImage:
-  repository: us-docker.pkg.dev/castai-hub/library/dbo-pooling-pgcat
-  pullPolicy: IfNotPresent
-  tag: "v1.2.0-embedded-ssl"
 
 # -- The name of the service account to be used by the pod.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
