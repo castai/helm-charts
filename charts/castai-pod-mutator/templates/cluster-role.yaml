@@ -12,6 +12,7 @@ rules:
       - admissionregistration.k8s.io
     resources:
       - mutatingwebhookconfigurations
+      - validatingwebhookconfigurations
     verbs:
       - list
       - watch
@@ -21,6 +22,16 @@ rules:
       - {{ include "pod-mutator.webhookName" . }}
     resources:
       - mutatingwebhookconfigurations
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resourceNames:
+      - vpodmutation.cast.ai
+    resources:
+      - validatingwebhookconfigurations
     verbs:
       - get
       - patch
