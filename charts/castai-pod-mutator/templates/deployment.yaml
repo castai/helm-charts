@@ -45,6 +45,10 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - name: health
+              containerPort: {{ .Values.healthProbePort }}
+              protocol: TCP
           env:
             - name: POD_NAMESPACE
               valueFrom:
