@@ -237,3 +237,7 @@ affinity:
               operator: In
               values:
                 - cast.ai
+
+# -- Pod topology spread constraints.
+# Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+topologySpreadConstraints: []
