@@ -33,6 +33,10 @@ inputs:
   release-tag:
     description: "Release tag to be used. If not provided, the tag will be taken from the GITHUB_REF"
     required: false
+  chart-version-from-tag:
+    description: "If true, set chart version from release tag instead of auto-incrementing patch. Default: false (backwards compatible)"
+    required: false
+    default: "false"
 
 outputs: {}
 
@@ -83,7 +87,11 @@ runs:
     - name: Bump chart version
       shell: bash
       run: |
-        python ${{ github.action_path }}/bump_chart.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+        if [ "${{ inputs.chart-version-from-tag }}" == "true" ]; then
+          python ${{ github.action_path }}/chart_version_from_tag.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+        else
+          python ${{ github.action_path }}/bump_chart.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+        fi
 
     - name: Parse Chart.yaml
       id: parse-chart

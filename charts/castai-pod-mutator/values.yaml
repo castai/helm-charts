@@ -46,6 +46,9 @@ podLabels: {}
 # -- Used to set additional environment variables for the pod-mutator container.
 additionalEnv: {}
 
+# healthProbePort -- Port for liveness and readiness probes
+healthProbePort: 8081
+
 priorityClass:
   enabled: true
   name: system-cluster-critical

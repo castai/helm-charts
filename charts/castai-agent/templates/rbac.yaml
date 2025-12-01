@@ -183,6 +183,14 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - "autoscaling.cast.ai"
+    resources:
+      - custommetricsexporterconfigs
+    verbs:
+      - get
+      - list
+      - watch
   - nonResourceURLs:
       - "/version"
     verbs:

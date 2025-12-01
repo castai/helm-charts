@@ -21,7 +21,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ cat (include (print $.Template.BasePath "/envoy_config.yaml") .) (include (print $.Template.BasePath "/pgcat-config.yaml") .) | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/envoy_config.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -66,14 +66,6 @@ spec:
         - name: tls
           secret:
             secretName: {{ .Values.proxy.tlsSecretName }}
-        {{- end }}
-        {{- if and .Values.pooling .Values.pooling.enabled }}
-        {{- range $index, $endpoint := .Values.endpoints }}
-        {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
-        - name: pgcat-config-{{ $endpointName }}
-          configMap:
-            name: {{ include "name" $ }}-pgcat-config-{{ $endpointName }}
-        {{- end }}
         {{- end }}
       containers:
         - name: query-processor
@@ -160,9 +152,9 @@ spec:
           resources:
             requests:
               cpu: {{ .Values.resources.queryProcessor.cpu }}
-              memory: {{ .Values.resources.queryProcessor.memory }}
+              memory: {{ coalesce .Values.resources.queryProcessor.memory .Values.resources.queryProcessor.memoryRequest }}
             limits:
-              memory: {{ .Values.resources.queryProcessor.memory }}
+              memory: {{ coalesce .Values.resources.queryProcessor.memory .Values.resources.queryProcessor.memoryLimit }}
         - name: proxy
           image: "{{.Values.proxyImage.repository}}:{{ include "proxyImage" . }}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
@@ -246,79 +238,6 @@ spec:
               mountPath: "/etc/tls"
               readOnly: true
             {{- end }}
-        {{- if and .Values.pooling .Values.pooling.enabled }}
-        {{- range $index, $endpoint := .Values.endpoints }}
-        {{- $endpointName := $endpoint.name | default (printf "endpoint-%d" $index) }}
-        {{- $portName := printf "pool-%s" $endpointName | trunc 15 }}
-        - name: pool-{{ $endpointName }}
-          image: {{ $.Values.pgcatImage.repository }}:{{ $.Values.pgcatImage.tag }}
-          imagePullPolicy: {{ $.Values.pgcatImage.pullPolicy }}
-          command:
-            - /bin/sh
-            - -c
-            - |
-              mkdir -p /tmp/pgcat
-              sed -e "s|\${PGCAT_USERNAME}|$PGCAT_USERNAME|g" -e "s|\${PGCAT_PASSWORD}|$PGCAT_PASSWORD|g" /etc/pgcat/pgcat.toml > /tmp/pgcat/pgcat.toml.subst
-              exec pgcat /tmp/pgcat/pgcat.toml.subst
-          ports:
-            - name: {{ $portName }}
-              containerPort: {{ add $endpoint.port 100 }}
-              protocol: TCP
-          env:
-          {{- if $.Values.pooling.credentialsSecretRef }}
-          - name: LOG_LEVEL
-            value: {{ $.Values.pooling.logLevel | default "info" }}
-          - name: PGCAT_USERNAME
-            valueFrom:
-              secretKeyRef:
-                name: {{ $.Values.pooling.credentialsSecretRef }}
-                key: username
-          - name: PGCAT_PASSWORD
-            valueFrom:
-              secretKeyRef:
-                name: {{ $.Values.pooling.credentialsSecretRef }}
-                key: password
-          {{- else }}
-          - name: PGCAT_USERNAME
-            value: "{{ $.Values.pooling.username }}"
-          - name: PGCAT_PASSWORD
-            value: "{{ $.Values.pooling.password }}"
-          {{- end }}
-          - name: ENDPOINT_PORT
-            value: "{{ add $endpoint.port 100 }}"
-          - name: ENDPOINT_HOSTNAME
-            value: "{{ $endpoint.hostname }}"
-          - name: ENDPOINT_TARGET_PORT
-            value: "{{ $endpoint.targetPort }}"
-          securityContext:
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 1001
-          volumeMounts:
-            - name: pgcat-config-{{ $endpointName }}
-              mountPath: /etc/pgcat/pgcat.toml
-              subPath: pgcat.toml
-            - name: temp-storage
-              mountPath: /tmp
-          resources:
-            requests:
-              memory: 128Mi
-              cpu: 100m
-          readinessProbe:
-            tcpSocket:
-              port: {{ add $endpoint.port 100 }}
-            initialDelaySeconds: 5
-            periodSeconds: 10
-          livenessProbe:
-            tcpSocket:
-              port: {{ add $endpoint.port 100 }}
-            initialDelaySeconds: 15
-            periodSeconds: 20
-        {{- end }}
-        {{- end }}
         {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
         - name: cloud-sql-proxy
           image: "{{.Values.cloudSqlProxyImage.repository}}:{{ include "cloudSqlProxyImage" . }}"
