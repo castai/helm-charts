@@ -84,6 +84,9 @@ spec:
             {{- if .Values.toolCallParser }}
             - "--tool-call-parser={{ .Values.toolCallParser }}"
             {{- end }}
+            {{- if .Values.reasoningParser }}
+            - "--reasoning-parser={{ .Values.reasoningParser }}"
+            {{- end }}
             - "--download-dir=/models"
             {{- if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"
@@ -100,7 +103,7 @@ spec:
             - "--show-hidden-metrics-for-version=0.10" # temp fix because AIBrix controller still uses the deprecated metrics
           env:
             - name: VLLM_IMAGE_FETCH_TIMEOUT # MM Models
-              value: "20"
+              value: "60"
             - name: HF_HOME # Otherwise transformers will not respect download dir in vLLM
               value: /models
             - name: LD_LIBRARY_PATH
