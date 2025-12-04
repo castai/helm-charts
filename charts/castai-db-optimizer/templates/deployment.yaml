@@ -193,7 +193,19 @@ spec:
             - "25000"
             - --enable-core-dump
             - --concurrency
+            {{- if gt (int .Values.proxy.concurrency) 0 }}
             - "{{ .Values.proxy.concurrency }}"
+            {{- else }}
+            {{- /* 1 worker per CPU or part thereof */ -}}
+            {{- $cpu := .Values.resources.proxy.cpu -}}
+            {{- $cpuCores := 0.0 -}}
+            {{- if hasSuffix "m" $cpu -}}
+              {{- $cpuCores = divf (float64 (trimSuffix "m" $cpu)) 1000.0 -}}
+            {{- else -}}
+              {{- $cpuCores = float64 $cpu -}}
+            {{- end -}}
+            - "{{ int (ceil $cpuCores) }}"
+            {{- end }}
             - --drain-strategy
             - immediate
             - --parent-shutdown-time-s

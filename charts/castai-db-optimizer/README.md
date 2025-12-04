@@ -34,12 +34,12 @@ CAST AI database cache deployment.
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
-| proxy.cache | object | `{"cacheShards":64,"cacheSizeBytes":2147483648,"pendingShards":64,"pendingSizeBytes":134217728}` | Cache configuration |
-| proxy.cache.cacheShards | int | `64` | Number of cache shards _must_ be power of 2 |
+| proxy.cache | object | `{"cacheShards":0,"cacheSizeBytes":2147483648,"pendingShards":0,"pendingSizeBytes":134217728}` | Cache configuration |
+| proxy.cache.cacheShards | int | `0` | Number of cache shards _must_ be power of 2. Use 0 to auto-calculate based on concurrency. |
 | proxy.cache.cacheSizeBytes | int | `2147483648` | Maximum cache size in bytes, _should_ be divisible by cacheShards |
-| proxy.cache.pendingShards | int | `64` | Number of in-flight cache shards _must_ be power of 2 |
+| proxy.cache.pendingShards | int | `0` | Number of in-flight cache shards _must_ be power of 2.  Use 0 to auto-calculate based on concurrency. |
 | proxy.cache.pendingSizeBytes | int | `134217728` | Maximum size of in-flight cache entries, _should_ be divisible by pendingShards |
-| proxy.concurrency | int | `12` | Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP. |
+| proxy.concurrency | int | `0` | Number of parallel processing streams. Use 0 to auto-calculate based on CPU limits. |
 | proxy.connectionLimits | object | `{"maxConnections":10000,"maxPendingRequests":1024,"maxRequests":1024,"maxRetries":3}` | Envoy upstream connection limits, numbers given are the envoy defaults. |
 | proxy.coredumpCollectionMode | string | `"None"` | Disable core dump collection by default |
 | proxy.dataStorageMedium | string | `"Memory"` | Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk |
