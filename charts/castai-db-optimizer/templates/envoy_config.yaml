@@ -45,7 +45,7 @@ data:
 
           {{- /* Use explicit values if set, otherwise use calculated default */ -}}
           {{- $cacheShards := gt (int .Values.proxy.cache.cacheShards) 0 | ternary .Values.proxy.cache.cacheShards $defaultShards -}}
-          {{- $pendingShards := gt (int .Values.proxy.cache.pendingShards) 0 | ternary .Values.proxy.cache.pendingShards $defaultShards -}}
+          {{- $pendingShards := gt (int .Values.proxy.cache.pendingShards) 0 | ternary .Values.proxy.cache.pendingShards $defaultShards }}
           cache_shards: {{ $cacheShards }}
           pending_shards: {{ $pendingShards }}
       - name: "castai.cache_control"
