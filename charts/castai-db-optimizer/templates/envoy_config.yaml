@@ -19,35 +19,8 @@ data:
           stats_prefix: cache
           max_cache_bytes: {{ .Values.proxy.cache.cacheSizeBytes | default 2147483648 | int64 }}
           max_pending_bytes: {{ .Values.proxy.cache.pendingSizeBytes | default 134217728 | int64 }}
-          {{- /* Calculate base concurrency as derived from CPU */ -}}
-          {{- $concurrency := 0 -}}
-          {{- if gt (int .Values.proxy.concurrency) 0 -}}
-            {{- $concurrency = int .Values.proxy.concurrency -}}
-          {{- else -}}
-            {{- $cpu := .Values.resources.proxy.cpu -}}
-            {{- $cpuCores := 0.0 -}}
-            {{- if hasSuffix "m" $cpu -}}
-              {{- $cpuCores = divf (float64 (trimSuffix "m" $cpu)) 1000.0 -}}
-            {{- else -}}
-              {{- $cpuCores = float64 $cpu -}}
-            {{- end -}}
-            {{- $concurrency = int (ceil $cpuCores) -}}
-          {{- end -}}
-
-          {{- /* Calculate default shards: smallest power of 2 >= concurrency */ -}}
-          {{- $defaultShards := 1 -}}
-          {{- if gt $concurrency 1 }}{{- $defaultShards = 2 -}}{{- end -}}
-          {{- if gt $concurrency 2 }}{{- $defaultShards = 4 -}}{{- end -}}
-          {{- if gt $concurrency 4 }}{{- $defaultShards = 8 -}}{{- end -}}
-          {{- if gt $concurrency 8 }}{{- $defaultShards = 16 -}}{{- end -}}
-          {{- if gt $concurrency 16 }}{{- $defaultShards = 32 -}}{{- end -}}
-          {{- if gt $concurrency 32 }}{{- $defaultShards = 64 -}}{{- end -}}
-
-          {{- /* Use explicit values if set, otherwise use calculated default */ -}}
-          {{- $cacheShards := gt (int .Values.proxy.cache.cacheShards) 0 | ternary .Values.proxy.cache.cacheShards $defaultShards -}}
-          {{- $pendingShards := gt (int .Values.proxy.cache.pendingShards) 0 | ternary .Values.proxy.cache.pendingShards $defaultShards }}
-          cache_shards: {{ $cacheShards }}
-          pending_shards: {{ $pendingShards }}
+          cache_shards: {{ .Values.proxy.cache.cacheShards | default 0 }}
+          pending_shards: {{ .Values.proxy.cache.pendingShards | default 0 }}
       - name: "castai.cache_control"
         typed_config:
           "@type": type.googleapis.com/castai.cache_control.v1.CacheControlConfig
