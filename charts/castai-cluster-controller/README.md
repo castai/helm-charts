@@ -63,7 +63,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
-| tolerations | object | `{}` |  |
+| tolerations | list | `[]` |  |
 | topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-cluster-controller"` |  |
 | topologySpreadConstraints[0].maxSkew | int | `1` |  |
 | topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
