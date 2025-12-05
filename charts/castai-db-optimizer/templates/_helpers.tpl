@@ -88,3 +88,24 @@ workloads.cast.ai/configuration: |
         cpu:
           min: {{ .Values.resources.proxy.cpu }}
 {{- end }}
+
+{{/*
+Convert CPU resource limit to concurrency value.
+Takes a CPU string (e.g., "4", "2500m") and returns the number of cores rounded up.
+Usage:
+{{- if gt (int .Values.proxy.concurrency) 0 }}
+  {{ .Values.proxy.concurrency }}
+{{- else }}
+  {{ include "cpu-to-concurrency" .Values.resources.proxy.cpu }}
+{{- end }}
+*/}}
+{{- define "cpu-to-concurrency" -}}
+{{- $cpu := toString . -}}
+{{- $cpuCores := 0.0 -}}
+{{- if hasSuffix "m" $cpu -}}
+  {{- $cpuCores = divf (float64 (trimSuffix "m" $cpu)) 1000.0 -}}
+{{- else -}}
+  {{- $cpuCores = float64 $cpu -}}
+{{- end -}}
+{{- int (ceil $cpuCores) -}}
+{{- end -}}
