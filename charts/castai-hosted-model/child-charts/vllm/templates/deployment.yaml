@@ -100,7 +100,6 @@ spec:
             {{- if .Values.enableEager }}
             - "--enforce-eager"
             {{- end }}
-            - "--show-hidden-metrics-for-version=0.10" # temp fix because AIBrix controller still uses the deprecated metrics
           env:
             - name: VLLM_IMAGE_FETCH_TIMEOUT # MM Models
               value: "60"
