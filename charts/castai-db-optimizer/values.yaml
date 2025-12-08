@@ -73,8 +73,8 @@ endpoints:
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"
-  # -- Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP.
-  concurrency: 12
+  # -- Number of parallel processing streams. Use 0 to auto-calculate based on CPU limits.
+  concurrency: 0
   # -- DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead.
   dnsLookupFamily: V4_PREFERRED
   # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
@@ -99,12 +99,12 @@ proxy:
   cache:
     # -- Maximum cache size in bytes, _should_ be divisible by cacheShards
     cacheSizeBytes: 2147483648    # 2 GiB
-    # -- Number of cache shards _must_ be power of 2
-    cacheShards: 64
+    # -- Number of cache shards _must_ be power of 2. Use 0 to auto-calculate based on concurrency.
+    cacheShards: 0
     # -- Maximum size of in-flight cache entries, _should_ be divisible by pendingShards
     pendingSizeBytes: 134217728  # 128 MiB
-    # -- Number of in-flight cache shards _must_ be power of 2
-    pendingShards: 64
+    # -- Number of in-flight cache shards _must_ be power of 2.  Use 0 to auto-calculate based on concurrency.
+    pendingShards: 0
 
 queryProcessor:
   # -- Default query-processor log level.

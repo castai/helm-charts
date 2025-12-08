@@ -88,3 +88,17 @@ workloads.cast.ai/configuration: |
         cpu:
           min: {{ .Values.resources.proxy.cpu }}
 {{- end }}
+
+{{/*
+Convert CPU resource limit to concurrency value.
+*/}}
+{{- define "cpu-to-concurrency" -}}
+{{- $cpu := toString . -}}
+{{- $cpuCores := 0.0 -}}
+{{- if hasSuffix "m" $cpu -}}
+  {{- $cpuCores = divf (float64 (trimSuffix "m" $cpu)) 1000.0 -}}
+{{- else -}}
+  {{- $cpuCores = float64 $cpu -}}
+{{- end -}}
+{{- int (ceil $cpuCores) -}}
+{{- end -}}

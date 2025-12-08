@@ -193,7 +193,11 @@ spec:
             - "25000"
             - --enable-core-dump
             - --concurrency
+            {{- if (int .Values.proxy.concurrency) }}
             - "{{ .Values.proxy.concurrency }}"
+            {{- else }}
+            - "{{ include "cpu-to-concurrency" .Values.resources.proxy.cpu }}"
+            {{- end }}
             - --drain-strategy
             - immediate
             - --parent-shutdown-time-s
