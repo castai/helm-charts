@@ -126,6 +126,13 @@ cloudSqlProxy:
   # -- Have the proxy connect with Automatic IAM authentication
   autoIamAuthn: false
 
+pgdog:
+  # -- Enable pgdog connection pooler sidecar
+  enabled: false
+  resources:
+    cpu: "500m"
+    memory: "256Mi"
+
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
   pullPolicy: IfNotPresent
@@ -140,6 +147,11 @@ cloudSqlProxyImage:
   repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
+
+pgdogImage:
+  repository: us-east4-docker.pkg.dev/castai-hub/thirdparty/pgdogdev/pgdog
+  pullPolicy: IfNotPresent
+  tag: "v0.1.15"
 
 # -- The name of the service account to be used by the pod.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/

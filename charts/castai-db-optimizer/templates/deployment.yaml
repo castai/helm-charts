@@ -21,7 +21,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ include (print $.Template.BasePath "/envoy_config.yaml") . | sha256sum }}
+        checksum/config: {{ cat (include (print $.Template.BasePath "/envoy_config.yaml") .) (include (print $.Template.BasePath "/pgdog-config.yaml") .) | sha256sum }}
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -66,6 +66,11 @@ spec:
         - name: tls
           secret:
             secretName: {{ .Values.proxy.tlsSecretName }}
+        {{- end }}
+        {{- if and .Values.pgdog .Values.pgdog.enabled }}
+        - name: pgdog-config
+          configMap:
+            name: {{ include "name" . }}-pgdog-config
         {{- end }}
       containers:
         - name: query-processor
@@ -263,4 +268,44 @@ spec:
             requests:
               memory: "2Gi"
               cpu: "1"
+        {{- end }}
+        {{- if and .Values.pgdog .Values.pgdog.enabled }}
+        - name: pgdog
+          image: "{{.Values.pgdogImage.repository}}:{{ .Values.pgdogImage.tag }}"
+          imagePullPolicy: {{.Values.pgdogImage.pullPolicy}}
+          command:
+            - /usr/local/bin/pgdog
+          args:
+            - --config
+            - /etc/pgdog/pgdog.toml
+          env:
+            - name: NODE_ID
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          ports:
+            - name: pgdog
+              containerPort: {{ .Values.pgdog.port | default 6432 }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.pgdog.metricsPort | default 9696 }}
+              protocol: TCP
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+          volumeMounts:
+            - name: pgdog-config
+              mountPath: /etc/pgdog
+            - name: temp-storage
+              mountPath: /tmp
+          resources:
+            requests:
+              cpu: {{ .Values.pgdog.resources.cpu | default "500m" }}
+              memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
+            limits:
+              memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
         {{- end }}

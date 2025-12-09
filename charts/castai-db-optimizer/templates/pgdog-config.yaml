@@ -1,0 +1,31 @@
+{{- if and .Values.pgdog .Values.pgdog.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "name" . }}-pgdog-config
+  labels:
+    {{- include "labels" . | nindent 4 }}
+  annotations:
+    {{- include "annotations" . | nindent 4 }}
+data:
+  pgdog.toml: |
+    [general]
+    port = 6432
+    workers = 10
+    default_pool_size = 10
+    pooler_mode = "transaction"
+    openmetrics_port = 9696
+    openmetrics_namespace = "pgdog_"
+    server_lifetime = 86400000
+    log_connections = true
+    log_disconnections = true
+    expanded_explain = false
+    {{- range $index, $endpoint := .Values.endpoints }}
+    [[databases]]
+    name = "{{ $endpoint.database | default (printf "db%d" $index) }}"
+    host = "{{ required "endpoint hostname must be provided" $endpoint.hostname }}"
+    port = {{ required "endpoint targetPort is required" $endpoint.targetPort }}
+    shard = {{ $index }}
+    pool_size = {{ $endpoint.poolSize | default 100 }}
+    {{- end }}
+{{- end }}
