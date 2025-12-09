@@ -42,6 +42,12 @@ data:
       listeners:
         {{- range $index, $endpoint := .Values.endpoints}}
         - name: endpoint_listener_{{$index}}
+          {{- if and $.Values.pgdog $.Values.pgdog.enabled }}
+          metadata:
+            filter_metadata:
+              castai.filters.postgres:
+                database_name_prefix: {{ $endpoint.name | default "primary" | quote }}
+          {{- end }}
           address:
             socket_address:
               address: 0.0.0.0
