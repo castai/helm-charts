@@ -31146,6 +31146,18 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/egressd-0.1.2/egressd-0.1.2.tgz
     version: 0.1.2
+  gcp-disk-compatibility-webhook:
+  - apiVersion: v2
+    appVersion: v0.2.2
+    created: "2025-12-09T08:58:45.683085386Z"
+    description: GCP disk compatibility webhook adds node selectors to pods using
+      disks so they would be scheuled on supported nodes
+    digest: 60afbf6ab7f2f421a1ef96f438c7305c7854aebe62a79da80b650f3cb6d16238
+    name: gcp-disk-compatibility-webhook
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/gcp-disk-compatibility-webhook-0.2.2/gcp-disk-compatibility-webhook-0.2.2.tgz
+    version: 0.2.2
   gpu-metrics-exporter:
   - apiVersion: v2
     appVersion: 0.1.26
@@ -31587,4 +31599,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2025-12-09T07:48:04.296065526Z"
+generated: "2025-12-09T08:58:45.709602164Z"
