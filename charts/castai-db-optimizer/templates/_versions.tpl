@@ -1,3 +1,3 @@
-{{- define "defaultProxyVersion" -}}v4.70.0{{- end -}}
+{{- define "defaultProxyVersion" -}}v4.70.1{{- end -}}
 {{- define "defaultQueryProcessorVersion" -}}v0.24.2{{- end -}}
 {{- define "defaultCloudSqlProxyVersion" -}}2.18.2{{- end -}}
