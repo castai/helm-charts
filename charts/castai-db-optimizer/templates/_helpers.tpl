@@ -76,17 +76,9 @@ app.kubernetes.io/name: {{ include "name" . }}
 {{- end }}
 
 {{- define "workloads-annotations" -}}
-workloads.cast.ai/configuration: |
-  vertical:
-    memory:
-      optimization: off
-    containers:
-      query-processor:
-        cpu:
-          min: {{ .Values.resources.queryProcessor.cpu }}
-      proxy:
-        cpu:
-          min: {{ .Values.resources.proxy.cpu }}
+{{- with .Values.workloadsAnnotations }}
+{{- toYaml . }}
+{{- end }}
 {{- end }}
 
 {{/*

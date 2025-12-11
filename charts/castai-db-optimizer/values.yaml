@@ -31,6 +31,11 @@ commonLabels: {}
 # commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
 
+# -- CAST.AI workload optimization annotations.
+# These annotations allow users to customize workload behavior.
+# Ref: https://docs.cast.ai/docs/workload-autoscaling
+workloadsAnnotations: {}
+
 # -- Extra labels to add to the pod.
 podLabels: {}
 
@@ -191,3 +196,20 @@ affinity:
 # -- Pod topology spread constraints.
 # Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
 topologySpreadConstraints: []
+
+# -- CAST.AI workload optimization annotations.
+# Set to null to disable workload annotations entirely.
+# Customize values to override with your own annotations.
+# Ref: https://docs.cast.ai/docs/workload-autoscaling
+workloadsAnnotations: {}
+  # workloads.cast.ai/configuration: |
+  #   vertical:
+  #     memory:
+  #       optimization: off
+  #     containers:
+  #       query-processor:
+  #         cpu:
+  #           min: "2"
+  #       proxy:
+  #         cpu:
+  #           min: "500m"
