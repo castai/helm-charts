@@ -293,7 +293,7 @@ spec:
         {{- end }}
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog
-          image: "{{.Values.pgdogImage.repository}}:{{ .Values.pgdogImage.tag }}"
+          image: "{{.Values.pgdogImage.repository}}:{{ include "pgdogImage" . }}"
           imagePullPolicy: {{.Values.pgdogImage.pullPolicy}}
           command:
             - /usr/local/bin/pgdog
