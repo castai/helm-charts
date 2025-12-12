@@ -13,14 +13,14 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.33.139
+version: 0.33.140
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: 2ed96e9a07041f95db49a6ece4844ac78cd3af1b
+appVersion: f1d7975a2b25b828ca7427584d04cee7252fa3de
 annotations:
-  release-date: "2025-12-12T08:58:42"
+  release-date: "2025-12-12T15:04:47"
 # GitHub actions fails when 'chart' directory is used for dependencies.
 dependencies:
   - name: castai-evictor-ext
