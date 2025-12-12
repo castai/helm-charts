@@ -68,9 +68,8 @@ spec:
             secretName: {{ .Values.proxy.tlsSecretName }}
         {{- end }}
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
-        - name: pgdog-config
-          configMap:
-            name: {{ include "name" . }}-pgdog-config
+        - name: pgdog-config-output
+          emptyDir: {}
         {{- end }}
       containers:
         - name: query-processor
@@ -149,11 +148,27 @@ spec:
               value: {{ .Values.endpoints | toJson | quote}}
             - name: PROTOCOL
               value: {{ .Values.protocol }}
+            {{- if and .Values.pgdog .Values.pgdog.enabled }}
+            - name: PGDOG_CONFIG_TEMPLATE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "name" . }}-pgdog-config
+                  key: pgdog.toml
+            - name: PGDOG_OUTPUT_FILE
+              value: /etc/pgdog/pgdog.toml
+            - name: PGDOG_ADMIN_URI
+              value: postgresql://admin:admin@localhost:{{ .Values.pgdog.port | default 6432 }}/pgdog
+            {{- end }}
 
           readinessProbe:
             tcpSocket:
               port: 9050
             initialDelaySeconds: 0
+          {{- if and .Values.pgdog .Values.pgdog.enabled }}
+          volumeMounts:
+            - name: pgdog-config-output
+              mountPath: /etc/pgdog
+          {{- end }}
           resources:
             requests:
               cpu: {{ .Values.resources.queryProcessor.cpu }}
@@ -298,7 +313,7 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
           volumeMounts:
-            - name: pgdog-config
+            - name: pgdog-config-output
               mountPath: /etc/pgdog
             - name: temp-storage
               mountPath: /tmp
