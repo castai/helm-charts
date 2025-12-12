@@ -148,7 +148,10 @@ data:
                   - endpoint:
                       address:
                         socket_address:
-                          {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
+                          {{- if and $.Values.pgdog $.Values.pgdog.enabled }}
+                          address: 127.0.0.1 # local pgdog container running in the same pod
+                          port_value: {{ $.Values.pgdog.port | default 6432 }}
+                          {{- else if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
                           address: 127.0.0.1 # local cloud-sql-proxy container running in the same pod
                           port_value: {{ add $.Values.cloudSqlProxy.basePort $index }}
                           {{- else }}

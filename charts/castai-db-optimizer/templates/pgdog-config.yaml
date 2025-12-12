@@ -20,6 +20,13 @@ data:
     log_connections = true
     log_disconnections = true
     expanded_explain = false
+    {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
+    [[databases]]
+    name = "cloudsql"
+    host = "127.0.0.1"
+    port = {{ $.Values.cloudSqlProxy.basePort }}
+    pool_size = 100
+    {{- else }}
     {{- range $index, $endpoint := .Values.endpoints }}
     [[databases]]
     name = "{{ $endpoint.database | default (printf "db%d" $index) }}"
@@ -27,5 +34,6 @@ data:
     port = {{ required "endpoint targetPort is required" $endpoint.targetPort }}
     shard = {{ $index }}
     pool_size = {{ $endpoint.poolSize | default 100 }}
+    {{- end }}
     {{- end }}
 {{- end }}
