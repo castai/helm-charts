@@ -70,13 +70,6 @@ spec:
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog-config-output
           emptyDir: {}
-        - name: pgdog-users
-          secret:
-            {{- if .Values.pgdog.usersSecretRef }}
-            secretName: {{ .Values.pgdog.usersSecretRef }}
-            {{- else }}
-            secretName: {{ include "name" . }}-pgdog-users
-            {{- end }}
         {{- end }}
       containers:
         - name: query-processor
@@ -163,6 +156,17 @@ spec:
                   key: pgdog.toml
             - name: PGDOG_OUTPUT_FILE
               value: /etc/pgdog/pgdog.toml
+            - name: PGDOG_USERS_TEMPLATE
+              valueFrom:
+                secretKeyRef:
+                  {{- if .Values.pgdog.usersSecretRef }}
+                  name: {{ .Values.pgdog.usersSecretRef }}
+                  {{- else }}
+                  name: {{ include "name" . }}-pgdog-users
+                  {{- end }}
+                  key: users.toml
+            - name: PGDOG_USERS_OUTPUT_FILE
+              value: /etc/pgdog/users.toml
             - name: PGDOG_ADMIN_URI
               value: postgresql://admin:admin@localhost:{{ .Values.pgdog.port | default 6432 }}/pgdog
             {{- end }}
@@ -301,7 +305,7 @@ spec:
             - --config
             - /etc/pgdog/pgdog.toml
             - --users
-            - /etc/pgdog-users/users.toml
+            - /etc/pgdog/users.toml
           env:
             - name: NODE_ID
               valueFrom:
@@ -324,9 +328,6 @@ spec:
           volumeMounts:
             - name: pgdog-config-output
               mountPath: /etc/pgdog
-            - name: pgdog-users
-              mountPath: /etc/pgdog-users
-              readOnly: true
             - name: temp-storage
               mountPath: /tmp
           resources:
