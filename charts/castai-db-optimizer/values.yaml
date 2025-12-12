@@ -129,6 +129,13 @@ cloudSqlProxy:
 pgdog:
   # -- Enable pgdog connection pooler sidecar
   enabled: false
+  # -- Pgdog user (plain string). Mutually exclusive with usersSecretRef
+  user: ""
+  # -- Pgdog password (plain string). Mutually exclusive with usersSecretRef
+  password: ""
+  # -- Reference to existing secret containing users.toml file. Mutually exclusive with user/password
+  # The secret must contain a key named "users.toml" with the pgdog users configuration
+  usersSecretRef: ""
   resources:
     cpu: "500m"
     memory: "256Mi"
@@ -149,7 +156,7 @@ cloudSqlProxyImage:
   tag: ""  # uses values from _versions.tpl for default value
 
 pgdogImage:
-  repository: us-east4-docker.pkg.dev/castai-hub/thirdparty/pgdogdev/pgdog
+  repository: ghcr.io/pgdogdev/pgdog
   pullPolicy: IfNotPresent
   tag: "v0.1.15"
 

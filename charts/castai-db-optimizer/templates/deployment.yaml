@@ -70,6 +70,13 @@ spec:
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog-config-output
           emptyDir: {}
+        - name: pgdog-users
+          secret:
+            {{- if .Values.pgdog.usersSecretRef }}
+            secretName: {{ .Values.pgdog.usersSecretRef }}
+            {{- else }}
+            secretName: {{ include "name" . }}-pgdog-users
+            {{- end }}
         {{- end }}
       containers:
         - name: query-processor
@@ -293,6 +300,8 @@ spec:
           args:
             - --config
             - /etc/pgdog/pgdog.toml
+            - --users
+            - /etc/pgdog-users/users.toml
           env:
             - name: NODE_ID
               valueFrom:
@@ -315,6 +324,9 @@ spec:
           volumeMounts:
             - name: pgdog-config-output
               mountPath: /etc/pgdog
+            - name: pgdog-users
+              mountPath: /etc/pgdog-users
+              readOnly: true
             - name: temp-storage
               mountPath: /tmp
           resources:
