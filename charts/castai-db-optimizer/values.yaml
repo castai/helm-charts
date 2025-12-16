@@ -134,8 +134,10 @@ proxy:
 queryProcessor:
   # -- Default query-processor log level.
   logLevel: "warn"
-  # -- Default query-processor query cache size.
+  # -- Default query-processor query cache item size.
   queryCacheSize: 100000
+  # -- Default query-processor query cache byte size.
+  queryCacheBytes: 524288000  # 500 MiB
   # -- Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage.
   concurrency: 10
   # -- Enable additional debugging features to aid troubleshooting.

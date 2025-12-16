@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.53.0](https://img.shields.io/badge/Version-0.53.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.54.0](https://img.shields.io/badge/Version-0.54.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -55,7 +55,8 @@ CAST AI database cache deployment.
 | queryProcessor.concurrency | int | `10` | Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage. |
 | queryProcessor.debug | bool | `false` | Enable additional debugging features to aid troubleshooting. |
 | queryProcessor.logLevel | string | `"warn"` | Default query-processor log level. |
-| queryProcessor.queryCacheSize | int | `100000` | Default query-processor query cache size. |
+| queryProcessor.queryCacheBytes | int | `524288000` | Default query-processor query cache byte size. |
+| queryProcessor.queryCacheSize | int | `100000` | Default query-processor query cache item size. |
 | queryProcessorImage.pullPolicy | string | `"IfNotPresent"` |  |
 | queryProcessorImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/query-processor"` |  |
 | queryProcessorImage.tag | string | `""` |  |
