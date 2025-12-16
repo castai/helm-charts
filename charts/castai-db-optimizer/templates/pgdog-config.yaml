@@ -20,6 +20,11 @@ data:
     log_connections = true
     log_disconnections = true
     expanded_explain = false
+    [[admin]]
+    name = "admin"
+    user = "admin"
+    password = "admin"
+
     {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
     [[databases]]
     name = "cloudsql"

@@ -1,3 +1,5 @@
+{{- $pgDogPort := 6432}}
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -168,7 +170,7 @@ spec:
             - name: PGDOG_USERS_OUTPUT_FILE
               value: /etc/pgdog/users.toml
             - name: PGDOG_ADMIN_URI
-              value: postgresql://admin:admin@localhost:{{ .Values.pgdog.port | default 6432 }}/pgdog
+              value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
             {{- end }}
 
           readinessProbe:
@@ -218,8 +220,10 @@ spec:
             - /home/castai/envoy
             - -c
             - /home/castai/envoy.yaml
-            - --component-log-level
-            - {{ .Values.proxy.logLevel }}
+{{/*            - --component-log-level*/}}
+{{/*            - {{ .Values.proxy.logLevel }}*/}}
+            - --log-level
+            - debug
             - --file-flush-interval-msec
             - "25000"
             - --enable-core-dump
@@ -313,7 +317,7 @@ spec:
                   fieldPath: metadata.name
           ports:
             - name: pgdog
-              containerPort: {{ .Values.pgdog.port | default 6432 }}
+              containerPort: {{ $pgDogPort }}
               protocol: TCP
             - name: metrics
               containerPort: {{ .Values.pgdog.metricsPort | default 9696 }}
