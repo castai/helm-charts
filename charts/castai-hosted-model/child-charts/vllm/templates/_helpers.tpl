@@ -32,26 +32,16 @@ Selector labels
 app.kubernetes.io/name: {{ include "vllm.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
-
 {{/*
-Check if model.sourceRegistry or loraAdapter.sourceRegistry requires a specific registry
-Usage: {{ if include "requiresRegistry" (list "gcs" .) }}
+Get the registry secret names, defaulting to the chart's fullname with a proper suffix
+Usage: {{ include "modelRegistrySecretName" . }}
 */}}
-{{- define "requiresRegistry" -}}
-{{- $registry := index . 0 -}}
-{{- $ctx := index . 1 -}}
-{{- if or (eq $ctx.Values.model.sourceRegistry $registry) (eq $ctx.Values.loraAdapter.sourceRegistry $registry) -}}
-{{- $registry -}}
-{{- end -}}
+{{- define "modelRegistrySecretName" -}}
+{{- .Values.model.registry.secretName | default (printf "%s-model-registry" (include "vllm.fullname" .)) -}}
 {{- end }}
 
-
-{{/*
-Get the registry secret name, defaulting to the chart's fullname
-Usage: {{ include "registrySecretName" . }}
-*/}}
-{{- define "registrySecretName" -}}
-{{- .Values.registries.secretName | default (include "vllm.fullname" .) -}}
+{{- define "loraRegistrySecretName" -}}
+{{- .Values.loraAdapter.registry.secretName | default (printf "%s-lora-registry" (include "vllm.fullname" .)) -}}
 {{- end }}
 
 {{/*
@@ -61,38 +51,12 @@ Usage {{ include "modelReference" . }}
 {{- define "modelReference" -}}
 {{- if eq .Values.model.sourceRegistry "hf" -}}
 {{ .Values.model.name }}
-{{- else if .Values.useRunAiStreamer -}}
+{{- else if and .Values.useRunAiStreamer (eq .Values.model.sourceRegistry "gcs") -}}
+gs://{{ .Values.model.name }}
+{{- else if and .Values.useRunAiStreamer (eq .Values.model.sourceRegistry "s3") -}}
 s3://{{ .Values.model.name }}
 {{- else -}}
 /models/{{ .Values.model.name }}
-{{- end -}}
-{{- end }}
-
-{{/*
-Generate model downloader's storage environment variables based on source registry type
-Usage: {{ include "modelDownloader.sourceRegistryEnvVars" "gcs" }}
-*/}}
-{{- define "modelDownloader.sourceRegistryEnvVars" -}}
-{{- $storageType := . -}}
-{{- if eq $storageType "gcs" -}}
-- name: STORAGE_TYPE
-  value: "gcs"
-- name: GCS_CREDENTIALS_FILE
-  value: "/etc/gcs-credentials/credentials.json"
-{{- end -}}
-{{- end }}
-
-
-{{/*
-Generate model downloader's volume mounts based on source registry type
-Usage: {{ include "modelDownloader.sourceRegistryVolumeMounts "gcs" }}
-*/}}
-{{- define "modelDownloader.sourceRegistryVolumeMounts" -}}
-{{- $storageType := . -}}
-{{- if eq $storageType "gcs" -}}
-- name: gcs-credentials
-  mountPath: /etc/gcs-credentials
-  readOnly: true
 {{- end -}}
 {{- end }}
 

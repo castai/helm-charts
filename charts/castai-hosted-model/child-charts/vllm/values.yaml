@@ -6,41 +6,51 @@ replicaCount: 1
 resources: {}
 
 modelDownloader:
-  image:
-    repository: "us-docker.pkg.dev/castai-hub/library/model-downloader"
-    tag: "v0.0.2"
+  gcsImage: "google/cloud-sdk:470.0.0-slim"
+  hfImage: "python:3.11-slim"
+  s3Image: "amazon/aws-cli:2.18.15"
   resources:
     requests:
       memory: "500Mi"
       cpu: "100m"
     limits:
       memory: "500Mi"
-  s3ProxyResources:
-    requests:
-      memory: "1Gi"
-      cpu: "100m"
-    limits:
-      memory: "1Gi"
 
-useRunAiStreamer: false
+useRunAiStreamer: true
 
 model:
   # -- HF Model name or path in object storage
   name:
   sourceRegistry: "hf"
+  registry:
+    secretName:
+    createSecret: true
+    gcs:
+      credentialsJsonBase64:
+    hf:
+      token:
+    s3:
+      accessKeyId:
+      secretAccessKey:
+      region:
+      endpointUrl:
 
 loraAdapter:
-  # -- HF Model name or path in object storage
+  # -- HF Adapter name or path in object storage
   name:
   sourceRegistry: "hf"
-
-registries:
-  secretName:
-  createSecret: true
-  gcs:
-    credentialsJsonBase64:
-  hf:
-    token:
+  registry:
+    secretName:
+    createSecret: true
+    gcs:
+      credentialsJsonBase64:
+    hf:
+      token:
+    s3:
+      accessKeyId:
+      secretAccessKey:
+      region:
+      endpointUrl:
 
 container:
   port: 8000
