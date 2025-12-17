@@ -72,6 +72,10 @@ spec:
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog-config-output
           emptyDir: {}
+        - name: pgdog-health-check
+          configMap:
+            name: {{ include "name" . }}-pgdog-health-check
+            defaultMode: 0755
         {{- end }}
       containers:
         - name: query-processor
@@ -329,11 +333,23 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - /usr/local/bin/health-check.sh
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 10
           volumeMounts:
             - name: pgdog-config-output
               mountPath: /etc/pgdog
             - name: temp-storage
               mountPath: /tmp
+            - name: pgdog-health-check
+              mountPath: /usr/local/bin/health-check.sh
+              subPath: health-check.sh
           resources:
             requests:
               cpu: {{ .Values.pgdog.resources.cpu | default "500m" }}

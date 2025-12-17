@@ -46,7 +46,7 @@ data:
           metadata:
             filter_metadata:
               castai.filters.postgres:
-                database_name_prefix: {{ $endpoint.name | default "primary" | quote }}
+                database_name_prefix: {{ printf "ep%d" $index | quote }}
           {{- end }}
           address:
             socket_address:

@@ -20,7 +20,7 @@ data:
     log_connections = true
     log_disconnections = true
     expanded_explain = false
-    [[admin]]
+    [admin]
     name = "admin"
     user = "admin"
     password = "admin"
@@ -34,11 +34,9 @@ data:
     {{- else }}
     {{- range $index, $endpoint := .Values.endpoints }}
     [[databases]]
-    name = "{{ $endpoint.database | default (printf "db%d" $index) }}"
+    name = "{{ printf "ep%d" $index }}"
     host = "{{ required "endpoint hostname must be provided" $endpoint.hostname }}"
     port = {{ required "endpoint targetPort is required" $endpoint.targetPort }}
-    shard = {{ $index }}
-    pool_size = {{ $endpoint.poolSize | default 100 }}
     {{- end }}
     {{- end }}
 {{- end }}
