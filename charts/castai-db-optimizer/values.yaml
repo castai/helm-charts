@@ -31,6 +31,31 @@ commonLabels: {}
 # commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
 
+# -- CAST.AI workload optimization annotations.
+# Leave as null to apply default configuration with CPU minimums derived from resources.queryProcessor.cpu and resources.proxy.cpu.
+# Set to {} (empty map) to disable workload annotations entirely.
+# Set to custom values to override with your own annotations.
+# Ref: https://docs.cast.ai/docs/workload-autoscaling
+workloadsAnnotations: null
+# To disable: workloadsAnnotations: {}
+# Example custom configuration:
+# workloadsAnnotations:
+#   workloads.cast.ai/configuration: |
+#     vertical:
+#       memory:
+#         optimization: on
+#       cpu:
+#         optimization: auto
+#     containers:
+#       query-processor:
+#         cpu:
+#           min: "4"
+#           max: "8"
+#       proxy:
+#         cpu:
+#           min: "1"
+#           max: "2"
+
 # -- Extra labels to add to the pod.
 podLabels: {}
 
@@ -109,8 +134,10 @@ proxy:
 queryProcessor:
   # -- Default query-processor log level.
   logLevel: "warn"
-  # -- Default query-processor query cache size.
+  # -- Default query-processor query cache item size.
   queryCacheSize: 100000
+  # -- Default query-processor query cache byte size.
+  queryCacheBytes: 524288000  # 500 MiB
   # -- Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage.
   concurrency: 10
   # -- Enable additional debugging features to aid troubleshooting.
