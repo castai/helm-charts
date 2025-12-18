@@ -82,7 +82,7 @@ spec:
             - name: grpc
               containerPort: 9050
               protocol: TCP
-            - name: metrics
+            - name: qp-metrics
               containerPort: 2112
               protocol: TCP
             {{- if .Values.queryProcessor.debug }}
@@ -163,6 +163,9 @@ spec:
               exec:
                 command: ["sleep", {{ .Values.proxy.drainPreHook | default 10 | quote }} ]
           ports:
+            - name: proxy-metrics
+              containerPort: 9901
+              protocol: TCP
             {{- range $index, $endpoint := .Values.endpoints}}
             - containerPort: {{$endpoint.port}}
               protocol: TCP
