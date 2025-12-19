@@ -166,6 +166,46 @@ pgdog:
   resources:
     cpu: "500m"
     memory: "256Mi"
+  # -- Pgdog general configuration settings
+  config:
+    # -- Port on which pgdog listens for client connections
+    port: 6432
+    # -- Number of worker threads
+    workers: 10
+    # -- Default connection pool size per database
+    defaultPoolSize: 10
+    # -- Connection pooling mode: "transaction" or "session"
+    poolerMode: "transaction"
+    # -- Prepared statement mode: "extended_anonymous", "extended", or "simple"
+    preparedStatements: "extended_anonymous"
+    # -- Health check interval in milliseconds
+    healthcheckInterval: 30000
+    # -- Health check interval for idle connections in milliseconds
+    idleHealthcheckInterval: 30000
+    # -- Delay before starting idle health checks in milliseconds
+    idleHealthcheckDelay: 5000
+    # -- Health check timeout in milliseconds
+    healthcheckTimeout: 5000
+    # -- Rollback timeout in milliseconds
+    rollbackTimeout: 5000
+    # -- Connection timeout in milliseconds
+    connectTimeout: 5000
+    # -- Checkout timeout in milliseconds
+    checkoutTimeout: 10000
+    # -- Shutdown timeout in milliseconds
+    shutdownTimeout: 60000
+    # -- Enable query parser
+    queryParserEnabled: true
+    # -- Path to TLS certificate file
+    tlsCertificate: "/etc/ssl/certs/ssl-cert-snakeoil.pem"
+    # -- Path to TLS private key file
+    tlsPrivateKey: "/etc/ssl/private/ssl-cert-snakeoil.key"
+    # -- TLS verification mode: "prefer", "require", or "disable"
+    tlsVerify: "prefer"
+    # -- Log client connections
+    logConnections: false
+    # -- Log client disconnections
+    logDisconnections: false
 
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
