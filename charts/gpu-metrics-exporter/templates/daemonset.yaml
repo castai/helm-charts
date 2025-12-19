@@ -16,6 +16,12 @@ spec:
   selector:
     matchLabels:
       {{- include "gpu-metrics-exporter.selectorLabels" . | nindent 6 }}
+  updateStrategy:
+    type: {{ .Values.updateStrategy.type | default "RollingUpdate" }}
+    {{- if eq (.Values.updateStrategy.type | default "RollingUpdate") "RollingUpdate" }}
+    rollingUpdate:
+      maxUnavailable: {{ .Values.updateStrategy.rollingUpdate.maxUnavailable | default 1 }}
+    {{- end }}
   template:
     metadata:
       labels:
