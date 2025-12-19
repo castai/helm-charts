@@ -72,9 +72,9 @@ spec:
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog-config-output
           emptyDir: {}
-        - name: pgdog-health-check
+        - name: pgdog-startup
           configMap:
-            name: {{ include "name" . }}-pgdog-health-check
+            name: {{ include "name" . }}-pgdog-startup
             defaultMode: 0755
         {{- end }}
       containers:
@@ -306,12 +306,8 @@ spec:
           image: "{{.Values.pgdogImage.repository}}:{{ include "pgdogImage" . }}"
           imagePullPolicy: {{.Values.pgdogImage.pullPolicy}}
           command:
-            - /usr/local/bin/pgdog
-          args:
-            - --config
-            - /etc/pgdog/pgdog.toml
-            - --users
-            - /etc/pgdog/users.toml
+            - /bin/sh
+            - /usr/local/bin/startup.sh
           securityContext:
             capabilities:
               drop:
@@ -320,22 +316,20 @@ spec:
             runAsNonRoot: true
             runAsUser: 1000
           readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - /usr/local/bin/health-check.sh
-            initialDelaySeconds: 10
+            tcpSocket:
+              port: {{ $pgDogPort }}
+            initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5
-            failureThreshold: 10
+            failureThreshold: 3
           volumeMounts:
             - name: pgdog-config-output
               mountPath: /etc/pgdog
             - name: temp-storage
               mountPath: /tmp
-            - name: pgdog-health-check
-              mountPath: /usr/local/bin/health-check.sh
-              subPath: health-check.sh
+            - name: pgdog-startup
+              mountPath: /usr/local/bin/startup.sh
+              subPath: startup.sh
           resources:
             requests:
               cpu: {{ .Values.pgdog.resources.cpu | default "500m" }}

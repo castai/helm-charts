@@ -43,6 +43,11 @@ data:
     {{- end }}
 
 
+    [admin]
+    name = "admin"
+    user = "admin"
+    password = "admin"
+
     {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
     [[databases]]
     name = "cloudsql"
