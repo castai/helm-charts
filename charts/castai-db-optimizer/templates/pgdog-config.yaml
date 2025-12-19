@@ -10,7 +10,7 @@ metadata:
 data:
   pgdog.toml: |
     [general]
-    port                      =   {{ .Values.pgdog.config.port }}
+    port                      =   6432
     workers                   =   {{ .Values.pgdog.config.workers }}
     default_pool_size         =   {{ .Values.pgdog.config.defaultPoolSize }}
     pooler_mode               =   {{ .Values.pgdog.config.poolerMode | quote }}
