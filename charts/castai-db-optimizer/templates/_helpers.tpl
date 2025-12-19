@@ -25,6 +25,10 @@ Create chart name and version as used by the chart label.
 {{-  default (include "defaultCloudSqlProxyVersion" .) .Values.cloudSqlProxyImage.tag }}
 {{- end }}
 
+{{- define "pgdogImage" -}}
+{{-  default (include "defaultPgdogVersion" .) .Values.pgdogImage.tag }}
+{{- end }}
+
 {{/*
 Helpers for customizing proxy TLS settings.
 */}}

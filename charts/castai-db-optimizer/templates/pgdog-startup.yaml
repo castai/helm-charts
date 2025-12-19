@@ -1,0 +1,26 @@
+{{- if and .Values.pgdog .Values.pgdog.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "name" . }}-pgdog-startup
+  labels:
+    {{- include "labels" . | nindent 4 }}
+  annotations:
+    {{- include "annotations" . | nindent 4 }}
+data:
+  startup.sh: |
+    #!/bin/sh
+    set -e
+
+    cat > "/etc/pgdog/pgdog.toml" << 'EOF'
+    [general]
+    port                      =   6432
+
+    [admin]
+    name = "admin"
+    user = "admin"
+    password = "admin"
+    EOF
+
+    exec /usr/local/bin/pgdog --config /etc/pgdog/pgdog.toml --users /etc/pgdog/users.toml
+{{- end }}
