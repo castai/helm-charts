@@ -1,4 +1,27 @@
 {{- if and .Values.pgdog .Values.pgdog.enabled }}
+{{- $defaults := dict
+  "workers" 10
+  "default_pool_size" 10
+  "pooler_mode" "transaction"
+  "prepared_statements" "extended_anonymous"
+  "healthcheck_interval" 30000
+  "idle_healthcheck_interval" 30000
+  "idle_healthcheck_delay" 5000
+  "healthcheck_timeout" 5000
+  "rollback_timeout" 5000
+  "connect_timeout" 5000
+  "checkout_timeout" 10000
+  "shutdown_timeout" 60000
+  "query_parser_enabled" true
+  "tls_certificate" "/etc/ssl/certs/ssl-cert-snakeoil.pem"
+  "tls_private_key" "/etc/ssl/private/ssl-cert-snakeoil.key"
+  "tls_verify" "prefer"
+  "log_connections" false
+  "log_disconnections" false
+-}}
+{{- $userConfig := .Values.pgdog.config | default dict -}}
+{{- $mergedConfig := merge (deepCopy $userConfig) $defaults -}}
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,27 +34,13 @@ data:
   pgdog.toml: |
     [general]
     port                      =   6432
-    workers                   =   {{ .Values.pgdog.config.workers }}
-    default_pool_size         =   {{ .Values.pgdog.config.defaultPoolSize }}
-    pooler_mode               =   {{ .Values.pgdog.config.poolerMode | quote }}
-    prepared_statements       =   {{ .Values.pgdog.config.preparedStatements | quote }}
-
-    healthcheck_interval      =   {{ .Values.pgdog.config.healthcheckInterval }}
-    idle_healthcheck_interval =   {{ .Values.pgdog.config.idleHealthcheckInterval }}
-    idle_healthcheck_delay    =   {{ .Values.pgdog.config.idleHealthcheckDelay }}
-    healthcheck_timeout       =   {{ .Values.pgdog.config.healthcheckTimeout }}
-    rollback_timeout          =   {{ .Values.pgdog.config.rollbackTimeout }}
-    connect_timeout           =   {{ .Values.pgdog.config.connectTimeout }}
-    checkout_timeout          =   {{ .Values.pgdog.config.checkoutTimeout }}
-    shutdown_timeout          =   {{ .Values.pgdog.config.shutdownTimeout }}
-
-    query_parser_enabled      =   {{ .Values.pgdog.config.queryParserEnabled }}
-    tls_certificate           =   {{ .Values.pgdog.config.tlsCertificate | quote }}
-    tls_private_key           =   {{ .Values.pgdog.config.tlsPrivateKey | quote }}
-    tls_verify                =   {{ .Values.pgdog.config.tlsVerify | quote }}
-
-    log_connections           =   {{ .Values.pgdog.config.logConnections }}
-    log_disconnections        =   {{ .Values.pgdog.config.logDisconnections }}
+    {{- range $key, $value := $mergedConfig }}
+    {{- if kindIs "string" $value }}
+    {{ $key | printf "%-25s" }} =   {{ $value | quote }}
+    {{- else }}
+    {{ $key | printf "%-25s" }} =   {{ $value }}
+    {{- end }}
+    {{- end }}
 
 
     {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}

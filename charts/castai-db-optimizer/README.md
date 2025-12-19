@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.54.0](https://img.shields.io/badge/Version-0.54.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.55.0](https://img.shields.io/badge/Version-0.55.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -31,6 +31,34 @@ CAST AI database cache deployment.
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
+| pgdog.config | object | `{"checkout_timeout":10000,"connect_timeout":5000,"default_pool_size":10,"healthcheck_interval":30000,"healthcheck_timeout":5000,"idle_healthcheck_delay":5000,"idle_healthcheck_interval":30000,"log_connections":false,"log_disconnections":false,"pooler_mode":"transaction","prepared_statements":"extended_anonymous","query_parser_enabled":true,"rollback_timeout":5000,"shutdown_timeout":60000,"tls_certificate":"/etc/ssl/certs/ssl-cert-snakeoil.pem","tls_private_key":"/etc/ssl/private/ssl-cert-snakeoil.key","tls_verify":"prefer","workers":10}` | Pgdog general configuration settings. Corresponds to [general] section in pgdog.toml: https://docs.pgdog.dev/configuration/pgdog.toml/general/. |
+| pgdog.config.checkout_timeout | int | `10000` | Maximum amount of time a client is allowed to wait for a connection from the pool (in milliseconds) |
+| pgdog.config.connect_timeout | int | `5000` | Maximum amount of time to allow for PgDog to create a connection to Postgres (in milliseconds) |
+| pgdog.config.default_pool_size | int | `10` | Default maximum number of server connections per database pool |
+| pgdog.config.healthcheck_interval | int | `30000` | Frequency of healthchecks performed by PgDog to ensure connections provided to clients from the pool are working (in milliseconds) |
+| pgdog.config.healthcheck_timeout | int | `5000` | Health check timeout in milliseconds (custom field, not in official pgdog docs) |
+| pgdog.config.idle_healthcheck_delay | int | `5000` | Delay running idle healthchecks at PgDog startup to give databases (and pools) time to spin up (in milliseconds) |
+| pgdog.config.idle_healthcheck_interval | int | `30000` | Frequency of healthchecks performed by PgDog on idle connections (in milliseconds) |
+| pgdog.config.log_connections | bool | `false` | If enabled, log every time a user creates a new connection to PgDog |
+| pgdog.config.log_disconnections | bool | `false` | If enabled, log every time a user disconnects from PgDog |
+| pgdog.config.pooler_mode | string | `"transaction"` | Default pooler mode to use for database pools. Options: "session", "transaction", "statement" |
+| pgdog.config.prepared_statements | string | `"extended_anonymous"` | Enables prepared statement support with varying levels of rewriting capability. Options: "disabled", "extended", "extended_anonymous", "full" |
+| pgdog.config.query_parser_enabled | bool | `true` | Force-enable query parsing for advanced features like advisory locks in non-sharded databases |
+| pgdog.config.rollback_timeout | int | `5000` | How long to allow for ROLLBACK queries to run on server connections with unfinished transactions (in milliseconds) |
+| pgdog.config.shutdown_timeout | int | `60000` | How long to wait for active clients to finish transactions when shutting down (in milliseconds) |
+| pgdog.config.tls_certificate | string | `"/etc/ssl/certs/ssl-cert-snakeoil.pem"` | Path to the TLS certificate PgDog will use to setup TLS connections with clients |
+| pgdog.config.tls_private_key | string | `"/etc/ssl/private/ssl-cert-snakeoil.key"` | Path to the TLS private key PgDog will use to setup TLS connections with clients |
+| pgdog.config.tls_verify | string | `"prefer"` | Determines how TLS connections to Postgres servers are handled. Options: "none", "prefer", "verify_ca", "verify_full" |
+| pgdog.config.workers | int | `10` | Count of Tokio threads spawned at startup; recommended setting is two per virtual CPU |
+| pgdog.enabled | bool | `false` | Enable pgdog connection pooler sidecar |
+| pgdog.password | string | `""` | Pgdog password (plain string). Mutually exclusive with usersSecretRef |
+| pgdog.resources.cpu | string | `"500m"` |  |
+| pgdog.resources.memory | string | `"256Mi"` |  |
+| pgdog.user | string | `""` | Pgdog user (plain string). Mutually exclusive with usersSecretRef |
+| pgdog.usersSecretRef | string | `""` | Reference to existing secret containing users.toml file. Mutually exclusive with user/password The secret must contain a key named "users.toml" with the pgdog users configuration |
+| pgdogImage.pullPolicy | string | `"IfNotPresent"` |  |
+| pgdogImage.repository | string | `"ghcr.io/pgdogdev/pgdog"` |  |
+| pgdogImage.tag | string | `""` |  |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | protocol | string | `"PostgreSQL"` | Specifies database protocol to be used for communication and query parsing. |
