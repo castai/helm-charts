@@ -10,20 +10,29 @@ metadata:
 data:
   pgdog.toml: |
     [general]
-    port = 6432
-    workers = 10
-    default_pool_size = 10
-    pooler_mode = "transaction"
-    openmetrics_port = 9696
-    openmetrics_namespace = "pgdog_"
-    server_lifetime = 86400000
-    log_connections = true
-    log_disconnections = true
-    expanded_explain = false
-    [admin]
-    name = "admin"
-    user = "admin"
-    password = "admin"
+    port                      =   6432
+    workers                   =   10
+    default_pool_size         =   10
+    pooler_mode               =   "transaction"
+    prepared_statements       =   "extended_anonymous"
+
+    healthcheck_interval      =   30_000
+    idle_healthcheck_interval =   30_000
+    idle_healthcheck_delay    =   5_000
+    healthcheck_timeout       =   5_000
+    rollback_timeout          =   5_000
+    connect_timeout           =   5_000
+    checkout_timeout          =   10000
+    shutdown_timeout          =   60_000
+
+    query_parser_enabled      =   true
+    tls_certificate           =   "/etc/ssl/certs/ssl-cert-snakeoil.pem"
+    tls_private_key           =   "/etc/ssl/private/ssl-cert-snakeoil.key"
+    tls_verify                =   "prefer"
+
+    log_connections           =   false
+    log_disconnections        =   false
+
 
     {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
     [[databases]]

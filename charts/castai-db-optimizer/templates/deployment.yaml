@@ -23,7 +23,7 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: {{ cat (include (print $.Template.BasePath "/envoy_config.yaml") .) (include (print $.Template.BasePath "/pgdog-config.yaml") .) | sha256sum }}
+        checksum/config: {{ include (print $.Template.BasePath "/envoy_config.yaml") . | sha256sum }}
         {{- with .Values.podAnnotations }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -224,10 +224,8 @@ spec:
             - /home/castai/envoy
             - -c
             - /home/castai/envoy.yaml
-{{/*            - --component-log-level*/}}
-{{/*            - {{ .Values.proxy.logLevel }}*/}}
-            - --log-level
-            - debug
+            - --component-log-level
+            - {{ .Values.proxy.logLevel }}
             - --file-flush-interval-msec
             - "25000"
             - --enable-core-dump
@@ -314,18 +312,6 @@ spec:
             - /etc/pgdog/pgdog.toml
             - --users
             - /etc/pgdog/users.toml
-          env:
-            - name: NODE_ID
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
-          ports:
-            - name: pgdog
-              containerPort: {{ $pgDogPort }}
-              protocol: TCP
-            - name: metrics
-              containerPort: {{ .Values.pgdog.metricsPort | default 9696 }}
-              protocol: TCP
           securityContext:
             capabilities:
               drop:
