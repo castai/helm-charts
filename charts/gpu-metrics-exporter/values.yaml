@@ -60,7 +60,7 @@ gpuMetricsExporter:
 updateStrategy:
   type: RollingUpdate
   rollingUpdate:
-    maxUnavailable: 10%
+    maxUnavailable: 1
 
 dcgmExporter:
   enabled: true
