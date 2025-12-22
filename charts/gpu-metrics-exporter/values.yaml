@@ -57,6 +57,11 @@ gpuMetricsExporter:
   rbac:
     clusterWide: true
 
+updateStrategy:
+  type: RollingUpdate
+  rollingUpdate:
+    maxUnavailable: 1
+
 dcgmExporter:
   enabled: true
   image:
