@@ -373,6 +373,76 @@ spec:
                             - or
                             type: string
                         type: object
+                      tolerations:
+                        description: |-
+                          Tolerations defines what tolerations the pod should have to match
+                          for the mutation to be applied.
+                        properties:
+                          matchers:
+                            description: Matchers defines toleration matching rules
+                            items:
+                              properties:
+                                keyMatcher:
+                                  description: KeyMatcher is the key to match
+                                  properties:
+                                    type:
+                                      description: Type is the type of matcher
+                                      enum:
+                                      - exact
+                                      - regex
+                                      type: string
+                                    value:
+                                      description: Value is the value to match
+                                      type: string
+                                  required:
+                                  - type
+                                  - value
+                                  type: object
+                                operatorMatcher:
+                                  description: OperatorMatcher is the operator to
+                                    match
+                                  properties:
+                                    type:
+                                      description: Type is the type of matcher
+                                      enum:
+                                      - exact
+                                      - regex
+                                      type: string
+                                    value:
+                                      description: Value is the value to match
+                                      type: string
+                                  required:
+                                  - type
+                                  - value
+                                  type: object
+                                valueMatcher:
+                                  description: ValueMatcher is the value to match
+                                  properties:
+                                    type:
+                                      description: Type is the type of matcher
+                                      enum:
+                                      - exact
+                                      - regex
+                                      type: string
+                                    value:
+                                      description: Value is the value to match
+                                      type: string
+                                  required:
+                                  - type
+                                  - value
+                                  type: object
+                              required:
+                              - keyMatcher
+                              type: object
+                            type: array
+                          operator:
+                            description: Operator defines how to combine multiple
+                              toleration matchers
+                            enum:
+                            - and
+                            - or
+                            type: string
+                        type: object
                     type: object
                   workload:
                     description: Workload defines the workload filter
