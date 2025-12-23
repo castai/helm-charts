@@ -79,3 +79,10 @@ migrate:
     repository: alpine/k8s
     pullPolicy: IfNotPresent
     tag: 1.31.0
+    
+# updateStrategy -- Controls `daemonset.spec.updateStrategy` field.
+# updateStrategy:
+#   type: RollingUpdate
+#   rollingUpdate:
+#     maxUnavailable: 1
+updateStrategy: {}
