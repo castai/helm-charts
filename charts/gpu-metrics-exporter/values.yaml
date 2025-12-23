@@ -1,10 +1,10 @@
 provider: "" # gke | eks | aks | omni
-imagePullSecrets: [ ]
+imagePullSecrets: []
 
 serviceAccount:
   create: true
   automount: true
-  annotations: { }
+  annotations: {}
 
 castai:
   # Token to be used for authorizing agent access to the CASTAI API
@@ -30,7 +30,7 @@ gpuMetricsExporter:
     repository: ghcr.io/castai/gpu-metrics-exporter/gpu-metrics-exporter
     pullPolicy: IfNotPresent
     tag: ""
-  config: { }
+  config: {}
   # config: 
   #   # address of the DCGM exporter instance
   #   DCGM_HOST: "" 
