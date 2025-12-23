@@ -9,31 +9,32 @@ serviceAccount:
 castai:
   # Token to be used for authorizing agent access to the CASTAI API
   apiKey: ""
-  
+
   # Name of secret with Token to be used for authorizing agent access to the API
   # apiKey and apiKeySecretRef are mutually exclusive
   # The referenced secret must provide the token in .data["API_KEY"]
   apiKeySecretRef: ""
-  
+
   # CASTAI Cluster unique identifier.
   clusterId: ""
-  
+
   # CASTAI public api url.
   apiUrl: "https://api.cast.ai"
 
 gpuMetricsExporter:
-  # the affinity field is the preffered way of adding affinity annotations
-  # for gke provider the gke.affinity will be used if this isn't defined but in the future custom affinity annotations
-  # should be defined in the gpuMetricsExporter.affinity field
+  # the affinity field is the preferred way of adding affinity annotations
+  # for gke provider the gke.affinity will be used if this isn't defined
+  # but in the future custom affinity annotations should be defined in
+  # the gpuMetricsExporter.affinity field
   affinity:
   image:
     repository: ghcr.io/castai/gpu-metrics-exporter/gpu-metrics-exporter
     pullPolicy: IfNotPresent
     tag: ""
   config: {}
-  # config: 
+  # config:
   #   # address of the DCGM exporter instance
-  #   DCGM_HOST: "" 
+  #   DCGM_HOST: ""
   #   # comma-separated list of labels that the DCGM instances have
   #   DCGM_LABELS: ""
   resources:
