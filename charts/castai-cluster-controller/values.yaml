@@ -104,13 +104,15 @@ nodeSelector: {}
 
 # List of additional pod antiaffinity which can be ignored
 enableTopologySpreadConstraints: false
+# topologySpreadConstraints defines how pods are spread across topology domains.
+# If labelSelector is not specified for a constraint, it defaults to:
+#   matchLabels:
+#     app.kubernetes.io/instance: <release-name>
 topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: kubernetes.io/hostname
     whenUnsatisfiable: ScheduleAnyway
-    labelSelector:
-      matchLabels:
-        app.kubernetes.io/name: castai-cluster-controller
+    # labelSelector: {}  # Uncomment and customize to override the default
 
 affinity:
   nodeAffinity:
