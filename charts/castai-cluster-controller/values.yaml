@@ -157,6 +157,11 @@ priorityClass:
   enabled: true
   name: system-cluster-critical
 
+# resourceQuota -- ResourceQuota configuration for critical pods.
+resourceQuota:
+  # resourceQuota.enabled -- Enable ResourceQuota for critical pods. Requires priorityClass.enabled to be true.
+  enabled: true
+
 # k8sApiClient -- Settings for configuring k8s client used in castai-cluster-controller.
 k8sApiClient:
   # rateLimit -- Client uses token based rate limiting. By default, client has 200 api request burst limit set.
