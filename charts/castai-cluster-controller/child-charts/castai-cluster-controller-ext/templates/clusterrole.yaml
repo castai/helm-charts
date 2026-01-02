@@ -5,9 +5,10 @@ metadata:
   name: {{ include "cluster-controller-ext.fullname" . }}
   labels:
   {{- include "cluster-controller-ext.labels" . | nindent 4 }}
-  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  {{- $annotations := include "cluster-controller-ext.annotations" . | trim }}
+  {{- if $annotations }}
   annotations:
-  {{- include "cluster-controller-ext.annotations" . | nindent 4 }}
+    {{- $annotations | nindent 4 }}
   {{- end }}
 rules:
   - apiGroups:
