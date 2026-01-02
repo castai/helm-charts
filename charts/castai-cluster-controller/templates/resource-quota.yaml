@@ -1,4 +1,8 @@
-{{- if (.Values.priorityClass | default dict).enabled }}
+{{- $resourceQuotaEnabled := true }}
+{{- if hasKey .Values "resourceQuota" }}
+{{- $resourceQuotaEnabled = .Values.resourceQuota.enabled }}
+{{- end }}
+{{- if and ((.Values.priorityClass | default dict).enabled) $resourceQuotaEnabled }}
 apiVersion: v1
 kind: ResourceQuota
 metadata:
@@ -6,9 +10,10 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cluster-controller.labels" . | nindent 4 }}
-  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  {{- $annotations := include "cluster-controller.annotations" . | trim }}
+  {{- if $annotations }}
   annotations:
-    {{- include "cluster-controller.annotations" . | nindent 4 }}
+    {{- $annotations | nindent 4 }}
   {{- end }}
 spec:
   scopeSelector:
@@ -16,6 +21,5 @@ spec:
       - operator: In
         scopeName: PriorityClass
         values:
-          # Required to ensure castai-cluster-controller is always running.
-          - system-cluster-critical
+          - {{ .Values.priorityClass.name }}
 {{- end }}
