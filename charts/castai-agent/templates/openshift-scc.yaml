@@ -75,7 +75,7 @@ seccompProfiles:
   {{- else }}
   - runtime/default
   {{- end }}
-priority: 10
+priority: {{ .Values.openshift.scc.priority | default 5 }}
 
 ---
 apiVersion: rbac.authorization.k8s.io/v1
