@@ -1,4 +1,12 @@
-{{- if gt (.Values.replicas | int) 1}}
+{{- /* Deprecation warning for pdbMinAvailable */ -}}
+{{- if and .Values.pdbMinAvailable (not (hasKey .Values "pdb")) }}
+{{- /* pdbMinAvailable is deprecated, use pdb.minAvailable instead */ -}}
+{{- end }}
+{{- $pdbEnabled := true }}
+{{- if hasKey .Values "pdb" }}
+{{- $pdbEnabled = .Values.pdb.enabled }}
+{{- end }}
+{{- if and $pdbEnabled (gt (.Values.replicas | int) 1) }}
 {{- if and (.Capabilities.APIVersions.Has "policy/v1") (semverCompare ">= 1.21-0" .Capabilities.KubeVersion.Version) -}}
 apiVersion: policy/v1
 {{- else -}}
@@ -10,13 +18,18 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "cluster-controller.labels" . | nindent 4 }}
-  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  {{- $annotations := include "cluster-controller.annotations" . | trim }}
+  {{- if $annotations }}
   annotations:
-    {{- include "cluster-controller.annotations" . | nindent 4 }}
+    {{- $annotations | nindent 4 }}
   {{- end }}
 spec:
-  minAvailable: {{ .Values.pdbMinAvailable }}
+  {{- if and (hasKey .Values "pdb") .Values.pdb.maxUnavailable }}
+  maxUnavailable: {{ .Values.pdb.maxUnavailable }}
+  {{- else }}
+  minAvailable: {{ .Values.pdb.minAvailable | default .Values.pdbMinAvailable | default 1 }}
+  {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: castai-cluster-controller
-{{- end}}
+{{- end }}
