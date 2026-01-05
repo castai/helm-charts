@@ -65,7 +65,7 @@ spec:
             - "--enable-lora"
             - "--max-lora-rank={{ .Values.maxLoraRank }}"
             - "--lora-modules"
-            - '{"name": "{{ .Values.loraAdapter.name }}", "path": "/models/{{ .Values.loraAdapter.name }}", "base_model_name": "{{ .Values.model.name }}"}'
+            - '{"name": "{{ .Values.loraAdapter.name }}", "path": "{{ include "loraAdapterPath" . }}", "base_model_name": "{{ .Values.model.name }}"}'
             {{- end }}
             {{- if .Values.useRunAiStreamer }}
             - "--load-format=runai_streamer"
@@ -160,6 +160,14 @@ spec:
                   key: "hfToken"
                   optional: true
             {{- end }}
+            {{- if and .Values.loraAdapter.name (eq .Values.loraAdapter.sourceRegistry "hf") }}
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "loraRegistrySecretName" . }}
+                  key: "hfToken"
+                  optional: true
+            {{- end }}
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -239,7 +247,7 @@ spec:
           resources:
             {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
         {{- end }}
-        {{- if .Values.loraAdapter.name }}
+        {{- if and .Values.loraAdapter.name (ne .Values.loraAdapter.sourceRegistry "hf") }}
         - name: model-downloader-lora
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           imagePullPolicy: IfNotPresent

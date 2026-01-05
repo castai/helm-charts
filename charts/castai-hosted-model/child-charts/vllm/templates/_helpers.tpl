@@ -61,6 +61,20 @@ s3://{{ .Values.model.name }}
 {{- end }}
 
 {{/*
+Create LoRA adapter path based on source registry
+For HF, vLLM can pull directly from Hugging Face, so we use the repo ID
+For GCS/S3, we use the local path where the init container downloads it
+Usage {{ include "loraAdapterPath" . }}
+*/}}
+{{- define "loraAdapterPath" -}}
+{{- if eq .Values.loraAdapter.sourceRegistry "hf" -}}
+{{ .Values.loraAdapter.name }}
+{{- else -}}
+/models/{{ .Values.loraAdapter.name }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Generate model downloader's storage environment variables for model registry
 Usage: {{ include "modelDownloader.modelEnvVars" (list "gcs" .) }}
 */}}
