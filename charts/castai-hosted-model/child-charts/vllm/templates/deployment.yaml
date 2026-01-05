@@ -259,14 +259,6 @@ spec:
               value: "{{ .Values.loraAdapter.name }}"
             - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
               value: "/models"
-            {{- if eq .Values.loraAdapter.sourceRegistry "hf" }}
-            - name: HUGGING_FACE_HUB_TOKEN
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "loraRegistrySecretName" . }}
-                  key: "hfToken"
-                  optional: true
-            {{- end }}
           volumeMounts:
             - name: models
               mountPath: /models
