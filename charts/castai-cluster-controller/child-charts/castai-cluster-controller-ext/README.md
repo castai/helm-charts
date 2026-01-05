@@ -8,9 +8,12 @@ castai-cluster-controller-ext.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| commonAnnotations | object | `{}` |  |
-| commonLabels | object | `{}` | Labels to add to all resources. |
+| commonAnnotations | object | `{}` | Annotations to add to all resources (in addition to global.commonAnnotations). |
+| commonLabels | object | `{}` | Labels to add to all resources (in addition to global.commonLabels). |
 | fullnameOverride | string | `"castai-cluster-controller-ext"` |  |
+| global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Global values inherited from parent chart. |
+| global.commonAnnotations | object | `{}` | Annotations to add to all resources (inherited from parent chart). |
+| global.commonLabels | object | `{}` | Labels to add to all resources (inherited from parent chart). |
 | nameOverride | string | `""` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
 

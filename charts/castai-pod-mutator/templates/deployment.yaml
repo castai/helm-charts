@@ -45,6 +45,12 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          {{- if semverCompare ">=1.30-0" .Capabilities.KubeVersion.Version }}
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 5
+          {{- end }}
           ports:
             - name: health
               containerPort: {{ .Values.healthProbePort }}
