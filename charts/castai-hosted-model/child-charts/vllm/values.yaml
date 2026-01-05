@@ -6,9 +6,9 @@ replicaCount: 1
 resources: {}
 
 modelDownloader:
-  gcsImage: "google/cloud-sdk:470.0.0-slim"
-  hfImage: "python:3.11-slim"
-  s3Image: "amazon/aws-cli:2.18.15"
+  image:
+    repository: "us-docker.pkg.dev/castai-hub/library/model-downloader"
+    tag: "v0.0.3"
   resources:
     requests:
       memory: "500Mi"
@@ -16,7 +16,7 @@ modelDownloader:
     limits:
       memory: "500Mi"
 
-useRunAiStreamer: true
+useRunAiStreamer: false
 
 model:
   # -- HF Model name or path in object storage

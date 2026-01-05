@@ -47,12 +47,11 @@ CAST AI hosted model deployment chart for vLLM.
 | model.registry.s3.secretAccessKey | string | `nil` |  |
 | model.registry.secretName | string | `nil` |  |
 | model.sourceRegistry | string | `"hf"` |  |
-| modelDownloader.gcsImage | string | `"google/cloud-sdk:470.0.0-slim"` |  |
-| modelDownloader.hfImage | string | `"python:3.11-slim"` |  |
+| modelDownloader.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/model-downloader"` |  |
+| modelDownloader.image.tag | string | `"v0.0.3"` |  |
 | modelDownloader.resources.limits.memory | string | `"500Mi"` |  |
 | modelDownloader.resources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.resources.requests.memory | string | `"500Mi"` |  |
-| modelDownloader.s3Image | string | `"amazon/aws-cli:2.18.15"` |  |
 | readinessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":5,"periodSeconds":5,"successThreshold":1,"timeoutSeconds":1}` | Readiness probe configuration |
 | readinessProbe.enabled | bool | `true` | Enable or disable readiness probe |
 | readinessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not ready |
@@ -71,4 +70,4 @@ CAST AI hosted model deployment chart for vLLM.
 | startupProbe.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for startup probe) |
 | startupProbe.timeoutSeconds | int | `1` | Number of seconds after which the probe times out |
 | task | string | `"generate"` |  |
-| useRunAiStreamer | bool | `true` |  |
+| useRunAiStreamer | bool | `false` |  |

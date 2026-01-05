@@ -216,100 +216,57 @@ spec:
           {{- end }}
       {{- if .Values.loraAdapter.name }}
       initContainers:
-        {{- if eq .Values.loraAdapter.sourceRegistry "gcs" }}
-        - name: lora-downloader-gcs
-          image: "{{ .Values.modelDownloader.gcsImage }}"
+        {{- if and (ne .Values.model.sourceRegistry "hf") (not .Values.useRunAiStreamer) }}
+        - name: model-downloader-base
+          image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["bash", "-c"]
           args:
-            - |
-              set -euo pipefail
-              mkdir -p "/models/{{ .Values.loraAdapter.name }}" \
-                && gsutil -m cp -r "gs://{{ .Values.loraAdapter.name }}/*" "/models/{{ .Values.loraAdapter.name }}/"
+            - download
           env:
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: "/etc/gcs-credentials/credentials.json"
+            {{- include "modelDownloader.modelEnvVars" (list .Values.model.sourceRegistry .) | nindent 12 }}
+            - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIRS
+              value: "{{ .Values.model.name }}"
+            - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
+              value: "/models"
           volumeMounts:
             - name: models
               mountPath: /models
-            - name: gcs-credentials-lora
-              mountPath: /etc/gcs-credentials
+            {{- if eq .Values.model.sourceRegistry "gcs" }}
+            - name: gcs-credentials-model
+              mountPath: /etc/gcs-credentials-model
               readOnly: true
+            {{- end }}
           resources:
             {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
-        {{- else if eq .Values.loraAdapter.sourceRegistry "s3" }}
-        - name: lora-downloader-s3
-          image: "{{ .Values.modelDownloader.s3Image }}"
+        {{- end }}
+        {{- if .Values.loraAdapter.name }}
+        - name: model-downloader-lora
+          image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["bash", "-c"]
           args:
-            - |
-              set -euo pipefail
-              mkdir -p "/models/{{ .Values.loraAdapter.name }}" \
-                && aws s3 cp --recursive "s3://{{ .Values.loraAdapter.name }}/" "/models/{{ .Values.loraAdapter.name }}/"
+            - download
           env:
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "loraRegistrySecretName" . }}
-                  key: "awsAccessKeyId"
-                  optional: true
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "loraRegistrySecretName" . }}
-                  key: "awsSecretAccessKey"
-                  optional: true
-            - name: AWS_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "loraRegistrySecretName" . }}
-                  key: "awsRegion"
-                  optional: true
-            - name: AWS_DEFAULT_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "loraRegistrySecretName" . }}
-                  key: "awsRegion"
-                  optional: true
-            - name: AWS_ENDPOINT_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "loraRegistrySecretName" . }}
-                  key: "awsEndpointUrl"
-                  optional: true
-          volumeMounts:
-            - name: models
-              mountPath: /models
-          resources:
-            {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
-        {{- else if eq .Values.loraAdapter.sourceRegistry "hf" }}
-        - name: lora-downloader-hf
-          image: "{{ .Values.modelDownloader.hfImage }}"
-          imagePullPolicy: IfNotPresent
-          command: ["bash", "-c"]
-          args:
-            - |
-              set -euo pipefail
-              pip install --no-cache-dir "huggingface_hub>=0.24.0"
-              python - << "PY"
-              import os
-              from huggingface_hub import snapshot_download
-              repo_id = "{{ .Values.loraAdapter.name }}"
-              local_dir = "/models/{{ .Values.loraAdapter.name }}"
-              token = os.environ.get("HUGGING_FACE_HUB_TOKEN") or None
-              snapshot_download(repo_id=repo_id, local_dir=local_dir, token=token)
-              PY
-          env:
+            {{- include "modelDownloader.loraEnvVars" (list .Values.loraAdapter.sourceRegistry .) | nindent 12 }}
+            - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIRS
+              value: "{{ .Values.loraAdapter.name }}"
+            - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
+              value: "/models"
+            {{- if eq .Values.loraAdapter.sourceRegistry "hf" }}
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
                 secretKeyRef:
                   name: {{ include "loraRegistrySecretName" . }}
                   key: "hfToken"
                   optional: true
+            {{- end }}
           volumeMounts:
             - name: models
               mountPath: /models
+            {{- if eq .Values.loraAdapter.sourceRegistry "gcs" }}
+            - name: gcs-credentials-lora
+              mountPath: /etc/gcs-credentials-lora
+              readOnly: true
+            {{- end }}
           resources:
             {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
         {{- end }}
