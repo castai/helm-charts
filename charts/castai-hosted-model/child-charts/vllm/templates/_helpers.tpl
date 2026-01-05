@@ -32,26 +32,16 @@ Selector labels
 app.kubernetes.io/name: {{ include "vllm.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
-
 {{/*
-Check if model.sourceRegistry or loraAdapter.sourceRegistry requires a specific registry
-Usage: {{ if include "requiresRegistry" (list "gcs" .) }}
+Get the registry secret names, defaulting to the chart's fullname with a proper suffix
+Usage: {{ include "modelRegistrySecretName" . }}
 */}}
-{{- define "requiresRegistry" -}}
-{{- $registry := index . 0 -}}
-{{- $ctx := index . 1 -}}
-{{- if or (eq $ctx.Values.model.sourceRegistry $registry) (eq $ctx.Values.loraAdapter.sourceRegistry $registry) -}}
-{{- $registry -}}
-{{- end -}}
+{{- define "modelRegistrySecretName" -}}
+{{- .Values.model.registry.secretName | default (printf "%s-model-registry" (include "vllm.fullname" .)) -}}
 {{- end }}
 
-
-{{/*
-Get the registry secret name, defaulting to the chart's fullname
-Usage: {{ include "registrySecretName" . }}
-*/}}
-{{- define "registrySecretName" -}}
-{{- .Values.registries.secretName | default (include "vllm.fullname" .) -}}
+{{- define "loraRegistrySecretName" -}}
+{{- .Values.loraAdapter.registry.secretName | default (printf "%s-lora-registry" (include "vllm.fullname" .)) -}}
 {{- end }}
 
 {{/*
@@ -61,7 +51,9 @@ Usage {{ include "modelReference" . }}
 {{- define "modelReference" -}}
 {{- if eq .Values.model.sourceRegistry "hf" -}}
 {{ .Values.model.name }}
-{{- else if .Values.useRunAiStreamer -}}
+{{- else if and .Values.useRunAiStreamer (eq .Values.model.sourceRegistry "gcs") -}}
+gs://{{ .Values.model.name }}
+{{- else if and .Values.useRunAiStreamer (eq .Values.model.sourceRegistry "s3") -}}
 s3://{{ .Values.model.name }}
 {{- else -}}
 /models/{{ .Values.model.name }}
@@ -69,28 +61,123 @@ s3://{{ .Values.model.name }}
 {{- end }}
 
 {{/*
-Generate model downloader's storage environment variables based on source registry type
-Usage: {{ include "modelDownloader.sourceRegistryEnvVars" "gcs" }}
+Create LoRA adapter path based on source registry
+For HF, vLLM can pull directly from Hugging Face, so we use the repo ID
+For GCS/S3, we use the local path where the init container downloads it
+Usage {{ include "loraAdapterPath" . }}
 */}}
-{{- define "modelDownloader.sourceRegistryEnvVars" -}}
-{{- $storageType := . -}}
+{{- define "loraAdapterPath" -}}
+{{- if eq .Values.loraAdapter.sourceRegistry "hf" -}}
+{{ .Values.loraAdapter.name }}
+{{- else -}}
+/models/{{ .Values.loraAdapter.name }}
+{{- end -}}
+{{- end }}
+
+{{/*
+Generate model downloader's storage environment variables for model registry
+Usage: {{ include "modelDownloader.modelEnvVars" (list "gcs" .) }}
+*/}}
+{{- define "modelDownloader.modelEnvVars" -}}
+{{- $storageType := index . 0 -}}
+{{- $ctx := index . 1 -}}
 {{- if eq $storageType "gcs" -}}
 - name: STORAGE_TYPE
   value: "gcs"
 - name: GCS_CREDENTIALS_FILE
-  value: "/etc/gcs-credentials/credentials.json"
+  value: "/etc/gcs-credentials-model/credentials.json"
+{{- else if eq $storageType "s3" -}}
+- name: STORAGE_TYPE
+  value: "s3"
+- name: AWS_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" $ctx }}
+      key: "awsAccessKeyId"
+      optional: true
+- name: AWS_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" $ctx }}
+      key: "awsSecretAccessKey"
+      optional: true
+- name: AWS_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" $ctx }}
+      key: "awsRegion"
+      optional: true
+- name: AWS_DEFAULT_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" $ctx }}
+      key: "awsRegion"
+      optional: true
+- name: AWS_ENDPOINT_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" $ctx }}
+      key: "awsEndpointUrl"
+      optional: true
 {{- end -}}
 {{- end }}
 
+{{/*
+Generate model downloader's storage environment variables for LoRA registry
+Usage: {{ include "modelDownloader.loraEnvVars" (list "gcs" .) }}
+*/}}
+{{- define "modelDownloader.loraEnvVars" -}}
+{{- $storageType := index . 0 -}}
+{{- $ctx := index . 1 -}}
+{{- if eq $storageType "gcs" -}}
+- name: STORAGE_TYPE
+  value: "gcs"
+- name: GCS_CREDENTIALS_FILE
+  value: "/etc/gcs-credentials-lora/credentials.json"
+{{- else if eq $storageType "s3" -}}
+- name: STORAGE_TYPE
+  value: "s3"
+- name: AWS_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "awsAccessKeyId"
+      optional: true
+- name: AWS_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "awsSecretAccessKey"
+      optional: true
+- name: AWS_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "awsRegion"
+      optional: true
+- name: AWS_DEFAULT_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "awsRegion"
+      optional: true
+- name: AWS_ENDPOINT_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "awsEndpointUrl"
+      optional: true
+{{- end -}}
+{{- end }}
 
 {{/*
 Generate model downloader's volume mounts based on source registry type
-Usage: {{ include "modelDownloader.sourceRegistryVolumeMounts "gcs" }}
+Usage: {{ include "modelDownloader.sourceRegistryVolumeMounts" "gcs" }}
 */}}
 {{- define "modelDownloader.sourceRegistryVolumeMounts" -}}
 {{- $storageType := . -}}
 {{- if eq $storageType "gcs" -}}
-- name: gcs-credentials
+- name: gcs-credentials-lora
   mountPath: /etc/gcs-credentials
   readOnly: true
 {{- end -}}
