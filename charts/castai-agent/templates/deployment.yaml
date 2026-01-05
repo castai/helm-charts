@@ -188,6 +188,9 @@ spec:
           volumeMounts:
             - name: shared-metadata
               mountPath: /agent-metadata
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           env:
             - name: MODE
               value: monitor

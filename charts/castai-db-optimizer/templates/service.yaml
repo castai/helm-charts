@@ -28,9 +28,13 @@ spec:
       port: 9050
       targetPort: grpc
       protocol: TCP
-    - name: metrics
+    - name: qp-metrics
       port: 2112
-      targetPort: metrics
+      targetPort: qp-metrics
+      protocol: TCP
+    - name: proxy-metrics
+      port: 9901
+      targetPort: proxy-metrics
       protocol: TCP
   selector:
     {{- include "selectorLabels" . | nindent 4 }}

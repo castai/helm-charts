@@ -1,8 +1,14 @@
+# global -- Global values inherited from parent chart.
+global:
+  # global.commonLabels -- Labels to add to all resources (inherited from parent chart).
+  commonLabels: {}
+  # global.commonAnnotations -- Annotations to add to all resources (inherited from parent chart).
+  commonAnnotations: {}
 
-# commonLabels -- Labels to add to all resources.
+# commonLabels -- Labels to add to all resources (in addition to global.commonLabels).
 commonLabels: {}
 
-# annotations - Annotations to add to all resources.
+# commonAnnotations -- Annotations to add to all resources (in addition to global.commonAnnotations).
 commonAnnotations: {}
 
 nameOverride: ""
