@@ -101,3 +101,12 @@ rules:
       - get
       - list
       - watch
+  # ------------------------------------------------
+  # Pod events (for node-related pod events feature)
+  # ------------------------------------------------
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
