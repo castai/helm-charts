@@ -1,8 +1,4 @@
-{{- $resourceQuotaEnabled := true }}
-{{- if hasKey .Values "resourceQuota" }}
-{{- $resourceQuotaEnabled = .Values.resourceQuota.enabled }}
-{{- end }}
-{{- if and ((.Values.priorityClass | default dict).enabled) $resourceQuotaEnabled }}
+{{- if and .Values.resourceQuota.enabled ((.Values.priorityClass | default dict).enabled)  }}
 apiVersion: v1
 kind: ResourceQuota
 metadata:
