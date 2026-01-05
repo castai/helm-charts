@@ -90,26 +90,21 @@ spec:
         - maxSkew: {{ .maxSkew }}
           topologyKey: {{ .topologyKey }}
           whenUnsatisfiable: {{ .whenUnsatisfiable }}
-          {{- if .labelSelector }}
-          labelSelector:
-            {{- toYaml .labelSelector | nindent 12 }}
-          {{- else }}
           labelSelector:
             matchLabels:
-              app.kubernetes.io/instance: {{ $.Release.Name }}
-          {{- end }}
-          {{- if .matchLabelKeys }}
+              {{- include "cluster-controller.selectorLabels" $ | nindent 14 }}
+          {{- with .matchLabelKeys }}
           matchLabelKeys:
-            {{- toYaml .matchLabelKeys | nindent 12 }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .nodeTaintsPolicy }}
-          nodeTaintsPolicy: {{ .nodeTaintsPolicy }}
+          {{- with .nodeTaintsPolicy }}
+          nodeTaintsPolicy: {{ . }}
           {{- end }}
-          {{- if .nodeAffinityPolicy }}
-          nodeAffinityPolicy: {{ .nodeAffinityPolicy }}
+          {{- with .nodeAffinityPolicy }}
+          nodeAffinityPolicy: {{ . }}
           {{- end }}
-          {{- if .minDomains }}
-          minDomains: {{ .minDomains }}
+          {{- with .minDomains }}
+          minDomains: {{ . }}
           {{- end }}
         {{- end }}
       {{- end }}
