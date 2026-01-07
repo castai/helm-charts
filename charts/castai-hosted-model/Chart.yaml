@@ -2,10 +2,10 @@ apiVersion: v2
 name: castai-hosted-model
 description: CAST AI hosted model deployment chart.
 type: application
-version: 0.0.32
+version: 0.0.39
 appVersion: "v0.0.1"
 dependencies:
   - name: vllm
-    version: 0.0.25
+    version: 0.0.32
     repository: file://child-charts/vllm
     condition: vllm.enabled

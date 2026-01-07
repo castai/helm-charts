@@ -59,25 +59,38 @@ spec:
                   fieldPath: spec.nodeName
             - name: API_URL
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+          {{- $clusterIdCount := 0 }}
+          {{- if .Values.castai.clusterID }}{{ $clusterIdCount = add1 $clusterIdCount }}{{ end }}
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}{{ $clusterIdCount = add1 $clusterIdCount }}{{ end }}
+          {{- if .Values.castai.clusterIdConfigMapKeyRef.name }}{{ $clusterIdCount = add1 $clusterIdCount }}{{ end }}
+          {{- if gt $clusterIdCount 1 }}
+            {{- fail "clusterID, clusterIdSecretKeyRef and clusterIdConfigMapKeyRef are mutually exclusive" }}
+          {{- end }}
           {{- if .Values.castai.clusterID }}
-            {{- if ne .Values.castai.clusterIdSecretKeyRef.name "" }}
-            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
-            {{- end }}
             - name: CLUSTER_ID
-              value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
-          {{- else }}
-            {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+              value: {{ .Values.castai.clusterID | quote }}
+              valueFrom: null # Works around https://github.com/helm/helm/issues/8994
+          {{- else if .Values.castai.clusterIdSecretKeyRef.name }}
             - name: CLUSTER_ID
+              value: null # Works around https://github.com/helm/helm/issues/8994
               valueFrom:
                 secretKeyRef:
                   name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ .Values.castai.clusterIdSecretKeyRef.key }}
-            {{- else if not .Values.envFrom}}
-            {{- fail "either clusterID or clusterIdSecretKeyRef must be provided" }}
-            {{- end }}
+          {{- else if .Values.castai.clusterIdConfigMapKeyRef.name }}
+            - name: CLUSTER_ID
+              value: null # Works around https://github.com/helm/helm/issues/8994
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.clusterIdConfigMapKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdConfigMapKeyRef.key }}
+          {{- else if not .Values.envFrom }}
+            {{- fail "either clusterID, clusterIdSecretKeyRef or clusterIdConfigMapKeyRef must be provided" }}
           {{- end }}
             - name: PROVIDER
               value: {{ required "castai.provider must be provided" .Values.castai.provider | quote }}
+            - name: PHASE2_PERMISSIONS
+              value: {{ .Values.phase2Permissions | quote }}
             {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"

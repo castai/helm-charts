@@ -46,6 +46,9 @@ podLabels: {}
 # -- Used to set additional environment variables for the pod-mutator container.
 additionalEnv: {}
 
+# healthProbePort -- Port for liveness and readiness probes
+healthProbePort: 8081
+
 priorityClass:
   enabled: true
   name: system-cluster-critical
@@ -53,6 +56,10 @@ priorityClass:
 tolerations:
   - key: scheduling.cast.ai/spot
     operator: Exists
+  - effect: NoSchedule
+    key: provisioning.cast.ai/temporary
+    operator: Equal
+    value: "resuming"
 
 # List of additional pod antiaffinity which can be ignored
 enableTopologySpreadConstraints: false

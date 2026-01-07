@@ -19,11 +19,42 @@ cacheGroupID: ""
 # protocol -- Specifies database protocol to be used for communication and query parsing.
 protocol: "PostgreSQL"
 
+service:
+  # -- Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic.
+  # Requires Kubernetes 1.31+.
+  # Ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-distribution
+  trafficDistribution: ""
+
 # commonLabels -- Labels to add to all resources.
 commonLabels: {}
 
 # commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
+
+# -- CAST.AI workload optimization annotations.
+# Leave as null to apply default configuration with CPU minimums derived from resources.queryProcessor.cpu and resources.proxy.cpu.
+# Set to {} (empty map) to disable workload annotations entirely.
+# Set to custom values to override with your own annotations.
+# Ref: https://docs.cast.ai/docs/workload-autoscaling
+workloadsAnnotations: null
+# To disable: workloadsAnnotations: {}
+# Example custom configuration:
+# workloadsAnnotations:
+#   workloads.cast.ai/configuration: |
+#     vertical:
+#       memory:
+#         optimization: on
+#       cpu:
+#         optimization: auto
+#     containers:
+#       query-processor:
+#         cpu:
+#           min: "4"
+#           max: "8"
+#       proxy:
+#         cpu:
+#           min: "1"
+#           max: "2"
 
 # -- Extra labels to add to the pod.
 podLabels: {}
@@ -36,19 +67,10 @@ resources:
     cpu: "500m"
     memoryRequest: "2Gi"
     memoryLimit: "2Gi"
-    # -- max allowed database size in disk.
-    cacheDbSizeBytes: 1000000000
-    # -- maximum number of entries to keep in the proxy.
-    maxCacheEntries: 1000000000
   queryProcessor:
     cpu: "2"
-    memory: "1Gi"
-
-# -- deprecated: Hostname of the upstream Postgres instance.
-upstreamPostgresHostname: ""
-# -- deprecated: Port of the upstream Postgres instance.
-upstreamPostgresPort: 5432
-
+    memoryRequest: "1Gi"
+    memoryLimit: "1Gi"
 
 # -- A list of upstream database endpoints
 endpoints:
@@ -76,10 +98,8 @@ endpoints:
 proxy:
   # -- Default proxy log level.
   logLevel: "filter:info"
-  # -- Ensure proxy is alive and healthy.
-  livenessProbeEnabled: true
-  # -- Number of parallel processing streams. This needs to be balanced with cpu resources for proxy and QP.
-  concurrency: 12
+  # -- Number of parallel processing streams. Use 0 to auto-calculate based on CPU limits.
+  concurrency: 0
   # -- DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead.
   dnsLookupFamily: V4_PREFERRED
   # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
@@ -92,18 +112,6 @@ proxy:
   networkDebug: false
   # -- Name of a Kubernetes TLS Secret that contains the key pair to use for configuring TLS in the proxy. If not set, defaults to using a built-in key pair.
   tlsSecretName:
-  # -- Ratio of used available bytes or entries from which we start evicting.
-  evictionThreshold: 0.5
-  # -- Ratio of used available bytes or entries from which we stop caching.
-  stopCachingThreshold: 0.95
-  # -- The size of one batch for writing.
-  writeBatchSize: 100
-  # -- The delay of one batch for writing.
-  writeBatchDelayMs: 100
-  # -- The period of the stats thread.
-  statsThreadPeriodMs: 1000
-  # -- The period of the evictions thread.
-  evictionThreadPeriodMs: 100
   # -- Envoy upstream connection limits, numbers given are the envoy defaults.
   connectionLimits:
     maxConnections: 10000          # Maximum number of connections per instance.
@@ -112,79 +120,28 @@ proxy:
     maxRetries: 3                  # Maximum parallel retries
   # -- Disable core dump collection by default
   coredumpCollectionMode: "None"
-  # -- Enable experimental cache in dbo proxy.
-  experimentalCache: false
-  cache:                          # Currently only used if experimentalCache is true
+  # -- Cache configuration
+  cache:
     # -- Maximum cache size in bytes, _should_ be divisible by cacheShards
     cacheSizeBytes: 2147483648    # 2 GiB
-    # -- Number of cache shards _must_ be power of 2
-    cacheShards: 64
+    # -- Number of cache shards _must_ be power of 2. Use 0 to auto-calculate based on concurrency.
+    cacheShards: 0
     # -- Maximum size of in-flight cache entries, _should_ be divisible by pendingShards
     pendingSizeBytes: 134217728  # 128 MiB
-    # -- Number of in-flight cache shards _must_ be power of 2
-    pendingShards: 64
+    # -- Number of in-flight cache shards _must_ be power of 2.  Use 0 to auto-calculate based on concurrency.
+    pendingShards: 0
 
 queryProcessor:
   # -- Default query-processor log level.
   logLevel: "warn"
-  # -- Default query-processor query cache size.
+  # -- Default query-processor query cache item size.
   queryCacheSize: 100000
+  # -- Default query-processor query cache byte size.
+  queryCacheBytes: 524288000  # 500 MiB
   # -- Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage.
   concurrency: 10
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
-
-pooling:
-  # -- Enable connection pooling sidecar.
-  enabled: false
-  # -- Pooling log level, must be one of error, warn, info, debug, trace, off
-  logLevel: "info"
-  # -- List of database names to create pools for (required when pooling is enabled)
-  databases: []
-  # -- Listen address for PgCat
-  listenAddress: "0.0.0.0"
-  # -- Pool mode (session or transaction)
-  poolMode: "transaction"
-  # -- Load balancing mode (random or loc)
-  loadBalancingMode: "random"
-  # -- Default role (any, primary, replica)
-  defaultRole: "any"
-  # -- Maximum pool size per user
-  poolSize: 20
-  # -- Minimum pool size per user
-  minPoolSize: 5
-  # -- Connect timeout in milliseconds
-  connectTimeout: 1000
-  # -- Idle timeout in milliseconds
-  idleTimeout: 30000
-  # -- Server lifetime in milliseconds
-  serverLifetime: 86400000
-  # -- Enable TLS for server connections
-  serverTLS: true
-  # -- Verify server certificate when using TLS
-  verifyServerCertificate: false
-  # -- Path to TLS certificate for server connections (PEM format)
-  tlsCertificateFilePath: ""
-  # -- Path to TLS private key for server connections (PEM format)
-  tlsPrivateKeyFilePath: ""
-  # -- Health check timeout in milliseconds
-  healthcheckTimeout: 1000
-  # -- Health check delay in milliseconds
-  healthcheckDelay: 30000
-  # -- Ban time in seconds
-  banTime: 60
-  # -- Log client connections
-  logClientConnections: false
-  # -- Log client disconnections
-  logClientDisconnections: false
-  # -- Username for database authentication
-  username: ""
-  # -- Password for database authentication
-  password: ""
-  # -- Name of secret with username for database authentication
-  credentialsSecretRef: ""
-  # -- Size of prepared statements cache
-  preparedStatementsCacheSize: 1000
 
 cloudSqlProxy:
   # -- Enable Cloud SQL Proxy sidecar
@@ -210,11 +167,6 @@ cloudSqlProxyImage:
   repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
-
-pgcatImage:
-  repository: us-docker.pkg.dev/castai-hub/library/dbo-pooling-pgcat
-  pullPolicy: IfNotPresent
-  tag: "v1.2.0-embedded-ssl"
 
 # -- The name of the service account to be used by the pod.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
@@ -262,3 +214,7 @@ affinity:
               operator: In
               values:
                 - cast.ai
+
+# -- Pod topology spread constraints.
+# Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+topologySpreadConstraints: []

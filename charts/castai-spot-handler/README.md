@@ -67,7 +67,9 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing access to the API The referenced secret must provide the token in .data["API_KEY"] apiKey and apiKeySecretRef are mutually exclusive. |
 | castai.apiKey | string | `""` |  |
 | castai.apiURL | string | `"https://api.cast.ai"` | CASTAI public api url. |
-| castai.clusterID | string | `""` | CASTAI Cluster unique identifier. castai.clusterID and castai.clusterIdSecretKeyRef are mutually exclusive |
+| castai.clusterID | string | `""` | CASTAI Cluster unique identifier. castai.clusterID, castai.clusterIdSecretKeyRef and castai.clusterIdConfigMapKeyRef are mutually exclusive |
+| castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
+| castai.clusterIdConfigMapKeyRef.name | string | `""` |  |
 | castai.clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai.clusterIdSecretKeyRef.name | string | `""` |  |
 | castai.provider | string | `""` | Cloud provider (azure, gcp, aws). |
@@ -79,6 +81,7 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | image.tag | string | `""` |  |
 | imagePullSecrets | object | `{}` | what secret should be used for pulling the image |
 | nodeSelector | object | `{}` |  |
+| phase2Permissions | bool | `true` |  |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
 | priorityClassName | string | `"system-cluster-critical"` |  |

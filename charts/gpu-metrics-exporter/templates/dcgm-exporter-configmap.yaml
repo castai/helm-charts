@@ -11,6 +11,9 @@ data:
     DCGM_FI_DEV_POWER_USAGE, gauge, Power usage for the device in Watts.
 
     # Utilization,,
+    # DCGM_FI_DEV_GPU_UTIL provides overall GPU utilization which is useful for scenarios
+    # like fractional GPU sharing (e.g., EKS time-slicing, MIG) where profiling metrics may not be available.
+    DCGM_FI_DEV_GPU_UTIL, gauge, GPU utilization (in %).
     DCGM_FI_PROF_SM_ACTIVE, gauge, The ratio of cycles an SM has at least 1 warp assigned
     DCGM_FI_PROF_SM_OCCUPANCY, gauge, The fraction of resident warps on a multiprocessor
     DCGM_FI_PROF_PIPE_TENSOR_ACTIVE, gauge, The ratio of cycles the tensor (HMMA) pipe is active (off the peak sustained elapsed cycles)

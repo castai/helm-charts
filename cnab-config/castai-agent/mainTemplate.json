@@ -22,7 +22,7 @@
       }
     },
     "apiKey": {
-      "type": "String"
+      "type": "SecureString"
     },
     "vmSize": {
       "type": "String",
@@ -184,15 +184,17 @@
     },
     {
       "type": "Microsoft.KubernetesConfiguration/extensions",
-      "apiVersion": "2025-01-01",
+      "apiVersion": "2024-11-01",
       "name": "[variables('extensionResourceName')]",
       "properties": {
         "extensionType": "[variables('clusterExtensionTypeName')]",
         "autoUpgradeMinorVersion": true,
         "releaseTrain": "[variables('releaseTrain')]",
         "configurationSettings": {
-          "apiKey": "[parameters('apiKey')]",
           "provider": "[variables('provider')]"
+        },
+        "configurationProtectedSettings": {
+          "apiKey": "[parameters('apiKey')]"
         }
       },
       "plan": {

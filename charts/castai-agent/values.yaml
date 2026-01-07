@@ -190,7 +190,7 @@ topologySpreadConstraints:
 
 metadataStore:
   # metadataStore.enabled -- specifies whether agent should store metadata in a config map
-  enabled: false
+  enabled: true
   # metadataStore.configMapName -- name of config map to store metadata
   configMapName: castai-agent-metadata
   # metadataStore.configMapName -- namespace of config map to store metadata
@@ -204,3 +204,13 @@ extraVolumes: []
 
 # -- Used to set additional volume mounts.
 extraVolumeMounts: []
+
+# OpenShift-specific configuration
+openshift:
+  scc:
+    # priority -- Priority for the SecurityContextConstraints resource.
+    # Lower priority than OpenShift's anyuid (10) to avoid conflicts during cluster upgrades.
+    # Set to null for lowest priority, or customize based on your environment.
+    # WARNING: Using priority 10 or higher can cause authentication issues during upgrades.
+    # See https://access.redhat.com/solutions/4727461 for details.
+    priority: 5

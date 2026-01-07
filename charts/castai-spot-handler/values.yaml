@@ -35,11 +35,16 @@ castai:
   apiKey: ""
 
   # castai.clusterID -- CASTAI Cluster unique identifier.
-  # castai.clusterID and castai.clusterIdSecretKeyRef are mutually exclusive
+  # castai.clusterID, castai.clusterIdSecretKeyRef and castai.clusterIdConfigMapKeyRef are mutually exclusive
   clusterID: ""
   # clusterIdSecretKeyRef -- Name of secret with ClusterID
   # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
   clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
+  # clusterIdConfigMapKeyRef -- Name of configmap with ClusterID
+  # The referenced configmap must provide the ClusterID in .data[<<.Values.castai.clusterIdConfigMapKeyRef.key>>]
+  clusterIdConfigMapKeyRef:
     name: ""
     key: "CLUSTER_ID"
 
@@ -57,6 +62,11 @@ useHostNetwork: true
 
 # updateStrategy -- Controls `daemonset.spec.updateStrategy` field.
 updateStrategy: {}
+
+# Phase 2 permissions enable node patching capabilities (taints, labels, unschedulable)
+# Phase 1 (false): Only monitoring and read permissions
+# Phase 2 (true): Include permissions for tainting nodes
+phase2Permissions: true
 
 resources:
   requests:

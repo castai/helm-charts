@@ -76,6 +76,30 @@ app.kubernetes.io/name: {{ include "name" . }}
 {{- end }}
 
 {{- define "workloads-annotations" -}}
+{{- if hasKey .Values "workloadsAnnotations" }}
+  {{- if kindIs "map" .Values.workloadsAnnotations }}
+    {{- if eq (len .Values.workloadsAnnotations) 0 }}
+      {{- /* Empty map, render nothing (disabled) */ -}}
+    {{- else }}
+      {{- /* Custom annotations provided */ -}}
+{{- toYaml .Values.workloadsAnnotations }}
+    {{- end }}
+  {{- else }}
+    {{- /* Null or other non-map value, render default */ -}}
+workloads.cast.ai/configuration: |
+  vertical:
+    memory:
+      optimization: off
+    containers:
+      query-processor:
+        cpu:
+          min: {{ .Values.resources.queryProcessor.cpu }}
+      proxy:
+        cpu:
+          min: {{ .Values.resources.proxy.cpu }}
+  {{- end }}
+{{- else }}
+  {{- /* Not defined, render default */ -}}
 workloads.cast.ai/configuration: |
   vertical:
     memory:
@@ -88,3 +112,18 @@ workloads.cast.ai/configuration: |
         cpu:
           min: {{ .Values.resources.proxy.cpu }}
 {{- end }}
+{{- end }}
+
+{{/*
+Convert CPU resource limit to concurrency value.
+*/}}
+{{- define "cpu-to-concurrency" -}}
+{{- $cpu := toString . -}}
+{{- $cpuCores := 0.0 -}}
+{{- if hasSuffix "m" $cpu -}}
+  {{- $cpuCores = divf (float64 (trimSuffix "m" $cpu)) 1000.0 -}}
+{{- else -}}
+  {{- $cpuCores = float64 $cpu -}}
+{{- end -}}
+{{- int (ceil $cpuCores) -}}
+{{- end -}}

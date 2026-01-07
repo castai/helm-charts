@@ -1,6 +1,6 @@
 image:
   repository: "us-docker.pkg.dev/castai-hub/library/vllm-openai"
-  tag: "v0.10.2"
+  tag: "v0.11.2"
 
 replicaCount: 1
 resources: {}
@@ -8,19 +8,13 @@ resources: {}
 modelDownloader:
   image:
     repository: "us-docker.pkg.dev/castai-hub/library/model-downloader"
-    tag: "v0.0.2"
+    tag: "v0.0.3"
   resources:
     requests:
       memory: "500Mi"
       cpu: "100m"
     limits:
       memory: "500Mi"
-  s3ProxyResources:
-    requests:
-      memory: "1Gi"
-      cpu: "100m"
-    limits:
-      memory: "1Gi"
 
 useRunAiStreamer: false
 
@@ -28,19 +22,35 @@ model:
   # -- HF Model name or path in object storage
   name:
   sourceRegistry: "hf"
+  registry:
+    secretName:
+    createSecret: true
+    gcs:
+      credentialsJsonBase64:
+    hf:
+      token:
+    s3:
+      accessKeyId:
+      secretAccessKey:
+      region:
+      endpointUrl:
 
 loraAdapter:
-  # -- HF Model name or path in object storage
+  # -- HF Adapter name or path in object storage
   name:
   sourceRegistry: "hf"
-
-registries:
-  secretName:
-  createSecret: true
-  gcs:
-    credentialsJsonBase64:
-  hf:
-    token:
+  registry:
+    secretName:
+    createSecret: true
+    gcs:
+      credentialsJsonBase64:
+    hf:
+      token:
+    s3:
+      accessKeyId:
+      secretAccessKey:
+      region:
+      endpointUrl:
 
 container:
   port: 8000
@@ -64,8 +74,8 @@ startupProbe:
   enabled: true
   initialDelaySeconds: 20
   periodSeconds: 6
-  # Allow for up to 20 minutes of startup time
-  failureThreshold: 200
+  # Allow for up to 60 minutes of startup time
+  failureThreshold: 600
   # -- Number of seconds after which the probe times out
   timeoutSeconds: 1
   # -- Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for startup probe)

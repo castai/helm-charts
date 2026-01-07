@@ -37,6 +37,9 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts |
 | extraVolumes | list | `[]` | Used to set additional volumes |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
+| global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Global values that are propagated to child charts. |
+| global.commonAnnotations | object | `{}` | Annotations to add to all resources (including child charts). |
+| global.commonLabels | object | `{}` | Labels to add to all resources (including child charts). |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/cluster-controller"` |  |
@@ -63,7 +66,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | serviceAccount.annotations | object | `{}` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
-| tolerations | object | `{}` |  |
+| tolerations | list | `[]` |  |
 | topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-cluster-controller"` |  |
 | topologySpreadConstraints[0].maxSkew | int | `1` |  |
 | topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |

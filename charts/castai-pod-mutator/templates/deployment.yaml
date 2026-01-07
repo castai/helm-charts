@@ -45,6 +45,16 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          {{- if semverCompare ">=1.30-0" .Capabilities.KubeVersion.Version }}
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: 5
+          {{- end }}
+          ports:
+            - name: health
+              containerPort: {{ .Values.healthProbePort }}
+              protocol: TCP
           env:
             - name: POD_NAMESPACE
               valueFrom:
@@ -60,6 +70,8 @@ spec:
               value: "true"
             - name: CERTS_SECRET
               value: {{ include "pod-mutator.certsSecretName" . }}
+            - name: HEALTH_PROBE_ADDR
+              value: ":{{ .Values.healthProbePort }}"
             {{- range $name, $value := .Values.additionalEnv }}
             - name: "{{ $name }}"
               value: "{{ $value }}"
@@ -115,6 +127,22 @@ spec:
             - mountPath: /certs
               name: certs
               readOnly: true
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: {{ .Values.healthProbePort }}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: {{ .Values.healthProbePort }}
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 1
+            failureThreshold: 3
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:

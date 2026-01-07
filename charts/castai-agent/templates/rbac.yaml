@@ -95,6 +95,15 @@ rules:
       - list
       - watch
   - apiGroups:
+      - "keda.sh"
+    resources:
+      - scaledobjects
+      - scaledjobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
       - "metrics.k8s.io"
     resources:
       - pods
@@ -170,6 +179,14 @@ rules:
       - resourceclaimtemplates
       - resourceslices
       - devicetaintrules
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "autoscaling.cast.ai"
+    resources:
+      - custommetricsexporterconfigs
     verbs:
       - get
       - list

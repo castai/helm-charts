@@ -2,6 +2,13 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# global -- Global values that are propagated to child charts.
+global:
+  # global.commonLabels -- Labels to add to all resources (including child charts).
+  commonLabels: {}
+  # global.commonAnnotations -- Annotations to add to all resources (including child charts).
+  commonAnnotations: {}
+
 # replicas -- Number of replicas for castai-cluster-controller deployment.
 replicas: 2
 pdbMinAvailable: 1
@@ -89,7 +96,7 @@ monitor:
 
 # Pod toleration rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
-tolerations: {}
+tolerations: []
 
 # Pod node selector rules.
 # Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/

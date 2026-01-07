@@ -33,6 +33,18 @@ inputs:
   release-tag:
     description: "Release tag to be used. If not provided, the tag will be taken from the GITHUB_REF"
     required: false
+  chart-version-from-tag:
+    description: "If true, set chart version from release tag instead of auto-incrementing patch. Default: false (backwards compatible)"
+    required: false
+    default: "false"
+  git-author-name:
+    description: "Git author name for commits (defaults to github actor). Can be used to set github app as commit author"
+    required: false
+    default: ""
+  git-author-email:
+    description: "Git author email for commits (defaults to github actor email). Can be used to set github app as commit author"
+    required: false
+    default: ""
 
 outputs: {}
 
@@ -62,8 +74,10 @@ runs:
       shell: bash
       run: |
         cd helm-charts
-        git config user.name "$GITHUB_ACTOR"
-        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        GIT_AUTHOR_NAME="${{ inputs.git-author-name }}"
+        GIT_AUTHOR_EMAIL="${{ inputs.git-author-email }}"
+        git config user.name "${GIT_AUTHOR_NAME:-$GITHUB_ACTOR}"
+        git config user.email "${GIT_AUTHOR_EMAIL:-$GITHUB_ACTOR@users.noreply.github.com}"
 
     - name: Install Helm
       uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4
@@ -83,7 +97,11 @@ runs:
     - name: Bump chart version
       shell: bash
       run: |
-        python ${{ github.action_path }}/bump_chart.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+        if [ "${{ inputs.chart-version-from-tag }}" == "true" ]; then
+          python ${{ github.action_path }}/chart_version_from_tag.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+        else
+          python ${{ github.action_path }}/bump_chart.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+        fi
 
     - name: Parse Chart.yaml
       id: parse-chart
@@ -131,8 +149,10 @@ runs:
       run: |
         git status
         git diff
-        git config user.name "$GITHUB_ACTOR"
-        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        GIT_AUTHOR_NAME="${{ inputs.git-author-name }}"
+        GIT_AUTHOR_EMAIL="${{ inputs.git-author-email }}"
+        git config user.name "${GIT_AUTHOR_NAME:-$GITHUB_ACTOR}"
+        git config user.email "${GIT_AUTHOR_EMAIL:-$GITHUB_ACTOR@users.noreply.github.com}"
         git checkout main
         git add ${{ inputs.chart-path }}/Chart.yaml
         git commit -m "[Release] Update Chart.yaml"
@@ -156,10 +176,12 @@ runs:
           echo "Sync chart with helm-charts github is disabled"
           exit 0
         fi
-        
+
         cd helm-charts
-        git config user.name "$GITHUB_ACTOR"
-        git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+        GIT_AUTHOR_NAME="${{ inputs.git-author-name }}"
+        GIT_AUTHOR_EMAIL="${{ inputs.git-author-email }}"
+        git config user.name "${GIT_AUTHOR_NAME:-$GITHUB_ACTOR}"
+        git config user.email "${GIT_AUTHOR_EMAIL:-$GITHUB_ACTOR@users.noreply.github.com}"
         git checkout main
         cp -r ${{ inputs.chart-path }}/* ./charts/${{ steps.parse-chart.outputs.name }}
         git add charts/${{ steps.parse-chart.outputs.name }}

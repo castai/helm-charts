@@ -35,10 +35,18 @@ spec:
             medium: Memory
             sizeLimit: "10Gi"
         {{- end }}
-        {{- if include "requiresRegistry" (list "gcs" .) }}
-        - name: gcs-credentials
+        {{- if eq .Values.model.sourceRegistry "gcs" }}
+        - name: gcs-credentials-model
           secret:
-            secretName: {{ include "registrySecretName" . }}
+            secretName: {{ include "modelRegistrySecretName" . }}
+            items:
+              - key: gcsCredentialsJson
+                path: credentials.json
+        {{- end }}
+        {{- if and .Values.loraAdapter.name (eq .Values.loraAdapter.sourceRegistry "gcs") }}
+        - name: gcs-credentials-lora
+          secret:
+            secretName: {{ include "loraRegistrySecretName" . }}
             items:
               - key: gcsCredentialsJson
                 path: credentials.json
@@ -57,7 +65,7 @@ spec:
             - "--enable-lora"
             - "--max-lora-rank={{ .Values.maxLoraRank }}"
             - "--lora-modules"
-            - '{"name": "{{ .Values.loraAdapter.name }}", "path": "/models/{{ .Values.loraAdapter.name }}", "base_model_name": "{{ .Values.model.name }}"}'
+            - '{"name": "{{ .Values.loraAdapter.name }}", "path": "{{ include "loraAdapterPath" . }}", "base_model_name": "{{ .Values.model.name }}"}'
             {{- end }}
             {{- if .Values.useRunAiStreamer }}
             - "--load-format=runai_streamer"
@@ -65,6 +73,9 @@ spec:
             - "--trust-remote-code"
             {{- if .Values.gpuMemoryUtilization }}
             - "--gpu-memory-utilization={{ .Values.gpuMemoryUtilization }}"
+            {{- end }}
+            {{- if .Values.maxNumSeqs }}
+            - "--max-num-seqs={{ .Values.maxNumSeqs }}"
             {{- end }}
             - "--task={{ required "Required value 'task' must be defined" .Values.task }}"
             - "--dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }}"
@@ -81,6 +92,9 @@ spec:
             {{- if .Values.toolCallParser }}
             - "--tool-call-parser={{ .Values.toolCallParser }}"
             {{- end }}
+            {{- if .Values.reasoningParser }}
+            - "--reasoning-parser={{ .Values.reasoningParser }}"
+            {{- end }}
             - "--download-dir=/models"
             {{- if .Values.maxModelLen }}
             - "--max-model-len={{ .Values.maxModelLen }}"
@@ -94,31 +108,69 @@ spec:
             {{- if .Values.enableEager }}
             - "--enforce-eager"
             {{- end }}
+            {{- if .Values.swapSpace }}
+            - "--swap-space={{ .Values.swapSpace }}" # in GiB
+            {{- end }}
+            - "--show-hidden-metrics-for-version=0.10" # temp fix because AIBrix controller still uses the deprecated metrics
           env:
             - name: VLLM_IMAGE_FETCH_TIMEOUT # MM Models
-              value: "20"
+              value: "60"
             - name: HF_HOME # Otherwise transformers will not respect download dir in vLLM
               value: /models
             - name: LD_LIBRARY_PATH
               value: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
-            {{- if .Values.useRunAiStreamer }}
-            - name: AWS_REQUEST_CHECKSUM_CALCULATION
-              value: "when_required"
-            - name: AWS_RESPONSE_CHECKSUM_VALIDATION
-              value: "when_required"
-            - name: AWS_ENDPOINT_URL
-              value: "http://localhost:8080"
-            - name: AWS_ACCESS_KEY_ID
-              value: "local-identity"
-            - name: AWS_SECRET_ACCESS_KEY
-              value: "local-credential"
+            {{- if eq .Values.model.sourceRegistry "gcs" }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: "/etc/gcs-credentials/credentials.json"
             {{- end }}
+            {{- if eq .Values.model.sourceRegistry "s3" }}
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "modelRegistrySecretName" . }}
+                  key: "awsAccessKeyId"
+                  optional: true
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "modelRegistrySecretName" . }}
+                  key: "awsSecretAccessKey"
+                  optional: true
+            - name: AWS_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "modelRegistrySecretName" . }}
+                  key: "awsRegion"
+                  optional: true
+            - name: AWS_DEFAULT_REGION
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "modelRegistrySecretName" . }}
+                  key: "awsRegion"
+                  optional: true
+            - name: AWS_ENDPOINT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "modelRegistrySecretName" . }}
+                  key: "awsEndpointUrl"
+                  optional: true
+            {{- end }}
+            {{- if or (eq .Values.model.sourceRegistry "hf") .Values.model.registry.hf.token }}
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "registrySecretName" . }}
+                  name: {{ include "modelRegistrySecretName" . }}
                   key: "hfToken"
                   optional: true
+            {{- end }}
+            {{- if and .Values.loraAdapter.name (eq .Values.loraAdapter.sourceRegistry "hf") }}
+            - name: HUGGING_FACE_HUB_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "loraRegistrySecretName" . }}
+                  key: "hfToken"
+                  optional: true
+            {{- end }}
             {{- with .Values.env }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
@@ -168,48 +220,60 @@ spec:
           {{- end }}
             - name: models
               mountPath: /models
+          {{- if eq .Values.model.sourceRegistry "gcs" }}
+            - name: gcs-credentials-model
+              mountPath: /etc/gcs-credentials
+              readOnly: true
+          {{- end }}
+      {{- if .Values.loraAdapter.name }}
       initContainers:
-        {{- if or .Values.loraAdapter.name (and (ne .Values.model.sourceRegistry "hf") (not .Values.useRunAiStreamer)) }}
-        {{- $sourceRegistry := .Values.model.sourceRegistry }}
-        {{- if .Values.loraAdapter.name }}
-        {{- $sourceRegistry = .Values.loraAdapter.sourceRegistry }}
-        {{- end }}
-        - name: model-downloader
+        {{- if and (ne .Values.model.sourceRegistry "hf") (not .Values.useRunAiStreamer) }}
+        - name: model-downloader-base
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           imagePullPolicy: IfNotPresent
           args:
             - download
           env:
-            {{- include "modelDownloader.sourceRegistryEnvVars" $sourceRegistry | nindent 12 }}
+            {{- include "modelDownloader.modelEnvVars" (list .Values.model.sourceRegistry .) | nindent 12 }}
             - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIRS
-              value: "{{ include "modelDownloader.remoteSourceDirs" . }}"
+              value: "{{ .Values.model.name }}"
             - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
               value: "/models"
           volumeMounts:
             - name: models
               mountPath: /models
-            {{- include "modelDownloader.sourceRegistryVolumeMounts" $sourceRegistry | nindent 12 }}
+            {{- if eq .Values.model.sourceRegistry "gcs" }}
+            - name: gcs-credentials-model
+              mountPath: /etc/gcs-credentials-model
+              readOnly: true
+            {{- end }}
           resources:
             {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
         {{- end }}
-        {{- if and (ne .Values.model.sourceRegistry "hf") .Values.useRunAiStreamer }}
-        - name: s3proxy
+        {{- if and .Values.loraAdapter.name (ne .Values.loraAdapter.sourceRegistry "hf") }}
+        - name: model-downloader-lora
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
-          restartPolicy: Always
           imagePullPolicy: IfNotPresent
           args:
-            - s3proxy
-          ports:
-            - name: s3proxy
-              containerPort: 8080
-              protocol: TCP
+            - download
           env:
-            {{- include "modelDownloader.sourceRegistryEnvVars" .Values.model.sourceRegistry | nindent 12 }}
+            {{- include "modelDownloader.loraEnvVars" (list .Values.loraAdapter.sourceRegistry .) | nindent 12 }}
+            - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIRS
+              value: "{{ .Values.loraAdapter.name }}"
+            - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
+              value: "/models"
           volumeMounts:
-            {{- include "modelDownloader.sourceRegistryVolumeMounts" .Values.model.sourceRegistry | nindent 12 }}
+            - name: models
+              mountPath: /models
+            {{- if eq .Values.loraAdapter.sourceRegistry "gcs" }}
+            - name: gcs-credentials-lora
+              mountPath: /etc/gcs-credentials-lora
+              readOnly: true
+            {{- end }}
           resources:
-            {{- toYaml .Values.modelDownloader.s3ProxyResources | nindent 12 }}
+            {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
         {{- end }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

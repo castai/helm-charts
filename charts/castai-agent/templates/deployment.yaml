@@ -48,8 +48,12 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "castai-agent.serviceAccountName" . }}
       automountServiceAccountToken: true
-      {{- with .Values.tolerations }}
       tolerations:
+        - effect: NoSchedule
+          key: provisioning.cast.ai/temporary
+          operator: Equal
+          value: "resuming"
+      {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
@@ -184,6 +188,9 @@ spec:
           volumeMounts:
             - name: shared-metadata
               mountPath: /agent-metadata
+            {{- with .Values.extraVolumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           env:
             - name: MODE
               value: monitor
