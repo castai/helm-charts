@@ -191,6 +191,14 @@ rules:
       - get
       - list
       - watch
+  - apiGroups:
+      - "storageoptimization.cast.ai"
+    resources:
+      - nodediskrecommendations
+    verbs:
+      - get
+      - list
+      - watch
   - nonResourceURLs:
       - "/version"
     verbs:
@@ -324,6 +332,17 @@ rules:
     verbs:
       - patch
   {{- end }}
+  # ---
+  # Required for node disk recommendation CRD access
+  # ---
+  - apiGroups:
+      - "storageoptimization.cast.ai"
+    resources:
+      - nodediskrecommendations
+    verbs:
+      - get
+      - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
