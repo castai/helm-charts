@@ -1,3 +1,4 @@
+{{- $pgDogPort := 6432}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -150,7 +151,7 @@ data:
                         socket_address:
                           {{- if and $.Values.pgdog $.Values.pgdog.enabled }}
                           address: 127.0.0.1 # local pgdog container running in the same pod
-                          port_value: {{ $.Values.pgdog.port | default 6432 }}
+                          port_value: {{ $pgDogPort }}
                           {{- else if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
                           address: 127.0.0.1 # local cloud-sql-proxy container running in the same pod
                           port_value: {{ add $.Values.cloudSqlProxy.basePort $index }}
