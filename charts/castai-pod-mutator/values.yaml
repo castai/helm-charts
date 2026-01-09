@@ -148,3 +148,23 @@ envFrom: []
 dependencyCheck:
   # -- Enable or disable dependency check preinstall hook
   enabled: true
+
+# OpenShift-specific configuration
+openshift:
+  scc:
+    # enabled -- Whether to create the SecurityContextConstraints resource.
+    # Set to false to disable SCC creation and rely on OpenShift's default restricted-v2 SCC.
+    enabled: true
+    # priority -- Priority for the SecurityContextConstraints resource.
+    # Default is 10 for backward compatibility. Lower values reduce the chance of
+    # this SCC being selected for unrelated workloads.
+    # WARNING: Using priority 10 or higher can cause conflicts with OpenShift platform workloads.
+    priority: 10
+    # useRestrictedProfile -- Use OpenShift-compatible restricted profile settings.
+    # When enabled:
+    #   - Changes runAsUser strategy from MustRunAs to MustRunAsRange (lets OpenShift assign UIDs)
+    #   - Removes readOnlyRootFilesystem constraint from SCC (still enforced in pod spec)
+    #   - Omits hardcoded UIDs from pod securityContext
+    # This prevents CAST AI SCCs from being inadvertently applied to other workloads.
+    # WARNING: Only enable if CAST AI container images support running as arbitrary UIDs.
+    useRestrictedProfile: false

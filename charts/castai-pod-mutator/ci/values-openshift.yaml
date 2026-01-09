@@ -1,0 +1,28 @@
+# OpenShift-specific values example for castai-pod-mutator
+# Use this file to avoid SCC conflicts with OpenShift platform workloads
+
+castai:
+  apiURL: "https://api.cast.ai"
+  apiKey: ""
+  clusterID: "a24cd53c-0d56-4422-88e6-f82f78ef8f20"
+  apiKeySecretRef: "test"
+
+openshift:
+  scc:
+    enabled: true
+    priority: 1
+    useRestrictedProfile: true
+
+podSecurityContext:
+  runAsNonRoot: true
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+isTest: true
+dependencyCheck:
+  enabled: false

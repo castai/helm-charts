@@ -4,6 +4,9 @@
 
 {{- if .Capabilities.APIVersions.Has "security.openshift.io/v1" -}}
 {{- if and .Values.securityContext .Values.containerSecurityContext }}
+{{- $sccEnabled := .Values.openshift.scc.enabled | default true }}
+{{- $useRestrictedProfile := .Values.openshift.scc.useRestrictedProfile | default false }}
+{{- if $sccEnabled }}
 
 apiVersion: security.openshift.io/v1
 kind: SecurityContextConstraints
@@ -20,6 +23,9 @@ allowPrivilegeEscalation: {{ .Values.containerSecurityContext.allowPrivilegeEsca
 allowedCapabilities: []
 defaultAddCapabilities: []
 fsGroup:
+  {{- if $useRestrictedProfile }}
+  type: RunAsAny
+  {{- else }}
   type: MustRunAs
   {{- if .Values.securityContext.fsGroup }}
   ranges:
@@ -28,7 +34,10 @@ fsGroup:
   {{- else }}
   {{- fail "SCC requires .Values.securityContext.fsGroup to be set for fsGroup.type MustRunAs" }}
   {{- end }}
+  {{- end }}
+{{- if not $useRestrictedProfile }}
 readOnlyRootFilesystem: {{ .Values.containerSecurityContext.readOnlyRootFilesystem | default true }}
+{{- end }}
 requiredDropCapabilities:
   {{- if and .Values.containerSecurityContext.capabilities .Values.containerSecurityContext.capabilities.drop }}
   {{- toYaml .Values.containerSecurityContext.capabilities.drop | nindent 2 }}
@@ -36,15 +45,22 @@ requiredDropCapabilities:
   []
   {{- end }}
 runAsUser:
+  {{- if $useRestrictedProfile }}
+  type: MustRunAsRange
+  {{- else }}
   type: MustRunAs
   {{- if .Values.securityContext.runAsUser }}
   uid: {{ .Values.securityContext.runAsUser }}
   {{- else }}
   {{- fail "SCC requires .Values.securityContext.runAsUser to be set for runAsUser.type MustRunAs" }}
   {{- end }}
+  {{- end }}
 seLinuxContext:
   type: RunAsAny
 supplementalGroups:
+  {{- if $useRestrictedProfile }}
+  type: RunAsAny
+  {{- else }}
   type: MustRunAs
   {{- if .Values.securityContext.runAsGroup }}
   ranges:
@@ -56,6 +72,7 @@ supplementalGroups:
     max: {{ .Values.securityContext.fsGroup }}
   {{- else }}
   {{- fail "SCC requires .Values.securityContext.runAsGroup or .Values.securityContext.fsGroup for supplementalGroups.type MustRunAs" }}
+  {{- end }}
   {{- end }}
 volumes:
 - configMap
@@ -107,5 +124,6 @@ roleRef:
   name: {{ include "castai-agent.sccName" . }}-user
   apiGroup: rbac.authorization.k8s.io
 
+{{- end }}{{/* End $sccEnabled check */}}
 {{- end }}{{/* End .Values.securityContext and .Values.containerSecurityContext check */}}
 {{- end }}{{/* End .Capabilities.APIVersions.Has check */}}
