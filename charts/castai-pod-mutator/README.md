@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.4.1](https://img.shields.io/badge/Version-0.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.2.5](https://img.shields.io/badge/AppVersion-v0.2.5-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.2.5](https://img.shields.io/badge/AppVersion-v0.2.5-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -41,6 +41,9 @@ CAST AI Pod Mutator.
 | image.tag | string | `""` |  |
 | mutator.processingDelay | string | `"30s"` |  |
 | nameOverride | string | `""` |  |
+| openshift.scc.enabled | bool | `true` |  |
+| openshift.scc.priority | int | `5` |  |
+| openshift.scc.useRestrictedProfile | bool | `false` |  |
 | podAnnotations | object | `{}` | Annotations added to each pod. |
 | podLabels | object | `{}` |  |
 | podSecurityContext.fsGroup | int | `1005` |  |
