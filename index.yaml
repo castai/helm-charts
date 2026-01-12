@@ -9152,6 +9152,23 @@ entries:
     version: 0.1.0
   castai-evictor:
   - annotations:
+      release-date: 2026-01-12T13:07:31
+    apiVersion: v2
+    appVersion: 8f239b2394ef271e7b3fa624c33e70110981b9ae
+    created: "2026-01-12T13:45:29.893789449Z"
+    dependencies:
+    - condition: castai-evictor-ext.enabled
+      name: castai-evictor-ext
+      repository: file://child-charts/castai-evictor-ext
+      version: 0.3.0
+    description: Cluster utilization defragmentation tool
+    digest: 06216be44921be6720d0742f742846410b0818db2fe0fa73b3a35140803ac8df
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.33.162/castai-evictor-0.33.162.tgz
+    version: 0.33.162
+  - annotations:
       release-date: 2026-01-12T08:59:43
     apiVersion: v2
     appVersion: f525abe52863bf0898dc78fb45fe0233049a589a
@@ -33659,4 +33676,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-01-12T10:29:50.375802454Z"
+generated: "2026-01-12T13:45:29.897582405Z"
