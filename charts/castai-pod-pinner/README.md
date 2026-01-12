@@ -8,7 +8,7 @@ CAST AI Pod Pinning deployment chart.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/castai-pod-pinner-ext | castai-pod-pinner-ext | 1.0.1 |
+| file://child-charts/castai-pod-pinner-ext | castai-pod-pinner-ext | 1.1.0 |
 
 ## Values
 
