@@ -63,6 +63,8 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | podLabels | object | `{}` |  |
 | priorityClass | object | `{"enabled":true,"name":"system-cluster-critical"}` | K8s priority class of castai-cluster-controller |
 | replicas | int | `2` | Number of replicas for castai-cluster-controller deployment. |
+| resourceQuota | object | `{"enabled":true}` | ResourceQuota configuration for critical pods. |
+| resourceQuota.enabled | bool | `true` | Enable ResourceQuota for critical pods. Requires priorityClass.enabled to be true. |
 | resources.limits.memory | string | `"1Gi"` |  |
 | resources.requests.cpu | string | `"50m"` |  |
 | resources.requests.memory | string | `"100Mi"` |  |
