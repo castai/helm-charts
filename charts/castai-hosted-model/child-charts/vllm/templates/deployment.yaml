@@ -108,6 +108,9 @@ spec:
             {{- if .Values.enableEager }}
             - "--enforce-eager"
             {{- end }}
+            {{- if .Values.swapSpace }}
+            - "--swap-space={{ .Values.swapSpace }}" # in GiB
+            {{- end }}
             - "--show-hidden-metrics-for-version=0.10" # temp fix because AIBrix controller still uses the deprecated metrics
           env:
             - name: VLLM_IMAGE_FETCH_TIMEOUT # MM Models
@@ -222,7 +225,6 @@ spec:
               mountPath: /etc/gcs-credentials
               readOnly: true
           {{- end }}
-      {{- if .Values.loraAdapter.name }}
       initContainers:
         {{- if and (ne .Values.model.sourceRegistry "hf") (not .Values.useRunAiStreamer) }}
         - name: model-downloader-base
@@ -270,7 +272,6 @@ spec:
           resources:
             {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
         {{- end }}
-      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

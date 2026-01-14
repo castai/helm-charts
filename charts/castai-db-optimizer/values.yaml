@@ -153,6 +153,58 @@ cloudSqlProxy:
   # -- Have the proxy connect with Automatic IAM authentication
   autoIamAuthn: false
 
+pgdog:
+  # -- Enable pgdog connection pooler sidecar
+  enabled: false
+  # -- Pgdog user (plain string). Mutually exclusive with usersSecretRef
+  user: ""
+  # -- Pgdog password (plain string). Mutually exclusive with usersSecretRef
+  password: ""
+  # -- Reference to existing secret containing users.toml file. Mutually exclusive with user/password
+  # The secret must contain a key named "users.toml" with the pgdog users configuration
+  usersSecretRef: ""
+  resources:
+    cpu: "500m"
+    memory: "256Mi"
+  # -- Pgdog general configuration settings. Corresponds to [general] section in pgdog.toml: https://docs.pgdog.dev/configuration/pgdog.toml/general/.
+  config:
+    # -- Count of Tokio threads spawned at startup; recommended setting is two per virtual CPU
+    workers: 10
+    # -- Default maximum number of server connections per database pool
+    default_pool_size: 10
+    # -- Default pooler mode to use for database pools. Options: "session", "transaction", "statement"
+    pooler_mode: "transaction"
+    # -- Enables prepared statement support with varying levels of rewriting capability. Options: "disabled", "extended", "extended_anonymous", "full"
+    prepared_statements: "extended_anonymous"
+    # -- Frequency of healthchecks performed by PgDog to ensure connections provided to clients from the pool are working (in milliseconds)
+    healthcheck_interval: 30000
+    # -- Frequency of healthchecks performed by PgDog on idle connections (in milliseconds)
+    idle_healthcheck_interval: 30000
+    # -- Delay running idle healthchecks at PgDog startup to give databases (and pools) time to spin up (in milliseconds)
+    idle_healthcheck_delay: 5000
+    # -- Health check timeout in milliseconds (custom field, not in official pgdog docs)
+    healthcheck_timeout: 5000
+    # -- How long to allow for ROLLBACK queries to run on server connections with unfinished transactions (in milliseconds)
+    rollback_timeout: 5000
+    # -- Maximum amount of time to allow for PgDog to create a connection to Postgres (in milliseconds)
+    connect_timeout: 5000
+    # -- Maximum amount of time a client is allowed to wait for a connection from the pool (in milliseconds)
+    checkout_timeout: 10000
+    # -- How long to wait for active clients to finish transactions when shutting down (in milliseconds)
+    shutdown_timeout: 60000
+    # -- Force-enable query parsing for advanced features like advisory locks in non-sharded databases
+    query_parser_enabled: true
+    # -- Path to the TLS certificate PgDog will use to setup TLS connections with clients
+    tls_certificate: "/etc/ssl/certs/ssl-cert-snakeoil.pem"
+    # -- Path to the TLS private key PgDog will use to setup TLS connections with clients
+    tls_private_key: "/etc/ssl/private/ssl-cert-snakeoil.key"
+    # -- Determines how TLS connections to Postgres servers are handled. Options: "none", "prefer", "verify_ca", "verify_full"
+    tls_verify: "prefer"
+    # -- If enabled, log every time a user creates a new connection to PgDog
+    log_connections: false
+    # -- If enabled, log every time a user disconnects from PgDog
+    log_disconnections: false
+
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
   pullPolicy: IfNotPresent
@@ -165,6 +217,11 @@ proxyImage:
 
 cloudSqlProxyImage:
   repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
+  pullPolicy: IfNotPresent
+  tag: ""  # uses values from _versions.tpl for default value
+
+pgdogImage:
+  repository: ghcr.io/pgdogdev/pgdog
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
 
