@@ -54,7 +54,11 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | monitor.resources.requests.memory | string | `"128Mi"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
-| pdbMinAvailable | int | `1` |  |
+| pdb | object | `{"enabled":true,"maxUnavailable":"","minAvailable":""}` | PodDisruptionBudget configuration. |
+| pdb.enabled | bool | `true` | Enable PodDisruptionBudget. Set to false to disable PDB even with multiple replicas. |
+| pdb.maxUnavailable | string | `""` | Maximum unavailable pods during disruption. Cannot be used together with minAvailable. If set, takes precedence over minAvailable. |
+| pdb.minAvailable | string | `""` | Minimum available pods during disruption. Cannot be used together with maxUnavailable. If not set, falls back to pdbMinAvailable for backward compatibility. |
+| pdbMinAvailable | int | `1` | Deprecated: use pdb.minAvailable instead. |
 | podAnnotations | object | `{}` | Annotations added to each pod. |
 | podLabels | object | `{}` |  |
 | priorityClass | object | `{"enabled":true,"name":"system-cluster-critical"}` | K8s priority class of castai-cluster-controller |
