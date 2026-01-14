@@ -93,6 +93,9 @@ podLabels: {}
 additionalEnv:
   LOG_LEVEL: "5"
   MONITOR_METADATA: "/controller-metadata/metadata"
+  DRAIN_DISABLE_VOLUME_DETACH_WAIT: "false"
+  DRAIN_VOLUME_DETACH_TIMEOUT: "60s"
+  INFORMER_CACHE_SYNC_TIMEOUT: "1m"
 
 resources:
   requests:
