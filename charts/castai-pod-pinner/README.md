@@ -1,6 +1,6 @@
 # castai-pod-pinner
 
-![Version: 1.6.0](https://img.shields.io/badge/Version-1.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.9.0](https://img.shields.io/badge/AppVersion-v1.9.0-informational?style=flat-square)
+![Version: 1.8.0](https://img.shields.io/badge/Version-1.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.9.2](https://img.shields.io/badge/AppVersion-v1.9.2-informational?style=flat-square)
 
 CAST AI Pod Pinning deployment chart.
 
@@ -8,7 +8,7 @@ CAST AI Pod Pinning deployment chart.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/castai-pod-pinner-ext | castai-pod-pinner-ext | 1.0.1 |
+| file://child-charts/castai-pod-pinner-ext | castai-pod-pinner-ext | 1.1.0 |
 
 ## Values
 

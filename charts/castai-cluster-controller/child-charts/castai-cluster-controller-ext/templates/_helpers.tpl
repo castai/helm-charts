@@ -34,11 +34,14 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "cluster-controller-ext.labels" -}}
-{{ if gt (len .Values.commonLabels) 0 -}}
+{{- with .Values.global }}
+{{- with .commonLabels }}
+{{- toYaml . }}
+{{ end }}
+{{- end }}
 {{- with .Values.commonLabels }}
 {{- toYaml . }}
-{{- end }}
-{{- end }}
+{{ end }}
 helm.sh/chart: {{ include "cluster-controller-ext.chart" . }}
 {{ include "cluster-controller-ext.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
@@ -51,11 +54,14 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Common Annotations
 */}}
 {{- define "cluster-controller-ext.annotations" -}}
-{{ if gt (len .Values.commonAnnotations) 0 -}}
+{{- with .Values.global }}
+{{- with .commonAnnotations }}
+{{- toYaml . }}
+{{ end }}
+{{- end }}
 {{- with .Values.commonAnnotations }}
 {{- toYaml . }}
-{{- end }}
-{{- end }}
+{{ end }}
 {{- end }}
 
 {{/*

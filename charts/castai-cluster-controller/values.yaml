@@ -2,9 +2,29 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+# global -- Global values that are propagated to child charts.
+global:
+  # global.commonLabels -- Labels to add to all resources (including child charts).
+  commonLabels: {}
+  # global.commonAnnotations -- Annotations to add to all resources (including child charts).
+  commonAnnotations: {}
+
 # replicas -- Number of replicas for castai-cluster-controller deployment.
 replicas: 2
+
+# pdbMinAvailable -- Deprecated: use pdb.minAvailable instead.
 pdbMinAvailable: 1
+
+# pdb -- PodDisruptionBudget configuration.
+pdb:
+  # pdb.enabled -- Enable PodDisruptionBudget. Set to false to disable PDB even with multiple replicas.
+  enabled: true
+  # pdb.minAvailable -- Minimum available pods during disruption. Cannot be used together with maxUnavailable.
+  # If not set, falls back to pdbMinAvailable for backward compatibility.
+  minAvailable: ""
+  # pdb.maxUnavailable -- Maximum unavailable pods during disruption. Cannot be used together with minAvailable.
+  # If set, takes precedence over minAvailable.
+  maxUnavailable: ""
 # leaderElectionEnabled -- When running 2+ replicas of castai-cluster-controller only one should work as a leader.
 leaderElectionEnabled: true
 leaderElectionLeaseDuration: 15s
