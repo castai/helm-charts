@@ -33,6 +33,8 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      securityContext:
+        supplementalGroups: [101]  # ssl-cert group
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
