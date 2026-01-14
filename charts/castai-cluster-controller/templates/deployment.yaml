@@ -85,10 +85,28 @@ spec:
           {{- end }}
         {{- end }}
       {{- if .Values.enableTopologySpreadConstraints }}
-      {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
-       {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- range .Values.topologySpreadConstraints }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "cluster-controller.selectorLabels" $ | nindent 14 }}
+          {{- with .matchLabelKeys }}
+          matchLabelKeys:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .nodeTaintsPolicy }}
+          nodeTaintsPolicy: {{ . }}
+          {{- end }}
+          {{- with .nodeAffinityPolicy }}
+          nodeAffinityPolicy: {{ . }}
+          {{- end }}
+          {{- with .minDomains }}
+          minDomains: {{ . }}
+          {{- end }}
+        {{- end }}
       {{- end }}
       securityContext:
       {{- toYaml .Values.securityContext | nindent 8 }}

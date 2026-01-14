@@ -73,10 +73,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
 | tolerations | list | `[]` |  |
-| topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-cluster-controller"` |  |
-| topologySpreadConstraints[0].maxSkew | int | `1` |  |
-| topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
-| topologySpreadConstraints[0].whenUnsatisfiable | string | `"ScheduleAnyway"` |  |
+| topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | Defines how pods are spread across topology domains. Note: labelSelector is automatically set to match the deployment's selector labels and cannot be customized. |
 | trustedCACert | string | `""` | CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates. |
 | trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to the set of root certificate authorities that the client will use when verifying server certificates. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
 | updateStrategy | object | `{"type":"RollingUpdate"}` | Controls `deployment.spec.strategy` field. |
