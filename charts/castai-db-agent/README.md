@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.12.3](https://img.shields.io/badge/Version-0.12.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.12.4](https://img.shields.io/badge/Version-0.12.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -10,6 +10,7 @@ CAST AI DB agent deployment.
 |-----|------|---------|-------------|
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API. |
 | cacheGroupID | string | `""` |  |
+| collectors.excludedSchemas | string | `""` | Comma-separated list of schemas to exclude from collection (optional) |
 | collectors.explain.runsEvery | string | `"30m"` | Frequency in which execution plans are collected |
 | collectors.metadata.runsEvery | string | `"15m"` | Frequency in which table metadata is collected |
 | collectors.stats.runsEvery | string | `"15m"` | Frequency in which index statistics are collected |
