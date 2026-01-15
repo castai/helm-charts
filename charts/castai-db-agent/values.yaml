@@ -28,3 +28,5 @@ collectors:
   stats:
     # -- Frequency in which index statistics are collected
     runsEvery: 15m
+  # -- Comma-separated list of schemas to exclude from collection (optional)
+  excludedSchemas: ""
