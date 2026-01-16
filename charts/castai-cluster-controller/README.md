@@ -12,7 +12,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalEnv | object | `{"LOG_LEVEL":"5","MONITOR_METADATA":"/controller-metadata/metadata"}` | Env variables passed to castai-cluster-controller. |
+| additionalEnv | object | `{"DRAIN_DISABLE_VOLUME_DETACH_WAIT":"false","INFORMER_CACHE_SYNC_TIMEOUT":"1m","INFORMER_ENABLE_NODE":"false","INFORMER_ENABLE_POD":"false","LOG_LEVEL":"5","MONITOR_METADATA":"/controller-metadata/metadata","VOLUME_ATTACHMENT_DEFAULT_TIMEOUT":"60s"}` | Env variables passed to castai-cluster-controller. |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
