@@ -21,6 +21,10 @@ spec:
       {{- include "vllm.selectorLabels" . | nindent 6 }}
   template:
     metadata:
+      annotations:
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
         {{- include "vllm.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -112,6 +116,9 @@ spec:
             - "--swap-space={{ .Values.swapSpace }}" # in GiB
             {{- end }}
             - "--show-hidden-metrics-for-version=0.10" # temp fix because AIBrix controller still uses the deprecated metrics
+            {{- range .Values.extraArgs }}
+            - {{ . | quote }}
+            {{- end }}
           env:
             - name: VLLM_IMAGE_FETCH_TIMEOUT # MM Models
               value: "60"
