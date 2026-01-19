@@ -86,7 +86,9 @@ spec:
             - |
               cat > /etc/pgdog/pgdog.toml << 'EOF'
               [general]
-              port                      =   6432
+              port             = 6432
+              openmetrics_port = 9090
+              openmetrics_namespace = "pgdog_"
 
               [admin]
               name = "admin"
