@@ -33,7 +33,10 @@ metadata:
 data:
   pgdog.toml: |
     [general]
-    port                      =   6432
+    port             = 6432
+    openmetrics_port = 9090
+    openmetrics_namespace = "pgdog_"
+
     {{- range $key, $value := $mergedConfig }}
     {{- if kindIs "string" $value }}
     {{ $key | printf "%-25s" }} =   {{ $value | quote }}
