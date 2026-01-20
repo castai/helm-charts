@@ -1,1 +1,1 @@
-{{- define "defaultDbAgentVersion" -}}v0.12.3{{- end -}}
+{{- define "defaultDbAgentVersion" -}}v0.13.0{{- end -}}
