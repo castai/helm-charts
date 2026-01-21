@@ -33996,6 +33996,17 @@ entries:
     version: 0.1.2
   gcp-disk-compatibility-webhook:
   - apiVersion: v2
+    appVersion: v0.2.3
+    created: "2026-01-21T13:16:36.97722277Z"
+    description: GCP disk compatibility webhook adds node selectors to pods using
+      disks so they would be scheuled on supported nodes
+    digest: b01e48ebfa80604d684a2a5bfc1f7e75c8cc2b6eba71e0fffc992b43936a5825
+    name: gcp-disk-compatibility-webhook
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/gcp-disk-compatibility-webhook-0.2.3/gcp-disk-compatibility-webhook-0.2.3.tgz
+    version: 0.2.3
+  - apiVersion: v2
     appVersion: v0.2.2
     created: "2025-12-09T08:58:45.683085386Z"
     description: GCP disk compatibility webhook adds node selectors to pods using
@@ -34662,4 +34673,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-01-21T12:47:22.527660382Z"
+generated: "2026-01-21T13:16:37.00167375Z"
