@@ -126,6 +126,11 @@ spec:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
+            - name: LEADER_ELECTION_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
           {{- if .Values.leaderElectionEnabled }}
             - name: LEADER_ELECTION_ENABLED
               value: "true"
@@ -238,6 +243,11 @@ spec:
               mountPath: /controller-metadata
           env:
             - name: CAST_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: LEADER_ELECTION_NAMESPACE
               valueFrom:
                 fieldRef:
                   apiVersion: v1
