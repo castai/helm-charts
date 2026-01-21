@@ -121,16 +121,16 @@ spec:
             {{ toYaml . | nindent 12 }}
             {{- end }}
           env:
+            - name: CAST_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
           {{- if .Values.leaderElectionEnabled }}
             - name: LEADER_ELECTION_ENABLED
               value: "true"
             - name: LEADER_ELECTION_LOCK_NAME
               value: "cluster-controller"
-            - name: LEADER_ELECTION_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
             - name: LEADER_ELECTION_LEASE_DURATION
               value: "{{ .Values.leaderElectionLeaseDuration }}"
             - name: LEADER_ELECTION_LEASE_RENEW_DEADLINE
@@ -237,16 +237,16 @@ spec:
             - name: shared-metadata
               mountPath: /controller-metadata
           env:
+            - name: CAST_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
           {{- if .Values.leaderElectionEnabled }}
             - name: LEADER_ELECTION_ENABLED
               value: "true"
             - name: LEADER_ELECTION_LOCK_NAME
               value: "cluster-controller"
-            - name: LEADER_ELECTION_NAMESPACE
-              valueFrom:
-                fieldRef:
-                  apiVersion: v1
-                  fieldPath: metadata.namespace
             - name: LEADER_ELECTION_LEASE_DURATION
               value: "{{ .Values.leaderElectionLeaseDuration }}"
             - name: LEADER_ELECTION_LEASE_RENEW_DEADLINE
