@@ -38,12 +38,12 @@ spec:
               value: "{{ required "target database port must be provided" .Values.database.port }}"
             - name: INDEX_ADVISOR_CLIENT_GRPC_ENDPOINT
               value: "{{ required "gRPC endpoint must be provided" .Values.gRPCEndpoint }}"
-            - name: COLLECTORS_EXPLAIN_RUNS_EVERY
-              value: "{{ required "explain collector run frequency must be provided" .Values.collectors.explain.runsEvery }}"
+            - name: COLLECTORS_INDEXES_RUNS_EVERY
+              value: "{{ required "explain collector run frequency must be provided" .Values.collectors.indexes.runsEvery }}"
             - name: COLLECTORS_METADATA_RUNS_EVERY
               value: "{{ required "metadata collector run frequency must be provided" .Values.collectors.metadata.runsEvery }}"
-            - name: COLLECTORS_INDEXES_RUNS_EVERY
-              value: "{{ required "indexes collector run frequency must be provided" .Values.collectors.stats.runsEvery }}"
+            - name: COLLECTORS_QUERIES_RUNS_EVERY
+              value: "{{ required "indexes collector run frequency must be provided" .Values.collectors.queries.runsEvery }}"
             - name: COLLECTORS_EXCLUDED_SCHEMAS
               value: "{{ .Values.collectors.excludedSchemas }}"
             - name: COLLECTORS_EXCLUDED_DATABASES
