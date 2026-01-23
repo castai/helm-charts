@@ -44,8 +44,20 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "evictor.serviceAccountName" . }}
+      {{- if .Values.securityContext }}
+      {{- $isOpenShift := .Capabilities.APIVersions.Has "security.openshift.io/v1" }}
+      {{- $useRestrictedProfile := and $isOpenShift (.Values.openshift.scc.useRestrictedProfile | default false) }}
       securityContext:
+        {{- if $useRestrictedProfile }}
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot | default true }}
+        {{- with .Values.securityContext.seccompProfile }}
+        seccompProfile:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- else }}
         {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           env:

@@ -245,3 +245,24 @@ extraVolumes: []
 
 # -- Used to set additional volume mounts.
 extraVolumeMounts: []
+
+# OpenShift-specific configuration
+openshift:
+  scc:
+    # enabled -- Whether to create the SecurityContextConstraints resource.
+    # Set to false to disable SCC creation and rely on OpenShift's default restricted-v2 SCC.
+    enabled: true
+    # priority -- Priority for the SecurityContextConstraints resource.
+    # Lower priority than OpenShift's anyuid (10) to avoid conflicts during cluster upgrades.
+    # Set to null for lowest priority, or customize based on your environment.
+    # WARNING: Using priority 10 or higher can cause authentication issues during upgrades.
+    # See https://access.redhat.com/solutions/4727461 for details.
+    priority: 5
+    # useRestrictedProfile -- Use OpenShift-compatible restricted profile settings.
+    # When enabled:
+    #   - Changes runAsUser strategy from MustRunAs to MustRunAsRange (lets OpenShift assign UIDs)
+    #   - Removes readOnlyRootFilesystem constraint from SCC (still enforced in pod spec)
+    #   - Changes fsGroup/supplementalGroups to RunAsAny
+    # This makes the SCC less restrictive, preventing it from being selected for other workloads.
+    # WARNING: Only enable if CAST AI container images support running as arbitrary UIDs.
+    useRestrictedProfile: false

@@ -55,6 +55,9 @@ Cluster utilization defragmentation tool
 | nameOverride | string | `""` |  |
 | nodeGracePeriodMinutes | int | `5` | Specifies the grace period after a node is created before it is considered for eviction The number of minutes a node must exist before it will be considered. |
 | nodeSelector | object | `{}` |  |
+| openshift.scc.enabled | bool | `true` |  |
+| openshift.scc.priority | int | `5` |  |
+| openshift.scc.useRestrictedProfile | bool | `false` |  |
 | overrideEnvFrom | bool | `false` | If set to true, completely overrides the default `envFrom` section for the evictor container. When false (default), values provided here will be appended to the chart's defaults. |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
