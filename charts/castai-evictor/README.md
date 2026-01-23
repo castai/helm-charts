@@ -38,6 +38,7 @@ Cluster utilization defragmentation tool
 | extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-evictor"` |  |
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
+| ignorePodDisruptionBudgets | bool | `false` | Specifies whether the Evictor should ignore Pod Disruption Budgets (PDBs). If true, evictor will attempt to evict pods even if it would violate a PDB. Use with caution as this may disrupt application availability guarantees. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |
@@ -54,6 +55,9 @@ Cluster utilization defragmentation tool
 | nameOverride | string | `""` |  |
 | nodeGracePeriodMinutes | int | `5` | Specifies the grace period after a node is created before it is considered for eviction The number of minutes a node must exist before it will be considered. |
 | nodeSelector | object | `{}` |  |
+| openshift.scc.enabled | bool | `true` |  |
+| openshift.scc.priority | int | `5` |  |
+| openshift.scc.useRestrictedProfile | bool | `false` |  |
 | overrideEnvFrom | bool | `false` | If set to true, completely overrides the default `envFrom` section for the evictor container. When false (default), values provided here will be appended to the chart's defaults. |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |

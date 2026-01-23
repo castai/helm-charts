@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.12.0](https://img.shields.io/badge/Version-0.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.13.3](https://img.shields.io/badge/Version-0.13.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -10,9 +10,11 @@ CAST AI DB agent deployment.
 |-----|------|---------|-------------|
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API. |
 | cacheGroupID | string | `""` |  |
-| collectors.explain.runsEvery | string | `"30m"` | Frequency in which execution plans are collected |
+| collectors.excludedDatabases | string | `""` | Comma-separated list of databases to exclude from database auto-discovery (optional) |
+| collectors.excludedSchemas | string | `""` | Comma-separated list of schemas to exclude from collection (optional) |
+| collectors.indexes.runsEvery | string | `"15m"` | Frequency in which existing indexes are collected |
 | collectors.metadata.runsEvery | string | `"15m"` | Frequency in which table metadata is collected |
-| collectors.stats.runsEvery | string | `"15m"` | Frequency in which index statistics are collected |
+| collectors.queries.runsEvery | string | `"15m"` | Frequency in which query statistics are collected |
 | database.credentialsSecretRef | string | `""` | Name of secret with username for database authentication |
 | database.host | string | `""` |  |
 | database.password | string | `""` | Password for database authentication |

@@ -12,7 +12,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalEnv | object | `{"LOG_LEVEL":"5","MONITOR_METADATA":"/controller-metadata/metadata"}` | Env variables passed to castai-cluster-controller. |
+| additionalEnv | object | `{"DRAIN_DISABLE_VOLUME_DETACH_WAIT":"false","INFORMER_CACHE_SYNC_TIMEOUT":"1m","INFORMER_ENABLE_NODE":"false","INFORMER_ENABLE_POD":"false","LOG_LEVEL":"5","MONITOR_METADATA":"/controller-metadata/metadata","VOLUME_ATTACHMENT_DEFAULT_TIMEOUT":"60s"}` | Env variables passed to castai-cluster-controller. |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"kubernetes.io/os"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"NotIn"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
@@ -54,11 +54,17 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | monitor.resources.requests.memory | string | `"128Mi"` |  |
 | nameOverride | string | `""` |  |
 | nodeSelector | object | `{}` |  |
-| pdbMinAvailable | int | `1` |  |
+| pdb | object | `{"enabled":true,"maxUnavailable":"","minAvailable":""}` | PodDisruptionBudget configuration. |
+| pdb.enabled | bool | `true` | Enable PodDisruptionBudget. Set to false to disable PDB even with multiple replicas. |
+| pdb.maxUnavailable | string | `""` | Maximum unavailable pods during disruption. Cannot be used together with minAvailable. If set, takes precedence over minAvailable. |
+| pdb.minAvailable | string | `""` | Minimum available pods during disruption. Cannot be used together with maxUnavailable. If not set, falls back to pdbMinAvailable for backward compatibility. |
+| pdbMinAvailable | int | `1` | Deprecated: use pdb.minAvailable instead. |
 | podAnnotations | object | `{}` | Annotations added to each pod. |
 | podLabels | object | `{}` |  |
 | priorityClass | object | `{"enabled":true,"name":"system-cluster-critical"}` | K8s priority class of castai-cluster-controller |
 | replicas | int | `2` | Number of replicas for castai-cluster-controller deployment. |
+| resourceQuota | object | `{"enabled":true}` | ResourceQuota configuration for critical pods. |
+| resourceQuota.enabled | bool | `true` | Enable ResourceQuota for critical pods. Requires priorityClass.enabled to be true. |
 | resources.limits.memory | string | `"1Gi"` |  |
 | resources.requests.cpu | string | `"50m"` |  |
 | resources.requests.memory | string | `"100Mi"` |  |
@@ -67,10 +73,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
 | tolerations | list | `[]` |  |
-| topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-cluster-controller"` |  |
-| topologySpreadConstraints[0].maxSkew | int | `1` |  |
-| topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |
-| topologySpreadConstraints[0].whenUnsatisfiable | string | `"ScheduleAnyway"` |  |
+| topologySpreadConstraints | list | `[{"maxSkew":1,"topologyKey":"kubernetes.io/hostname","whenUnsatisfiable":"ScheduleAnyway"}]` | Defines how pods are spread across topology domains. Note: labelSelector is automatically set to match the deployment's selector labels and cannot be customized. |
 | trustedCACert | string | `""` | CA certificate to add to the set of root certificate authorities that the client will use when verifying server certificates. |
 | trustedCACertSecretRef | string | `""` | Name of secret with CA certificate to be added to the set of root certificate authorities that the client will use when verifying server certificates. trustedCACert and trustedCACertSecretRef are mutually exclusive. The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"]. |
 | updateStrategy | object | `{"type":"RollingUpdate"}` | Controls `deployment.spec.strategy` field. |

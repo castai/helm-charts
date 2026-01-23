@@ -85,10 +85,28 @@ spec:
           {{- end }}
         {{- end }}
       {{- if .Values.enableTopologySpreadConstraints }}
-      {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
-       {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- range .Values.topologySpreadConstraints }}
+        - maxSkew: {{ .maxSkew }}
+          topologyKey: {{ .topologyKey }}
+          whenUnsatisfiable: {{ .whenUnsatisfiable }}
+          labelSelector:
+            matchLabels:
+              {{- include "cluster-controller.selectorLabels" $ | nindent 14 }}
+          {{- with .matchLabelKeys }}
+          matchLabelKeys:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .nodeTaintsPolicy }}
+          nodeTaintsPolicy: {{ . }}
+          {{- end }}
+          {{- with .nodeAffinityPolicy }}
+          nodeAffinityPolicy: {{ . }}
+          {{- end }}
+          {{- with .minDomains }}
+          minDomains: {{ . }}
+          {{- end }}
+        {{- end }}
       {{- end }}
       securityContext:
       {{- toYaml .Values.securityContext | nindent 8 }}
@@ -103,16 +121,21 @@ spec:
             {{ toYaml . | nindent 12 }}
             {{- end }}
           env:
-          {{- if .Values.leaderElectionEnabled }}
-            - name: LEADER_ELECTION_ENABLED
-              value: "true"
-            - name: LEADER_ELECTION_LOCK_NAME
-              value: "cluster-controller"
+            - name: CAST_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
             - name: LEADER_ELECTION_NAMESPACE
               valueFrom:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
+          {{- if .Values.leaderElectionEnabled }}
+            - name: LEADER_ELECTION_ENABLED
+              value: "true"
+            - name: LEADER_ELECTION_LOCK_NAME
+              value: "cluster-controller"
             - name: LEADER_ELECTION_LEASE_DURATION
               value: "{{ .Values.leaderElectionLeaseDuration }}"
             - name: LEADER_ELECTION_LEASE_RENEW_DEADLINE
@@ -219,16 +242,21 @@ spec:
             - name: shared-metadata
               mountPath: /controller-metadata
           env:
-          {{- if .Values.leaderElectionEnabled }}
-            - name: LEADER_ELECTION_ENABLED
-              value: "true"
-            - name: LEADER_ELECTION_LOCK_NAME
-              value: "cluster-controller"
+            - name: CAST_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
             - name: LEADER_ELECTION_NAMESPACE
               valueFrom:
                 fieldRef:
                   apiVersion: v1
                   fieldPath: metadata.namespace
+          {{- if .Values.leaderElectionEnabled }}
+            - name: LEADER_ELECTION_ENABLED
+              value: "true"
+            - name: LEADER_ELECTION_LOCK_NAME
+              value: "cluster-controller"
             - name: LEADER_ELECTION_LEASE_DURATION
               value: "{{ .Values.leaderElectionLeaseDuration }}"
             - name: LEADER_ELECTION_LEASE_RENEW_DEADLINE

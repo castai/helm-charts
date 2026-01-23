@@ -44,7 +44,9 @@ CAST AI agent deployment chart.
 | nameOverride | string | `""` |  |
 | namespace | string | `"castai-agent"` |  |
 | nodeSelector | object | `{}` |  |
+| openshift.scc.enabled | bool | `true` |  |
 | openshift.scc.priority | int | `5` |  |
+| openshift.scc.useRestrictedProfile | bool | `false` |  |
 | podAnnotations | object | `{}` | Annotations to be added to agent pods. |
 | podLabels | object | `{}` | Labels to be added to agent pods. |
 | priorityClass.enabled | bool | `true` |  |
