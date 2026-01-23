@@ -68,9 +68,19 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.securityContext }}
+      {{- if .Values.securityContext }}
+      {{- $isOpenShift := .Capabilities.APIVersions.Has "security.openshift.io/v1" }}
+      {{- $useRestrictedProfile := and $isOpenShift (.Values.openshift.scc.useRestrictedProfile | default false) }}
       securityContext:
-        {{- toYaml . | nindent 8 }}
+        {{- if $useRestrictedProfile }}
+        runAsNonRoot: {{ .Values.securityContext.runAsNonRoot | default true }}
+        {{- with .Values.securityContext.seccompProfile }}
+        seccompProfile:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- else }}
+        {{- toYaml .Values.securityContext | nindent 8 }}
+        {{- end }}
       {{- end }}
       {{- with .Values.topologySpreadConstraints }}
       topologySpreadConstraints:
