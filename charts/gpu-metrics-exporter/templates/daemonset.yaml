@@ -105,6 +105,13 @@ spec:
             {{ else }}
               {{- fail "one of apiKey or apiKeySecretRef should be set" }}
             {{- end }}
+          {{- if .Values.castai.clusterIdSecretRef }}
+            - name: "CLUSTER_ID"
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.clusterIdSecretRef }}
+                  key: CLUSTER_ID
+          {{- end }}
           {{- if .Values.dcgmExporter.enabled }}
             - name: "DCGM_HOST"
               value: "localhost"

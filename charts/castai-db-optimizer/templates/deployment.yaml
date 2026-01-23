@@ -33,6 +33,8 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      securityContext:
+        supplementalGroups: [101]  # ssl-cert group
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
@@ -72,11 +74,38 @@ spec:
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog-config-output
           emptyDir: {}
-        - name: pgdog-startup
-          configMap:
-            name: {{ include "name" . }}-pgdog-startup
-            defaultMode: 0755
         {{- end }}
+      {{- if and .Values.pgdog .Values.pgdog.enabled }}
+      initContainers:
+        - name: pgdog-init
+          image: "{{.Values.pgdogImage.repository}}:{{ include "pgdogImage" . }}"
+          imagePullPolicy: {{.Values.pgdogImage.pullPolicy}}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cat > /etc/pgdog/pgdog.toml << 'EOF'
+              [general]
+              port             = 6432
+              openmetrics_port = 9090
+              openmetrics_namespace = "pgdog_"
+
+              [admin]
+              name = "admin"
+              user = "admin"
+              password = "admin"
+              EOF
+          volumeMounts:
+            - name: pgdog-config-output
+              mountPath: /etc/pgdog
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 1000
+      {{- end }}
       containers:
         - name: query-processor
           image: "{{.Values.queryProcessorImage.repository}}:{{ include "queryProcessorImage" . }}"
@@ -309,8 +338,12 @@ spec:
           image: "{{.Values.pgdogImage.repository}}:{{ include "pgdogImage" . }}"
           imagePullPolicy: {{.Values.pgdogImage.pullPolicy}}
           command:
-            - /bin/sh
-            - /usr/local/bin/startup.sh
+            - pgdog
+          args:
+            - --config
+            - /etc/pgdog/pgdog.toml
+            - --users
+            - /etc/pgdog/users.toml
           securityContext:
             capabilities:
               drop:
@@ -330,9 +363,6 @@ spec:
               mountPath: /etc/pgdog
             - name: temp-storage
               mountPath: /tmp
-            - name: pgdog-startup
-              mountPath: /usr/local/bin/startup.sh
-              subPath: startup.sh
           resources:
             requests:
               cpu: {{ .Values.pgdog.resources.cpu | default "500m" }}

@@ -96,6 +96,8 @@ spec:
               value: "/config/config.yaml"
             - name: CYCLE_INTERVAL
               value: {{ .Values.cycleInterval | quote }}
+            - name: IGNORE_POD_DISRUPTION_BUDGETS
+              value: {{ .Values.ignorePodDisruptionBudgets | quote }}
             - name: K8S_CLIENT_RATE_LIMITER_QPS
               value: {{ .Values.kubernetesClient.rateLimiter.qps | quote }}
             - name: K8S_CLIENT_RATE_LIMITER_BURST

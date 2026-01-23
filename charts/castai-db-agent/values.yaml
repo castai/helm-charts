@@ -19,12 +19,16 @@ database:
 # -- URL to the CAST AI API gRPC endpoint.
 gRPCEndpoint: ""
 collectors:
-  explain:
-    # -- Frequency in which execution plans are collected
-    runsEvery: 30m
+  indexes:
+    # -- Frequency in which existing indexes are collected
+    runsEvery: 15m
   metadata:
     # -- Frequency in which table metadata is collected
     runsEvery: 15m
-  stats:
-    # -- Frequency in which index statistics are collected
+  queries:
+    # -- Frequency in which query statistics are collected
     runsEvery: 15m
+  # -- Comma-separated list of schemas to exclude from collection (optional)
+  excludedSchemas: ""
+  # -- Comma-separated list of databases to exclude from database auto-discovery (optional)
+  excludedDatabases: ""

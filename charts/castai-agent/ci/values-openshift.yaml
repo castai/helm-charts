@@ -1,0 +1,34 @@
+# OpenShift-specific values example
+# Use this file to avoid SCC conflicts with OpenShift platform workloads
+#
+# Usage:
+#   helm install castai-agent castai-helm/castai-agent \
+#     -f values-openshift.yaml \
+#     --set apiKey=<your-key>
+
+apiKey: "test"
+apiURL: "http://mock-api.default.svc.cluster.local"
+provider: "openshift"
+namespace: "default"
+createNamespace: false
+
+openshift:
+  scc:
+    enabled: true
+    priority: 1
+    useRestrictedProfile: true
+
+securityContext:
+  runAsNonRoot: true
+  seccompProfile:
+    type: RuntimeDefault
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+clusterVPA:
+  enabled: true

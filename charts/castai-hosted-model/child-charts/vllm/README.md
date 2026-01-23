@@ -13,6 +13,7 @@ CAST AI hosted model deployment chart for vLLM.
 | enableChunkedPrefill | bool | `true` |  |
 | enableEager | bool | `false` |  |
 | env | list | `[]` | Additional environment variables to set in the vLLM container |
+| extraArgs | list | `[]` | Extra arbitrary arguments to pass to vLLM |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
 | image.tag | string | `"v0.11.2"` |  |
 | kvCacheDtype | string | `"auto"` |  |
@@ -52,6 +53,8 @@ CAST AI hosted model deployment chart for vLLM.
 | modelDownloader.resources.limits.memory | string | `"500Mi"` |  |
 | modelDownloader.resources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.resources.requests.memory | string | `"500Mi"` |  |
+| podAnnotations | object | `{}` | Additional annotations labels to set for the vLLM pod |
+| podLabels | object | `{}` | Additional pod labels to set for the vLLM pod |
 | readinessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":5,"periodSeconds":5,"successThreshold":1,"timeoutSeconds":1}` | Readiness probe configuration |
 | readinessProbe.enabled | bool | `true` | Enable or disable readiness probe |
 | readinessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not ready |

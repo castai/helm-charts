@@ -38,6 +38,7 @@ Cluster utilization defragmentation tool
 | extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-evictor"` |  |
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
+| ignorePodDisruptionBudgets | bool | `false` | Specifies whether the Evictor should ignore Pod Disruption Budgets (PDBs). If true, evictor will attempt to evict pods even if it would violate a PDB. Use with caution as this may disrupt application availability guarantees. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |

@@ -130,5 +130,17 @@ env: []
 #   - name: ANOTHER_VAR
 #     value: "another-value"
 
+# -- Extra arbitrary arguments to pass to vLLM
+extraArgs: []
+# Example:
+# extraArgs:
+#   - "--max-logprobs=20"
+#   - "--disable-sliding-window"
+
+# -- Additional pod labels to set for the vLLM pod
+podLabels: {}
+# -- Additional annotations labels to set for the vLLM pod
+podAnnotations: {}
+
 deployment:
   labels:

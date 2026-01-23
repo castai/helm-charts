@@ -11,7 +11,20 @@ global:
 
 # replicas -- Number of replicas for castai-cluster-controller deployment.
 replicas: 2
+
+# pdbMinAvailable -- Deprecated: use pdb.minAvailable instead.
 pdbMinAvailable: 1
+
+# pdb -- PodDisruptionBudget configuration.
+pdb:
+  # pdb.enabled -- Enable PodDisruptionBudget. Set to false to disable PDB even with multiple replicas.
+  enabled: true
+  # pdb.minAvailable -- Minimum available pods during disruption. Cannot be used together with maxUnavailable.
+  # If not set, falls back to pdbMinAvailable for backward compatibility.
+  minAvailable: ""
+  # pdb.maxUnavailable -- Maximum unavailable pods during disruption. Cannot be used together with minAvailable.
+  # If set, takes precedence over minAvailable.
+  maxUnavailable: ""
 # leaderElectionEnabled -- When running 2+ replicas of castai-cluster-controller only one should work as a leader.
 leaderElectionEnabled: true
 leaderElectionLeaseDuration: 15s
@@ -80,6 +93,11 @@ podLabels: {}
 additionalEnv:
   LOG_LEVEL: "5"
   MONITOR_METADATA: "/controller-metadata/metadata"
+  DRAIN_DISABLE_VOLUME_DETACH_WAIT: "false"
+  VOLUME_ATTACHMENT_DEFAULT_TIMEOUT: "60s"
+  INFORMER_CACHE_SYNC_TIMEOUT: "1m"
+  INFORMER_ENABLE_POD: "false"
+  INFORMER_ENABLE_NODE: "false"
 
 resources:
   requests:
@@ -104,13 +122,13 @@ nodeSelector: {}
 
 # List of additional pod antiaffinity which can be ignored
 enableTopologySpreadConstraints: false
+# topologySpreadConstraints -- Defines how pods are spread across topology domains.
+# Note: labelSelector is automatically set to match the deployment's selector labels
+# and cannot be customized.
 topologySpreadConstraints:
   - maxSkew: 1
     topologyKey: kubernetes.io/hostname
     whenUnsatisfiable: ScheduleAnyway
-    labelSelector:
-      matchLabels:
-        app.kubernetes.io/name: castai-cluster-controller
 
 affinity:
   nodeAffinity:
@@ -163,6 +181,11 @@ dnsPolicy: ""
 priorityClass:
   enabled: true
   name: system-cluster-critical
+
+# resourceQuota -- ResourceQuota configuration for critical pods.
+resourceQuota:
+  # resourceQuota.enabled -- Enable ResourceQuota for critical pods. Requires priorityClass.enabled to be true.
+  enabled: true
 
 # k8sApiClient -- Settings for configuring k8s client used in castai-cluster-controller.
 k8sApiClient:
