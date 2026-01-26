@@ -1,6 +1,6 @@
 # Chart notice
 
-This Helm Chart directory is **only a mirror** of the Workload Autoscaler Helm chart.
+This Helm Chart directory is **only a mirror** of the Workload Autoscaler Exporter Helm chart.
 
 The **source of truth** for the chart lives in a different, internal (not publicly disclosed) repository. 
 Changes are developed and reviewed there, and then **mirrored back** into this repository on each release.
