@@ -1,0 +1,55 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "workload-autoscaler.annotations" . | nindent 4 }}
+  {{- end }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    resourceNames:
+      - {{ include "workload-autoscaler.fullname" . }}-certs
+    verbs:
+      - get
+      - update
+      - patch
+  # ---
+  # Leader election permissions for managing lease object.
+  # ---
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - list
+      - create
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    resourceNames:
+      - {{ include "workload-autoscaler.leaderElectionLeaseName" . }}
+    verbs:
+      - get
+      - watch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create

@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "workload-autoscaler.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  ports:
+    - name: https
+      protocol: TCP
+      port: 443
+      targetPort: {{ .Values.webhook.port }}
+    - name: metrics
+      protocol: TCP
+      port: {{ .Values.metrics.port }}
+      targetPort: {{ .Values.metrics.targetPort }}
+  selector:
+    {{- include "workload-autoscaler.selectorLabels" . | nindent 4}}
+  type: ClusterIP

@@ -1,0 +1,38 @@
+{{ if (ne .Values.test.enabled false) }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: test-{{ include "workload-autoscaler.fullname" . }}-role
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+  labels:
+    {{- include "workload-autoscaler.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - autoscaling.cast.ai
+    resources:
+      - recommendations
+    verbs:
+      - get
+      - update
+    resourceNames:
+      - test-{{ include "workload-autoscaler.fullname" . }}-deployment
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - list
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+    resourceNames:
+      - test-{{ include "workload-autoscaler.fullname" . }}-deployment
+
+{{- end }}

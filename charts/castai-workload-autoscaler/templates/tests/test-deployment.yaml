@@ -1,0 +1,50 @@
+{{ if (ne .Values.test.enabled false) }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-{{ include "workload-autoscaler.fullname" . }}-deployment
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "2"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    "test.example.com/annotation": "test-{{ include "workload-autoscaler.fullname" . }}-deployment"
+  labels:
+    {{- include "workload-autoscaler.testLabels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-{{ include "workload-autoscaler.fullname" . }}
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: test-{{ include "workload-autoscaler.fullname" . }}
+        helm.sh/chart: {{ include "workload-autoscaler.chart" . }}
+        app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+        app.kubernetes.io/managed-by: {{ .Release.Service }}
+        app.kubernetes.io/name: test-{{ include "workload-autoscaler.name" . }}
+        app.kubernetes.io/instance: test-{{ .Release.Name }}
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: test-container
+          image: us-docker.pkg.dev/castai-hub/library/busybox:1.37.0
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          command: ["/bin/sh", "-c", "while true; do echo Hello Kubernetes; sleep 3600; done"]
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity.nodeAffinity }}
+      affinity:
+        nodeAffinity:
+          {{- toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

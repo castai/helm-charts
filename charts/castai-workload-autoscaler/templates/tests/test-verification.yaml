@@ -1,0 +1,66 @@
+{{ if (ne .Values.test.enabled false) }}
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-{{ include "workload-autoscaler.fullname" . }}-verification
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "4"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+  labels:
+  {{- include "workload-autoscaler.testLabels" . | nindent 4 }}
+spec:
+    serviceAccountName: test-{{ template "workload-autoscaler.serviceAccountName" . }}-sa
+    containers:
+        - name: verification
+          image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          command:
+          - "castai-workload-autoscaler"
+          - "verification"
+          env:
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: TEST_NAME
+            value: {{ include "workload-autoscaler.fullname" . }}
+          - name: VERTICAL_RECOMMENDATION_HASH
+            value: test-{{ .Release.Revision }}
+          envFrom:
+          {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+            - secretRef:
+                {{- if .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
+                name: workload-autoscaler
+                {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                {{- end }}
+            {{- end }}
+            - configMapRef:
+                {{- if .Values.castai.configMapRef}}
+                name: {{ .Values.castai.configMapRef }}
+                {{- else }}
+                name: workload-autoscaler
+                {{- end }}
+          {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+    restartPolicy: Never
+    {{- with .Values.nodeSelector }}
+    nodeSelector:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.affinity.nodeAffinity }}
+    affinity:
+      nodeAffinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+    tolerations:
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}

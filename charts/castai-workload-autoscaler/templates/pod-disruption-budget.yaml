@@ -1,0 +1,18 @@
+{{- if gt (int .Values.replicas) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ include "workload-autoscaler.fullname" . }}
+  labels:
+  {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "workload-autoscaler.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "workload-autoscaler.selectorLabels" . | nindent 6 }}
+{{- end }}

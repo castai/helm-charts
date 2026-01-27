@@ -1,0 +1,150 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}
+  labels:
+  {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "workload-autoscaler.annotations" . | nindent 4 }}
+  {{- end }}
+rules:
+  # ---
+  # Required for basic Webhook functionality
+  # ---
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resourceNames:
+      - {{ include "workload-autoscaler.webhookName" . }}
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - get
+      - patch
+      - update
+  # ---
+  # Write permissions for pod controllers (deployments & statefulsets) - required for rolling out new pods
+  # ---
+  - apiGroups:
+      - "apps"
+    resources:
+      - replicasets
+      - deployments
+      - statefulsets
+    verbs:
+      - update
+  # ---
+  # Read/write permissions for pods
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - delete
+  # ---
+  # Read only permissions to view deployments/rollouts/statefulsets/replicasets
+  # ---
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - statefulsets
+      - replicasets
+      - daemonsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+    - "argoproj.io"
+    resources:
+      - rollouts
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+  # ---
+  # Read only permissions to view autoscaling resources
+  # ---
+  - apiGroups:
+      - autoscaling.cast.ai
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+  # ---
+  # Write permissions for autoscaling resources (recommendations) - required for adding finalizers
+  # ---
+  - apiGroups:
+      - autoscaling.cast.ai
+    resources:
+      - "*"
+    verbs:
+      - update
+      - patch
+  # ---
+  # Pod eviction permissions for restarting Rollout pods - used only when Rollout recommendation has "immediate" apply mode
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods/eviction
+    verbs:
+      - create
+  # ---
+  # Patch permissions for in-place resizing
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods/resize
+    verbs:
+      - patch
+  # ---
+  # Read/update permissions for HPA
+  # ---
+  - apiGroups:
+      - "autoscaling"
+    resources:
+      - horizontalpodautoscalers
+    verbs:
+      - list
+      - update
+      - create
+      - watch
+      - delete
+      - get
+  # ---
+  # Read permissions for namespaces - required for checking if namespace exists during finalization
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch

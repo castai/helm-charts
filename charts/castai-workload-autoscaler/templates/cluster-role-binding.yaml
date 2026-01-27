@@ -1,0 +1,18 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}
+  labels:
+  {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "workload-autoscaler.annotations" . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "workload-autoscaler.fullname" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "workload-autoscaler.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}

@@ -1,0 +1,26 @@
+{{ if (ne .Values.test.enabled false) }}
+apiVersion: autoscaling.cast.ai/v1
+kind: Recommendation
+metadata:
+  name: test-{{ include "workload-autoscaler.fullname" . }}-deployment
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": test
+    "helm.sh/hook-weight": "3"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    "autoscaling.cast.ai/vertical-recommendation-hash": test-{{ .Release.Revision }}
+  labels:
+    {{- include "workload-autoscaler.labels" . | nindent 4 }}
+spec:
+  targetRef:
+    kind: Deployment
+    name: test-{{ include "workload-autoscaler.fullname" . }}-deployment
+    apiVersion: apps/v1
+  recommendation:
+    - containerName: test-container
+      requests:
+        memory: 10Mi
+        cpu: 10m
+      limits:
+        memory: 20Mi
+{{- end }}

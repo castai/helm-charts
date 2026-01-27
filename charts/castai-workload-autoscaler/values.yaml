@@ -1,0 +1,236 @@
+image:
+  repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
+  pullPolicy: IfNotPresent
+  tag: ""
+
+leaderElection:
+  leaseName: castai-workload-autoscaler
+
+replicas: 2
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+podSecurityContext:
+  runAsNonRoot: true
+  fsGroup: 1005
+  runAsGroup: 1005
+  runAsUser: 1005
+
+# Container security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+# OpenShift-specific configuration
+openshift:
+  scc:
+    # openshift.scc.enabled -- Whether to create SecurityContextConstraints on OpenShift.
+    # Set to false to disable SCC creation and rely on OpenShift's default restricted-v2 SCC.
+    enabled: true
+    # openshift.scc.priority -- Priority for the SecurityContextConstraints resource.
+    # Lower priority than OpenShift's anyuid (10) to avoid conflicts during cluster upgrades.
+    # Set to null for lowest priority, or customize based on your environment.
+    # WARNING: Using priority 10 or higher can cause authentication issues during upgrades.
+    # See https://access.redhat.com/solutions/4727461 for details.
+    priority: 5
+    # openshift.scc.useRestrictedProfile -- When true, uses OpenShift-compatible settings:
+    # - runAsUser uses MustRunAsRange instead of MustRunAs (allows OpenShift to assign UID)
+    # - fsGroup and supplementalGroups use RunAsAny
+    # - readOnlyRootFilesystem removed from SCC (still enforced in pod spec)
+    # This prevents the SCC from being selected for unrelated workloads.
+    useRestrictedProfile: false
+
+# podAnnotations -- Annotations added to each pod.
+podAnnotations: {}
+# podLabels - Labels added to each pod.
+podLabels: {}
+
+priorityClass:
+  enabled: true
+  name: system-cluster-critical
+
+tolerations:
+  - key: scheduling.cast.ai/spot
+    operator: Exists
+  - effect: NoSchedule
+    key: provisioning.cast.ai/temporary
+    operator: Equal
+    value: "resuming"
+
+webhook:
+  failurePolicy: "Ignore"
+  # reinvocationPolicy -- Controls whether webhook should be reinvoked if there were changes made by other plugins.
+  # Change to "Never" if you don't want to reinvoke webhook, the recommendations might not be applied for injected containers.
+  # Defaults to "IfNeeded".
+  reinvocationPolicy: "IfNeeded"
+  url: ""
+  port: 9443
+  # timeoutSeconds -- Controls duration for how long Control Plane will wait for webhook to respond (includes
+  # connection and waiting for response)
+  # timeoutSeconds: 10
+
+# additionalEnv -- Used to set any additional environment variables.
+additionalEnv: {}
+
+resources:
+  limits:
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 512Mi
+
+hostNetwork: false
+# dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
+dnsPolicy: ""
+
+castai:
+  # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"].
+  apiKeySecretRef: ""
+  # config map ref -- Name of the config map that contains .data["API_URL"] and .data["CLUSTER_ID"].
+  # Can be used instead of apiURL and clusterID values.
+  configMapRef: ""
+  # apiKey -- Token to be used for authorizing agent access to the API.
+  apiKey: ""
+  # apiURL -- URL of the CAST AI API.
+  apiURL: "https://api.cast.ai"
+  # -- Deprecated, use `castai.apiURL` instead (using this value will override `castai.apiURL`).
+  apiUrl: ~
+  # clusterID -- ID of the cluster the workload-autoscaler is deployed in.
+  clusterID: ""
+  # clusterIdSecretKeyRef -- Name and Key of secret with ClusterID
+  # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
+  # The clusterID, configMapRef and clusterIdSecretKeyRef are mutually exclusive.
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
+  # telemetryURL -- Telemetry endpoint URL for metrics ingestion.
+  # "auto" (default): derive from apiURL (e.g., api.cast.ai → telemetry.prod-master.cast.ai:443)
+  # "": disable controller metrics
+  # "<url>": use explicit URL
+  telemetryURL: "auto"
+
+# inPlaceResizeEnabled -- Enables the Kubernetes Pod In-Place Resize feature, allowing workloads to scale resources
+# without recreating pods. It requires k8s >= 1.33
+inPlaceResizeEnabled: true
+
+# inPlaceResizeDeferredEnabled -- Enables applying deferred recommendations using the In-Place Resize feature.
+# Requires 'inPlaceResizeEnabled' to be set to true.
+inPlaceResizeDeferredEnabled: true
+
+# workloadWhitelistingEnabled -- Enable whitelisting mode for workload autoscaler. When set to true, only workloads explicitly labeled as whitelisted will be scaled.
+workloadWhitelistingEnabled: false
+
+# evictionRateLimitingEnabled -- Enable rate limiting pod evictions by workload autoscaler.
+evictionRateLimitingEnabled: true
+
+# workloadPodLabeling -- Configuration for Workload Autoscaler features that dynamically add labels to user workload
+# pods during rightsizing. This is distinct from 'podLabels' and 'podAnnotations', which apply only to the
+# workload-autoscaler pods themselves.
+workloadPodLabeling:
+  # workloadId -- Adds workloads.cast.ai/workload-id label to workload pods
+  # using the workload ID from recommendations.
+  workloadId:
+    enabled: false
+
+# trustedCACert -- CA certificate to add to set of root certificate authorities that client will use when verifying server certificates.
+trustedCACert: ""
+
+# trustedCACertSecretRef -- Name of secret with CA certificate to be added to agent's set of root certificate authorities.
+# trustedCACert and trustedCACertSecretRef are mutually exclusive.
+# The referenced secret must provide the certificate in .data["TLS_CA_CERT_FILE"].
+trustedCACertSecretRef: ""
+
+# Pod affinity rules.
+# Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/os
+              operator: NotIn
+              values:
+                - windows
+  podAntiAffinity:
+    # Require placing pods on different nodes.
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - castai-workload-autoscaler
+        topologyKey: kubernetes.io/hostname
+
+## Probes for controller and webhook containers
+## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+readinessProbe:
+  # Number of seconds after the container has started before [probe] is initiated
+  initialDelaySeconds: 10
+  # How often (in seconds) to perform the [probe]
+  periodSeconds: 15
+  # Number of seconds after which the [probe] times out
+  timeoutSeconds: 15
+  # Minimum consecutive successes for the [probe] to be considered successful after having failed
+  successThreshold: 1
+  # Minimum consecutive failures for the [probe] to be considered failed after having succeeded
+  failureThreshold: 6
+  # HTTP Get probe configuration
+  httpGet:
+    port: 8081
+    path: /healthz
+
+livenessProbe:
+  # Number of seconds after the container has started before [probe] is initiated
+  initialDelaySeconds: 10
+  # How often (in seconds) to perform the [probe]
+  periodSeconds: 15
+  # Number of seconds after which the [probe] times out
+  timeoutSeconds: 15
+  # Minimum consecutive successes for the [probe] to be considered successful after having failed
+  successThreshold: 1
+  # Minimum consecutive failures for the [probe] to be considered failed after having succeeded
+  failureThreshold: 6
+  # HTTP Get probe configuration
+  httpGet:
+    port: 8081
+    path: /readyz
+
+# Defines /metrics ports
+metrics:
+  port: 8080
+  targetPort: 8080
+
+# Defines health probe port
+healthProbe:
+  port: 8081
+
+# Helm test hook configuration
+# The hook performs basic test to confirm whether Workload Autoscaler is working correctly
+test:
+  # Flag to disable the hook
+  enabled: true
+
+# -- Used to set additional environment variables for the workload autoscaler container via configMaps or secrets.
+envFrom: []
+
+# -- Used to set additional volumes
+extraVolumes: []
+
+# -- Used to set additional volumemounts
+extraVolumeMounts: []
+
+watchListClient: true

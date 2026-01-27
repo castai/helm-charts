@@ -1,0 +1,207 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- if .Values.workloadWhitelistingEnabled }}
+    workload-autoscaler.cast.ai/enabled: "true"
+    {{- end}}
+  {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "workload-autoscaler.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicas }}
+  selector:
+    matchLabels:
+      {{- include "workload-autoscaler.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      {{- with .Values.podAnnotations }}
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+      {{- include "workload-autoscaler.selectorLabels" . | nindent 8 }}
+      {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
+      serviceAccountName: {{ template "workload-autoscaler.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- $isOpenShift := .Capabilities.APIVersions.Has "security.openshift.io/v1" }}
+      {{- $useRestrictedProfile := and $isOpenShift (.Values.openshift.scc.useRestrictedProfile | default false) }}
+      securityContext:
+      {{- if $useRestrictedProfile }}
+        runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot | default true }}
+        {{- with .Values.podSecurityContext.seccompProfile }}
+        seccompProfile:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      {{- else }}
+      {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- end }}
+      {{- if .Values.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      {{- if or .Values.dnsPolicy .Values.hostNetwork  }}
+      dnsPolicy: {{ or .Values.dnsPolicy "ClusterFirstWithHostNet" }}
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: SERVICE_ACCOUNT_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.serviceAccountName
+            - name: WEBHOOK_NAME
+              value: {{ include "workload-autoscaler.webhookName" . }}
+            - name: SERVICE_NAME
+              value: {{ include "workload-autoscaler.fullname" . }}
+            - name: LOG_LEVEL
+              value: {{ .Values.logLevel | default 0 | quote }}
+            - name: KUBE_FEATURE_WatchListClient
+              value: {{ quote .Values.watchListClient }}
+            - name: CERTS_ROTATION
+              value: "true"
+            - name: CERTS_DIR
+              value: "/certs"
+            - name: LEADER_ELECTION_ENABLED
+              value: {{ if gt (int .Values.replicas) 1 }}"true"{{ else }}"false"{{ end }}
+            - name: LEADER_ELECTION_LEASE_NAME
+              value: {{ include "workload-autoscaler.leaderElectionLeaseName" . }}
+            - name: CERTS_SECRET
+              value: {{ include "workload-autoscaler.certsSecretName" . }}
+            {{- if .Values.inPlaceResizeEnabled }}
+            - name: IN_PLACE_RESIZE_ENABLED
+              value: {{ quote .Values.inPlaceResizeEnabled }}
+            {{- end }}
+            {{- if .Values.inPlaceResizeDeferredEnabled }}
+            - name: IN_PLACE_RESIZE_DEFERRED_ENABLED
+              value: {{ quote .Values.inPlaceResizeDeferredEnabled }}
+            {{- end}}
+            {{- if .Values.workloadWhitelistingEnabled }}
+            - name: SAFEGUARD_WORKLOAD_WHITELISTING_ENABLED
+              value: {{ quote .Values.workloadWhitelistingEnabled }}
+            {{- end}}
+            {{- if .Values.evictionRateLimitingEnabled}}
+            - name: EVICTION_RATE_LIMITING_ENABLED
+              value: {{ quote .Values.evictionRateLimitingEnabled }}
+            {{- end}}
+            {{- if .Values.castai.telemetryURL }}
+            - name: TELEMETRY_URL
+              value: {{ .Values.castai.telemetryURL | quote }}
+            {{- end }}
+            {{- if .Values.workloadPodLabeling.workloadId.enabled }}
+            - name: WORKLOAD_POD_LABELING_WORKLOAD_ID_ENABLED
+              value: {{ quote .Values.workloadPodLabeling.workloadId.enabled }}
+            {{- end}}
+            - name: WEBHOOK_PORT
+              value: {{ quote .Values.webhook.port }}
+            - name: METRICS_PORT
+              value: {{ quote .Values.metrics.targetPort }}
+            - name: HEALTH_PROBE_PORT
+              value: {{ quote .Values.healthProbe.port }}
+            {{- range $name, $value := .Values.additionalEnv }}
+            - name: "{{ $name }}"
+              value: "{{ $value }}"
+            {{- end }}
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+            {{- if ne .Values.castai.clusterID "" }}
+            {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
+
+            {{- if ne .Values.castai.configMapRef "" }}
+            {{- fail "configMapRef and clusterIdSecretKeyRef are mutually exclusive" }}
+            {{- end }}
+            - name: CLUSTER_ID
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
+                  key: {{ required "clusterIdSecretKeyRef.key must be provided" .Values.castai.clusterIdSecretKeyRef.key }}
+          {{- end }}
+          envFrom:
+            {{- if .Values.trustedCACert }}
+            - secretRef:
+                name: {{ include "workload-autoscaler.fullname" . }}-tls-cert
+            {{- else if .Values.trustedCACertSecretRef }}
+            - secretRef:
+                name: {{ .Values.trustedCACertSecretRef -}}
+            {{- end }}
+              {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+            - secretRef:
+                {{- if .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
+                name: workload-autoscaler
+                {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                {{- end }}
+              {{- else if not .Values.envFrom -}}
+              {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+              {{- end }}
+            - configMapRef:
+                {{- if .Values.castai.configMapRef}}
+                name: {{ .Values.castai.configMapRef }}
+                {{- else }}
+                name: workload-autoscaler
+                {{- end }}
+          {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.livenessProbe }}
+          livenessProbe:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.readinessProbe }}
+          readinessProbe:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /certs
+              name: certs
+              readOnly: true
+            {{- with .Values.extraVolumeMounts }}
+            {{ toYaml . | nindent 12 }}
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: certs
+          secret:
+            defaultMode: 420
+            secretName: {{ include "workload-autoscaler.certsSecretName" . }}
+        {{- with .Values.extraVolumes }}
+        {{ toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+{{- end }}
