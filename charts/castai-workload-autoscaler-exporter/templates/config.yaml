@@ -1,0 +1,26 @@
+{{- if eq .Values.castai.configMapRef "" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "exporter.labels" . | nindent 4 }}
+  {{ if .Values.commonAnnotations -}}
+  annotations:
+    {{- include "exporter.annotations" . | nindent 4 }}
+  {{- end }}
+data:
+    {{- if or .Values.castai.apiUrl .Values.castai.apiURL }}
+  API_URL: {{ (coalesce .Values.castai.apiUrl .Values.castai.apiURL) | quote }}
+  {{- else if not .Values.envFrom -}}
+  {{- fail "castai.apiURL must be provided" }}
+  {{- end }}
+  {{ if eq .Values.castai.clusterIdSecretKeyRef.name "" -}}
+  {{- if .Values.castai.clusterID -}}
+  CLUSTER_ID: {{ .Values.castai.clusterID | quote }}
+  {{- else if not .Values.envFrom -}}
+  {{- fail "clusterID or clusterIdSecretKeyRef.name must be provided" }}
+  {{- end }}
+  {{- end }}
+{{- end }}

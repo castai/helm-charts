@@ -1,0 +1,117 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "exporter.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "exporter.fullname" . }}
+      app.kubernetes.io/name: {{ include "exporter.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "exporter.fullname" . }}
+        app.kubernetes.io/name: {{ include "exporter.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      serviceAccountName: {{ template "exporter.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: exporter
+          image: "{{ required "exporter.image.repository must be provided" .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.exporter.image.pullPolicy | default "IfNotPresent" }}
+          command:
+            - "castai-workload-autoscaler"
+            - "exporter"
+          ports:
+            - containerPort: 8080
+          resources:
+            {{- toYaml .Values.exporter.resources | nindent 12 }}
+          env:
+          - name: TELEMETRY_URL
+            value: {{ .Values.castai.telemetryURL }}
+          - name: EXPORTER_METRIC_LIMIT
+            value: {{ quote (coalesce .Values.exporter.config.metric_limit .Values.exporter.config.metricLimit) }}
+          - name: METRICS_CLIENT_INSECURE
+            value: {{ quote .Values.exporter.config.metricsClientInsecure }}
+          - name: METRICS_PORT
+            value: {{ quote .Values.exporter.metrics.port }}
+          - name: HEALTH_PROBE_PORT
+            value: {{ quote .Values.exporter.healthProbe.port }}
+          {{- if .Values.castai.clusterIdSecretKeyRef.name }}
+          {{- if ne .Values.castai.clusterID "" }}
+          {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
+          {{- end }}
+
+          {{- if ne .Values.castai.configMapRef "" }}
+          {{- fail "configMapRef and clusterIdSecretKeyRef are mutually exclusive" }}
+          {{- end }}
+          - name: CLUSTER_ID
+            valueFrom:
+              secretKeyRef:
+                name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
+                key: {{ required "clusterIdSecretKeyRef.key must be provided" .Values.castai.clusterIdSecretKeyRef.key }}
+          {{- end }}
+          {{- if .Values.workloadWhitelistingEnabled }}
+          - name: SAFEGUARD_WORKLOAD_WHITELISTING_ENABLED
+            value: {{ quote .Values.workloadWhitelistingEnabled }}
+          {{- end}}
+          envFrom:
+            {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+            - secretRef:
+                {{- if .Values.castai.apiKey }}
+                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
+                  name: {{ include "exporter.fullname" . }}
+                  {{- else }}
+                  name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                  {{- end }}
+            {{- else if not .Values.envFrom -}}
+            {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+            {{- end }}
+            - configMapRef:
+                {{- if .Values.castai.configMapRef}}
+                name: {{ .Values.castai.configMapRef }}
+                {{- else }}
+                name: {{ include "exporter.fullname" . }}
+                {{- end }}
+          {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.exporter.livenessProbe }}
+          livenessProbe:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.exporter.readinessProbe }}
+          readinessProbe:
+          {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}

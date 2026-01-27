@@ -1,0 +1,20 @@
+{{- if .Values.prometheus.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "exporter.fullname" . }}-prometheus
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "exporter.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: http
+      protocol: TCP
+      port: 9090
+      targetPort: 9090
+  selector:
+    app: {{ include "exporter.fullname" . }}-prometheus
+    app.kubernetes.io/name: {{ include "exporter.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+  type: ClusterIP
+{{- end }}

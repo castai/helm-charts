@@ -1,0 +1,62 @@
+{{- $prometheusConfig := .Values.exporter.config.prometheus }}
+{{- $nodeWorkloadsConfig := .Values.exporter.config.nodeWorkloads }}
+{{- if and (empty $prometheusConfig) (empty $nodeWorkloadsConfig) }}
+{{ fail "either prometheus or node_workloads config must be set" }}
+{{- end }}
+apiVersion: autoscaling.cast.ai/v1
+kind: CustomMetricsExporterConfig
+metadata:
+  name: exporter-config
+  labels:
+  {{- include "exporter.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade,pre-delete
+spec:
+  {{- if not (empty $prometheusConfig) }}
+  prometheus:
+    {{- range $prometheusConfig }}
+    - dataSource:
+        {{- $url := .datasource.url | default (printf "http://%s-prometheus.%s.svc.%s.:9090" (include "exporter.fullname" $) $.Release.Namespace $.Values.clusterDomain) }}
+        name: {{ .datasource.name | default $url }}
+        url: {{ $url }}
+        timeout: {{ .datasource.timeout | default "15s" }}
+      {{- $metrics := required "metrics is required" .metrics }}
+      {{- if empty $metrics }}
+      {{- fail "metrics cannot be empty" }}
+      {{- end }}
+      metrics:
+      {{- range $metrics }}
+      {{- if kindIs "string" . }}
+        - name: ""
+          query: {{ . | quote }}
+      {{- else }}
+        - name: {{ .name | quote }}
+          query: {{ .query | quote }}
+      {{- end }}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  {{- if not (empty $nodeWorkloadsConfig) }}
+  nodeWorkloads:
+    {{- range $nodeWorkloadsConfig }}
+    - dataSource:
+        name: {{ required "name cannot be empty" .datasource.name}}
+        kubeletPort: {{ required "kubeletPort cannot be empty" .datasource.kubeletPort }}
+        metricsPath: {{ required "metricsPath cannot be empty" .datasource.metricsPath }}
+        concurrency: {{ .datasource.concurrency | default 10 }}
+      {{- $metrics := required "metrics is required" .metrics }}
+      {{- if empty $metrics }}
+      {{- fail "metrics cannot be empty" }}
+      {{- end }}
+      kubernetesVersion: {{ .kubernetesVersion | default "" | quote}}
+      transformer: {{ .transformer |  quote }}
+      metrics:
+      {{- range $metrics }}
+        - name: {{ .name | quote }}
+          filterExpr: {{ .filterExpr | default "" | quote}}
+      {{- end }}
+    {{- end }}
+  {{- end }}
+  concurrency: {{ .Values.exporter.config.concurrency }}
+  failureLimit: {{ coalesce .Values.exporter.config.failure_limit .Values.exporter.config.failureLimit }}
+  interval: {{ .Values.exporter.config.interval }}

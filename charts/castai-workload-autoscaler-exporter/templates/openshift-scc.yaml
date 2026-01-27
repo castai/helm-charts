@@ -1,0 +1,134 @@
+{{- define "exporter.sccName" -}}
+{{- printf "%s-scc" (include "exporter.fullname" .) -}}
+{{- end -}}
+
+{{- if .Capabilities.APIVersions.Has "security.openshift.io/v1" -}}
+{{- if and .Values.podSecurityContext .Values.containerSecurityContext }}
+{{- $sccEnabled := .Values.openshift.scc.enabled | default true }}
+{{- $useRestrictedProfile := .Values.openshift.scc.useRestrictedProfile | default false }}
+{{- if $sccEnabled }}
+
+apiVersion: security.openshift.io/v1
+kind: SecurityContextConstraints
+metadata:
+  name: {{ include "exporter.sccName" . }}
+  labels:
+    {{- include "exporter.labels" . | nindent 4 }}
+# Explicitly scope this SCC to only the CAST AI service account.
+# This prevents the SCC from being inadvertently applied to other workloads.
+users:
+  - system:serviceaccount:{{ .Release.Namespace }}:{{ include "exporter.serviceAccountName" . }}
+groups: []
+allowHostDirVolumePlugin: false
+allowHostIPC: false
+allowHostNetwork: false
+allowHostPID: false
+allowHostPorts: false
+allowPrivilegeEscalation: {{ .Values.containerSecurityContext.allowPrivilegeEscalation | default false }}
+allowedCapabilities: []
+defaultAddCapabilities: []
+fsGroup:
+  {{- if $useRestrictedProfile }}
+  type: RunAsAny
+  {{- else }}
+  type: MustRunAs
+  {{- if .Values.podSecurityContext.fsGroup }}
+  ranges:
+  - min: {{ .Values.podSecurityContext.fsGroup }}
+    max: {{ .Values.podSecurityContext.fsGroup }}
+  {{- else }}
+  {{- fail "SCC requires .Values.podSecurityContext.fsGroup to be set for fsGroup.type MustRunAs" }}
+  {{- end }}
+  {{- end }}
+{{- if not $useRestrictedProfile }}
+readOnlyRootFilesystem: {{ .Values.containerSecurityContext.readOnlyRootFilesystem | default true }}
+{{- end }}
+requiredDropCapabilities:
+  {{- if and .Values.containerSecurityContext.capabilities .Values.containerSecurityContext.capabilities.drop }}
+  {{- toYaml .Values.containerSecurityContext.capabilities.drop | nindent 2 }}
+  {{- else }}
+  []
+  {{- end }}
+runAsUser:
+  {{- if $useRestrictedProfile }}
+  type: MustRunAsRange
+  {{- else }}
+  type: MustRunAs
+  {{- if .Values.podSecurityContext.runAsUser }}
+  uid: {{ .Values.podSecurityContext.runAsUser }}
+  {{- else }}
+  {{- fail "SCC requires .Values.podSecurityContext.runAsUser to be set for runAsUser.type MustRunAs" }}
+  {{- end }}
+  {{- end }}
+seLinuxContext:
+  type: RunAsAny
+supplementalGroups:
+  {{- if $useRestrictedProfile }}
+  type: RunAsAny
+  {{- else }}
+  type: MustRunAs
+  {{- if .Values.podSecurityContext.runAsGroup }}
+  ranges:
+  - min: {{ .Values.podSecurityContext.runAsGroup }}
+    max: {{ .Values.podSecurityContext.runAsGroup }}
+  {{- else if .Values.podSecurityContext.fsGroup }}
+  ranges:
+  - min: {{ .Values.podSecurityContext.fsGroup }}
+    max: {{ .Values.podSecurityContext.fsGroup }}
+  {{- else }}
+  {{- fail "SCC requires .Values.podSecurityContext.runAsGroup or .Values.podSecurityContext.fsGroup for supplementalGroups.type MustRunAs" }}
+  {{- end }}
+  {{- end }}
+volumes:
+- configMap
+- downwardAPI
+- emptyDir
+- projected
+- secret
+seccompProfiles:
+  {{- if .Values.podSecurityContext.seccompProfile }}
+    {{- if eq (toString .Values.podSecurityContext.seccompProfile.type) "RuntimeDefault" }}
+  - runtime/default
+    {{- else if eq (toString .Values.podSecurityContext.seccompProfile.type) "Unconfined" }}
+  - unconfined
+    {{- else if .Values.podSecurityContext.seccompProfile.type }}
+  - {{ .Values.podSecurityContext.seccompProfile.type }}
+    {{- end }}
+  {{- else }}
+  - runtime/default
+  {{- end }}
+priority: {{ .Values.openshift.scc.priority | default 5 }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "exporter.sccName" . }}-user
+  labels:
+    {{- include "exporter.labels" . | nindent 4 }}
+rules:
+- apiGroups: ["security.openshift.io"]
+  resources: ["securitycontextconstraints"]
+  verbs:     ["use"]
+  resourceNames:
+  - {{ include "exporter.sccName" . }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "exporter.sccName" . }}-binding
+  labels:
+    {{- include "exporter.labels" . | nindent 4 }}
+subjects:
+- kind: ServiceAccount
+  name: {{ template "exporter.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "exporter.sccName" . }}-user
+  apiGroup: rbac.authorization.k8s.io
+
+{{- end }}{{/* End $sccEnabled check */}}
+{{- end }}{{/* End .Values.podSecurityContext and .Values.containerSecurityContext check */}}
+{{- end }}{{/* End .Capabilities.APIVersions.Has check */}}

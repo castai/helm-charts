@@ -1,0 +1,57 @@
+{{- if .Values.prometheus.enabled }}
+{{- $scrapeConfigs := required "Either Values.prometheus.scrapeConfigs or Values.prometheus.scrape must be set" (or .Values.prometheus.scrapeConfigs .Values.prometheus.scrape) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "exporter.fullname" . }}-prometheus-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "exporter.labels" . | nindent 4 }}
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: {{ .Values.prometheus.scrape_interval | default "15s" | quote }}
+      evaluation_interval: {{ .Values.prometheus.evaluation_interval | default "15s" | quote }}
+    scrape_configs:
+      {{- range .Values.prometheus.scrape }}
+      {{- $labelHash := "" }}
+      {{- range $key, $value := .labels }}
+        {{- $labelHash = printf "%s-%s-%s" $labelHash $key $value }}
+      {{- end }}
+      {{- $jobName := printf "custom-metrics-%v-%s-%s" .port .path (sha1sum $labelHash | trunc 8) }}
+      - job_name: "{{ $jobName }}"
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_phase]
+            action: keep
+            regex: "Running"
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            action: replace
+            target_label: container
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: "{{ .port }}"
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: replace
+            target_label: __metrics_path__
+            regex: "{{ .port }}"
+            replacement: "{{ .path }}"
+          {{- range $key, $value := .labels }}
+          {{- $cleanKey := $key | replace "." "_" | replace "-" "_" | replace " " "_" | replace "/" "_" }}
+          - source_labels: [__meta_kubernetes_pod_label_{{ $cleanKey }}]
+            action: keep
+            regex: "{{ $value }}"
+          {{- end }}
+      {{- end }}
+
+      {{- if .Values.prometheus.scrapeConfigs }}
+      {{- toYaml .Values.prometheus.scrapeConfigs | nindent 6 }}
+      {{- end }}
+{{- end }}

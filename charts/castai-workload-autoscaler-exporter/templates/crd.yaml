@@ -1,0 +1,354 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.2
+  name: custommetricsexporterconfigs.autoscaling.cast.ai
+spec:
+  group: autoscaling.cast.ai
+  names:
+    kind: CustomMetricsExporterConfig
+    listKind: CustomMetricsExporterConfigList
+    plural: custommetricsexporterconfigs
+    singular: custommetricsexporterconfig
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.conditions[?(@.type=='Healthy')].status
+      name: Healthy
+      type: string
+    - jsonPath: .status.datasourceSummary
+      name: Ready
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: CustomMetricsExporterConfig is the Schema for the custommetrics
+          API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: spec defines the desired state of CustomMetricsExporterConfig
+            properties:
+              concurrency:
+                default: 10
+                description: Concurrency defines the number of concurrent metric processors
+                minimum: 1
+                type: integer
+              failureLimit:
+                default: 5
+                description: FailureLimit defines the maximum number of consecutive
+                  failures before shutdown
+                minimum: 1
+                type: integer
+              interval:
+                default: 15s
+                description: Interval defines the interval between metric collection
+                  cycles
+                pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+                type: string
+              nodeWorkloads:
+                items:
+                  description: NodeWorkloadConfig defines configuration for node workload
+                    metrics collection
+                  properties:
+                    dataSource:
+                      description: DataSource defines the data source configuration
+                        for node workload metrics
+                      properties:
+                        concurrency:
+                          default: 10
+                          description: Concurrency defines the number of workers to
+                            use for fetching metrics from the kubelet
+                          minimum: 1
+                          type: integer
+                        kubeletPort:
+                          default: 10250
+                          description: KubeletPort defines the port to connect to
+                            the kubelet
+                          maximum: 65535
+                          minimum: 1
+                          type: integer
+                        metricsPath:
+                          description: MetricsPath defines the path to the metrics
+                            endpoint
+                          minLength: 1
+                          type: string
+                        name:
+                          description: Name defines a unique name for the node workload
+                            data source
+                          type: string
+                      required:
+                      - concurrency
+                      - kubeletPort
+                      - metricsPath
+                      - name
+                      type: object
+                    kubernetesVersion:
+                      description: |-
+                        KubernetesVersion defines a version constraint for conditional metric collection.
+                        Uses semver constraint syntax (e.g., ">= 1.33.0").
+                      type: string
+                    metrics:
+                      description: Metrics defines the list of metrics to collect
+                      items:
+                        description: NodeWorkloadMetric defines a metric to collect
+                          from node workload
+                        properties:
+                          filterExpr:
+                            description: |-
+                              FilterExpr is an optional expression to filter metrics by their label values.
+                              Uses expr language syntax (e.g., 'container != ""', 'namespace != "kube-system"').
+                              For details on the supported syntax, see https://expr-lang.org/.
+                            type: string
+                          name:
+                            description: Name of the metric
+                            minLength: 1
+                            type: string
+                        required:
+                        - name
+                        type: object
+                      minItems: 1
+                      type: array
+                    transformer:
+                      description: |-
+                        Transformer defines which transformer configuration to use (e.g., "node-probes", "node-psi").
+                        This determines the transformer and Avro schema used for metrics processing.
+                      enum:
+                      - node-probes
+                      - node-psi
+                      type: string
+                  required:
+                  - dataSource
+                  - metrics
+                  - transformer
+                  type: object
+                type: array
+              prometheus:
+                description: Prometheus defines the Prometheus metrics configurations
+                items:
+                  description: PrometheusConfig defines configuration for Prometheus
+                    metrics collection
+                  properties:
+                    dataSource:
+                      description: DataSource defines the data source configuration
+                        for Prometheus metrics
+                      properties:
+                        name:
+                          description: Name defines a unique name for the Prometheus
+                            data source
+                          type: string
+                        timeout:
+                          default: 15s
+                          description: Timeout defines the timeout for Prometheus
+                            queries
+                          pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
+                          type: string
+                        url:
+                          description: URL defines the Prometheus server URL
+                          minLength: 1
+                          type: string
+                      required:
+                      - name
+                      - timeout
+                      - url
+                      type: object
+                    metrics:
+                      description: Metrics defines the list of metrics to collect
+                      items:
+                        description: PrometheusMetric defines a metric to collect
+                          from Prometheus
+                        properties:
+                          name:
+                            description: Name of the metric
+                            type: string
+                          query:
+                            description: Query is the PromQL query to execute
+                            minLength: 1
+                            type: string
+                        required:
+                        - name
+                        - query
+                        type: object
+                      minItems: 1
+                      type: array
+                  required:
+                  - dataSource
+                  - metrics
+                  type: object
+                type: array
+            required:
+            - concurrency
+            - failureLimit
+            - interval
+            type: object
+          status:
+            description: status defines the observed state of CustomMetricsExporterConfigStatus
+            properties:
+              conditions:
+                description: The status of each condition is one of True, False, or
+                  Unknown.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              datasourceStatuses:
+                description: |-
+                  DatasourceStatuses represents the status of each data source defined in the CustomMetricsExporterConfig
+                  It's inspired by ContainerStatuses in PodStatus
+                  It contains both information about the state of the data source and the status of individual metrics within that
+                  data source
+                items:
+                  description: DatasourceStatus represents the status of a specific
+                    data source within the CustomMetricsExporterConfig
+                  properties:
+                    index:
+                      description: Index of the data source in the CustomMetricsExporterConfig
+                        spec arrays
+                      minimum: 0
+                      type: integer
+                    message:
+                      maxLength: 1024
+                      type: string
+                    metricStatuses:
+                      description: MetricStatuses represents the status of individual
+                        metrics within the data source
+                      items:
+                        description: MetricStatus represents the status of a specific
+                          metric within a data source
+                        properties:
+                          message:
+                            maxLength: 1024
+                            type: string
+                          name:
+                            description: Name of the metric
+                            type: string
+                          state:
+                            type: string
+                        required:
+                        - message
+                        - name
+                        - state
+                        type: object
+                      type: array
+                      x-kubernetes-list-map-keys:
+                      - name
+                      x-kubernetes-list-type: map
+                    name:
+                      description: Name of the data source
+                      type: string
+                    state:
+                      type: string
+                    type:
+                      description: Type of the data source (e.g., "NodeWorkload",
+                        "Prometheus")
+                      enum:
+                      - NodeWorkload
+                      - Prometheus
+                      type: string
+                  required:
+                  - index
+                  - message
+                  - name
+                  - state
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - name
+                x-kubernetes-list-type: map
+              datasourceSummary:
+                description: DatasourceSummary of the overall datasource statuses,
+                  e.g., "2/3"
+                type: string
+              lastUpdateTime:
+                description: LastUpdateTime is the timestamp of the last successful
+                  configuration update
+                format: date-time
+                type: string
+              observedGeneration:
+                description: ObservedGeneration reflects the generation of the most
+                  recently observed CustomMetricsExporterConfig
+                format: int64
+                type: integer
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
