@@ -91,10 +91,10 @@ exporter:
     name: ""
   resources:
     limits:
-      cpu: 500m
+      cpu: 2
       memory: 512Mi
     requests:
-      cpu: 250m
+      cpu: 500m
       memory: 256Mi
 
   ## Probes for exporter
