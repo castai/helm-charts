@@ -1,0 +1,62 @@
+{{- if .Values.model.cache.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "vllm.fullname" . }}-model-cache-copy
+  labels:
+    {{- include "vllm.labels" . | nindent 4 }}
+spec:
+  backoffLimit: {{ .Values.model.cache.copyJob.backoffLimit }}
+  {{- if or (eq .Values.model.cache.copyJob.ttlSecondsAfterFinished 0.0) .Values.model.cache.copyJob.ttlSecondsAfterFinished }}
+  ttlSecondsAfterFinished: {{ .Values.model.cache.copyJob.ttlSecondsAfterFinished }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "vllm.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: model-cache-copier
+          image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          args:
+            - copy
+          env:
+            {{- include "modelSourceCredentialsEnvVars" . | nindent 12 }}
+            - name: SOURCE_REMOTE_DIRS
+              value: "{{ .Values.model.name }}"
+            {{- include "modelDestinationEnvVars" . | nindent 12 }}
+            - name: CONCURRENCY
+              value: "{{ default 8 .Values.modelDownloader.concurrency }}"
+          volumeMounts:
+            {{- if eq .Values.model.sourceRegistry "gcs" }}
+            - name: gcs-credentials-model
+              mountPath: /etc/gcs-credentials
+              readOnly: true
+            {{- end }}
+            {{- if eq .Values.model.cache.bucketType "gcs" }}
+            - name: cache-gcs-credentials-model
+              mountPath: /etc/cache-gcs-credentials
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
+      volumes:
+        {{- if eq .Values.model.sourceRegistry "gcs" }}
+        - name: gcs-credentials-model
+          secret:
+            secretName: {{ include "modelRegistrySecretName" . }}
+            items:
+              - key: gcsCredentialsJson
+                path: credentials.json
+        {{- end }}
+        {{- if and .Values.model.cache.enabled (eq .Values.model.cache.bucketType "gcs") }}
+        - name: cache-gcs-credentials-model
+          secret:
+            secretName: {{ include "modelCacheSecretName" . }}
+            items:
+              - key: gcsCredentialsJson
+                path: credentials.json
+        {{- end }}
+{{- end }}

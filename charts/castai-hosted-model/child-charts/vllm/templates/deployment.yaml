@@ -55,15 +55,30 @@ spec:
               - key: gcsCredentialsJson
                 path: credentials.json
         {{- end }}
+        {{- if and .Values.model.cache.enabled (eq .Values.model.cache.bucketType "gcs") }}
+        - name: cache-gcs-credentials-model
+          secret:
+            secretName: {{ include "modelCacheSecretName" . }}
+            items:
+              - key: gcsCredentialsJson
+                path: credentials.json
+        {{- end }}
         - name: models
           emptyDir: {}
+        - name: startup-script
+          configMap:
+            name: {{ include "vllm.fullname" . }}-startup-script
+            defaultMode: 0755
+        {{- if .Values.model.cache.enabled }}
+        - name: cache-ready
+          emptyDir: {}
+        {{- end }}
       containers:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["vllm", "serve"]
+          command: ["/scripts/startup.sh"]
           args:
-            - "--model={{ include "modelReference" . }}"
             - "--served-model-name={{ .Values.model.name }}"
             {{- if .Values.loraAdapter.name }}
             - "--enable-lora"
@@ -126,42 +141,8 @@ spec:
               value: /models
             - name: LD_LIBRARY_PATH
               value: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
-            {{- if eq .Values.model.sourceRegistry "gcs" }}
-            - name: GOOGLE_APPLICATION_CREDENTIALS
-              value: "/etc/gcs-credentials/credentials.json"
-            {{- end }}
-            {{- if eq .Values.model.sourceRegistry "s3" }}
-            - name: AWS_ACCESS_KEY_ID
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "modelRegistrySecretName" . }}
-                  key: "awsAccessKeyId"
-                  optional: true
-            - name: AWS_SECRET_ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "modelRegistrySecretName" . }}
-                  key: "awsSecretAccessKey"
-                  optional: true
-            - name: AWS_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "modelRegistrySecretName" . }}
-                  key: "awsRegion"
-                  optional: true
-            - name: AWS_DEFAULT_REGION
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "modelRegistrySecretName" . }}
-                  key: "awsRegion"
-                  optional: true
-            - name: AWS_ENDPOINT_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "modelRegistrySecretName" . }}
-                  key: "awsEndpointUrl"
-                  optional: true
-            {{- end }}
+            {{- include "modelSourceCredentialsEnvVars" . | nindent 12 }}
+            {{- include "modelCacheCredentialsEnvVars" . | nindent 12 }}
             {{- if or (eq .Values.model.sourceRegistry "hf") .Values.model.registry.hf.token }}
             - name: HUGGING_FACE_HUB_TOKEN
               valueFrom:
@@ -232,7 +213,38 @@ spec:
               mountPath: /etc/gcs-credentials
               readOnly: true
           {{- end }}
+          {{- if and .Values.model.cache.enabled (eq .Values.model.cache.bucketType "gcs") }}
+            - name: cache-gcs-credentials-model
+              mountPath: /etc/cache-gcs-credentials
+              readOnly: true
+          {{- end }}
+            - name: startup-script
+              mountPath: /scripts
+              readOnly: true
+          {{- if .Values.model.cache.enabled }}
+            - name: cache-ready
+              mountPath: /cache-ready
+          {{- end }}
       initContainers:
+        {{- if .Values.model.cache.enabled }}
+        - name: model-cache-checker
+          image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          args:
+            - download
+          env:
+            {{- include "modelCacheCheckerEnvVars" . | nindent 12 }}
+          volumeMounts:
+            - name: cache-ready
+              mountPath: /cache-ready
+            {{- if eq .Values.model.cache.bucketType "gcs" }}
+            - name: cache-gcs-credentials-model
+              mountPath: /etc/cache-gcs-credentials
+              readOnly: true
+            {{- end }}
+          resources:
+            {{- toYaml .Values.modelDownloader.resources | nindent 12 }}
+        {{- end }}
         {{- if and (ne .Values.model.sourceRegistry "hf") (not .Values.useRunAiStreamer) }}
         - name: model-downloader-base
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
@@ -240,17 +252,22 @@ spec:
           args:
             - download
           env:
-            {{- include "modelDownloader.modelEnvVars" (list .Values.model.sourceRegistry .) | nindent 12 }}
-            - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIRS
+            {{- include "modelSourceCredentialsEnvVars" . | nindent 12 }}
+            - name: SOURCE_REMOTE_DIRS
               value: "{{ .Values.model.name }}"
-            - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
+            - name: DESTINATION_LOCAL_DIR
               value: "/models"
           volumeMounts:
             - name: models
               mountPath: /models
             {{- if eq .Values.model.sourceRegistry "gcs" }}
             - name: gcs-credentials-model
-              mountPath: /etc/gcs-credentials-model
+              mountPath: /etc/gcs-credentials
+              readOnly: true
+            {{- end }}
+            {{- if and .Values.model.cache.enabled (eq .Values.model.cache.bucketType "gcs") }}
+            - name: cache-gcs-credentials-model
+              mountPath: /etc/cache-gcs-credentials
               readOnly: true
             {{- end }}
           resources:
@@ -263,10 +280,10 @@ spec:
           args:
             - download
           env:
-            {{- include "modelDownloader.loraEnvVars" (list .Values.loraAdapter.sourceRegistry .) | nindent 12 }}
-            - name: MODEL_DOWNLOADER_REMOTE_SOURCE_DIRS
+            {{- include "loraSourceCredentialsEnvVars" (list .Values.loraAdapter.sourceRegistry .) | nindent 12 }}
+            - name: SOURCE_REMOTE_DIRS
               value: "{{ .Values.loraAdapter.name }}"
-            - name: MODEL_DOWNLOADER_LOCAL_DESTINATION_DIR
+            - name: DESTINATION_LOCAL_DIR
               value: "/models"
           volumeMounts:
             - name: models

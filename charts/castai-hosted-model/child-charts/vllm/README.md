@@ -38,6 +38,18 @@ CAST AI hosted model deployment chart for vLLM.
 | loraAdapter.sourceRegistry | string | `"hf"` |  |
 | maxLoraRank | int | `128` |  |
 | maxNumBatchedTokens | int | `10000` |  |
+| model.cache.bucket | string | `""` |  |
+| model.cache.bucketType | string | `"gcs"` |  |
+| model.cache.copyJob.backoffLimit | int | `3` |  |
+| model.cache.copyJob.ttlSecondsAfterFinished | int | `0` |  |
+| model.cache.createSecret | bool | `true` |  |
+| model.cache.enabled | bool | `false` |  |
+| model.cache.gcs.credentialsJsonBase64 | string | `nil` |  |
+| model.cache.s3.accessKeyId | string | `nil` |  |
+| model.cache.s3.endpointUrl | string | `nil` |  |
+| model.cache.s3.region | string | `nil` |  |
+| model.cache.s3.secretAccessKey | string | `nil` |  |
+| model.cache.secretName | string | `nil` |  |
 | model.name | string | `nil` | HF Model name or path in object storage |
 | model.registry.createSecret | bool | `true` |  |
 | model.registry.gcs.credentialsJsonBase64 | string | `nil` |  |
@@ -49,7 +61,7 @@ CAST AI hosted model deployment chart for vLLM.
 | model.registry.secretName | string | `nil` |  |
 | model.sourceRegistry | string | `"hf"` |  |
 | modelDownloader.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/model-downloader"` |  |
-| modelDownloader.image.tag | string | `"v0.0.3"` |  |
+| modelDownloader.image.tag | string | `"v0.0.4"` |  |
 | modelDownloader.resources.limits.memory | string | `"500Mi"` |  |
 | modelDownloader.resources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.resources.requests.memory | string | `"500Mi"` |  |
