@@ -39,6 +39,13 @@ spec:
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
       terminationGracePeriodSeconds: {{ .Values.proxy.drainTimeSeconds | default 60 }}
+      {{- with .Values.dnsPolicy }}
+      dnsPolicy: {{ . }}
+      {{- end }}
+      {{- with .Values.dnsConfig }}
+      dnsConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
