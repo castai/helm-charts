@@ -183,6 +183,8 @@ spec:
               value: {{ .Values.endpoints | toJson | quote}}
             - name: PROTOCOL
               value: {{ .Values.protocol }}
+            - name: POOLING_ENABLED
+              value: "{{ and .Values.pgdog .Values.pgdog.enabled }}"
             {{- if and .Values.pgdog .Values.pgdog.enabled }}
             - name: PGDOG_CONFIG_TEMPLATE
               valueFrom:
