@@ -44,6 +44,131 @@ Usage: {{ include "modelRegistrySecretName" . }}
 {{- .Values.loraAdapter.registry.secretName | default (printf "%s-lora-registry" (include "vllm.fullname" .)) -}}
 {{- end }}
 
+{{- define "modelCacheSecretName" -}}
+{{- .Values.model.cache.secretName | default (printf "%s-model-cache-registry" (include "vllm.fullname" .)) -}}
+{{- end }}
+
+{{/*
+Model source credentials (GCS or S3) shared by vLLM and model-downloader.
+Emits both the standard cloud SDK envs (GOOGLE_APPLICATION_CREDENTIALS/AWS_*)
+for vLLM and the SOURCE_* envs expected by model-downloader.
+Usage: {{ include "modelSourceCredentialsEnvVars" . | nindent 12 }}
+*/}}
+{{- define "modelSourceCredentialsEnvVars" -}}
+{{- if eq .Values.model.sourceRegistry "gcs" }}
+- name: SOURCE_TYPE
+  value: "gcs"
+- name: SOURCE_GCS_CREDENTIALS_FILE
+  value: "/etc/gcs-credentials/credentials.json"
+- name: GOOGLE_APPLICATION_CREDENTIALS
+  value: "/etc/gcs-credentials/credentials.json"
+{{- else if eq .Values.model.sourceRegistry "s3" }}
+- name: SOURCE_TYPE
+  value: "s3"
+- name: SOURCE_S3_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsAccessKeyId"
+      optional: true
+- name: SOURCE_S3_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsSecretAccessKey"
+      optional: true
+- name: SOURCE_S3_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsRegion"
+      optional: true
+- name: SOURCE_S3_ENDPOINT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsEndpointUrl"
+      optional: true
+- name: AWS_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsAccessKeyId"
+      optional: true
+- name: AWS_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsSecretAccessKey"
+      optional: true
+- name: AWS_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsRegion"
+      optional: true
+- name: AWS_DEFAULT_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsRegion"
+      optional: true
+- name: AWS_ENDPOINT_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "awsEndpointUrl"
+      optional: true
+{{- end }}
+{{- end }}
+
+{{/*
+Model cache bucket credentials (only when cache enabled). Used by vLLM container.
+Usage: {{ include "modelCacheCredentialsEnvVars" . | nindent 12 }}
+*/}}
+{{- define "modelCacheCredentialsEnvVars" -}}
+{{- if and .Values.model.cache.enabled (eq .Values.model.cache.bucketType "gcs") }}
+- name: CACHE_GOOGLE_APPLICATION_CREDENTIALS
+  value: "/etc/cache-gcs-credentials/credentials.json"
+{{- end }}
+{{- if and .Values.model.cache.enabled (eq .Values.model.cache.bucketType "s3") }}
+- name: CACHE_AWS_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsAccessKeyId"
+      optional: true
+- name: CACHE_AWS_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsSecretAccessKey"
+      optional: true
+- name: CACHE_AWS_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsRegion"
+      optional: true
+- name: CACHE_AWS_ENDPOINT_URL
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsEndpointUrl"
+      optional: true
+{{- end }}
+{{- end }}
+
+{{/*
+Return the leaf directory name of the model, e.g.
+model.name = "castai-llms/llama3.2:1b" -> "llama3.2:1b"
+Usage: {{ include "model.dirName" . }}
+*/}}
+{{- define "model.dirName" -}}
+{{- $parts := splitList "/" .Values.model.name -}}
+{{- index $parts (sub (len $parts) 1) -}}
+{{- end }}
+
 {{/*
 Create model reference based on source registry
 Usage {{ include "modelReference" . }}
@@ -75,81 +200,33 @@ Usage {{ include "loraAdapterPath" . }}
 {{- end }}
 
 {{/*
-Generate model downloader's storage environment variables for model registry
-Usage: {{ include "modelDownloader.modelEnvVars" (list "gcs" .) }}
-*/}}
-{{- define "modelDownloader.modelEnvVars" -}}
-{{- $storageType := index . 0 -}}
-{{- $ctx := index . 1 -}}
-{{- if eq $storageType "gcs" -}}
-- name: STORAGE_TYPE
-  value: "gcs"
-- name: GCS_CREDENTIALS_FILE
-  value: "/etc/gcs-credentials-model/credentials.json"
-{{- else if eq $storageType "s3" -}}
-- name: STORAGE_TYPE
-  value: "s3"
-- name: AWS_ACCESS_KEY_ID
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "modelRegistrySecretName" $ctx }}
-      key: "awsAccessKeyId"
-      optional: true
-- name: AWS_SECRET_ACCESS_KEY
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "modelRegistrySecretName" $ctx }}
-      key: "awsSecretAccessKey"
-      optional: true
-- name: AWS_REGION
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "modelRegistrySecretName" $ctx }}
-      key: "awsRegion"
-      optional: true
-- name: AWS_DEFAULT_REGION
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "modelRegistrySecretName" $ctx }}
-      key: "awsRegion"
-      optional: true
-- name: AWS_ENDPOINT_URL
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "modelRegistrySecretName" $ctx }}
-      key: "awsEndpointUrl"
-      optional: true
-{{- end -}}
-{{- end }}
-
-{{/*
 Generate model downloader's storage environment variables for LoRA registry
-Usage: {{ include "modelDownloader.loraEnvVars" (list "gcs" .) }}
+Usage: {{ include "loraSourceCredentialsEnvVars" (list "gcs" .) }}
 */}}
-{{- define "modelDownloader.loraEnvVars" -}}
+{{- define "loraSourceCredentialsEnvVars" -}}
 {{- $storageType := index . 0 -}}
 {{- $ctx := index . 1 -}}
 {{- if eq $storageType "gcs" -}}
-- name: STORAGE_TYPE
+- name: SOURCE_TYPE
   value: "gcs"
-- name: GCS_CREDENTIALS_FILE
+- name: SOURCE_GCS_CREDENTIALS_FILE
   value: "/etc/gcs-credentials-lora/credentials.json"
 {{- else if eq $storageType "s3" -}}
-- name: STORAGE_TYPE
+- name: SOURCE_TYPE
   value: "s3"
-- name: AWS_ACCESS_KEY_ID
+- name: SOURCE_S3_ACCESS_KEY_ID
   valueFrom:
     secretKeyRef:
       name: {{ include "loraRegistrySecretName" $ctx }}
       key: "awsAccessKeyId"
       optional: true
-- name: AWS_SECRET_ACCESS_KEY
+- name: SOURCE_S3_SECRET_ACCESS_KEY
   valueFrom:
     secretKeyRef:
       name: {{ include "loraRegistrySecretName" $ctx }}
       key: "awsSecretAccessKey"
       optional: true
-- name: AWS_REGION
+- name: SOURCE_S3_REGION
   valueFrom:
     secretKeyRef:
       name: {{ include "loraRegistrySecretName" $ctx }}
@@ -161,7 +238,7 @@ Usage: {{ include "modelDownloader.loraEnvVars" (list "gcs" .) }}
       name: {{ include "loraRegistrySecretName" $ctx }}
       key: "awsRegion"
       optional: true
-- name: AWS_ENDPOINT_URL
+- name: SOURCE_S3_ENDPOINT
   valueFrom:
     secretKeyRef:
       name: {{ include "loraRegistrySecretName" $ctx }}
@@ -171,29 +248,83 @@ Usage: {{ include "modelDownloader.loraEnvVars" (list "gcs" .) }}
 {{- end }}
 
 {{/*
-Generate model downloader's volume mounts based on source registry type
-Usage: {{ include "modelDownloader.sourceRegistryVolumeMounts" "gcs" }}
+Model destination (cache bucket) env vars for model-downloader copy (DESTINATION_*).
+Usage: {{ include "modelDestinationEnvVars" . | nindent 12 }}
 */}}
-{{- define "modelDownloader.sourceRegistryVolumeMounts" -}}
-{{- $storageType := . -}}
-{{- if eq $storageType "gcs" -}}
-- name: gcs-credentials-lora
-  mountPath: /etc/gcs-credentials
-  readOnly: true
-{{- end -}}
+{{- define "modelDestinationEnvVars" -}}
+- name: DESTINATION_TYPE
+  value: "{{ .Values.model.cache.bucketType }}"
+- name: DESTINATION_REMOTE_DIR
+  value: "{{ .Values.model.cache.bucket }}"
+{{- if eq .Values.model.cache.bucketType "gcs" }}
+- name: DESTINATION_GCS_CREDENTIALS_FILE
+  value: "/etc/cache-gcs-credentials/credentials.json"
+{{- else if eq .Values.model.cache.bucketType "s3" }}
+- name: DESTINATION_S3_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsAccessKeyId"
+      optional: true
+- name: DESTINATION_S3_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsSecretAccessKey"
+      optional: true
+- name: DESTINATION_S3_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsRegion"
+      optional: true
+- name: DESTINATION_S3_ENDPOINT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsEndpointUrl"
+      optional: true
+{{- end }}
 {{- end }}
 
 {{/*
-Generate comma-separated list of model directories
-Usage: {{ include "modelDownloader.remoteSourceDirs" . }}
+All env vars for the model-cache-checker init container (checks for .copy.manifest in cache bucket).
+Usage: {{ include "modelCacheCheckerEnvVars" . | nindent 12 }}
 */}}
-{{- define "modelDownloader.remoteSourceDirs" -}}
-{{- $dirs := list -}}
-{{- if .Values.loraAdapter.name -}}
-  {{- $dirs = append $dirs .Values.loraAdapter.name -}}
-{{- end -}}
-{{- if and (ne .Values.model.sourceRegistry "hf") (not .Values.useRunAiStreamer) -}}
-  {{- $dirs = append $dirs .Values.model.name -}}
-{{- end -}}
-{{- join "," $dirs -}}
+{{- define "modelCacheCheckerEnvVars" -}}
+- name: SOURCE_TYPE
+  value: "{{ .Values.model.cache.bucketType }}"
+{{- if eq .Values.model.cache.bucketType "gcs" }}
+- name: SOURCE_GCS_CREDENTIALS_FILE
+  value: "/etc/cache-gcs-credentials/credentials.json"
+{{- else if eq .Values.model.cache.bucketType "s3" }}
+- name: SOURCE_S3_ACCESS_KEY_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsAccessKeyId"
+      optional: true
+- name: SOURCE_S3_SECRET_ACCESS_KEY
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsSecretAccessKey"
+      optional: true
+- name: SOURCE_S3_REGION
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsRegion"
+      optional: true
+- name: SOURCE_S3_ENDPOINT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "awsEndpointUrl"
+      optional: true
+{{- end }}
+- name: SOURCE_REMOTE_DIRS
+  value: "{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}/.copy.manifest"
+- name: DESTINATION_LOCAL_DIR
+  value: "/cache-ready"
 {{- end }}

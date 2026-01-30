@@ -1,0 +1,104 @@
+{{- if and .Values.model.cache.enabled .Values.useRunAiStreamer (ne .Values.model.sourceRegistry "hf") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vllm.fullname" . }}-startup-script
+  labels:
+    {{- include "vllm.labels" . | nindent 4 }}
+data:
+  startup.sh: |
+    #!/bin/bash
+    set -e
+
+    SOURCE_MODEL="{{- if eq .Values.model.sourceRegistry "gcs" -}}gs://{{ .Values.model.name }}{{- else -}}s3://{{ .Values.model.name }}{{- end -}}"
+
+    CACHE_BUCKET="{{ .Values.model.cache.bucket }}"
+    CACHE_DIR="{{ include "model.dirName" . }}"
+    CACHE_MODEL="{{- if eq .Values.model.cache.bucketType "gcs" -}}gs://${CACHE_BUCKET}/${CACHE_DIR}{{- else -}}s3://${CACHE_BUCKET}/${CACHE_DIR}{{- end -}}"
+
+    CACHE_READY_FILE="/cache-ready/{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}/.copy.manifest"
+
+    if [[ -f "${CACHE_READY_FILE}" ]]; then
+      echo "Cache ready marker found at ${CACHE_READY_FILE}, using cache model: ${CACHE_MODEL}"
+      MODEL_PATH="${CACHE_MODEL}"
+      if [[ "{{ .Values.model.cache.bucketType }}" == "gcs" ]]; then
+        export GOOGLE_APPLICATION_CREDENTIALS="${CACHE_GOOGLE_APPLICATION_CREDENTIALS}"
+      else
+        export AWS_ACCESS_KEY_ID="${CACHE_AWS_ACCESS_KEY_ID}"
+        export AWS_SECRET_ACCESS_KEY="${CACHE_AWS_SECRET_ACCESS_KEY}"
+        export AWS_REGION="${CACHE_AWS_REGION}"
+        export AWS_DEFAULT_REGION="${CACHE_AWS_REGION}"
+        export AWS_ENDPOINT_URL="${CACHE_AWS_ENDPOINT_URL}"
+      fi
+    else
+      echo "Cache not ready, using source model: ${SOURCE_MODEL}"
+      MODEL_PATH="${SOURCE_MODEL}"
+      if [[ "{{ .Values.model.sourceRegistry }}" == "gcs" ]]; then
+        export GOOGLE_APPLICATION_CREDENTIALS="${SOURCE_GCS_CREDENTIALS_FILE}"
+      else
+        export AWS_ACCESS_KEY_ID="${SOURCE_S3_ACCESS_KEY_ID}"
+        export AWS_SECRET_ACCESS_KEY="${SOURCE_S3_SECRET_ACCESS_KEY}"
+        export AWS_REGION="${SOURCE_S3_REGION}"
+        export AWS_DEFAULT_REGION="${SOURCE_S3_REGION}"
+        export AWS_ENDPOINT_URL="${SOURCE_S3_ENDPOINT}"
+      fi
+    fi
+
+    exec vllm serve \
+      --model="${MODEL_PATH}" \
+      --served-model-name="{{ .Values.model.name }}" \
+      {{- if .Values.loraAdapter.name }}
+      --enable-lora \
+      --max-lora-rank={{ .Values.maxLoraRank }} \
+      --lora-modules '{"name": "{{ .Values.loraAdapter.name }}", "path": "{{ include "loraAdapterPath" . }}", "base_model_name": "{{ .Values.model.name }}"}' \
+      {{- end }}
+      {{- if .Values.useRunAiStreamer }}
+      --load-format=runai_streamer \
+      {{- end }}
+      --trust-remote-code \
+      {{- if .Values.gpuMemoryUtilization }}
+      --gpu-memory-utilization={{ .Values.gpuMemoryUtilization }} \
+      {{- end }}
+      {{- if .Values.maxNumSeqs }}
+      --max-num-seqs={{ .Values.maxNumSeqs }} \
+      {{- end }}
+      --task={{ required "Required value 'task' must be defined" .Values.task }} \
+      --dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }} \
+      --kv-cache-dtype={{ required "Required value 'kvCacheDtype' must be defined" .Values.kvCacheDtype }} \
+      {{- if .Values.enableChunkedPrefill }}
+      --enable-chunked-prefill \
+      {{- end }}
+      {{- if .Values.maxNumBatchedTokens }}
+      --max-num-batched-tokens={{ .Values.maxNumBatchedTokens }} \
+      {{- end }}
+      {{- if .Values.enableAutoToolChoice }}
+      --enable-auto-tool-choice \
+      {{- end }}
+      {{- if .Values.toolCallParser }}
+      --tool-call-parser={{ .Values.toolCallParser }} \
+      {{- end }}
+      {{- if .Values.reasoningParser }}
+      --reasoning-parser={{ .Values.reasoningParser }} \
+      {{- end }}
+      --download-dir=/models \
+      {{- if .Values.maxModelLen }}
+      --max-model-len={{ .Values.maxModelLen }} \
+      {{- end }}
+      {{- if .Values.tensorParallelSize }}
+      --tensor-parallel-size={{ .Values.tensorParallelSize }} \
+      {{- end }}
+      {{- if .Values.quantization }}
+      --quantization={{ .Values.quantization }} \
+      {{- end }}
+      {{- if .Values.enableEager }}
+      --enforce-eager \
+      {{- end }}
+      {{- if .Values.swapSpace }}
+      --swap-space={{ .Values.swapSpace }} \
+      {{- end }}
+      --show-hidden-metrics-for-version=0.10 \
+      {{- range $i, $arg := .Values.extraArgs }}
+      {{- if $i }}``{{- end }}{{ $arg }} \
+      {{- end }}
+{{- end }}
+

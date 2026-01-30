@@ -8,7 +8,7 @@ resources: {}
 modelDownloader:
   image:
     repository: "us-docker.pkg.dev/castai-hub/library/model-downloader"
-    tag: "v0.0.3"
+    tag: "v0.0.4"
   resources:
     requests:
       memory: "500Mi"
@@ -29,6 +29,22 @@ model:
       credentialsJsonBase64:
     hf:
       token:
+    s3:
+      accessKeyId:
+      secretAccessKey:
+      region:
+      endpointUrl:
+  cache:
+    enabled: false
+    bucket: ""
+    bucketType: "gcs"
+    copyJob:
+      backoffLimit: 3
+      ttlSecondsAfterFinished: 0
+    secretName:
+    createSecret: true
+    gcs:
+      credentialsJsonBase64:
     s3:
       accessKeyId:
       secretAccessKey:
