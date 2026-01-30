@@ -44,61 +44,6 @@ data:
       fi
     fi
 
-    exec vllm serve \
-      --model="${MODEL_PATH}" \
-      --served-model-name="{{ .Values.model.name }}" \
-      {{- if .Values.loraAdapter.name }}
-      --enable-lora \
-      --max-lora-rank={{ .Values.maxLoraRank }} \
-      --lora-modules '{"name": "{{ .Values.loraAdapter.name }}", "path": "{{ include "loraAdapterPath" . }}", "base_model_name": "{{ .Values.model.name }}"}' \
-      {{- end }}
-      {{- if .Values.useRunAiStreamer }}
-      --load-format=runai_streamer \
-      {{- end }}
-      --trust-remote-code \
-      {{- if .Values.gpuMemoryUtilization }}
-      --gpu-memory-utilization={{ .Values.gpuMemoryUtilization }} \
-      {{- end }}
-      {{- if .Values.maxNumSeqs }}
-      --max-num-seqs={{ .Values.maxNumSeqs }} \
-      {{- end }}
-      --task={{ required "Required value 'task' must be defined" .Values.task }} \
-      --dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }} \
-      --kv-cache-dtype={{ required "Required value 'kvCacheDtype' must be defined" .Values.kvCacheDtype }} \
-      {{- if .Values.enableChunkedPrefill }}
-      --enable-chunked-prefill \
-      {{- end }}
-      {{- if .Values.maxNumBatchedTokens }}
-      --max-num-batched-tokens={{ .Values.maxNumBatchedTokens }} \
-      {{- end }}
-      {{- if .Values.enableAutoToolChoice }}
-      --enable-auto-tool-choice \
-      {{- end }}
-      {{- if .Values.toolCallParser }}
-      --tool-call-parser={{ .Values.toolCallParser }} \
-      {{- end }}
-      {{- if .Values.reasoningParser }}
-      --reasoning-parser={{ .Values.reasoningParser }} \
-      {{- end }}
-      --download-dir=/models \
-      {{- if .Values.maxModelLen }}
-      --max-model-len={{ .Values.maxModelLen }} \
-      {{- end }}
-      {{- if .Values.tensorParallelSize }}
-      --tensor-parallel-size={{ .Values.tensorParallelSize }} \
-      {{- end }}
-      {{- if .Values.quantization }}
-      --quantization={{ .Values.quantization }} \
-      {{- end }}
-      {{- if .Values.enableEager }}
-      --enforce-eager \
-      {{- end }}
-      {{- if .Values.swapSpace }}
-      --swap-space={{ .Values.swapSpace }} \
-      {{- end }}
-      --show-hidden-metrics-for-version=0.10 \
-      {{- range $i, $arg := .Values.extraArgs }}
-      {{- if $i }}``{{- end }}{{ $arg }} \
-      {{- end }}
+    exec vllm serve --model="${MODEL_PATH}" "$@"
 {{- end }}
 

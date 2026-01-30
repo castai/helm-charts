@@ -81,8 +81,11 @@ spec:
           command: ["/scripts/startup.sh"]
           {{- else }}
           command: ["vllm", "serve"]
+          {{- end }}
           args:
+            {{- if not .Values.model.cache.enabled }}
             - "--model={{ include "modelReference" . }}"
+            {{- end }}
             - "--served-model-name={{ .Values.model.name }}"
             {{- if .Values.loraAdapter.name }}
             - "--enable-lora"
@@ -138,7 +141,6 @@ spec:
             {{- range .Values.extraArgs }}
             - {{ . | quote }}
             {{- end }}
-          {{- end }}
           env:
             - name: VLLM_IMAGE_FETCH_TIMEOUT # MM Models
               value: "60"
