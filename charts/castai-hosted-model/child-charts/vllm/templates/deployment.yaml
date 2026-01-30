@@ -65,11 +65,11 @@ spec:
         {{- end }}
         - name: models
           emptyDir: {}
-        {{- if .Values.model.cache.enabled }}
         - name: startup-script
           configMap:
             name: {{ include "vllm.fullname" . }}-startup-script
             defaultMode: 0755
+        {{- if .Values.model.cache.enabled }}
         - name: cache-ready
           emptyDir: {}
         {{- end }}
@@ -77,15 +77,8 @@ spec:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          {{- if .Values.model.cache.enabled }}
           command: ["/scripts/startup.sh"]
-          {{- else }}
-          command: ["vllm", "serve"]
-          {{- end }}
           args:
-            {{- if not .Values.model.cache.enabled }}
-            - "--model={{ include "modelReference" . }}"
-            {{- end }}
             - "--served-model-name={{ .Values.model.name }}"
             {{- if .Values.loraAdapter.name }}
             - "--enable-lora"
@@ -225,10 +218,10 @@ spec:
               mountPath: /etc/cache-gcs-credentials
               readOnly: true
           {{- end }}
-          {{- if .Values.model.cache.enabled }}
             - name: startup-script
               mountPath: /scripts
               readOnly: true
+          {{- if .Values.model.cache.enabled }}
             - name: cache-ready
               mountPath: /cache-ready
           {{- end }}

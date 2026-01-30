@@ -1,4 +1,3 @@
-{{- if and .Values.model.cache.enabled .Values.useRunAiStreamer (ne .Values.model.sourceRegistry "hf") }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -9,6 +8,10 @@ data:
   startup.sh: |
     #!/bin/bash
     set -e
+
+    {{- if not .Values.model.cache.enabled }}
+    exec vllm serve --model="{{ include "modelReference" . }}" "$@"
+    {{- else }}
 
     SOURCE_MODEL="{{- if eq .Values.model.sourceRegistry "gcs" -}}gs://{{ .Values.model.name }}{{- else -}}s3://{{ .Values.model.name }}{{- end -}}"
 
@@ -45,5 +48,5 @@ data:
     fi
 
     exec vllm serve --model="${MODEL_PATH}" "$@"
-{{- end }}
+    {{- end }}
 
