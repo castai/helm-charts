@@ -75,6 +75,9 @@ spec:
             - mountPath: /var/lib/otelcol/file_storage
               name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-statestorage
             {{- end }}
+            {{- with .Values.extraVolumeMounts }}
+            {{ toYaml . | nindent 12 }}
+            {{- end }}
           ports:
             - name: healthz
               containerPort: 13133
@@ -122,5 +125,8 @@ spec:
         - name: {{ include "castai-audit-logs-receiver.lowercase_chartname" . }}-statestorage
           persistentVolumeClaim:
             claimName: {{ .Values.persistence.existingClaim | default (include "castai-audit-logs-receiver.fullname" .) }}
+        {{- end }}
+        {{- with .Values.extraVolumes }}
+        {{ toYaml . | nindent 8 }}
         {{- end }}
       hostNetwork: {{ .Values.hostNetwork }}
