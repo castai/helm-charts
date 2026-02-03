@@ -109,6 +109,13 @@ persistence:
 statefulset:
   podManagementPolicy: "Parallel"
 
+# -- Used to set additional volumes
+extraVolumes: []
+
+# -- Used to set additional volume mounts
+extraVolumeMounts: []
+
+
 ## OpenTelemetry Collector configuration.
 ## Ref: https://opentelemetry.io/docs/collector/configuration/
 config:
