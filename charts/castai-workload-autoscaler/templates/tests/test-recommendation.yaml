@@ -18,9 +18,18 @@ spec:
     apiVersion: apps/v1
   recommendation:
     - containerName: test-container
+      {{- if eq (include "workload-autoscaler.isAutopilot" .) "true" }}
+      requests:
+        cpu: 50m      # GKE Autopilot minimum
+        memory: 64Mi  # GKE Autopilot minimum (52Mi) + buffer
+      limits:
+        cpu: 100m
+        memory: 128Mi
+      {{- else }}
       requests:
         memory: 10Mi
         cpu: 10m
       limits:
         memory: 20Mi
+      {{- end }}
 {{- end }}
