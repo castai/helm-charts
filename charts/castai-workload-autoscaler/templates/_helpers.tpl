@@ -110,3 +110,83 @@ Create the name of the service account to use
 {{- define "workload-autoscaler.certsSecretName" -}}
 {{ include "workload-autoscaler.fullname" . }}-certs
 {{- end }}
+
+{{/*
+Detect if running on GKE Autopilot
+Checks for Autopilot-specific resources in the cluster
+*/}}
+{{- define "workload-autoscaler.isAutopilot" -}}
+{{- if .Values.autopilot.enabled -}}
+true
+{{- else if .Values.autopilot.autoDetect -}}
+  {{- /* Check for Warden validating webhook (Autopilot-specific) */ -}}
+  {{- $wardenWebhook := lookup "admissionregistration.k8s.io/v1" "ValidatingWebhookConfiguration" "" "warden-validating.config.common-webhooks.networking.gke.io" -}}
+  {{- if $wardenWebhook -}}
+true
+  {{- else -}}
+    {{- /* Fallback: check first node for gke-provisioning label (performance optimization) */ -}}
+    {{- $nodes := lookup "v1" "Node" "" "" -}}
+    {{- if $nodes -}}
+      {{- if $nodes.items -}}
+        {{- if gt (len $nodes.items) 0 -}}
+          {{- if hasKey (index $nodes.items 0).metadata.labels "cloud.google.com/gke-provisioning" -}}
+true
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Enforce minimum CPU value for Autopilot
+Takes a CPU value string and returns it unchanged or 500m minimum if on Autopilot
+Usage: include "workload-autoscaler.enforceCPUMinimum" (dict "cpu" .Values.resources.requests.cpu "context" .)
+*/}}
+{{- define "workload-autoscaler.enforceCPUMinimum" -}}
+{{- $isAutopilot := eq (include "workload-autoscaler.isAutopilot" .context) "true" -}}
+{{- $cpuValue := .cpu | toString -}}
+{{- if $isAutopilot -}}
+  {{- /* On Autopilot, enforce minimum 500m CPU */ -}}
+  {{- $cpuMillicores := 0 -}}
+  {{- if hasSuffix "m" $cpuValue -}}
+    {{- $cpuMillicores = trimSuffix "m" $cpuValue | int -}}
+  {{- else -}}
+    {{- /* Convert cores to millicores (e.g., "1" -> 1000, "0.5" -> 500) */ -}}
+    {{- $cpuMillicores = mulf ($cpuValue | float64) 1000.0 | int -}}
+  {{- end -}}
+  {{- if lt $cpuMillicores 500 -}}
+500m
+  {{- else if hasSuffix "m" $cpuValue -}}
+{{ $cpuValue }}
+  {{- else -}}
+{{ printf "%dm" $cpuMillicores }}
+  {{- end -}}
+{{- else -}}
+{{ $cpuValue }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Get CPU request based on Autopilot detection
+Autopilot requires minimum 500m CPU when using pod anti-affinity
+*/}}
+{{- define "workload-autoscaler.resources.requests.cpu" -}}
+{{- if not .Values.resources.requests.cpu -}}
+  {{- fail "resources.requests.cpu is required but not set" -}}
+{{- end -}}
+{{- include "workload-autoscaler.enforceCPUMinimum" (dict "cpu" .Values.resources.requests.cpu "context" .) -}}
+{{- end -}}
+
+{{/*
+Get CPU limit based on Autopilot detection
+Autopilot requires minimum 500m CPU when using pod anti-affinity
+*/}}
+{{- define "workload-autoscaler.resources.limits.cpu" -}}
+{{- if not .Values.resources.limits.cpu -}}
+  {{- /* No CPU limit set, return empty */ -}}
+{{- else -}}
+{{- include "workload-autoscaler.enforceCPUMinimum" (dict "cpu" .Values.resources.limits.cpu "context" .) -}}
+{{- end -}}
+{{- end -}}

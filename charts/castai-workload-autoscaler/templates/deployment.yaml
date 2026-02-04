@@ -184,7 +184,25 @@ spec:
             {{ toYaml . | nindent 12 }}
             {{- end }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- with .Values.resources.limits }}
+            limits:
+              {{- $cpuLimit := include "workload-autoscaler.resources.limits.cpu" $ }}
+              {{- if $cpuLimit }}
+              cpu: {{ $cpuLimit }}
+              {{- end }}
+              {{- range $key, $value := . }}
+              {{- if ne $key "cpu" }}
+              {{ $key }}: {{ $value }}
+              {{- end }}
+              {{- end }}
+            {{- end }}
+            requests:
+              cpu: {{ include "workload-autoscaler.resources.requests.cpu" . }}
+              {{- range $key, $value := .Values.resources.requests }}
+              {{- if ne $key "cpu" }}
+              {{ $key }}: {{ $value }}
+              {{- end }}
+              {{- end }}
       volumes:
         - name: certs
           secret:

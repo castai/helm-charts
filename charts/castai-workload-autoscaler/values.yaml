@@ -8,6 +8,22 @@ leaderElection:
 
 replicas: 2
 
+# GKE Autopilot configuration
+autopilot:
+  # enabled -- Set to true when deploying to GKE Autopilot.
+  # Autopilot requires minimum 500m CPU when using pod anti-affinity.
+  # If you know you're on Autopilot, explicitly setting this to true is recommended.
+  enabled: false
+  # autoDetect -- Auto-detect GKE Autopilot by checking for Autopilot-specific resources.
+  # When enabled, the chart will automatically adjust CPU requests if Autopilot is detected.
+  #
+  # Important notes:
+  # - Auto-detection only works during 'helm install/upgrade', not with 'helm template'
+  # - Requires RBAC permissions to read ValidatingWebhookConfigurations and Nodes
+  # - If RBAC lookup fails, gracefully falls back to standard mode (uses values.yaml CPU setting)
+  # - On Autopilot clusters with RBAC restrictions, set autopilot.enabled=true explicitly
+  autoDetect: true
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
