@@ -159,7 +159,7 @@ spec:
           {{- end }}
           {{/* we don't set resources if Cluster proportional vertical autoscaler is enabled */}}
           resources:
-          {{- if .Values.clusterVPA.enabled -}}
+          {{- if and .Values.clusterVPA.enabled (not .Values.resources) -}}
           {{/* we hardcode CPU req/limit for now */}}
             requests:
               cpu: 100m
