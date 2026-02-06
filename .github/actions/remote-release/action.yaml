@@ -45,6 +45,9 @@ inputs:
     description: "Git author email for commits (defaults to github actor email). Can be used to set github app as commit author"
     required: false
     default: ""
+  source-repo-token:
+    description: "GitHub token with permissions to push to the source repository"
+    required: false
 
 outputs: {}
 
@@ -156,6 +159,9 @@ runs:
         git checkout main
         git add ${{ inputs.chart-path }}/Chart.yaml
         git commit -m "[Release] Update ${{ steps.parse-chart.outputs.name }} Chart.yaml"
+        if [ -n "${{ inputs.source-repo-token }}" ]; then
+          git remote set-url origin https://x-access-token:${{ inputs.source-repo-token }}@github.com/${{ github.repository }}.git
+        fi
         git push
 
     - name: Summary
