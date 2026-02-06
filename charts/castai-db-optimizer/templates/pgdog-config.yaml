@@ -18,6 +18,8 @@
   "tls_verify" "prefer"
   "log_connections" false
   "log_disconnections" false
+  "prepared_statements_limit" 5000
+  "query_cache_limit" 500
 -}}
 {{- $userConfig := .Values.pgdog.config | default dict -}}
 {{- $mergedConfig := merge (deepCopy $userConfig) $defaults -}}
