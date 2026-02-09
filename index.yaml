@@ -36000,6 +36000,21 @@ entries:
     version: 0.1.1
   omni-agent:
   - apiVersion: v2
+    appVersion: v1.3.0
+    created: "2026-02-09T09:38:28.457505737Z"
+    dependencies:
+    - condition: liqo.enabled
+      name: liqo
+      repository: https://castai.github.io/liqo/
+      version: v1.0.3-6
+    description: A Helm chart for OMNI agent
+    digest: 0abafc7334787d3f6bd91a12fed47b937063307a88ae4b100b4acc8a333ff317
+    name: omni-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/omni-agent-1.3.0/omni-agent-1.3.0.tgz
+    version: 1.3.0
+  - apiVersion: v2
     appVersion: v1.2.3
     created: "2026-02-03T12:10:22.98525561Z"
     dependencies:
@@ -36478,4 +36493,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-02-09T09:37:41.809807016Z"
+generated: "2026-02-09T09:38:28.480523717Z"
