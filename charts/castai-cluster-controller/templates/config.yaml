@@ -1,3 +1,4 @@
+{{- if not .Values.castai.configMapRef -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -21,3 +22,4 @@ data:
   {{- else if .Values.castai.clusterID }}
   CLUSTER_ID: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
   {{- end }}
+{{- end }}

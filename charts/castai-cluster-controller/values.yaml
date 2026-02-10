@@ -84,6 +84,10 @@ castai:
     name: ""
     key: "CLUSTER_ID"
 
+  # castai.configMapRef -- Name of external ConfigMap containing API_URL, CLUSTER_ID, etc.
+  # When set, the chart skips creating its own ConfigMap and uses the external one.
+  configMapRef: ""
+
 # podAnnotations -- Annotations added to each pod.
 podAnnotations: {}
 # podLabels - Labels added to each pod.
