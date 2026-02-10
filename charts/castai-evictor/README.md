@@ -6,7 +6,7 @@ Cluster utilization defragmentation tool
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/castai-evictor-ext | castai-evictor-ext | 0.3.0 |
+| file://child-charts/castai-evictor-ext | castai-evictor-ext | 0.4.0 |
 
 ## Values
 
@@ -44,6 +44,8 @@ Cluster utilization defragmentation tool
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
 | karpenterMode | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources. |
+| karpenterNodeCleanup | object | `{"enabled":false}` | Specifies Karpenter node cleanup parameters. |
+| karpenterNodeCleanup.enabled | bool | `false` | Whether to enable cleanup of Karpenter nodes. |
 | kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100}}` | Specifies Kubernetes client settings. |
 | kubernetesClient.rateLimiter.burst | int | `200` | Burst controls the maximum queries per second that the client is allowed to issue in a short burst. |
 | kubernetesClient.rateLimiter.qps | int | `100` | QPS or queries per second. Controls how many queries per second the client should be allowed to issue, not accounting for bursts. |
