@@ -79,12 +79,12 @@ spec:
           imagePullPolicy: IfNotPresent
           command: ["/scripts/startup.sh"]
           args:
-            - "--served-model-name={{ .Values.model.name }}"
+            - "--served-model-name={{ .Values.model.servedName | default .Values.model.name }}"
             {{- if .Values.loraAdapter.name }}
             - "--enable-lora"
             - "--max-lora-rank={{ .Values.maxLoraRank }}"
             - "--lora-modules"
-            - '{"name": "{{ .Values.loraAdapter.name }}", "path": "{{ include "loraAdapterPath" . }}", "base_model_name": "{{ .Values.model.name }}"}'
+            - '{"name": "{{ .Values.loraAdapter.name }}", "path": "{{ include "loraAdapterPath" . }}", "base_model_name": "{{ .Values.model.servedName | default .Values.model.name }}"}'
             {{- end }}
             {{- if .Values.useRunAiStreamer }}
             - "--load-format=runai_streamer"
@@ -96,7 +96,9 @@ spec:
             {{- if .Values.maxNumSeqs }}
             - "--max-num-seqs={{ .Values.maxNumSeqs }}"
             {{- end }}
-            - "--task={{ required "Required value 'task' must be defined" .Values.task }}"
+            {{- if .Values.task }}
+            - "--task={{ .Values.task }}"
+            {{- end }}
             - "--dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }}"
             - "--kv-cache-dtype={{ required "Required value 'kvCacheDtype' must be defined" .Values.kvCacheDtype }}"
             {{- if .Values.enableChunkedPrefill }}
@@ -139,8 +141,10 @@ spec:
               value: "60"
             - name: HF_HOME # Otherwise transformers will not respect download dir in vLLM
               value: /models
+            {{- if .Values.ldLibraryPath }}
             - name: LD_LIBRARY_PATH
-              value: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
+              value: {{ .Values.ldLibraryPath | quote }}
+            {{- end }}
             {{- include "modelSourceCredentialsEnvVars" . | nindent 12 }}
             {{- include "modelCacheCredentialsEnvVars" . | nindent 12 }}
             {{- if or (eq .Values.model.sourceRegistry "hf") .Values.model.registry.hf.token }}
