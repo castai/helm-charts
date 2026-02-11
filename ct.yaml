@@ -6,6 +6,8 @@ chart-dirs:
 chart-repos:
   - tetragon=https://helm.cilium.io
   - vector=https://helm.vector.dev
+  - castai-helm=https://castai.github.io/helm-charts
+  - metrics-server=https://kubernetes-sigs.github.io/metrics-server/
 helm-extra-args: --timeout 600s
 validate-maintainers: false
 namespace: default
