@@ -21,7 +21,6 @@ agent:
 # ============================================================================
 cluster-controller:
   enabled: true
-  fullnameOverride: castai-cluster-controller
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -37,7 +36,6 @@ cluster-controller:
 # envFrom adds shared resources so API_KEY and CLUSTER_ID are also available.
 kentroller:
   enabled: true
-  fullnameOverride: castai-kentroller
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -82,7 +80,6 @@ live:
 # ============================================================================
 pod-mutator:
   enabled: true
-  fullnameOverride: castai-pod-mutator
   dependencyCheck:
     enabled: false
   castai:
