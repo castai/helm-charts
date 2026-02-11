@@ -1,71 +1,64 @@
 # castai-kent-onboarding
 
-Umbrella chart that consolidates CAST AI kent onboarding components into a single Helm release.
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
-## Included dependencies
+Umbrella chart for CAST AI kent onboarding components.
 
-| Component | Alias | Purpose |
-|-----------|-------|---------|
-| `castai-agent` | `agent` | Cluster registration and ID bootstrapping |
-| `castai-cluster-controller` | `cluster-controller` | Cluster lifecycle management (credential hub) |
-| `castai-kentroller` | `kentroller` | Karpenter enterprise node management |
-| `castai-workload-autoscaler` | `workload-autoscaler` | Workload right-sizing |
-| `castai-live` | `live` | Cost Limit Management (CLM) |
-| `castai-pod-mutator` | `pod-mutator` | Pod mutation webhooks |
-| `castai-evictor` | `evictor` | Node draining and eviction |
-| `metrics-server` | `metrics-server` | Resource metrics (prerequisite for workload-autoscaler) |
+## Requirements
 
-All dependencies are optional and controlled by `<alias>.enabled` values.
-All components enabled by default except `agent` and `metrics-server`.
+| Repository | Name | Version |
+|------------|------|---------|
+| https://castai.github.io/helm-charts | agent(castai-agent) | >=0.0.0 |
+| https://castai.github.io/helm-charts | cluster-controller(castai-cluster-controller) | >=0.0.0 |
+| https://castai.github.io/helm-charts | evictor(castai-evictor) | >=0.0.0 |
+| https://castai.github.io/helm-charts | kentroller(castai-kentroller) | >=0.0.0 |
+| https://castai.github.io/helm-charts | live(castai-live) | >=0.0.0 |
+| https://castai.github.io/helm-charts | pod-mutator(castai-pod-mutator) | >=0.0.0 |
+| https://castai.github.io/helm-charts | workload-autoscaler(castai-workload-autoscaler) | >=0.0.0 |
+| https://kubernetes-sigs.github.io/metrics-server/ | metrics-server(metrics-server) | >=3.0.0 |
 
-## How credentials and cluster ID flow
+## Values
 
-```
-                              castai-credentials Secret
-global.castai.apiKey ──────► (created by umbrella chart) ──► all sub-charts (apiKeySecretRef)
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| agent.apiKeySecretRef | string | `"castai-credentials"` |  |
+| agent.createNamespace | bool | `false` |  |
+| agent.enabled | bool | `true` |  |
+| agent.provider | string | `"eks"` |  |
+| agent.replicaCount | int | `1` |  |
+| cluster-controller.autoscaling.enabled | bool | `false` |  |
+| cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| cluster-controller.enabled | bool | `true` |  |
+| cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| evictor.aggressiveMode | bool | `true` |  |
+| evictor.enabled | bool | `true` |  |
+| evictor.envFrom[0].secretRef.name | string | `"castai-credentials"` |  |
+| evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| evictor.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
+| evictor.karpenterMode.enabled | bool | `true` |  |
+| evictor.overrideEnvFrom | bool | `true` |  |
+| evictor.replicaCount | int | `1` |  |
+| global.castai.apiKey | string | `""` |  |
+| global.castai.apiURL | string | `"https://api.cast.ai"` |  |
+| global.castai.grpcURL | string | `"grpc.cast.ai:443"` |  |
+| kentroller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| kentroller.enabled | bool | `true` |  |
+| kentroller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| live.castai-aws-vpc-cni.enabled | bool | `true` |  |
+| live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| live.controller.replicaCount | int | `0` |  |
+| live.daemon.labelNodeSubnet | bool | `true` |  |
+| live.enabled | bool | `true` |  |
+| metrics-server.enabled | bool | `false` |  |
+| pod-mutator.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| pod-mutator.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| pod-mutator.dependencyCheck.enabled | bool | `false` |  |
+| pod-mutator.enabled | bool | `true` |  |
+| pod-mutator.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| pod-mutator.fullnameOverride | string | `"castai-pod-mutator"` |  |
+| workload-autoscaler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| workload-autoscaler.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| workload-autoscaler.enabled | bool | `true` |  |
+| workload-autoscaler.fullnameOverride | string | `"castai-workload-autoscaler"` |  |
 
-                              castai-agent-metadata ConfigMap
-castai-agent pod ──────────► (created at runtime by agent) ──► CLUSTER_ID
-                                       │
-                    ┌──────────────────┼────────────────────┐
-                    ▼                  ▼                    ▼
-             cluster-controller    evictor             pod-mutator
-             (envFrom)        (clusterIdConfigMapKeyRef)  (envFrom)
-
-                              castai-cluster-controller ConfigMap
-cluster-controller ────────► (API_URL only, no CLUSTER_ID) ──► workload-autoscaler, pod-mutator, evictor
-```
-
-### API Key
-The umbrella chart creates a shared **Secret** (`castai-credentials`) from `global.castai.apiKey`.
-All sub-charts reference it via `apiKeySecretRef`.
-
-## Usage
-
-```bash
-helm repo add castai-helm https://castai.github.io/helm-charts
-helm repo update castai-helm
-
-helm upgrade -i castai-kent-onboarding castai-helm/castai-kent-onboarding \
-  -n castai-agent --create-namespace \
-  --set global.castai.apiKey=$CASTAI_API_TOKEN \
-  --set global.castai.apiURL=$CASTAI_API_URL \
-  --set global.castai.grpcURL=$CASTAI_GRPC_URL
-```
-
-`CLUSTER_ID` is resolved at runtime from the `castai-agent-metadata` ConfigMap
-(no `--set` needed for charts that support it).
-
-
-## Versioning and lockfile workflow
-
-- This umbrella chart is versioned independently from sub-charts (SemVer).
-- Sub-chart versions are resolved via `Chart.lock` for reproducible deployments.
-- Bump the umbrella chart `version` in `Chart.yaml` when:
-  - You change the dependency list or version constraints.
-  - You change default values or templates.
-- After changing dependencies, run:
-  ```bash
-  helm dependency update
-  ```
-  Then commit the updated `Chart.lock` and `charts/*.tgz` artifacts.
