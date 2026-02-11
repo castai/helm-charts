@@ -11,6 +11,16 @@ data:
 
     {{- if not .Values.model.cache.enabled }}
     exec vllm serve --model="{{ include "modelReference" . }}" "$@"
+    {{- else if not .Values.useRunAiStreamer }}
+
+    CACHE_MODEL_PATH="/models/{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}"
+    if [[ -d "${CACHE_MODEL_PATH}" ]]; then
+      MODEL_PATH="${CACHE_MODEL_PATH}"
+    else
+      MODEL_PATH="/models/{{ .Values.model.name }}"
+    fi
+
+    exec vllm serve --model="${MODEL_PATH}" "$@"
     {{- else }}
 
     SOURCE_MODEL="{{- if eq .Values.model.sourceRegistry "gcs" -}}gs://{{ .Values.model.name }}{{- else -}}s3://{{ .Values.model.name }}{{- end -}}"
