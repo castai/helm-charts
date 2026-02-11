@@ -4,6 +4,8 @@
 global:
   castai:
     apiKey: ""
+    apiURL: "https://api.cast.ai"
+    grpcURL: "grpc.cast.ai:443"
 
 # ============================================================================
 # castai-agent
@@ -32,8 +34,6 @@ cluster-controller:
 # ============================================================================
 # castai-kentroller
 # ============================================================================
-# Published chart always creates its own ConfigMap from castai.apiURL/grpcURL.
-# envFrom adds shared resources so API_KEY and CLUSTER_ID are also available.
 kentroller:
   enabled: true
   castai:
@@ -47,6 +47,7 @@ kentroller:
 # ============================================================================
 workload-autoscaler:
   enabled: true
+  fullnameOverride: castai-workload-autoscaler
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
@@ -80,6 +81,7 @@ live:
 # ============================================================================
 pod-mutator:
   enabled: true
+  fullnameOverride: castai-pod-mutator
   dependencyCheck:
     enabled: false
   castai:
