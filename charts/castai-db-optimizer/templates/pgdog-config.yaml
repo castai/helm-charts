@@ -47,7 +47,6 @@ data:
     {{- end }}
     {{- end }}
 
-
     [admin]
     name = "admin"
     user = "admin"
@@ -61,6 +60,7 @@ data:
     pool_size = 100
     {{- else }}
     {{- range $index, $endpoint := .Values.endpoints }}
+
     [[databases]]
     name = "{{ printf "ep%d" $index }}"
     host = "{{ required "endpoint hostname must be provided" $endpoint.hostname }}"

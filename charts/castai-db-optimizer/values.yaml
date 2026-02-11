@@ -208,6 +208,8 @@ pgdog:
     prepared_statements_limit: 5000
     # -- Maximum number of entries in the query cache
     query_cache_limit: 500
+    # -- Enables/disable passthrough authentication. Option: "enabled_plain", "disabled". Although PgDog supports just "enabled", we do not as communication is container-container and using TLS would only add unnecessary overhead
+    passthrough_auth: "enabled_plain"
 
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor

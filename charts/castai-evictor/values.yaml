@@ -82,6 +82,11 @@ leaderElection:
   # leaderElection.enabled -- Whether to enable leader election.
   enabled: true
 
+# karpenterNodeCleanup -- Specifies Karpenter node cleanup parameters.
+karpenterNodeCleanup:
+  # karpenterNodeCleanup.enabled -- Whether to enable cleanup of Karpenter nodes.
+  enabled: false
+
 # kubernetesClient -- Specifies Kubernetes client settings.
 kubernetesClient:
   rateLimiter:

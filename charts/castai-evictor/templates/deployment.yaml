@@ -102,6 +102,8 @@ spec:
               value: {{ .Values.kubernetesClient.rateLimiter.qps | quote }}
             - name: K8S_CLIENT_RATE_LIMITER_BURST
               value: {{ .Values.kubernetesClient.rateLimiter.burst | quote }}
+            - name: CLEANUP_KARPENTER_NODES
+              value: {{ .Values.karpenterNodeCleanup.enabled | quote }}
             {{- if .Values.clusterIdSecretKeyRef.name }}
             {{- if ne .Values.clusterIdConfigMapKeyRef.name "" }}
             {{- fail "clusterIdConfigMapKeyRef and clusterIdSecretKeyRef are mutually exclusive" }}

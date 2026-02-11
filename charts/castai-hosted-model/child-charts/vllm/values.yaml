@@ -21,6 +21,8 @@ useRunAiStreamer: false
 model:
   # -- HF Model name or path in object storage
   name:
+  # -- Optional override for the served model name. If not set, defaults to model.name
+  servedName:
   sourceRegistry: "hf"
   registry:
     secretName:
@@ -136,6 +138,9 @@ livenessProbe:
   httpGet:
     # -- Path to access on the HTTP server
     path: /health
+
+# -- LD_LIBRARY_PATH environment variable for vLLM container. Set to null or empty string to disable.
+ldLibraryPath: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
 
 # -- Additional environment variables to set in the vLLM container
 env: []

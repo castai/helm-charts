@@ -20,8 +20,12 @@ castai:
   clusterIdSecretKeyRef:
     name: ""
     key: "CLUSTER_ID"
-  # telemetryURL - endpoint for sending metrics
-  telemetryURL: "telemetry.prod-master.cast.ai"
+  # telemetryURL -- Telemetry endpoint URL for metrics ingestion.
+  # When set to "auto" (recommended), the endpoint will be automatically derived from apiURL:
+  # - api.cast.ai -> telemetry.prod-master.cast.ai
+  # - api.eu.cast.ai -> telemetry.prod-eu.cast.ai
+  # - api.dev-master.cast.ai -> telemetry.dev-master.cast.ai
+  telemetryURL: "auto"
 
 # workloadWhitelistingEnabled-- Enable whitelisting mode for workload autoscaler exporter. When set to true, only metrics of workloads explicitly labeled as whitelisted will be exported.
 workloadWhitelistingEnabled: false

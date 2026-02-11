@@ -198,6 +198,7 @@ spec:
                   key: pgdog.toml
             - name: PGDOG_OUTPUT_FILE
               value: /etc/pgdog/pgdog.toml
+            {{- if ne .Values.pgdog.config.passthrough_auth "enabled_plain" }}
             - name: PGDOG_USERS_TEMPLATE
               valueFrom:
                 secretKeyRef:
@@ -209,6 +210,7 @@ spec:
                   key: users.toml
             - name: PGDOG_USERS_OUTPUT_FILE
               value: /etc/pgdog/users.toml
+            {{- end }}
             - name: PGDOG_ADMIN_URI
               value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
             {{- end }}
@@ -349,8 +351,10 @@ spec:
           args:
             - --config
             - /etc/pgdog/pgdog.toml
+            {{- if ne .Values.pgdog.config.passthrough_auth "enabled_plain" }}
             - --users
             - /etc/pgdog/users.toml
+            {{- end }}
           securityContext:
             capabilities:
               drop:

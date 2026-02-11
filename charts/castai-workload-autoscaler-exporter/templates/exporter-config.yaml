@@ -14,13 +14,13 @@ metadata:
 spec:
   {{- if not (empty $prometheusConfig) }}
   prometheus:
-    {{- range $prometheusConfig }}
+    {{- range $index, $config := $prometheusConfig }}
     - dataSource:
-        {{- $url := .datasource.url | default (printf "http://%s-prometheus.%s.svc.%s.:9090" (include "exporter.fullname" $) $.Release.Namespace $.Values.clusterDomain) }}
-        name: {{ .datasource.name | default $url }}
+        {{- $url := $config.datasource.url | default (printf "http://%s-prometheus.%s.svc.%s.:9090" (include "exporter.fullname" $) $.Release.Namespace $.Values.clusterDomain) }}
+        name: {{ $config.datasource.name | default (printf "%d-%s" $index $url) }}
         url: {{ $url }}
-        timeout: {{ .datasource.timeout | default "15s" }}
-      {{- $metrics := required "metrics is required" .metrics }}
+        timeout: {{ $config.datasource.timeout | default "15s" }}
+      {{- $metrics := required "metrics is required" $config.metrics }}
       {{- if empty $metrics }}
       {{- fail "metrics cannot be empty" }}
       {{- end }}

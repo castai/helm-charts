@@ -17,6 +17,7 @@ CAST AI hosted model deployment chart for vLLM.
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
 | image.tag | string | `"v0.11.2"` |  |
 | kvCacheDtype | string | `"auto"` |  |
+| ldLibraryPath | string | `"/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"` | LD_LIBRARY_PATH environment variable for vLLM container. Set to null or empty string to disable. |
 | livenessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}` | Liveness probe configuration |
 | livenessProbe.enabled | bool | `true` | Enable or disable liveness probe |
 | livenessProbe.failureThreshold | int | `3` | Number of times after which if a probe fails in a row, Kubernetes considers that the overall check has failed: the container is not alive |
@@ -59,6 +60,7 @@ CAST AI hosted model deployment chart for vLLM.
 | model.registry.s3.region | string | `nil` |  |
 | model.registry.s3.secretAccessKey | string | `nil` |  |
 | model.registry.secretName | string | `nil` |  |
+| model.servedName | string | `nil` | Optional override for the served model name. If not set, defaults to model.name |
 | model.sourceRegistry | string | `"hf"` |  |
 | modelDownloader.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/model-downloader"` |  |
 | modelDownloader.image.tag | string | `"v0.0.5"` |  |
