@@ -12,6 +12,7 @@ global:
 # ============================================================================
 agent:
   enabled: true
+  fullnameOverride: castai-agent
   replicaCount: 1
   provider: eks
   apiKeySecretRef: castai-credentials
@@ -23,6 +24,7 @@ agent:
 # ============================================================================
 cluster-controller:
   enabled: true
+  fullnameOverride: castai-cluster-controller
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -36,6 +38,7 @@ cluster-controller:
 # ============================================================================
 kentroller:
   enabled: true
+  fullnameOverride: castai-kentroller
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -96,6 +99,7 @@ pod-mutator:
 # ============================================================================
 evictor:
   enabled: true
+  fullnameOverride: castai-evictor
   replicaCount: 1
   overrideEnvFrom: true
   envFrom:
