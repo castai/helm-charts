@@ -22467,6 +22467,21 @@ entries:
     version: 0.0.2
   castai-kentroller:
   - apiVersion: v2
+    appVersion: v0.1.57
+    created: "2026-02-11T14:50:41.001209503Z"
+    dependencies:
+    - condition: crds.enabled
+      name: castai-kentroller-crds
+      repository: file://dependencies/crds
+      version: 0.0.1
+    description: A Helm chart for Kubernetes
+    digest: 42eee8ea81b434de99242083bf41b86b9ffd7dfc2286f05f14ebe52fbd0efe99
+    name: castai-kentroller
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-kentroller-0.1.57/castai-kentroller-0.1.57.tgz
+    version: 0.1.57
+  - apiVersion: v2
     appVersion: v0.1.56
     created: "2026-02-11T11:08:29.050185299Z"
     dependencies:
@@ -36899,4 +36914,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-02-11T14:24:59.763118506Z"
+generated: "2026-02-11T14:50:41.027544995Z"
