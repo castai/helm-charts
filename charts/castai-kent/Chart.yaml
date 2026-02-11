@@ -1,0 +1,54 @@
+apiVersion: v2
+name: castai-kent
+description: Umbrella chart for CAST AI kent onboarding components.
+type: application
+version: 0.1.0
+
+dependencies:
+  - name: castai-agent
+    alias: agent
+    version: ">=0.0.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: agent.enabled
+
+  - name: castai-cluster-controller
+    alias: cluster-controller
+    version: ">=0.0.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: cluster-controller.enabled
+
+  - name: castai-kentroller
+    alias: kentroller
+    version: ">=0.0.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: kentroller.enabled
+
+  - name: castai-workload-autoscaler
+    alias: workload-autoscaler
+    version: ">=0.0.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: workload-autoscaler.enabled
+
+  - name: castai-live
+    alias: live
+    version: ">=0.0.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: live.enabled
+
+  - name: castai-pod-mutator
+    alias: pod-mutator
+    version: ">=0.0.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: pod-mutator.enabled
+
+  - name: castai-evictor
+    alias: evictor
+    version: ">=0.0.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: evictor.enabled
+
+  - name: metrics-server
+    alias: metrics-server
+    version: ">=3.0.0"
+    repository: "https://kubernetes-sigs.github.io/metrics-server/"
+    condition: metrics-server.enabled

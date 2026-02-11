@@ -1,0 +1,15 @@
+# Scenario: Agent + Kentroller (Smartnews)
+# Agent registers the cluster and creates castai-agent-metadata ConfigMap
+# (CLUSTER_ID, API_URL). Kentroller manages Karpenter nodes.
+
+
+cluster-controller:
+  enabled: false
+workload-autoscaler:
+  enabled: false
+live:
+  enabled: false
+pod-mutator:
+  enabled: false
+evictor:
+  enabled: false

@@ -1,0 +1,10 @@
+# Scenario: Agent + Kentroller + WA + Cluster Controller (Iterable)
+# Agent registers the cluster and creates castai-agent-metadata ConfigMap
+# (CLUSTER_ID, API_URL). Cluster-controller is required because
+# workload-autoscaler depends on it for CRD management.
+
+live:
+  enabled: false
+pod-mutator:
+  enabled: false
+

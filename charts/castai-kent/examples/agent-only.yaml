@@ -1,0 +1,17 @@
+# Scenario: Agent only
+# Bootstraps the cluster — registers with CAST AI and creates the
+# castai-agent-metadata ConfigMap (CLUSTER_ID, API_URL).
+# No optimization or autoscaling components.
+
+cluster-controller:
+  enabled: false
+kentroller:
+  enabled: false
+workload-autoscaler:
+  enabled: false
+live:
+  enabled: false
+pod-mutator:
+  enabled: false
+evictor:
+  enabled: false

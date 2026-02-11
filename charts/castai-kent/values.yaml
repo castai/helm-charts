@@ -1,0 +1,110 @@
+# ============================================================================
+# Global values
+# ============================================================================
+global:
+  castai:
+    apiKey: ""
+    apiURL: "https://api.cast.ai"
+    grpcURL: "grpc.cast.ai:443"
+
+# ============================================================================
+# castai-agent
+# ============================================================================
+agent:
+  enabled: true
+  replicaCount: 1
+  provider: eks
+  apiKeySecretRef: castai-credentials
+  # TMP, TODO: clarify how reslove ocnfict between helm --create-namespace and agent.
+  createNamespace: false
+
+# ============================================================================
+# castai-cluster-controller
+# ============================================================================
+cluster-controller:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+  envFrom:
+  - configMapRef:
+      name: castai-agent-metadata
+  autoscaling:
+    enabled: false
+
+# ============================================================================
+# castai-kentroller
+# ============================================================================
+kentroller:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+  envFrom:
+    - configMapRef:
+        name: castai-agent-metadata
+
+# ============================================================================
+# castai-workload-autoscaler
+# ============================================================================
+workload-autoscaler:
+  enabled: true
+  fullnameOverride: castai-workload-autoscaler
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+
+# ============================================================================
+# metrics-server
+# ============================================================================
+# Prerequisite for workload-autoscaler. Only enable if the cluster
+# does not already have metrics.k8s.io API available.
+metrics-server:
+  enabled: false
+
+# ============================================================================
+# castai-live (CLM - Cost Limit Management)
+# ============================================================================
+# controller.replicaCount: 0 = CLM disabled, 2 = CLM enabled.
+live:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+  castai-aws-vpc-cni:
+    enabled: true
+  daemon:
+    labelNodeSubnet: true
+  controller:
+    replicaCount: 0
+
+# ============================================================================
+# castai-pod-mutator
+# ============================================================================
+pod-mutator:
+  enabled: true
+  fullnameOverride: castai-pod-mutator
+  dependencyCheck:
+    enabled: false
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+  envFrom:
+    - configMapRef:
+        name: castai-agent-metadata
+
+# ============================================================================
+# castai-evictor
+# ============================================================================
+evictor:
+  enabled: true
+  replicaCount: 1
+  overrideEnvFrom: true
+  envFrom:
+    - secretRef:
+        name: castai-credentials
+    - configMapRef:
+        name: castai-agent-metadata
+  image:
+    repository: us-docker.pkg.dev/castai-hub/library/evictor
+  karpenterMode:
+    enabled: true
+  aggressiveMode: true
