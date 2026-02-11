@@ -36,7 +36,6 @@ cluster-controller:
 # ============================================================================
 kentroller:
   enabled: true
-  fullnameOverride: castai-kentroller
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -82,6 +81,7 @@ live:
 # ============================================================================
 pod-mutator:
   enabled: true
+  fullnameOverride: castai-pod-mutator
   dependencyCheck:
     enabled: false
   castai:

@@ -1,0 +1,19 @@
+apiVersion: v2
+appVersion: v0.71.0
+dependencies:
+- name: castai-live-crds
+  repository: file://dependencies/crds
+  version: 0.0.19
+- condition: castai-aws-vpc-cni.enabled
+  name: castai-aws-vpc-cni-extra
+  repository: file://dependencies/aws-vpc-cni-extra
+  version: 0.0.1
+- alias: castai-aws-vpc-cni
+  condition: castai-aws-vpc-cni.enabled
+  name: aws-vpc-cni
+  repository: https://aws.github.io/eks-charts
+  version: 1.19.5
+description: CAST AI live migration components deployment chart.
+name: castai-live
+type: application
+version: 0.71.0
