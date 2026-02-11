@@ -110,3 +110,15 @@ rules:
       - events
     verbs:
       - create
+  # ------------------------------------------------
+  # Cleanup Karpenter nodes: ability to delete NodeClaim resources
+  # ------------------------------------------------
+  - apiGroups:
+      - karpenter.sh
+    resources:
+      - nodeclaims
+    verbs:
+      - get
+      - list
+      - watch
+      - delete
