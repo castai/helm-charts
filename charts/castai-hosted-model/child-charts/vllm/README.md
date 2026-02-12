@@ -63,7 +63,7 @@ CAST AI hosted model deployment chart for vLLM.
 | model.servedName | string | `nil` | Optional override for the served model name. If not set, defaults to model.name |
 | model.sourceRegistry | string | `"hf"` |  |
 | modelDownloader.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/model-downloader"` |  |
-| modelDownloader.image.tag | string | `"v0.0.4"` |  |
+| modelDownloader.image.tag | string | `"v0.0.5"` |  |
 | modelDownloader.resources.limits.memory | string | `"500Mi"` |  |
 | modelDownloader.resources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.resources.requests.memory | string | `"500Mi"` |  |

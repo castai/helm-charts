@@ -230,7 +230,7 @@ spec:
               mountPath: /cache-ready
           {{- end }}
       initContainers:
-        {{- if .Values.model.cache.enabled }}
+        {{- if and .Values.model.cache.enabled .Values.useRunAiStreamer }}
         - name: model-cache-checker
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           imagePullPolicy: IfNotPresent
@@ -253,10 +253,49 @@ spec:
         - name: model-downloader-base
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"
           imagePullPolicy: IfNotPresent
+          {{- if .Values.model.cache.enabled }}
+          command: ["/busybox/sh", "-c"]
+          args:
+            - |
+              if SOURCE_TYPE="{{ .Values.model.cache.bucketType }}" \
+              {{- if eq .Values.model.cache.bucketType "gcs" }}
+                 SOURCE_GCS_CREDENTIALS_FILE="${CACHE_GOOGLE_APPLICATION_CREDENTIALS}" \
+                 GOOGLE_APPLICATION_CREDENTIALS="${CACHE_GOOGLE_APPLICATION_CREDENTIALS}" \
+              {{- else if eq .Values.model.cache.bucketType "s3" }}
+                 SOURCE_S3_ACCESS_KEY_ID="${CACHE_AWS_ACCESS_KEY_ID}" \
+                 SOURCE_S3_SECRET_ACCESS_KEY="${CACHE_AWS_SECRET_ACCESS_KEY}" \
+                 SOURCE_S3_REGION="${CACHE_AWS_REGION}" \
+                 SOURCE_S3_ENDPOINT="${CACHE_AWS_ENDPOINT_URL}" \
+              {{- end }}
+                 SOURCE_REMOTE_DIRS="{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}/.copy.manifest" \
+                 DESTINATION_LOCAL_DIR="/tmp/cache-check" \
+                 model-downloader download && \
+                 [ -f "/tmp/cache-check/{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}/.copy.manifest" ]; then
+                echo "Cache hit: downloading model from cache bucket"
+                export SOURCE_TYPE="{{ .Values.model.cache.bucketType }}"
+                {{- if eq .Values.model.cache.bucketType "gcs" }}
+                export SOURCE_GCS_CREDENTIALS_FILE="${CACHE_GOOGLE_APPLICATION_CREDENTIALS}"
+                export GOOGLE_APPLICATION_CREDENTIALS="${CACHE_GOOGLE_APPLICATION_CREDENTIALS}"
+                {{- else if eq .Values.model.cache.bucketType "s3" }}
+                export SOURCE_S3_ACCESS_KEY_ID="${CACHE_AWS_ACCESS_KEY_ID}"
+                export SOURCE_S3_SECRET_ACCESS_KEY="${CACHE_AWS_SECRET_ACCESS_KEY}"
+                export SOURCE_S3_REGION="${CACHE_AWS_REGION}"
+                export SOURCE_S3_ENDPOINT="${CACHE_AWS_ENDPOINT_URL}"
+                {{- end }}
+                export SOURCE_REMOTE_DIRS="{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}"
+              else
+                echo "Cache miss: downloading model from source"
+              fi
+              exec model-downloader download
+          {{- else }}
           args:
             - download
+          {{- end }}
           env:
             {{- include "modelSourceCredentialsEnvVars" . | nindent 12 }}
+            {{- if .Values.model.cache.enabled }}
+            {{- include "modelCacheCredentialsEnvVars" . | nindent 12 }}
+            {{- end }}
             - name: SOURCE_REMOTE_DIRS
               value: "{{ .Values.model.name }}"
             - name: DESTINATION_LOCAL_DIR
