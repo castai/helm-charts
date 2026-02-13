@@ -96,12 +96,19 @@ webhook:
   # connection and waiting for response)
   # timeoutSeconds: 10
 
+# telemetryDebug -- Configuration for telemetry debug to collect controller runtime metrics.
+# When enabled, the controller emits its own Prometheus metrics (memory, CPU, cache size, etc.) to CAST AI.
+telemetryDebug:
+  enabled: false
+  # interval -- How often to collect and emit metrics
+  interval: 1m
+
 # additionalEnv -- Used to set any additional environment variables.
 additionalEnv: {}
 
 resources:
   limits:
-    memory: 512Mi
+    memory: 2Gi
   requests:
     cpu: 100m
     memory: 512Mi

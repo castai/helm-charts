@@ -60,6 +60,10 @@ spec:
           image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: POD_NAMESPACE
               valueFrom:
                 fieldRef:
@@ -115,6 +119,16 @@ spec:
             {{- if .Values.workloadPodLabeling.workloadId.enabled }}
             - name: WORKLOAD_POD_LABELING_WORKLOAD_ID_ENABLED
               value: {{ quote .Values.workloadPodLabeling.workloadId.enabled }}
+            {{- end}}
+            {{- if .Values.telemetryDebug.enabled }}
+            - name: TELEMETRY_DEBUG_ENABLED
+              value: {{ quote .Values.telemetryDebug.enabled }}
+            - name: TELEMETRY_DEBUG_INTERVAL
+              value: {{ quote .Values.telemetryDebug.interval }}
+            - name: TELEMETRY_DEBUG_WORKLOAD_NAME
+              value: {{ include "workload-autoscaler.fullname" . | quote }}
+            - name: TELEMETRY_DEBUG_WORKLOAD_KIND
+              value: "Deployment"
             {{- end}}
             - name: WEBHOOK_PORT
               value: {{ quote .Values.webhook.port }}
