@@ -8,6 +8,11 @@ CAST AI hosted model deployment chart for vLLM.
 |-----|------|---------|-------------|
 | container.port | int | `8000` |  |
 | deployment.labels | string | `nil` |  |
+| deployment.strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | Deployment strategy configuration |
+| deployment.strategy.rollingUpdate | object | `{"maxSurge":"25%","maxUnavailable":"25%"}` | Rolling update configuration (only applies when type is RollingUpdate) |
+| deployment.strategy.rollingUpdate.maxSurge | string | `"25%"` | Maximum number of pods that can be created above desired replicas during update |
+| deployment.strategy.rollingUpdate.maxUnavailable | string | `"25%"` | Maximum number of pods that can be unavailable during update |
+| deployment.strategy.type | string | `"RollingUpdate"` | Deployment strategy type (RollingUpdate or Recreate) |
 | dtype | string | `"half"` |  |
 | enableAutoToolChoice | bool | `false` |  |
 | enableChunkedPrefill | bool | `true` |  |
