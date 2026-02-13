@@ -152,6 +152,14 @@ workloadWhitelistingEnabled: false
 # evictionRateLimitingEnabled -- Enable rate limiting pod evictions by workload autoscaler.
 evictionRateLimitingEnabled: true
 
+# resourceQuotaAwareScaling -- Configuration for resource quota aware scaling.
+# When enabled, prevents upscaling workloads when doing so would violate namespace ResourceQuotas.
+resourceQuotaAwareScaling:
+  enabled: false
+  # headroomPercent -- Percentage of the ResourceQuota hard limit to reserve as headroom.
+  # For example, 10 means WOOP won't use more than 90% of the quota.
+  headroomPercent: 10
+
 # workloadPodLabeling -- Configuration for Workload Autoscaler features that dynamically add labels to user workload
 # pods during rightsizing. This is distinct from 'podLabels' and 'podAnnotations', which apply only to the
 # workload-autoscaler pods themselves.
@@ -250,3 +258,5 @@ extraVolumes: []
 extraVolumeMounts: []
 
 watchListClient: true
+
+fullnameOverride: castai-workload-autoscaler

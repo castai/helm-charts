@@ -98,6 +98,12 @@ spec:
             - name: SAFEGUARD_WORKLOAD_WHITELISTING_ENABLED
               value: {{ quote .Values.workloadWhitelistingEnabled }}
             {{- end}}
+            {{- if .Values.resourceQuotaAwareScaling.enabled }}
+            - name: RQ_UPSCALING_ENABLED
+              value: {{ quote .Values.resourceQuotaAwareScaling.enabled }}
+            - name: RQ_UPSCALING_HEADROOM_PERCENT
+              value: {{ quote .Values.resourceQuotaAwareScaling.headroomPercent }}
+            {{- end}}
             {{- if .Values.evictionRateLimitingEnabled}}
             - name: EVICTION_RATE_LIMITING_ENABLED
               value: {{ quote .Values.evictionRateLimitingEnabled }}

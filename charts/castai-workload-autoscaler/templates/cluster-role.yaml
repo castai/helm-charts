@@ -148,3 +148,16 @@ rules:
       - get
       - list
       - watch
+  {{- if .Values.resourceQuotaAwareScaling.enabled }}
+  # ---
+  # Read permissions for resource quotas - required for quota-aware scaling
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - resourcequotas
+    verbs:
+      - get
+      - list
+      - watch
+  {{- end }}
