@@ -276,3 +276,5 @@ clusterDomain: cluster.local
 
 # -- Used to set additional environment variables for the exporter container via configMaps or secrets.
 envFrom: []
+
+fullnameOverride: castai-workload-autoscaler-exporter
