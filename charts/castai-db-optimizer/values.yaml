@@ -93,7 +93,8 @@ endpoints:
       type: LOGICAL_DNS
       dns_lookup_family: ALL
       respect_dns_ttl: true
-      dns_refresh_rate: 5000ms
+      # -- DNS refresh rate (must be specified in seconds, e.g., 5s).
+      dns_refresh_rate: 5s
 
 proxy:
   # -- Default proxy log level.

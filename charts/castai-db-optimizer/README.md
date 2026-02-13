@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.63.3](https://img.shields.io/badge/Version-0.63.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.63.4](https://img.shields.io/badge/Version-0.63.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -24,11 +24,12 @@ CAST AI database cache deployment.
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | dnsConfig | object | `{}` | Pod DNS configuration. Ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config |
 | dnsPolicy | string | `""` | Pod DNS policy. WARNING: If using dnsPolicy "None" with custom nameservers, ensure they can resolve cluster-internal DNS names (*.svc.cluster.local) for peer discovery to work correctly with the headless service. Ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-s-dns-policy |
-| endpoints | list | `[{"hostname":"sample-db-hostname","name":null,"port":5433,"serviceDiscovery":{"dns_lookup_family":"ALL","dns_refresh_rate":"5000ms","respect_dns_ttl":true,"type":"LOGICAL_DNS"},"servicePort":5432,"targetPort":5432}]` | A list of upstream database endpoints |
+| endpoints | list | `[{"hostname":"sample-db-hostname","name":null,"port":5433,"serviceDiscovery":{"dns_lookup_family":"ALL","dns_refresh_rate":"5s","respect_dns_ttl":true,"type":"LOGICAL_DNS"},"servicePort":5432,"targetPort":5432}]` | A list of upstream database endpoints |
 | endpoints[0].hostname | string | `"sample-db-hostname"` | Hostname of the upstream database instance. |
 | endpoints[0].name | string | `nil` | Name of the service. If this value is not empty, then additional cluster IP service will be deployed, using provided name as a suffix |
 | endpoints[0].port | int | `5433` | Port for the endpoint on DBO pod. |
-| endpoints[0].serviceDiscovery | object | `{"dns_lookup_family":"ALL","dns_refresh_rate":"5000ms","respect_dns_ttl":true,"type":"LOGICAL_DNS"}` | Envoy service discovery settings. Ref: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto.html |
+| endpoints[0].serviceDiscovery | object | `{"dns_lookup_family":"ALL","dns_refresh_rate":"5s","respect_dns_ttl":true,"type":"LOGICAL_DNS"}` | Envoy service discovery settings. Ref: https://www.envoyproxy.io/docs/envoy/latest/api-v3/config/cluster/v3/cluster.proto.html |
+| endpoints[0].serviceDiscovery.dns_refresh_rate | string | `"5s"` | DNS refresh rate (must be specified in seconds, e.g., 5s). |
 | endpoints[0].serviceDiscovery.type | string | `"LOGICAL_DNS"` | The service discovery type to use for resolving the cluster. Available options: LOGICAL_DNS and STRICT_DNS. Ref: https://www.envoyproxy.io/docs/envoy/latest/intro/arch_overview/upstream/service_discovery |
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
