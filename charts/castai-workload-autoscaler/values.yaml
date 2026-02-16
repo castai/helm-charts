@@ -8,6 +8,18 @@ leaderElection:
 
 replicas: 2
 
+# pdb -- PodDisruptionBudget configuration.
+pdb:
+  # pdb.enabled -- Enable PodDisruptionBudget. Set to false to disable PDB even with multiple replicas.
+  enabled: true
+  # pdb.minAvailable -- Minimum available pods during disruption. Cannot be used together with maxUnavailable.
+  # If not set, falls back to pdbMinAvailable for backward compatibility.
+  minAvailable: 1
+  # pdb.maxUnavailable -- Maximum unavailable pods during disruption. Cannot be used together with minAvailable.
+  # If set, takes precedence over minAvailable.
+  maxUnavailable: ~
+
+
 # GKE Autopilot configuration
 autopilot:
   # enabled -- Set to true when deploying to GKE Autopilot.
