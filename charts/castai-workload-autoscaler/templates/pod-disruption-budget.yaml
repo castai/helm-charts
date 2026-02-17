@@ -1,4 +1,8 @@
-{{- if gt (int .Values.replicas) 1 }}
+{{- $pdbEnabled := true }}
+{{- if hasKey .Values "pdb" }}
+{{- $pdbEnabled = .Values.pdb.enabled }}
+{{- end }}
+{{- if and $pdbEnabled (gt (int .Values.replicas) 1) }}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -11,7 +15,11 @@ metadata:
     {{- include "workload-autoscaler.annotations" . | nindent 4 }}
   {{- end }}
 spec:
-  minAvailable: 1
+  {{- if .Values.pdb.maxUnavailable }}
+  maxUnavailable: {{ .Values.pdb.maxUnavailable }}
+  {{- else }}
+  minAvailable: {{ .Values.pdb.minAvailable | default 1 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "workload-autoscaler.selectorLabels" . | nindent 6 }}
