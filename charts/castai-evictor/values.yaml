@@ -87,6 +87,11 @@ karpenterNodeCleanup:
   # karpenterNodeCleanup.enabled -- Whether to enable cleanup of Karpenter nodes.
   enabled: false
 
+# softTainting -- Specifies soft tainting parameters.
+softTainting:
+  # softTainting.enabled -- Whether to enable soft tainting of evicted nodes.
+  enabled: false
+
 # kubernetesClient -- Specifies Kubernetes client settings.
 kubernetesClient:
   rateLimiter:

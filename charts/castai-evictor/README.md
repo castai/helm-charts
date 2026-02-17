@@ -76,6 +76,8 @@ Cluster utilization defragmentation tool
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created. |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. |
+| softTainting | object | `{"enabled":false}` | Specifies soft tainting parameters. |
+| softTainting.enabled | bool | `false` | Whether to enable soft tainting of evicted nodes. |
 | tolerations | list | `[]` |  |
 | updateStrategy | object | `{"type":"Recreate"}` | Controls `deployment.spec.strategy` field. |
 | woop | object | `{"enabled":true,"useK8sClientCache":true}` | Specifies settings for working with WOOP recommendations. |
