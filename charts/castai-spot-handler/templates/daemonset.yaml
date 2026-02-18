@@ -88,7 +88,7 @@ spec:
             {{- fail "either clusterID, clusterIdSecretKeyRef or clusterIdConfigMapKeyRef must be provided" }}
           {{- end }}
             - name: PROVIDER
-              value: {{ required "castai.provider must be provided" .Values.castai.provider | quote }}
+              value: {{ include "spot-handler.provider" . | quote }}
             - name: PHASE2_PERMISSIONS
               value: {{ .Values.phase2Permissions | quote }}
             {{- range $k, $v := .Values.additionalEnv }}
