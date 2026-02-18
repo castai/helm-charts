@@ -76,16 +76,3 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
-
-{{/*
-Resolve cloud provider: prefer .Values.castai.provider, fall back to .Values.global.castai.provider.
-Accepts both cloud names (aws, azure, gcp) and k8s names (eks, aks, gke).
-*/}}
-{{- define "spot-handler.provider" -}}
-{{- $map := dict "eks" "aws" "aks" "azure" "gke" "gcp" -}}
-{{- $input := .Values.castai.provider | default (dig "castai" "provider" "" .Values.global) -}}
-{{- if not $input -}}
-  {{- fail "castai.provider or global.castai.provider must be provided" -}}
-{{- end -}}
-{{- default $input (get $map $input) -}}
-{{- end }}
