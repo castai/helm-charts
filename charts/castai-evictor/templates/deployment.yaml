@@ -104,6 +104,8 @@ spec:
               value: {{ .Values.kubernetesClient.rateLimiter.burst | quote }}
             - name: CLEANUP_KARPENTER_NODES
               value: {{ .Values.karpenterNodeCleanup.enabled | quote }}
+            - name: SOFT_TAINTING
+              value: {{ .Values.softTainting.enabled | quote }}
             {{- if .Values.clusterIdSecretKeyRef.name }}
             {{- if ne .Values.clusterIdConfigMapKeyRef.name "" }}
             {{- fail "clusterIdConfigMapKeyRef and clusterIdSecretKeyRef are mutually exclusive" }}
