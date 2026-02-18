@@ -9,8 +9,8 @@ agent:
 spot-handler:
   apiKeySecretRef: castai-credentials
   castai:
-    # TODO: align with cluster provider (aws/azure/gcp) during autoscaler rollout.
-    provider: aws
+    # TODO: set explicitly at install time (aws/azure/gcp).
+    provider: ""
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID

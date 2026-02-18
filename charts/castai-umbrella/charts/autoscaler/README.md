@@ -1,0 +1,53 @@
+# autoscaler
+
+![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+
+Wrapper chart for CAST AI Autoscaler profile.
+
+## Requirements
+
+| Repository | Name | Version |
+|------------|------|---------|
+| https://castai.github.io/helm-charts | agent(castai-agent) | 0.137.0 |
+| https://castai.github.io/helm-charts | cluster-controller(castai-cluster-controller) | 0.89.1 |
+| https://castai.github.io/helm-charts | evictor(castai-evictor) | 0.33.199 |
+| https://castai.github.io/helm-charts | live(castai-live) | 0.71.0 |
+| https://castai.github.io/helm-charts | pod-mutator(castai-pod-mutator) | 0.4.5 |
+| https://castai.github.io/helm-charts | spot-handler(castai-spot-handler) | 0.29.0 |
+| https://castai.github.io/helm-charts | workload-autoscaler(castai-workload-autoscaler) | 0.1.169 |
+| https://kubernetes-sigs.github.io/metrics-server/ | metrics-server(metrics-server) | 3.13.0 |
+
+## Values
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| agent.apiKeySecretRef | string | `"castai-credentials"` |  |
+| agent.createNamespace | bool | `false` |  |
+| agent.replicaCount | int | `1` |  |
+| cluster-controller.autoscaling.enabled | bool | `true` |  |
+| cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| evictor.aggressiveMode | bool | `true` |  |
+| evictor.envFrom[0].secretRef.name | string | `"castai-credentials"` |  |
+| evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| evictor.overrideEnvFrom | bool | `true` |  |
+| evictor.replicaCount | int | `1` |  |
+| live.castai-aws-vpc-cni.enabled | bool | `true` |  |
+| live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| live.controller.replicaCount | int | `0` |  |
+| live.daemon.labelNodeSubnet | bool | `true` |  |
+| metrics-server.enabled | bool | `false` |  |
+| pod-mutator.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| pod-mutator.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| pod-mutator.dependencyCheck.enabled | bool | `false` |  |
+| pod-mutator.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| pod-mutator.fullnameOverride | string | `"castai-pod-mutator"` |  |
+| spot-handler.apiKeySecretRef | string | `"castai-credentials"` |  |
+| spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
+| spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
+| spot-handler.castai.provider | string | `""` |  |
+| workload-autoscaler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| workload-autoscaler.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| workload-autoscaler.fullnameOverride | string | `"castai-workload-autoscaler"` |  |
+
