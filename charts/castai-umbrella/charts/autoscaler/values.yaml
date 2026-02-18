@@ -1,0 +1,69 @@
+# Placeholder defaults for Autoscaler profile.
+# TODO: tune these values for production autoscaler rollout.
+
+agent:
+  replicaCount: 1
+  apiKeySecretRef: castai-credentials
+  createNamespace: false
+
+spot-handler:
+  apiKeySecretRef: castai-credentials
+  castai:
+    # TODO: align with cluster provider (aws/azure/gcp) during autoscaler rollout.
+    provider: aws
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+
+cluster-controller:
+  castai:
+    apiKeySecretRef: castai-credentials
+  envFrom:
+    - configMapRef:
+        name: castai-agent-metadata
+  autoscaling:
+    # TODO: validate autoscaler profile setting.
+    enabled: true
+
+workload-autoscaler:
+  fullnameOverride: castai-workload-autoscaler
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+
+metrics-server:
+  # TODO: validate if this should default to true for autoscaler profile.
+  enabled: false
+
+live:
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+  castai-aws-vpc-cni:
+    enabled: true
+  daemon:
+    labelNodeSubnet: true
+  controller:
+    # TODO: tune CLM behavior for autoscaler profile.
+    replicaCount: 0
+
+pod-mutator:
+  fullnameOverride: castai-pod-mutator
+  dependencyCheck:
+    enabled: false
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+  envFrom:
+    - configMapRef:
+        name: castai-agent-metadata
+
+evictor:
+  replicaCount: 1
+  aggressiveMode: true
+  overrideEnvFrom: true
+  envFrom:
+    - secretRef:
+        name: castai-credentials
+    - configMapRef:
+        name: castai-agent-metadata

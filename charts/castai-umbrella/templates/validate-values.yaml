@@ -1,0 +1,8 @@
+{{- if or .Values.kent.enabled .Values.autoscaler.enabled }}
+{{- if not .Values.global.castai.apiKey }}
+{{- fail "global.castai.apiKey is required when enabling kent or autoscaler profile (set --set global.castai.apiKey=<API_KEY>)" }}
+{{- end }}
+{{- if and .Values.autoscaler.enabled (not .Values.autoscaler.agent.provider) }}
+{{- fail "autoscaler.agent.provider is required when autoscaler profile is enabled (set --set autoscaler.agent.provider=<eks|aks|gke|kops|anywhere>)" }}
+{{- end }}
+{{- end }}

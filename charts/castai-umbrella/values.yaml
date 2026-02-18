@@ -1,125 +1,13 @@
-# ============================================================================
-# Tags — enable groups of components
-# ============================================================================
-tags:
-  kent: false
-  autoscaler: false
-  read-only: false
-
-# ============================================================================
-# Global values
-# ============================================================================
 global:
   castai:
     apiKey: ""
     apiURL: "https://api.cast.ai"
     grpcURL: "grpc.cast.ai:443"
     # provider -- Kubernetes service provider: eks, aks, gke, kops, anywhere.
-    # Used by agent directly; spot-handler auto-maps eks→aws, aks→azure, gke→gcp.
     provider: ""
 
-# ============================================================================
-# castai-agent
-# ============================================================================
-agent:
-  replicaCount: 1
-  apiKeySecretRef: castai-credentials
-  # TMP, TODO: clarify how to resolve conflict between helm --create-namespace and agent.
-  createNamespace: false
-
-# ============================================================================
-# castai-spot-handler
-# ============================================================================
-spot-handler:
-  apiKeySecretRef: castai-credentials
-  castai:
-    clusterIdConfigMapKeyRef:
-      name: castai-agent-metadata
-      key: CLUSTER_ID
-
-# ============================================================================
-# castai-cluster-controller
-# ============================================================================
-cluster-controller:
-  castai:
-    apiKeySecretRef: castai-credentials
-  envFrom:
-  - configMapRef:
-      name: castai-agent-metadata
-  autoscaling:
-    enabled: false
-
-# ============================================================================
-# castai-kentroller
-# ============================================================================
-kentroller:
-  castai:
-    apiKeySecretRef: castai-credentials
-  envFrom:
-    - configMapRef:
-        name: castai-agent-metadata
-
-# ============================================================================
-# castai-workload-autoscaler
-# ============================================================================
-workload-autoscaler:
-  fullnameOverride: castai-workload-autoscaler
-  castai:
-    apiKeySecretRef: castai-credentials
-    configMapRef: castai-agent-metadata
-
-# ============================================================================
-# metrics-server
-# ============================================================================
-# Disabled by default — most clusters already provide the metrics.k8s.io API.
-# Required when using Karpenter or when the cluster has no metrics API
-# (needed by workload-autoscaler).
-# Enable with: --set metrics-server.enabled=true
-metrics-server:
+kent:
   enabled: false
 
-# ============================================================================
-# castai-live (CLM - Cost Limit Management)
-# ============================================================================
-# controller.replicaCount: 0 = CLM disabled, 2 = CLM enabled.
-live:
-  castai:
-    apiKeySecretRef: castai-credentials
-    configMapRef: castai-agent-metadata
-  castai-aws-vpc-cni:
-    enabled: true
-  daemon:
-    labelNodeSubnet: true
-  controller:
-    replicaCount: 0
-
-# ============================================================================
-# castai-pod-mutator
-# ============================================================================
-pod-mutator:
-  fullnameOverride: castai-pod-mutator
-  dependencyCheck:
-    enabled: false
-  castai:
-    apiKeySecretRef: castai-credentials
-    configMapRef: castai-agent-metadata
-  envFrom:
-    - configMapRef:
-        name: castai-agent-metadata
-
-# ============================================================================
-# castai-evictor
-# ============================================================================
-evictor:
-  replicaCount: 1
-  overrideEnvFrom: true
-  envFrom:
-    - secretRef:
-        name: castai-credentials
-    - configMapRef:
-        name: castai-agent-metadata
-  image:
-    repository: us-docker.pkg.dev/castai-hub/library/evictor
-  karpenterMode:
-    enabled: true
-  aggressiveMode: true
+autoscaler:
+  enabled: false
