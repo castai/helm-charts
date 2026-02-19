@@ -83,7 +83,8 @@ Accepts both cloud names (aws, azure, gcp) and k8s names (eks, aks, gke).
 */}}
 {{- define "spot-handler.provider" -}}
 {{- $map := dict "eks" "aws" "aks" "azure" "gke" "gcp" -}}
-{{- $input := .Values.castai.provider | default (dig "castai" "provider" "" .Values.global) -}}
+{{- $global := .Values.global | default dict -}}
+{{- $input := .Values.castai.provider | default (dig "castai" "provider" "" $global) -}}
 {{- if not $input -}}
   {{- fail "castai.provider or global.castai.provider must be provided" -}}
 {{- end -}}
