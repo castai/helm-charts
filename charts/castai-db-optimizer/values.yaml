@@ -212,6 +212,41 @@ pgdog:
     # -- Enables/disable passthrough authentication. Option: "enabled_plain", "disabled". Although PgDog supports just "enabled", we do not as communication is container-container and using TLS would only add unnecessary overhead
     passthrough_auth: "enabled_plain"
 
+proxySql:
+  # -- Enable ProxySQL pooler sidecar (MySQL only)
+  enabled: false
+  # -- ProxySQL user (plain string). Mutually exclusive with usersSecretRef
+  user: ""
+  # -- ProxySQL password (plain string). Mutually exclusive with usersSecretRef
+  password: ""
+  # -- Reference to existing secret containing username and password. Mutually exclusive with user/password
+  # The secret must contain the kes named "PROXY_SQL_USERNAME" and "PROXY_SQL_PASSWORD" with the ProxySQL users configuration
+  usersSecretRef: ""
+  resources:
+    cpu: "500m"
+    memory: "256Mi"
+  config:
+    # -- Number of ProxySQL threads
+    threads: 4
+    # -- Maximum client connections ProxySQL accepts
+    max_connections: 2048
+    # -- Maximum connections per backend server
+    max_backend_connections: 100
+    # -- Percentage of free connections to keep in pool
+    free_connections_pct: 10
+    # -- Enable connection multiplexing
+    multiplexing: true
+    # -- Backend connection timeout in milliseconds
+    connect_timeout_server: 5000
+    # -- Default query timeout in milliseconds
+    default_query_timeout: 36000000
+    # -- Delay multiplexing for N queries after auto-increment INSERT
+    auto_increment_delay_multiplex: 5
+    # -- Stacksize for ProxySQL threads
+    stacksize: 1048576
+    # -- Enable have_compress
+    have_compress: true
+
 queryProcessorImage:
   repository: us-docker.pkg.dev/castai-hub/library/query-processor
   pullPolicy: IfNotPresent
@@ -231,6 +266,11 @@ pgdogImage:
   repository: ghcr.io/pgdogdev/pgdog
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
+
+proxySqlImage:
+  repository: docker.io/proxysql/proxysql
+  pullPolicy: IfNotPresent
+  tag: ""  # uses value from _versions.tpl for default value
 
 # -- The name of the service account to be used by the pod.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/

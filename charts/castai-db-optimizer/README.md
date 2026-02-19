@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.65.0](https://img.shields.io/badge/Version-0.65.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.66.0](https://img.shields.io/badge/Version-0.66.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -86,6 +86,25 @@ CAST AI database cache deployment.
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
+| proxySql.config.auto_increment_delay_multiplex | int | `5` | Delay multiplexing for N queries after auto-increment INSERT |
+| proxySql.config.connect_timeout_server | int | `5000` | Backend connection timeout in milliseconds |
+| proxySql.config.default_query_timeout | int | `36000000` | Default query timeout in milliseconds |
+| proxySql.config.free_connections_pct | int | `10` | Percentage of free connections to keep in pool |
+| proxySql.config.have_compress | bool | `true` | Enable have_compress |
+| proxySql.config.max_backend_connections | int | `100` | Maximum connections per backend server |
+| proxySql.config.max_connections | int | `2048` | Maximum client connections ProxySQL accepts |
+| proxySql.config.multiplexing | bool | `true` | Enable connection multiplexing |
+| proxySql.config.stacksize | int | `1048576` | Stacksize for ProxySQL threads |
+| proxySql.config.threads | int | `4` | Number of ProxySQL threads |
+| proxySql.enabled | bool | `false` | Enable ProxySQL pooler sidecar (MySQL only) |
+| proxySql.password | string | `""` | ProxySQL password (plain string). Mutually exclusive with usersSecretRef |
+| proxySql.resources.cpu | string | `"500m"` |  |
+| proxySql.resources.memory | string | `"256Mi"` |  |
+| proxySql.user | string | `""` | ProxySQL user (plain string). Mutually exclusive with usersSecretRef |
+| proxySql.usersSecretRef | string | `""` | Reference to existing secret containing username and password. Mutually exclusive with user/password The secret must contain the kes named "PROXY_SQL_USERNAME" and "PROXY_SQL_PASSWORD" with the ProxySQL users configuration |
+| proxySqlImage.pullPolicy | string | `"IfNotPresent"` |  |
+| proxySqlImage.repository | string | `"docker.io/proxysql/proxysql"` |  |
+| proxySqlImage.tag | string | `""` |  |
 | queryProcessor.concurrency | int | `10` | Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage. |
 | queryProcessor.debug | bool | `false` | Enable additional debugging features to aid troubleshooting. |
 | queryProcessor.logLevel | string | `"warn"` | Default query-processor log level. |
