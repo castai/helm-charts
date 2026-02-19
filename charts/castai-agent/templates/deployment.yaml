@@ -116,11 +116,11 @@ spec:
                   fieldPath: spec.nodeName
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
-            {{- if .Values.provider }}
+            {{- if (include "castai-agent.provider" .) }}
             - name: PROVIDER
-              value: {{ .Values.provider | quote }}
+              value: {{ include "castai-agent.provider" . | quote }}
             {{- end }}
-            {{- if or .Values.metadataStore.enabled (eq .Values.provider "anywhere") }}
+            {{- if or .Values.metadataStore.enabled (eq (include "castai-agent.provider" .) "anywhere") }}
             - name: METADATA_STORE_ENABLED
               value: "true"
             - name: METADATA_STORE_CONFIG_MAP_NAME
@@ -220,9 +220,9 @@ spec:
                   fieldPath: spec.nodeName
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
-            {{- if .Values.provider }}
+            {{- if (include "castai-agent.provider" .) }}
             - name: PROVIDER
-              value: {{ .Values.provider | quote }}
+              value: {{ include "castai-agent.provider" . | quote }}
             {{- end }}
           {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}

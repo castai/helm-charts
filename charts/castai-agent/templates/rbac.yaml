@@ -230,7 +230,7 @@ rules:
       - list
       - watch
   {{- end }}
-  {{- if eq .Values.provider "openshift" }}
+  {{- if eq (include "castai-agent.provider" .) "openshift" }}
   # ---
   # Required for OpenShift clusters to retrieve cluster version and cluster ID.
   # ---
@@ -311,7 +311,7 @@ rules:
       - get
       - list
       - watch
-      {{- if or .Values.metadataStore.enabled (eq .Values.provider "anywhere") }}
+      {{- if or .Values.metadataStore.enabled (eq (include "castai-agent.provider" .) "anywhere") }}
       # ---
       # Required for Anywhere clusters to be able to store metadata into a config map.
       # ---
@@ -353,7 +353,7 @@ subjects:
     name: {{ include "castai-agent.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
 
-{{- if eq .Values.provider "openshift" }}
+{{- if eq (include "castai-agent.provider" .) "openshift" }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role

@@ -76,3 +76,11 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Resolve provider: prefer .Values.provider, fall back to .Values.global.castai.provider.
+*/}}
+{{- define "castai-agent.provider" -}}
+{{- $global := .Values.global | default dict -}}
+{{- .Values.provider | default (dig "castai" "provider" "" $global) -}}
+{{- end }}
