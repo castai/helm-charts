@@ -1,0 +1,13 @@
+global:
+  castai:
+    apiKey: ""
+    apiURL: "https://api.cast.ai"
+    grpcURL: "grpc.cast.ai:443"
+    # provider -- Kubernetes service provider: eks, aks, gke, kops, anywhere.
+    provider: ""
+
+kent:
+  enabled: false
+
+autoscaler:
+  enabled: false
