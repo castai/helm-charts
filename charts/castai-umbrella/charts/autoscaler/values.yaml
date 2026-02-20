@@ -9,7 +9,8 @@ agent:
 spot-handler:
   apiKeySecretRef: castai-credentials
   castai:
-    # TODO: set explicitly at install time (aws/azure/gcp).
+    # Optional: can be inherited from global.castai.provider with alias mapping
+    # in spot-handler (eks->aws, aks->azure, gke->gcp).
     provider: ""
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
@@ -60,7 +61,7 @@ pod-mutator:
 
 evictor:
   replicaCount: 1
-  aggressiveMode: true
+  aggressiveMode: false
   overrideEnvFrom: true
   envFrom:
     - secretRef:
