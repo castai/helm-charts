@@ -48,6 +48,10 @@ inputs:
   source-repo-token:
     description: "GitHub token with permissions to push to the source repository"
     required: false
+  commit-chart-changes:
+    description: "If false, skip committing Chart.yaml changes back to source repo. Default: true"
+    required: false
+    default: "true"
 
 outputs: {}
 
@@ -149,6 +153,7 @@ runs:
 
     - name: Commit Chart.yaml changes
       shell: bash
+      if: inputs.commit-chart-changes == 'true'
       run: |
         git status
         git diff
