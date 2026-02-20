@@ -1,0 +1,5 @@
+{{- if .Values.kent.enabled }}
+Thanks for installing CAST AI in Karpenter Enterprise mode.
+{{- else }}
+Thanks for installing CAST AI in Autoscaler mode.
+{{- end }}

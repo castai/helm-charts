@@ -1,16 +1,16 @@
 apiVersion: v2
-name: castai-umbrella
+name: castai
 description: Umbrella chart for CAST AI components with profile-based installation.
 type: application
-version: 0.2.0
+version: 0.3.0
 
 dependencies:
   - name: kent
-    version: "0.1.0"
+    version: "*"
     repository: "file://charts/kent"
     condition: kent.enabled
 
   - name: autoscaler
-    version: "0.2.0"
+    version: "*"
     repository: "file://charts/autoscaler"
     condition: autoscaler.enabled

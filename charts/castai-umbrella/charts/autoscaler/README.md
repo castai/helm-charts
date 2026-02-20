@@ -23,11 +23,14 @@ Wrapper chart for CAST AI Autoscaler profile.
 |-----|------|---------|-------------|
 | agent.apiKeySecretRef | string | `"castai-credentials"` |  |
 | agent.createNamespace | bool | `false` |  |
+| agent.enabled | bool | `true` |  |
 | agent.replicaCount | int | `1` |  |
 | cluster-controller.autoscaling.enabled | bool | `true` |  |
 | cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| cluster-controller.enabled | bool | `true` |  |
 | cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
 | evictor.aggressiveMode | bool | `false` |  |
+| evictor.enabled | bool | `true` |  |
 | evictor.envFrom[0].secretRef.name | string | `"castai-credentials"` |  |
 | evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
 | evictor.overrideEnvFrom | bool | `true` |  |
@@ -37,18 +40,22 @@ Wrapper chart for CAST AI Autoscaler profile.
 | live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | live.controller.replicaCount | int | `0` |  |
 | live.daemon.labelNodeSubnet | bool | `true` |  |
+| live.enabled | bool | `true` |  |
 | metrics-server.enabled | bool | `false` |  |
 | pod-mutator.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | pod-mutator.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | pod-mutator.dependencyCheck.enabled | bool | `false` |  |
+| pod-mutator.enabled | bool | `true` |  |
 | pod-mutator.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
 | pod-mutator.fullnameOverride | string | `"castai-pod-mutator"` |  |
 | spot-handler.apiKeySecretRef | string | `"castai-credentials"` |  |
 | spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | spot-handler.castai.provider | string | `""` |  |
+| spot-handler.enabled | bool | `true` |  |
 | workload-autoscaler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | workload-autoscaler.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| workload-autoscaler.enabled | bool | `true` |  |
 | workload-autoscaler.fullnameOverride | string | `"castai-workload-autoscaler"` |  |
 
 ----------------------------------------------
