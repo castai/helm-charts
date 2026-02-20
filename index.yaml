@@ -29499,6 +29499,25 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-tetragon-0.1.0/castai-tetragon-0.1.0.tgz
     version: 0.1.0
+  castai-umbrella:
+  - apiVersion: v2
+    created: "2026-02-20T10:12:42.655354926Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: 0.1.0
+    - condition: autoscaler.enabled
+      name: autoscaler
+      repository: file://charts/autoscaler
+      version: 0.1.0
+    description: Umbrella chart for CAST AI components with profile-based installation.
+    digest: 5402d5ba2b4e5ed48306db74a3b4293a2df04b12439a8deef2dcd6ab9a72c834
+    name: castai-umbrella
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-umbrella-0.1.0/castai-umbrella-0.1.0.tgz
+    version: 0.1.0
   castai-watchdog:
   - annotations:
       release-date: 2026-02-19T09:01:21
@@ -37983,4 +38002,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-02-20T09:54:26.934982492Z"
+generated: "2026-02-20T10:12:42.659220896Z"
