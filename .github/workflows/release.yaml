@@ -38,6 +38,11 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.7.0
 
+      - name: Update umbrella subchart dependencies
+        run: |
+          helm dependency update charts/castai-umbrella/charts/kent
+          helm dependency update charts/castai-umbrella/charts/autoscaler
+
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c
         with:
