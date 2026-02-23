@@ -1,0 +1,109 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: castai-agent-metadata
+  namespace: default
+data:
+  CLUSTER_ID: "00000000-0000-0000-0000-000000000000"
+  ORGANIZATION_ID: "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mock-api-config
+  namespace: default
+data:
+  middleware.js: |
+    module.exports = (req, res, next) => {
+      // Agent: register external cluster
+      if (req.method === 'POST' && req.path === '/v1/kubernetes/external-clusters') {
+        const requestId = req.body.id || '00000000-0000-0000-0000-000000000000';
+        return res.status(200).json({
+          id: requestId,
+          organizationID: 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d'
+        });
+      }
+
+      // Catch-all: return 200 with empty JSON for any unhandled route so that
+      // components don't CrashLoopBackOff while waiting for real API responses.
+      if (!res.headersSent) {
+        const method = req.method;
+        if (method === 'GET') {
+          return res.status(200).json({});
+        }
+        if (method === 'POST' || method === 'PUT' || method === 'PATCH') {
+          return res.status(200).json({});
+        }
+        if (method === 'DELETE') {
+          return res.status(204).send();
+        }
+      }
+      next();
+    }
+  db.json: |
+    {
+      "health": ["ok"],
+      "component-logs": []
+    }
+  routes.json: |
+    {
+      "/v1/kubernetes/clusters/:clusterId/component-logs": "/component-logs"
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mock-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mock-api
+  template:
+    metadata:
+      labels:
+        app: mock-api
+    spec:
+      containers:
+        - name: json-server
+          image: node:20-alpine
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              npm install -g json-server@0.17.4 && \
+              json-server --watch /data/db.json --host 0.0.0.0 --port 8080 --middlewares /data/middleware.js --routes /data/routes.json
+          volumeMounts:
+            - name: config
+              mountPath: /data
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5
+      volumes:
+        - name: config
+          configMap:
+            name: mock-api-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mock-api
+  namespace: default
+spec:
+  selector:
+    app: mock-api
+  ports:
+    - port: 80
+      targetPort: 8080
+      protocol: TCP
+  type: ClusterIP
+---

@@ -1,0 +1,167 @@
+name: Update Umbrella Chart
+
+on:
+  release:
+    types: [published]
+
+concurrency:
+  group: update-umbrella
+  cancel-in-progress: false
+
+jobs:
+  update-umbrella:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAT_CICD }}
+
+      - name: Parse release tag
+        id: parse
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+
+          # Skip pre-release tags
+          if [[ "$TAG" =~ -(rc|alpha|beta|dev) ]]; then
+            echo "Pre-release tag detected ($TAG). Skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          PROFILES_DIR="charts/castai-umbrella/charts"
+
+          # Collect all unique dependency names from profile Chart.yaml files
+          DEP_NAMES=$(yq '.dependencies[].name' "$PROFILES_DIR"/*/Chart.yaml | sort -u)
+
+          # Match tag against dependency names.
+          # Use longest-match-first to avoid ambiguity (e.g. "castai-pod" vs
+          # "castai-pod-mutator" for tag "castai-pod-mutator-0.4.5").
+          COMPONENT=""
+          VERSION=""
+          while IFS= read -r dep; do
+            [ -z "$dep" ] && continue
+            if [[ "$TAG" == "$dep"-* ]]; then
+              candidate_version="${TAG#"$dep"-}"
+              if [ -z "$COMPONENT" ] || [ ${#dep} -gt ${#COMPONENT} ]; then
+                COMPONENT="$dep"
+                VERSION="$candidate_version"
+              fi
+            fi
+          done <<< "$DEP_NAMES"
+
+          if [ -z "$COMPONENT" ]; then
+            echo "Tag '$TAG' does not match any umbrella dependency. Skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "component=$COMPONENT" >> $GITHUB_OUTPUT
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+          echo "Matched: component=$COMPONENT version=$VERSION"
+
+      - name: Update version pins
+        if: steps.parse.outputs.skip != 'true'
+        id: update
+        run: |
+          COMPONENT="${{ steps.parse.outputs.component }}"
+          VERSION="${{ steps.parse.outputs.version }}"
+          PROFILES_DIR="charts/castai-umbrella/charts"
+          UMBRELLA_CHART="charts/castai-umbrella/Chart.yaml"
+
+          updated_profiles=""
+
+          for profile_dir in "$PROFILES_DIR"/*/; do
+            profile_chart="${profile_dir}Chart.yaml"
+            profile_name=$(basename "$profile_dir")
+
+            # Check if this profile has the component as a dependency
+            dep_index=$(yq ".dependencies | to_entries | .[] | select(.value.name == \"$COMPONENT\") | .key" "$profile_chart")
+
+            if [ -z "$dep_index" ]; then
+              continue
+            fi
+
+            echo "Updating $COMPONENT to $VERSION in $profile_name profile"
+
+            # Update the dependency version
+            yq -i ".dependencies[$dep_index].version = \"$VERSION\"" "$profile_chart"
+
+            # Bump the profile chart patch version
+            current_version=$(yq '.version' "$profile_chart")
+            new_version=$(echo "$current_version" | awk -F. '{printf "%s.%s.%s", $1, $2, $3+1}')
+            yq -i ".version = \"$new_version\"" "$profile_chart"
+
+            echo "Bumped $profile_name from $current_version to $new_version"
+            updated_profiles="$updated_profiles $profile_name"
+          done
+
+          if [ -z "$updated_profiles" ]; then
+            echo "No profiles reference $COMPONENT. Skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Bump umbrella chart patch version
+          current_umbrella=$(yq '.version' "$UMBRELLA_CHART")
+          new_umbrella=$(echo "$current_umbrella" | awk -F. '{printf "%s.%s.%s", $1, $2, $3+1}')
+          yq -i ".version = \"$new_umbrella\"" "$UMBRELLA_CHART"
+          echo "Bumped umbrella from $current_umbrella to $new_umbrella"
+
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Install Helm
+        if: steps.parse.outputs.skip != 'true' && steps.update.outputs.skip != 'true'
+        uses: azure/setup-helm@v4.2.0
+        with:
+          version: v3.17.0
+
+      - name: Helm dependency update
+        if: steps.parse.outputs.skip != 'true' && steps.update.outputs.skip != 'true'
+        run: |
+          PROFILES_DIR="charts/castai-umbrella/charts"
+          UMBRELLA_DIR="charts/castai-umbrella"
+
+          helm repo add castai https://castai.github.io/helm-charts
+          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+          helm repo update
+
+          for profile_dir in "$PROFILES_DIR"/*/; do
+            echo "Running helm dependency update in $profile_dir"
+            helm dependency update "$profile_dir"
+          done
+
+          echo "Running helm dependency update in $UMBRELLA_DIR"
+          helm dependency update "$UMBRELLA_DIR"
+
+      - name: Create PR
+        if: steps.parse.outputs.skip != 'true' && steps.update.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_CICD }}
+        run: |
+          COMPONENT="${{ steps.parse.outputs.component }}"
+          VERSION="${{ steps.parse.outputs.version }}"
+          BRANCH="auto/umbrella-bump-${COMPONENT}-${VERSION}"
+
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+          git add charts/castai-umbrella/Chart.yaml
+          git add charts/castai-umbrella/Chart.lock
+          git add charts/castai-umbrella/charts/*/Chart.yaml
+          git add charts/castai-umbrella/charts/*/Chart.lock
+          git commit -m "[castai-umbrella] Bump $COMPONENT to $VERSION"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "[castai-umbrella] Bump $COMPONENT to $VERSION" \
+            --body "Automated bump of **$COMPONENT** to **$VERSION** in the umbrella chart profiles.
+
+          Triggered by release [\`${{ github.event.release.tag_name }}\`](${{ github.event.release.html_url }})." \
+            --base main \
+            --head "$BRANCH"
+
+          gh pr merge --auto --squash "$BRANCH"
