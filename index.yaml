@@ -2109,6 +2109,25 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/apa-runbook-woop-recommendation-sync-0.1.28/apa-runbook-woop-recommendation-sync-0.1.28.tgz
     version: 0.1.28
+  castai:
+  - apiVersion: v2
+    created: "2026-02-23T09:37:31.149653409Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - condition: autoscaler.enabled
+      name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components with profile-based installation.
+    digest: 4bd92d5440d0937156e1531e3f704af3c718e59dd241e48d608e959ac2c7bf90
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.3.0/castai-0.3.0.tgz
+    version: 0.3.0
   castai-agent:
   - apiVersion: v2
     appVersion: v0.113.0
@@ -38210,4 +38229,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-02-23T09:16:38.050806053Z"
+generated: "2026-02-23T09:37:31.153291705Z"
