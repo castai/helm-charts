@@ -1,12 +1,14 @@
 # Placeholder defaults for Autoscaler profile.
-# TODO: tune these values for production autoscaler rollout.
+# TODO: tune ALL these values for production autoscaler rollout.
 
 agent:
+  enabled: true
   replicaCount: 1
   apiKeySecretRef: castai-credentials
   createNamespace: false
 
 spot-handler:
+  enabled: true
   apiKeySecretRef: castai-credentials
   castai:
     # Optional: can be inherited from global.castai.provider with alias mapping
@@ -17,6 +19,7 @@ spot-handler:
       key: CLUSTER_ID
 
 cluster-controller:
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -27,16 +30,14 @@ cluster-controller:
     enabled: true
 
 workload-autoscaler:
+  enabled: true
   fullnameOverride: castai-workload-autoscaler
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
-metrics-server:
-  # TODO: validate if this should default to true for autoscaler profile.
-  enabled: false
-
 live:
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
@@ -49,6 +50,7 @@ live:
     replicaCount: 0
 
 pod-mutator:
+  enabled: true
   fullnameOverride: castai-pod-mutator
   dependencyCheck:
     enabled: false
@@ -60,6 +62,7 @@ pod-mutator:
         name: castai-agent-metadata
 
 evictor:
+  enabled: true
   replicaCount: 1
   aggressiveMode: false
   overrideEnvFrom: true
@@ -68,3 +71,6 @@ evictor:
         name: castai-credentials
     - configMapRef:
         name: castai-agent-metadata
+
+metrics-server:
+  enabled: false

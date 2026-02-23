@@ -1,4 +1,5 @@
 agent:
+  enabled: true
   replicaCount: 1
   apiKeySecretRef: castai-credentials
   # Currently only EKS is supported
@@ -7,6 +8,7 @@ agent:
   createNamespace: false
 
 cluster-controller:
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -16,6 +18,7 @@ cluster-controller:
     enabled: false
 
 kentroller:
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -23,17 +26,14 @@ kentroller:
         name: castai-agent-metadata
 
 workload-autoscaler:
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
-# Disabled by default — most clusters already provide the metrics.k8s.io API.
-# Enable when needed by the cluster (for example, Karpenter setups).
-metrics-server:
-  enabled: false
-
 # controller.replicaCount: 0 = CLM disabled, 2 = CLM enabled.
 live:
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
@@ -45,6 +45,7 @@ live:
     replicaCount: 0
 
 pod-mutator:
+  enabled: true
   dependencyCheck:
     enabled: false
   castai:
@@ -55,6 +56,7 @@ pod-mutator:
         name: castai-agent-metadata
 
 evictor:
+  enabled: true
   replicaCount: 1
   karpenterMode:
     enabled: true
@@ -65,3 +67,7 @@ evictor:
         name: castai-credentials
     - configMapRef:
         name: castai-agent-metadata
+
+# Disabled by default — most clusters already provide the metrics.k8s.io API.
+metrics-server:
+  enabled: false
