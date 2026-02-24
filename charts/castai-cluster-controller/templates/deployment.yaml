@@ -62,10 +62,10 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       tolerations:
-        - effect: NoSchedule
-          key: provisioning.cast.ai/temporary
-          operator: Equal
-          value: "resuming"
+        - key: provisioning.cast.ai/temporary
+          operator: Exists
+        - key: CriticalAddonsOnly
+          operator: Exists
       {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}

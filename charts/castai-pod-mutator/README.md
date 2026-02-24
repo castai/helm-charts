@@ -1,8 +1,6 @@
 # castai-pod-mutator
 
-
-![Version: 0.4.5](https://img.shields.io/badge/Version-0.4.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.2.6](https://img.shields.io/badge/AppVersion-v0.2.6-informational?style=flat-square)
-
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.2.6](https://img.shields.io/badge/AppVersion-v0.2.6-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -64,10 +62,10 @@ CAST AI Pod Mutator.
 | serviceAccount.name | string | `""` |  |
 | tolerations[0].key | string | `"scheduling.cast.ai/spot"` |  |
 | tolerations[0].operator | string | `"Exists"` |  |
-| tolerations[1].effect | string | `"NoSchedule"` |  |
 | tolerations[1].key | string | `"provisioning.cast.ai/temporary"` |  |
-| tolerations[1].operator | string | `"Equal"` |  |
-| tolerations[1].value | string | `"resuming"` |  |
+| tolerations[1].operator | string | `"Exists"` |  |
+| tolerations[2].key | string | `"CriticalAddonsOnly"` |  |
+| tolerations[2].operator | string | `"Exists"` |  |
 | topologySpreadConstraints[0].labelSelector.matchLabels."app.kubernetes.io/name" | string | `"castai-pod-mutator"` |  |
 | topologySpreadConstraints[0].maxSkew | int | `1` |  |
 | topologySpreadConstraints[0].topologyKey | string | `"kubernetes.io/hostname"` |  |

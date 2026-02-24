@@ -177,9 +177,10 @@ spec:
           operator: "Exists"
           effect: "NoSchedule"
         - key: "provisioning.cast.ai/temporary"
-          operator: "Equal"
-          value: "resuming"
-          effect: "NoSchedule"
+          operator: "Exists"
+        - key: "CriticalAddonsOnly"
+          operator: Exists
+
       {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
