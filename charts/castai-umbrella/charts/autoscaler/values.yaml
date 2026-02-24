@@ -3,7 +3,7 @@
 
 agent:
   enabled: true
-  replicaCount: 1
+  replicaCount: 2
   apiKeySecretRef: castai-credentials
   createNamespace: false
 
@@ -26,7 +26,6 @@ cluster-controller:
     - configMapRef:
         name: castai-agent-metadata
   autoscaling:
-    # TODO: validate autoscaler profile setting.
     enabled: true
 
 workload-autoscaler:
@@ -36,30 +35,28 @@ workload-autoscaler:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
+# castai-live is not part of the autoscaler onboarding; enable manually if needed.
 live:
-  enabled: true
-  castai:
-    apiKeySecretRef: castai-credentials
-    configMapRef: castai-agent-metadata
-  castai-aws-vpc-cni:
-    enabled: true
-  daemon:
-    labelNodeSubnet: true
-  controller:
-    # TODO: tune CLM behavior for autoscaler profile.
-    replicaCount: 0
+  enabled: false
 
+# castai-pod-mutator is not part of the autoscaler onboarding; enable manually if needed.
 pod-mutator:
+  enabled: false
+
+pod-pinner:
   enabled: true
-  fullnameOverride: castai-pod-mutator
-  dependencyCheck:
-    enabled: false
+  replicaCount: 0
   castai:
     apiKeySecretRef: castai-credentials
-    configMapRef: castai-agent-metadata
   envFrom:
     - configMapRef:
         name: castai-agent-metadata
+
+workload-autoscaler-exporter:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
 
 evictor:
   enabled: true

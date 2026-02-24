@@ -41,6 +41,18 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: evictor.enabled
 
+  - name: castai-pod-pinner
+    alias: pod-pinner
+    version: "1.8.1"
+    repository: "https://castai.github.io/helm-charts"
+    condition: pod-pinner.enabled
+
+  - name: castai-workload-autoscaler-exporter
+    alias: workload-autoscaler-exporter
+    version: "0.0.99"
+    repository: "https://castai.github.io/helm-charts"
+    condition: workload-autoscaler-exporter.enabled
+
   - name: castai-spot-handler
     alias: spot-handler
     version: "0.30.0"
@@ -52,3 +64,4 @@ dependencies:
     version: "3.13.0"
     repository: "https://kubernetes-sigs.github.io/metrics-server/"
     condition: metrics-server.enabled
+

@@ -1,0 +1,41 @@
+global:
+  castai:
+    apiKey: "test"
+    apiURL: "http://mock-api.default.svc.cluster.local"
+    provider: "eks"
+
+autoscaler:
+  enabled: true
+  agent:
+    apiURL: "http://mock-api.default.svc.cluster.local"
+    additionalEnv:
+      EKS_ACCOUNT_ID: test
+      EKS_REGION: test
+      EKS_CLUSTER_NAME: test
+  cluster-controller:
+    castai:
+      apiURL: "http://mock-api.default.svc.cluster.local"
+  spot-handler:
+    castai:
+      provider: "aws"
+      apiURL: "http://mock-api.default.svc.cluster.local"
+    nodeSelector: null
+  evictor:
+    overrideEnvFrom: true
+    envFrom:
+      - secretRef:
+          name: castai-credentials
+      - configMapRef:
+          name: castai-agent-metadata
+  workload-autoscaler:
+    castai:
+      apiURL: "http://mock-api.default.svc.cluster.local"
+  pod-pinner:
+    castai:
+      apiURL: "http://mock-api.default.svc.cluster.local"
+      grpcURL: "mock-api.default.svc.cluster.local:80"
+  workload-autoscaler-exporter:
+    castai:
+      apiURL: "http://mock-api.default.svc.cluster.local"
+  metrics-server:
+    enabled: false

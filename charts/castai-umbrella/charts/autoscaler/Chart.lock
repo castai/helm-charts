@@ -17,11 +17,17 @@ dependencies:
 - name: castai-evictor
   repository: https://castai.github.io/helm-charts
   version: 0.33.199
+- name: castai-pod-pinner
+  repository: https://castai.github.io/helm-charts
+  version: 1.8.1
+- name: castai-workload-autoscaler-exporter
+  repository: https://castai.github.io/helm-charts
+  version: 0.0.99
 - name: castai-spot-handler
   repository: https://castai.github.io/helm-charts
   version: 0.30.0
 - name: metrics-server
   repository: https://kubernetes-sigs.github.io/metrics-server/
   version: 3.13.0
-digest: sha256:e8b4402abaede4d528cd0277ff0ec51cffb642bf4da37006d4ac374dec0cee09
-generated: "2026-02-20T11:31:30.783098+01:00"
+digest: sha256:b9727672f3ba5b1367de383af9cca5902ea7e3e7ed9297358b1ccf8772240802
+generated: "2026-02-24T12:00:59.848571+01:00"
