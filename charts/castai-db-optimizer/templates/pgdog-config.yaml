@@ -62,7 +62,7 @@ data:
     {{- range $index, $endpoint := .Values.endpoints }}
 
     [[databases]]
-    name = "{{ printf "ep%d" $index }}"
+    name = "{{ $endpoint.name | default (ternary "default" (printf "default%d" $index) (eq $index 0)) }}"
     host = "{{ required "endpoint hostname must be provided" $endpoint.hostname }}"
     port = {{ required "endpoint targetPort is required" $endpoint.targetPort }}
     {{- end }}
