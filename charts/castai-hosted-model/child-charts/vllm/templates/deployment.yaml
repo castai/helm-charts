@@ -177,9 +177,6 @@ spec:
             - name: http
               containerPort: {{ .Values.container.port }}
               protocol: TCP
-            - name: metrics
-              containerPort: {{ .Values.container.port }}
-              protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.startupProbe.enabled }}
