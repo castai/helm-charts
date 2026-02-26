@@ -15,6 +15,7 @@ castai-cluster-controller-ext.
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources (inherited from parent chart). |
 | global.commonLabels | object | `{}` | Labels to add to all resources (inherited from parent chart). |
 | nameOverride | string | `""` |  |
+| serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
 
 ----------------------------------------------
