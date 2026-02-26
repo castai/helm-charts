@@ -1,4 +1,5 @@
 {{- if .Values.prometheus.enabled }}
+{{- if .Values.prometheus.serviceAccount.create }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -15,4 +16,5 @@ rules:
       - list
       - watch
 
+{{- end }}
 {{- end }}

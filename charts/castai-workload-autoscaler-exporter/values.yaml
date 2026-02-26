@@ -199,6 +199,8 @@ exporter:
       # - "foo"
 prometheus:
   enabled: false
+  serviceAccount:
+    create: true
   replicaCount: 1
   image:
     repository: us-docker.pkg.dev/castai-hub/library/prom/prometheus
