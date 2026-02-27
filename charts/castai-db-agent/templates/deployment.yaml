@@ -36,6 +36,8 @@ spec:
               value: "{{ required "target database host must be provided" .Values.database.host }}"
             - name: DATABASE_PORT
               value: "{{ required "target database port must be provided" .Values.database.port }}"
+            - name: DATABASE_USE_IAM_AUTH
+              value: "{{ .Values.database.useIAMAuth }}"
             - name: INDEX_ADVISOR_CLIENT_GRPC_ENDPOINT
               value: "{{ required "gRPC endpoint must be provided" .Values.gRPCEndpoint }}"
             - name: COLLECTORS_INDEXES_RUNS_EVERY
@@ -69,10 +71,24 @@ spec:
               {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
               {{- end }}
+            {{- if .Values.database.useIAMAuth }}
+            {{- if .Values.database.username }}
+            - secretRef:
+                name: {{ include "name" $ }}-db-user
+            {{- else if .Values.database.credentialsSecretRef }}
+            - secretRef:
+                name: {{ .Values.database.credentialsSecretRef -}}
+            {{- else }}
+            {{- fail "database.username or database.credentialsSecretRef must be provided when useIAMAuth is enabled" }}
+            {{- end }}
+            {{- else }}
             {{- if and .Values.database.username .Values.database.password }}
             - secretRef:
                 name: {{ include "name" $ }}-db-user
-            {{- else }}
+            {{- else if .Values.database.credentialsSecretRef }}
             - secretRef:
-                name: {{ required "database.username/database.password or database.credentialsSecretRef must be provided" .Values.database.credentialsSecretRef -}}
+                name: {{ .Values.database.credentialsSecretRef -}}
+            {{- else }}
+            {{- fail "database.username/database.password or database.credentialsSecretRef must be provided" }}
+            {{- end }}
             {{- end }}
