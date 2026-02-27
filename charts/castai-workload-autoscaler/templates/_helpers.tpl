@@ -123,18 +123,6 @@ true
   {{- $wardenWebhook := lookup "admissionregistration.k8s.io/v1" "ValidatingWebhookConfiguration" "" "warden-validating.config.common-webhooks.networking.gke.io" -}}
   {{- if $wardenWebhook -}}
 true
-  {{- else -}}
-    {{- /* Fallback: check first node for gke-provisioning label (performance optimization) */ -}}
-    {{- $nodes := lookup "v1" "Node" "" "" -}}
-    {{- if $nodes -}}
-      {{- if $nodes.items -}}
-        {{- if gt (len $nodes.items) 0 -}}
-          {{- if hasKey (index $nodes.items 0).metadata.labels "cloud.google.com/gke-provisioning" -}}
-true
-          {{- end -}}
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
   {{- end -}}
 {{- end -}}
 {{- end -}}
