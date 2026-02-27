@@ -18,4 +18,5 @@ fullnameOverride: castai-cluster-controller-ext
 # new role bindings to the SA created in the parent Chart. This SA name is used for creating role bindings.
 serviceAccount:
   name: "castai-cluster-controller"
+  # Specifies whether a service account and Clusteroles/Rolebindings should be created by helm chart or managed by User
   create: true
