@@ -2,7 +2,7 @@ apiVersion: v2
 name: autoscaler
 description: Wrapper chart for CAST AI Autoscaler profile.
 type: application
-version: 0.2.0
+version: 0.3.0
 
 dependencies:
   - name: castai-agent
@@ -10,6 +10,12 @@ dependencies:
     version: "0.138.0"
     repository: "https://castai.github.io/helm-charts"
     condition: agent.enabled
+
+  - name: castai-spot-handler
+    alias: spot-handler
+    version: "0.30.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: spot-handler.enabled
 
   - name: castai-cluster-controller
     alias: cluster-controller
@@ -23,17 +29,11 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: workload-autoscaler.enabled
 
-  - name: castai-live
-    alias: live
-    version: "0.71.0"
+  - name: castai-workload-autoscaler-exporter
+    alias: workload-autoscaler-exporter
+    version: "0.0.100"
     repository: "https://castai.github.io/helm-charts"
-    condition: live.enabled
-
-  - name: castai-pod-mutator
-    alias: pod-mutator
-    version: "0.4.5"
-    repository: "https://castai.github.io/helm-charts"
-    condition: pod-mutator.enabled
+    condition: workload-autoscaler-exporter.enabled
 
   - name: castai-evictor
     alias: evictor
@@ -41,11 +41,29 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: evictor.enabled
 
-  - name: castai-spot-handler
-    alias: spot-handler
-    version: "0.30.0"
+  - name: castai-pod-mutator
+    alias: pod-mutator
+    version: "0.4.5"
     repository: "https://castai.github.io/helm-charts"
-    condition: spot-handler.enabled
+    condition: pod-mutator.enabled
+
+  - name: castai-pod-pinner
+    alias: pod-pinner
+    version: "1.8.2"
+    repository: "https://castai.github.io/helm-charts"
+    condition: pod-pinner.enabled
+
+  - name: castai-ai-optimizer-proxy
+    alias: ai-optimizer-proxy
+    version: "0.0.108"
+    repository: "https://castai.github.io/helm-charts"
+    condition: ai-optimizer-proxy.enabled
+
+  - name: castai-live
+    alias: live
+    version: "0.71.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: live.enabled
 
   - name: metrics-server
     alias: metrics-server
