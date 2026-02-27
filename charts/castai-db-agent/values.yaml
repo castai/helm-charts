@@ -12,10 +12,12 @@ database:
   port: 5432
   # -- Username for database authentication
   username: ""
-  # -- Password for database authentication
+  # -- Password for database authentication (not required when useIAMAuth is true)
   password: ""
-  # -- Name of secret with username for database authentication
+  # -- Name of secret with database credentials (username and password)
   credentialsSecretRef: ""
+  # -- Enable IAM authentication for database connection (GCP Cloud SQL IAM)
+  useIAMAuth: false
 # -- URL to the CAST AI API gRPC endpoint.
 gRPCEndpoint: ""
 collectors:
