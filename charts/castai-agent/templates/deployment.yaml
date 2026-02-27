@@ -49,10 +49,8 @@ spec:
       serviceAccountName: {{ include "castai-agent.serviceAccountName" . }}
       automountServiceAccountToken: true
       tolerations:
-        - effect: NoSchedule
-          key: provisioning.cast.ai/temporary
-          operator: Equal
-          value: "resuming"
+        - operator: Exists
+          key: CriticalAddonsOnly
       {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
