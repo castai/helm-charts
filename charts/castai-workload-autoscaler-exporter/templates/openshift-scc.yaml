@@ -99,6 +99,7 @@ seccompProfiles:
   {{- end }}
 priority: {{ .Values.openshift.scc.priority | default 5 }}
 
+{{- if .Values.exporter.serviceAccount.create }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -129,6 +130,7 @@ roleRef:
   name: {{ include "exporter.sccName" . }}-user
   apiGroup: rbac.authorization.k8s.io
 
+{{- end }}
 {{- end }}{{/* End $sccEnabled check */}}
 {{- end }}{{/* End .Values.podSecurityContext and .Values.containerSecurityContext check */}}
 {{- end }}{{/* End .Capabilities.APIVersions.Has check */}}

@@ -88,7 +88,7 @@ exporter:
     pullPolicy: IfNotPresent
     tag: ""
   serviceAccount:
-    # Specifies whether a service account should be created
+    # Specifies whether a service account and roles should be created
     create: true
     # The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
@@ -199,6 +199,8 @@ exporter:
       # - "foo"
 prometheus:
   enabled: false
+  serviceAccount:
+    create: true
   replicaCount: 1
   image:
     repository: us-docker.pkg.dev/castai-hub/library/prom/prometheus
