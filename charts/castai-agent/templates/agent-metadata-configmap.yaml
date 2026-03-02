@@ -3,7 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ .Values.metadataStore.configMapName }}
-  namespace: {{ default .Release.Namespace .Values.metadataStore.configMapNamespace }}
+  namespace: {{ .Release.Namespace }}
   labels:
     {{- include "castai-agent.labels" . | nindent 4 }}
   {{- if gt (len .Values.commonAnnotations) 0 }}
