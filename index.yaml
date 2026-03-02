@@ -2285,6 +2285,16 @@ entries:
   castai-agent:
   - apiVersion: v2
     appVersion: v0.113.0
+    created: "2026-03-02T11:25:34.522736866Z"
+    description: CAST AI agent deployment chart.
+    digest: 8cadb2d3abca502e47d8f7df2272094836d510ee2bfc2e0877e6952760628c93
+    name: castai-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-agent-0.140.0/castai-agent-0.140.0.tgz
+    version: 0.140.0
+  - apiVersion: v2
+    appVersion: v0.113.0
     created: "2026-02-27T09:52:01.593300149Z"
     description: CAST AI agent deployment chart.
     digest: 0ccee860d468322b20f1239560c45aa7afb64e28d8170a65cb4578b399e738e2
@@ -6195,6 +6205,16 @@ entries:
   castai-cloud-proxy:
   - apiVersion: v2
     appVersion: v0.0.12
+    created: "2026-03-02T11:25:34.729376421Z"
+    description: CAST AI cloud-proxy chart
+    digest: 84a9923abc2bcd614f60e69738b018d46d48b394686faca0fb140800cb943a09
+    name: castai-cloud-proxy
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-cloud-proxy-0.4.0/castai-cloud-proxy-0.4.0.tgz
+    version: 0.4.0
+  - apiVersion: v2
+    appVersion: v0.0.12
     created: "2025-06-04T12:32:00.931513257Z"
     description: CAST AI cloud-proxy chart
     digest: 11a9d99bb09534b617b58b031d22c127787449e37ae8681669f0b140f1936c53
@@ -6274,6 +6294,24 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-cloud-proxy-0.1.0/castai-cloud-proxy-0.1.0.tgz
     version: 0.1.0
   castai-cluster-controller:
+  - annotations:
+      release-date: 2024-06-04T07:10:07
+    apiVersion: v2
+    appVersion: v0.61.1
+    created: "2026-03-02T11:25:34.929691671Z"
+    dependencies:
+    - condition: castai-cluster-controller-ext.enabled
+      name: castai-cluster-controller-ext
+      repository: file://child-charts/castai-cluster-controller-ext
+      version: 0.1.0
+    description: Cluster controller is responsible for handling certain Kubernetes
+      actions such as draining and deleting nodes, adding labels, approving CSR requests.
+    digest: 66a71ab805da89421658077728194f51baa85d8ff24c5828ad9d2741c6d4573c
+    name: castai-cluster-controller
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-0.90.0/castai-cluster-controller-0.90.0.tgz
+    version: 0.90.0
   - annotations:
       release-date: 2024-06-04T07:10:07
     apiVersion: v2
@@ -27773,6 +27811,16 @@ entries:
   castai-pod-mutator:
   - apiVersion: v2
     appVersion: v0.2.6
+    created: "2026-03-02T11:25:35.112285187Z"
+    description: CAST AI Pod Mutator.
+    digest: d1a1aa90f60fe18656f5d81350957dc2da18657aee32956bd046dd30e2f145bd
+    name: castai-pod-mutator
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-pod-mutator-0.5.0/castai-pod-mutator-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
+    appVersion: v0.2.6
     created: "2026-01-23T09:09:05.042147735Z"
     description: CAST AI Pod Mutator.
     digest: e3ac9a10fec6085ca1ad40a80045053f32b39aab70f64df9efd1afae7a7dc1cc
@@ -28640,6 +28688,21 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-pod-node-lifecycle-0.15.0/castai-pod-node-lifecycle-0.15.0.tgz
     version: 0.15.0
   castai-pod-pinner:
+  - apiVersion: v2
+    appVersion: v1.9.4
+    created: "2026-03-02T11:25:35.329763068Z"
+    dependencies:
+    - condition: castai-pod-pinner-ext.enabled
+      name: castai-pod-pinner-ext
+      repository: file://child-charts/castai-pod-pinner-ext
+      version: 1.1.0
+    description: CAST AI Pod Pinning deployment chart.
+    digest: d431f89035302425433c74a18b0d852ebc159d96902fa9a3dbdc00dbf3161521
+    name: castai-pod-pinner
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-pod-pinner-1.9.0/castai-pod-pinner-1.9.0.tgz
+    version: 1.9.0
   - apiVersion: v2
     appVersion: v1.9.4
     created: "2026-02-26T13:34:34.891760681Z"
@@ -39148,4 +39211,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-03-02T10:23:30.741340084Z"
+generated: "2026-03-02T11:25:35.33451973Z"
