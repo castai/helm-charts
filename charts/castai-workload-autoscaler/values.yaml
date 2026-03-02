@@ -103,6 +103,31 @@ telemetryDebug:
   # interval -- How often to collect and emit metrics
   interval: 1m
 
+# clusterAutoscaler -- Configuration for injecting optimized CLI args into cluster-autoscaler pods.
+# The mutating webhook detects CA pods on CREATE and appends configured args.
+# Existing flags set by the customer are never overridden.
+clusterAutoscaler:
+  # enabled -- Enable cluster-autoscaler arg injection
+  enabled: false
+  # args -- Map of cluster-autoscaler CLI flags to inject.
+  # Keys use the same format as cluster-autoscaler flags (without the -- prefix).
+  # Any flag already present on the CA container is skipped (no overrides, no duplicates).
+  args:
+    # scale-down-delay-after-add -- Time to wait after a scale-up before considering scale-down (CA default: 10m)
+    scale-down-delay-after-add: "0s"
+    # scale-down-delay-after-delete -- Time to wait after a node deletion before further scale-down (CA default: scan-interval)
+    scale-down-delay-after-delete: "0s"
+    # scale-down-delay-after-failure -- Time to wait after a failed scale-down before retrying (CA default: 3m)
+    scale-down-delay-after-failure: "30s"
+    # scale-down-unneeded-time -- How long a node must be unneeded before removal (CA default: 10m)
+    scale-down-unneeded-time: "30s"
+    # scale-down-unready-time -- How long an unready node must be unneeded before removal (CA default: 20m)
+    scale-down-unready-time: "1m"
+    # scan-interval -- How often CA re-evaluates the cluster (CA default: 10s)
+    scan-interval: "10s"
+    # new-pod-scale-up-delay -- Delay before considering a new pod for scale-up. Uncomment to enable.
+    # new-pod-scale-up-delay: "60s"
+
 # additionalEnv -- Used to set any additional environment variables.
 additionalEnv: {}
 

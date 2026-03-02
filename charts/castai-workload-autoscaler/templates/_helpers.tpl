@@ -178,3 +178,15 @@ Autopilot requires minimum 500m CPU when using pod anti-affinity
 {{- include "workload-autoscaler.enforceCPUMinimum" (dict "cpu" .Values.resources.limits.cpu "context" .) -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Build comma-separated --flag=value args from clusterAutoscaler.args map.
+Keys are used as-is (same format as cluster-autoscaler CLI flags).
+*/}}
+{{- define "workload-autoscaler.clusterAutoscalerArgs" -}}
+{{- $args := list -}}
+{{- range $key, $value := .Values.clusterAutoscaler.args -}}
+  {{- $args = append $args (printf "--%s=%s" $key (toString $value)) -}}
+{{- end -}}
+{{- join "," $args -}}
+{{- end -}}

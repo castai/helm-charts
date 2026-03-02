@@ -130,6 +130,12 @@ spec:
             - name: TELEMETRY_DEBUG_WORKLOAD_KIND
               value: "Deployment"
             {{- end}}
+            {{- if .Values.clusterAutoscaler.enabled }}
+            - name: CLUSTER_AUTOSCALER_ENABLED
+              value: "true"
+            - name: CLUSTER_AUTOSCALER_ARGS
+              value: {{ include "workload-autoscaler.clusterAutoscalerArgs" . | quote }}
+            {{- end }}
             - name: WEBHOOK_PORT
               value: {{ quote .Values.webhook.port }}
             - name: METRICS_PORT
