@@ -80,7 +80,8 @@ spec:
             - name: API_URL
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
             - name: API_GRPC_URL
-              value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
+              # Prefer umbrella/global gRPC URL override, then fall back to chart-local value.
+              value: {{ required "castai.grpcURL must be provided" (coalesce (dig "castai" "grpcURL" "" .Values.global) .Values.castai.grpcURL) | quote }}
             {{- if .Values.castai.clusterID }}
             {{- if ne .Values.castai.clusterIdSecretKeyRef.name "" }}
             {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}

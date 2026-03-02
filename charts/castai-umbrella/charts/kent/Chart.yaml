@@ -7,7 +7,7 @@ version: 0.1.0
 dependencies:
   - name: castai-agent
     alias: agent
-    version: "0.137.0"
+    version: "0.140.0"
     repository: "https://castai.github.io/helm-charts"
     condition: agent.enabled
 
@@ -25,7 +25,7 @@ dependencies:
 
   - name: castai-workload-autoscaler
     alias: workload-autoscaler
-    version: "0.1.169"
+    version: "0.1.183"
     repository: "https://castai.github.io/helm-charts"
     condition: workload-autoscaler.enabled
 
@@ -37,7 +37,7 @@ dependencies:
 
   - name: castai-pod-mutator
     alias: pod-mutator
-    version: "0.4.5"
+    version: "0.5.0"
     repository: "https://castai.github.io/helm-charts"
     condition: pod-mutator.enabled
 

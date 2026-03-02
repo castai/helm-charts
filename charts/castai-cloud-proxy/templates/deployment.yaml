@@ -67,7 +67,8 @@ spec:
             - name: CAST_URL
               value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
             - name: CAST_GRPC_URL
-              value: {{ required "castai.grpcURL must be provided" .Values.castai.grpcURL | quote }}
+              # Prefer umbrella/global gRPC URL override, then fall back to chart-local value.
+              value: {{ required "castai.grpcURL must be provided" (coalesce (dig "castai" "grpcURL" "" (.Values.global | default dict)) .Values.castai.grpcURL) | quote }}
             - name: CLUSTER_ID
               value: {{ required "castai.clusterID must be provided" .Values.castai.clusterID | quote }}
             {{- if .Values.gke.auth.jsonCredentials }}
