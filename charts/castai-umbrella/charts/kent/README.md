@@ -1,6 +1,6 @@
 # kent
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Kent profile.
 
@@ -8,8 +8,8 @@ Wrapper chart for CAST AI Kent profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | agent(castai-agent) | 0.140.0 |
-| https://castai.github.io/helm-charts | cluster-controller(castai-cluster-controller) | 0.89.1 |
+| https://castai.github.io/helm-charts | agent(castai-agent) | 0.142.0 |
+| https://castai.github.io/helm-charts | cluster-controller(castai-cluster-controller) | 0.90.0 |
 | https://castai.github.io/helm-charts | evictor(castai-evictor) | 0.33.199 |
 | https://castai.github.io/helm-charts | kentroller(castai-kentroller) | 0.1.56 |
 | https://castai.github.io/helm-charts | live(castai-live) | 0.71.0 |
