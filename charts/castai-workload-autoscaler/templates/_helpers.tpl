@@ -123,18 +123,6 @@ true
   {{- $wardenWebhook := lookup "admissionregistration.k8s.io/v1" "ValidatingWebhookConfiguration" "" "warden-validating.config.common-webhooks.networking.gke.io" -}}
   {{- if $wardenWebhook -}}
 true
-  {{- else -}}
-    {{- /* Fallback: check first node for gke-provisioning label (performance optimization) */ -}}
-    {{- $nodes := lookup "v1" "Node" "" "" -}}
-    {{- if $nodes -}}
-      {{- if $nodes.items -}}
-        {{- if gt (len $nodes.items) 0 -}}
-          {{- if hasKey (index $nodes.items 0).metadata.labels "cloud.google.com/gke-provisioning" -}}
-true
-          {{- end -}}
-        {{- end -}}
-      {{- end -}}
-    {{- end -}}
   {{- end -}}
 {{- end -}}
 {{- end -}}
@@ -189,4 +177,16 @@ Autopilot requires minimum 500m CPU when using pod anti-affinity
 {{- else -}}
 {{- include "workload-autoscaler.enforceCPUMinimum" (dict "cpu" .Values.resources.limits.cpu "context" .) -}}
 {{- end -}}
+{{- end -}}
+
+{{/*
+Build comma-separated --flag=value args from clusterAutoscaler.args map.
+Keys are used as-is (same format as cluster-autoscaler CLI flags).
+*/}}
+{{- define "workload-autoscaler.clusterAutoscalerArgs" -}}
+{{- $args := list -}}
+{{- range $key, $value := .Values.clusterAutoscaler.args -}}
+  {{- $args = append $args (printf "--%s=%s" $key (toString $value)) -}}
+{{- end -}}
+{{- join "," $args -}}
 {{- end -}}

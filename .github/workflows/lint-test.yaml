@@ -50,7 +50,7 @@ jobs:
         env:
           # Do not lint cnab-config/castai-agent/mainTemplate.json until super-linter is upgraded to recent version.
           # v3.12.0 does not support Azure ARM API newer than 2022-05-01.
-          FILTER_REGEX_EXCLUDE: .*(README\.md|Chart\.yaml|NOTES.txt|lint-test\.yaml|mainTemplate\.json).*
+          FILTER_REGEX_EXCLUDE: .*(README\.md|Chart\.yaml|NOTES.txt|lint-test\.yaml|mainTemplate\.json|test/e2e/.*).*
           VALIDATE_ALL_CODEBASE: false
           VALIDATE_KUBERNETES_KUBEVAL: false
           VALIDATE_YAML: false

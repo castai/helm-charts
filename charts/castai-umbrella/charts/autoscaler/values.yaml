@@ -1,5 +1,15 @@
-# Placeholder defaults for Autoscaler profile.
-# TODO: tune ALL these values for production autoscaler rollout.
+# Default values for the CAST AI Autoscaler profile.
+# Toggle individual components on/off as needed.
+#
+# Provider-specific notes:
+#   - global.castai.provider must be set to: eks | aks | gke
+#   - spot-handler.castai.provider is derived automatically by the spot-handler chart
+#     from global.castai.provider (eks->aws, aks->azure, gke->gcp)
+#   - cluster-controller.aks.enabled must be set to true on AKS clusters
+
+# ---------------------------------------------------------------------------
+# Core — always on
+# ---------------------------------------------------------------------------
 
 agent:
   enabled: true
@@ -9,14 +19,14 @@ agent:
 
 spot-handler:
   enabled: true
-  apiKeySecretRef: castai-credentials
   castai:
-    # Optional: can be inherited from global.castai.provider with alias mapping
-    # in spot-handler (eks->aws, aks->azure, gke->gcp).
+    # provider is resolved by the spot-handler chart from global.castai.provider.
+    # Override here only if you need to decouple from the global value.
     provider: ""
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID
+  apiKeySecretRef: castai-credentials
 
 cluster-controller:
   enabled: true
@@ -26,8 +36,13 @@ cluster-controller:
     - configMapRef:
         name: castai-agent-metadata
   autoscaling:
-    # TODO: validate autoscaler profile setting.
     enabled: true
+  aks:
+    enabled: false
+
+# ---------------------------------------------------------------------------
+# WOOP stack — on by default
+# ---------------------------------------------------------------------------
 
 workload-autoscaler:
   enabled: true
@@ -36,30 +51,12 @@ workload-autoscaler:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
-live:
+workload-autoscaler-exporter:
   enabled: true
+  fullnameOverride: castai-workload-autoscaler-exporter
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
-  castai-aws-vpc-cni:
-    enabled: true
-  daemon:
-    labelNodeSubnet: true
-  controller:
-    # TODO: tune CLM behavior for autoscaler profile.
-    replicaCount: 0
-
-pod-mutator:
-  enabled: true
-  fullnameOverride: castai-pod-mutator
-  dependencyCheck:
-    enabled: false
-  castai:
-    apiKeySecretRef: castai-credentials
-    configMapRef: castai-agent-metadata
-  envFrom:
-    - configMapRef:
-        name: castai-agent-metadata
 
 evictor:
   enabled: true
@@ -72,5 +69,59 @@ evictor:
     - configMapRef:
         name: castai-agent-metadata
 
+# ---------------------------------------------------------------------------
+# Optional add-ons — opt-in
+# ---------------------------------------------------------------------------
+
+pod-mutator:
+  enabled: false
+  fullnameOverride: castai-pod-mutator
+  dependencyCheck:
+    enabled: false
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+  envFrom:
+    - configMapRef:
+        name: castai-agent-metadata
+
+pod-pinner:
+  enabled: false
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+  replicaCount: 0
+
+ai-optimizer-proxy:
+  enabled: false
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+
+# ---------------------------------------------------------------------------
+# Disabled by default 
+# ---------------------------------------------------------------------------
+
 metrics-server:
   enabled: false
+
+# ---------------------------------------------------------------------------
+# Disabled by default in autoscaler profile
+# (available for opt-in; full values documented in the live subchart)
+# ---------------------------------------------------------------------------
+
+live:
+  enabled: false
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+  castai-aws-vpc-cni:
+    enabled: false
+  daemon:
+    labelNodeSubnet: true
+  controller:
+    replicaCount: 0

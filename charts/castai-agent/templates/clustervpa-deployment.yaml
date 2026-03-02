@@ -41,8 +41,10 @@ spec:
       {{- end }}
       serviceAccountName: {{ include "castai-agent.serviceAccountName" . }}
       automountServiceAccountToken: true
-      {{- with .Values.tolerations }}
       tolerations:
+        - operator: Exists
+          key: CriticalAddonsOnly
+      {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
