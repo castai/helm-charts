@@ -10,8 +10,9 @@ metadata:
     {{- include "pod-mutator.annotations" . | nindent 4 }}
   {{- end }}
 data:
-  {{- if .Values.castai.apiUrl }}
-  API_URL: {{ .Values.castai.apiUrl | quote }}
+  # Prefer umbrella/global API URL override, then fall back to chart-local values.
+  {{- if (coalesce (dig "castai" "apiURL" "" .Values.global) .Values.castai.apiUrl .Values.castai.apiURL) }}
+  API_URL: {{ (coalesce (dig "castai" "apiURL" "" .Values.global) .Values.castai.apiUrl .Values.castai.apiURL) | quote }}
   {{- else if not .Values.envFrom }}
   {{- fail "castai.apiUrl or envFrom must be provided" }}
   {{- end }}

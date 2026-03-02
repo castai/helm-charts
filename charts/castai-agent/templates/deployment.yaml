@@ -113,7 +113,8 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
             - name: API_URL
-              value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+              # Prefer umbrella/global API URL override, then fall back to chart-local value.
+              value: {{ required "apiURL must be provided" (coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.apiURL) | quote }}
             {{- if (include "castai-agent.provider" .) }}
             - name: PROVIDER
               value: {{ include "castai-agent.provider" . | quote }}
@@ -217,7 +218,8 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
             - name: API_URL
-              value: {{ required "apiURL must be provided" .Values.apiURL | quote }}
+              # Prefer umbrella/global API URL override, then fall back to chart-local value.
+              value: {{ required "apiURL must be provided" (coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.apiURL) | quote }}
             {{- if (include "castai-agent.provider" .) }}
             - name: PROVIDER
               value: {{ include "castai-agent.provider" . | quote }}
