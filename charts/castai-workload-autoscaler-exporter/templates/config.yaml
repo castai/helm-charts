@@ -11,8 +11,9 @@ metadata:
     {{- include "exporter.annotations" . | nindent 4 }}
   {{- end }}
 data:
-    {{- if or .Values.castai.apiUrl .Values.castai.apiURL }}
-  API_URL: {{ (coalesce .Values.castai.apiUrl .Values.castai.apiURL) | quote }}
+  # Prefer umbrella/global API URL override, then fall back to chart-local values.
+  {{- if (coalesce .Values.castai.apiUrl (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiURL) }}
+  API_URL: {{ (coalesce .Values.castai.apiUrl (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiURL) | quote }}
   {{- else if not .Values.envFrom -}}
   {{- fail "castai.apiURL must be provided" }}
   {{- end }}
