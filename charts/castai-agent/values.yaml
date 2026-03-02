@@ -97,6 +97,9 @@ additionalSecretEnv: {}
 # apiURL -- URL to the CAST AI API server.
 apiURL: "https://api.cast.ai"
 
+# grpcURL -- gRPC endpoint URL. When set, it is included in the agent-metadata ConfigMap
+grpcURL: "grpc.cast.ai:443"
+
 # apiKey -- Token to be used for authorizing agent access to the API.
 apiKey: ""
 
