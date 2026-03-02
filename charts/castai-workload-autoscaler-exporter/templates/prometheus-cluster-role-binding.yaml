@@ -1,5 +1,5 @@
 {{- if .Values.prometheus.enabled }}
-{{- if .Values.prometheus.serviceAccount.create }}
+{{- if .Values.prometheus.serviceAccount.rbac }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
