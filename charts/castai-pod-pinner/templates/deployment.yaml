@@ -77,8 +77,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            # Prefer umbrella/global API URL override, then fall back to chart-local values.
             - name: API_URL
-              value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+              value: {{ required "castai.apiURL must be provided" (coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiURL) | quote }}
             - name: API_GRPC_URL
               # Prefer umbrella/global gRPC URL override, then fall back to chart-local value.
               value: {{ required "castai.grpcURL must be provided" (coalesce (dig "castai" "grpcURL" "" .Values.global) .Values.castai.grpcURL) | quote }}
