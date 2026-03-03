@@ -43,6 +43,7 @@ jobs:
           helm dependency update charts/castai-umbrella/charts/kent
           helm dependency update charts/castai-umbrella/charts/autoscaler
           helm dependency update charts/castai-umbrella/charts/autoscaler-anywhere
+          helm dependency update charts/castai-umbrella/charts/autoscaler-openshift
 
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c

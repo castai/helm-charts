@@ -1,0 +1,40 @@
+# Default values for the CAST AI Autoscaler OpenShift profile.
+#
+# SCC handling (default: restricted profile, OpenShift assigns UIDs):
+#   To provide specific UIDs instead:
+#     --set autoscaler-openshift.agent.openshift.scc.useRestrictedProfile=false
+#     --set autoscaler-openshift.agent.securityContext.runAsUser=<UID>
+#     --set autoscaler-openshift.agent.securityContext.runAsGroup=<GID>
+#     --set autoscaler-openshift.agent.securityContext.fsGroup=<GID>
+#   To disable SCC entirely (rely on OpenShift default restricted-v2):
+#     --set autoscaler-openshift.agent.openshift.scc.enabled=false
+
+agent:
+  enabled: true
+  replicaCount: 1
+  provider: openshift
+  apiKeySecretRef: castai-credentials
+  createNamespace: false
+  image:
+    repository: us-docker.pkg.dev/castai-hub/library/agent-rh-ubi
+  # Security context: runAsUser/runAsGroup/fsGroup are nulled out by default
+  # (matches agent.go behavior — lets OpenShift manage UIDs).
+  # Override with specific values if needed:
+  #   --set autoscaler-openshift.agent.securityContext.runAsUser=<UID>
+  securityContext:
+    runAsUser: null
+    runAsGroup: null
+    fsGroup: null
+    runAsNonRoot: true
+    seccompProfile:
+      type: RuntimeDefault
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  openshift:
+    scc:
+      enabled: true
+      useRestrictedProfile: true
