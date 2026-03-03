@@ -258,6 +258,131 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 	})
 
 	// -----------------------------------------------------------------------
+	// Autoscaler Anywhere mode
+	// -----------------------------------------------------------------------
+	Context("autoscaler-anywhere mode", Ordered, func() {
+		const (
+			kindClusterName = "castai-umbrella-anywhere"
+			releaseName     = "castai-anywhere"
+			clusterName     = "e2e-anywhere-cluster"
+		)
+		var (
+			kindHelper      *KindHelper
+			helmHelper      *UmbrellaHelmHelper
+			podHelper       *PodHelper
+			namespaceHelper *NamespaceHelper
+			apiKey          string
+		)
+
+		BeforeAll(func() {
+			verifyAPIKey := func(g Gomega) { apiKey = getAPIKey(g) }
+			verifyAPIKey(Default)
+			kindHelper = NewKindHelper(kindClusterName)
+			helmHelper = NewUmbrellaHelmHelper(releaseName, umbrellaNamespace, apiURL)
+			podHelper = NewPodHelper(umbrellaNamespace)
+			namespaceHelper = NewNamespaceHelper()
+			By(fmt.Sprintf("creating Kind cluster: %s", kindClusterName))
+			Expect(kindHelper.Create()).To(Succeed())
+			Expect(kindHelper.SetKubeContext()).To(Succeed())
+			kindHelper.WaitForReady(Default)
+		})
+
+		AfterAll(func() {
+			_ = helmHelper.Uninstall()
+			_ = namespaceHelper.Delete(umbrellaNamespace)
+			_ = kindHelper.Delete()
+		})
+
+		AfterEach(func() {
+			if CurrentSpecReport().Failed() {
+				collectDebugInfo(umbrellaNamespace)
+			}
+		})
+
+		It("should install successfully in autoscaler-anywhere mode", func() {
+			Expect(helmHelper.InstallAutoscalerAnywhereMode(apiKey, clusterName)).To(Succeed())
+		})
+
+		It("should have the release in deployed status", func() {
+			Eventually(helmHelper.VerifyReleaseInstalled, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should log all resources created by the chart (discovery)", func() {
+			discoverChartResources()
+		})
+
+		It("should create the castai-agent namespace", func() {
+			namespaceHelper.VerifyExists(Default, umbrellaNamespace)
+		})
+
+		It("should create the castai-credentials secret", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifySecretExists(g, "castai-credentials")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-agent deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-agent")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-cluster-controller deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-cluster-controller")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-evictor deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-evictor")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-pod-mutator deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-pod-mutator")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should have castai-agent registered with mothership", func() {
+			By("patching castai-agent with ANYWHERE_CLUSTER_NAME so it can register")
+			Expect(patchAgentForAnywhereE2E(umbrellaNamespace, apiURL, clusterName)).To(Succeed())
+
+			By("waiting for castai-agent to register — configmap is created only after successful registration")
+			Eventually(func(g Gomega) {
+				podHelper.VerifyAgentConnected(g)
+			}, 10*time.Minute, 10*time.Second).Should(Succeed())
+		})
+
+		It("should have castai-agent pod running and ready", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyAtLeastOnePodReady(g, "castai-agent")
+			}, 5*time.Minute, 10*time.Second).Should(Succeed())
+		})
+
+		It("should have castai-cluster-controller pod running and ready", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyAtLeastOnePodReady(g, "castai-cluster-controller")
+			}, 5*time.Minute, 10*time.Second).Should(Succeed())
+		})
+
+		It("should NOT create spot-handler in anywhere mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-spot-handler")
+		})
+
+		It("should NOT create kent-only kentroller in anywhere mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
+		})
+
+		It("should have autoscaler-anywhere config in release values", func() {
+			values, err := helmHelper.GetReleaseValues()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(values).To(ContainSubstring("autoscaler-anywhere"))
+		})
+	})
+
+	// -----------------------------------------------------------------------
 	// Uninstall
 	// -----------------------------------------------------------------------
 	Context("clean uninstall", Ordered, func() {
@@ -327,6 +452,21 @@ func patchAgentForE2E(namespace, apiURL string) error {
 	_, err := utils.Run(cmd)
 	if err != nil {
 		return fmt.Errorf("failed to set agent env vars: %w", err)
+	}
+	return nil
+}
+
+// patchAgentForAnywhereE2E sets the ANYWHERE_CLUSTER_NAME env var on the
+// castai-agent deployment and overrides API_URL for the test environment.
+func patchAgentForAnywhereE2E(namespace, apiURL, clusterName string) error {
+	cmd := exec.Command("kubectl", "set", "env", "deployment/castai-agent",
+		"-n", namespace,
+		fmt.Sprintf("ANYWHERE_CLUSTER_NAME=%s", clusterName),
+		fmt.Sprintf("API_URL=%s", apiURL),
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("failed to set agent env vars for anywhere mode: %w", err)
 	}
 	return nil
 }

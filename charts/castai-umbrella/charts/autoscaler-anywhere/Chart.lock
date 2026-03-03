@@ -1,0 +1,21 @@
+dependencies:
+- name: castai-agent
+  repository: https://castai.github.io/helm-charts
+  version: 0.138.0
+- name: castai-cluster-controller
+  repository: https://castai.github.io/helm-charts
+  version: 0.89.1
+- name: castai-workload-autoscaler
+  repository: https://castai.github.io/helm-charts
+  version: 0.1.169
+- name: castai-workload-autoscaler-exporter
+  repository: https://castai.github.io/helm-charts
+  version: 0.0.100
+- name: castai-evictor
+  repository: https://castai.github.io/helm-charts
+  version: 0.33.199
+- name: castai-pod-mutator
+  repository: https://castai.github.io/helm-charts
+  version: 0.4.5
+digest: sha256:9ff77000e0b06085ba6bbbc2c51f043c1d701cd1d24aa7af66bbe7564750deee
+generated: "2026-03-02T13:55:16.599709+01:00"
