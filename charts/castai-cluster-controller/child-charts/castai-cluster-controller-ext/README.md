@@ -1,6 +1,6 @@
 # castai-cluster-controller-ext
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.1.0](https://img.shields.io/badge/AppVersion-v0.1.0-informational?style=flat-square)
+![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.1.0](https://img.shields.io/badge/AppVersion-v0.1.0-informational?style=flat-square)
 
 castai-cluster-controller-ext.
 
@@ -15,6 +15,7 @@ castai-cluster-controller-ext.
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources (inherited from parent chart). |
 | global.commonLabels | object | `{}` | Labels to add to all resources (inherited from parent chart). |
 | nameOverride | string | `""` |  |
+| serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `"castai-cluster-controller"` |  |
 
 ----------------------------------------------
