@@ -57,8 +57,9 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            # Prefer umbrella/global API URL override, then fall back to chart-local values.
             - name: API_URL
-              value: {{ required "castai.apiURL must be provided" .Values.castai.apiURL | quote }}
+              value: {{ required "castai.apiURL must be provided" (coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiURL) | quote }}
           {{- $clusterIdCount := 0 }}
           {{- if .Values.castai.clusterID }}{{ $clusterIdCount = add1 $clusterIdCount }}{{ end }}
           {{- if .Values.castai.clusterIdSecretKeyRef.name }}{{ $clusterIdCount = add1 $clusterIdCount }}{{ end }}
