@@ -1,6 +1,6 @@
 # castai
 
-![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Umbrella chart for CAST AI components with profile-based installation.
 
@@ -9,6 +9,7 @@ Umbrella chart for CAST AI components with profile-based installation.
 | Repository | Name | Version |
 |------------|------|---------|
 | file://charts/autoscaler-anywhere | autoscaler-anywhere | * |
+| file://charts/autoscaler-openshift | autoscaler-openshift | * |
 | file://charts/autoscaler | autoscaler | * |
 | file://charts/kent | kent | * |
 
@@ -17,6 +18,7 @@ Umbrella chart for CAST AI components with profile-based installation.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | autoscaler-anywhere.enabled | bool | `false` |  |
+| autoscaler-openshift.enabled | bool | `false` |  |
 | autoscaler.enabled | bool | `false` |  |
 | global.castai.apiKey | string | `""` |  |
 | global.castai.apiURL | string | `"https://api.cast.ai"` |  |

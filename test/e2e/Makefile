@@ -10,8 +10,9 @@
 #   CASTAI_API_KEY=<your-key> make e2e
 #   CASTAI_API_KEY=<your-key> make e2e-kent
 #   CASTAI_API_KEY=<your-key> make e2e-autoscaler
+#   CASTAI_API_KEY=<your-key> make e2e-autoscaler-openshift
 
-.PHONY: e2e e2e-kent e2e-autoscaler e2e-autoscaler-anywhere e2e-upgrade e2e-uninstall deps tidy
+.PHONY: e2e e2e-kent e2e-autoscaler e2e-autoscaler-anywhere e2e-autoscaler-openshift e2e-upgrade e2e-uninstall deps tidy
 
 # Run all e2e tests (each context creates its own Kind cluster)
 e2e:
@@ -28,6 +29,10 @@ e2e-autoscaler:
 # Run only the autoscaler-anywhere mode tests
 e2e-autoscaler-anywhere:
 	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler-anywhere mode"
+
+# Run only the autoscaler-openshift mode tests
+e2e-autoscaler-openshift:
+	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler-openshift mode"
 
 # Run only the upgrade tests
 e2e-upgrade:

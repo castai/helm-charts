@@ -1,7 +1,8 @@
 {{- $autoscalerAnywhereEnabled := (index .Values "autoscaler-anywhere").enabled | default false }}
-{{- if or .Values.kent.enabled .Values.autoscaler.enabled $autoscalerAnywhereEnabled }}
+{{- $autoscalerOpenshiftEnabled := (index .Values "autoscaler-openshift").enabled | default false }}
+{{- if or .Values.kent.enabled .Values.autoscaler.enabled $autoscalerAnywhereEnabled $autoscalerOpenshiftEnabled }}
 {{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling kent, autoscaler, or autoscaler-anywhere profile (set --set global.castai.apiKey=<API_KEY>)" }}
+{{ fail "global.castai.apiKey is required when enabling kent, autoscaler, autoscaler-anywhere, or autoscaler-openshift profile (set --set global.castai.apiKey=<API_KEY>)" }}
 {{- end }}
 {{- $autoscalerSpotHandler := index .Values.autoscaler "spot-handler" | default dict }}
 {{- $autoscalerSpotHandlerCastai := index $autoscalerSpotHandler "castai" | default dict }}

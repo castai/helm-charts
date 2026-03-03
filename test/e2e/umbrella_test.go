@@ -383,6 +383,122 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 	})
 
 	// -----------------------------------------------------------------------
+	// Autoscaler OpenShift mode
+	// -----------------------------------------------------------------------
+	Context("autoscaler-openshift mode", Ordered, func() {
+		const (
+			kindClusterName = "castai-umbrella-openshift"
+			releaseName     = "castai-openshift"
+		)
+		var (
+			kindHelper      *KindHelper
+			helmHelper      *UmbrellaHelmHelper
+			podHelper       *PodHelper
+			namespaceHelper *NamespaceHelper
+			apiKey          string
+		)
+
+		BeforeAll(func() {
+			verifyAPIKey := func(g Gomega) { apiKey = getAPIKey(g) }
+			verifyAPIKey(Default)
+			kindHelper = NewKindHelper(kindClusterName)
+			helmHelper = NewUmbrellaHelmHelper(releaseName, umbrellaNamespace, apiURL)
+			podHelper = NewPodHelper(umbrellaNamespace)
+			namespaceHelper = NewNamespaceHelper()
+			By(fmt.Sprintf("creating Kind cluster: %s", kindClusterName))
+			Expect(kindHelper.Create()).To(Succeed())
+			Expect(kindHelper.SetKubeContext()).To(Succeed())
+			kindHelper.WaitForReady(Default)
+		})
+
+		AfterAll(func() {
+			_ = helmHelper.Uninstall()
+			_ = namespaceHelper.Delete(umbrellaNamespace)
+			_ = kindHelper.Delete()
+		})
+
+		AfterEach(func() {
+			if CurrentSpecReport().Failed() {
+				collectDebugInfo(umbrellaNamespace)
+			}
+		})
+
+		It("should install successfully in autoscaler-openshift mode", func() {
+			Expect(helmHelper.InstallAutoscalerOpenshiftMode(apiKey)).To(Succeed())
+		})
+
+		It("should have the release in deployed status", func() {
+			Eventually(helmHelper.VerifyReleaseInstalled, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should log all resources created by the chart (discovery)", func() {
+			discoverChartResources()
+		})
+
+		It("should create the castai-agent namespace", func() {
+			namespaceHelper.VerifyExists(Default, umbrellaNamespace)
+		})
+
+		It("should create the castai-credentials secret", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifySecretExists(g, "castai-credentials")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-agent deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-agent")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should have castai-agent registered with mothership", func() {
+			By("patching castai-agent with openshift provider env vars so it can register")
+			Expect(patchAgentForOpenshiftE2E(umbrellaNamespace, apiURL)).To(Succeed())
+
+			By("waiting for castai-agent to register — configmap is created only after successful registration")
+			Eventually(func(g Gomega) {
+				podHelper.VerifyAgentConnected(g)
+			}, 10*time.Minute, 10*time.Second).Should(Succeed())
+		})
+
+		It("should have castai-agent pod running and ready", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyAtLeastOnePodReady(g, "castai-agent")
+			}, 5*time.Minute, 10*time.Second).Should(Succeed())
+		})
+
+		It("should NOT create cluster-controller in openshift mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-cluster-controller")
+		})
+
+		It("should NOT create evictor in openshift mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-evictor")
+		})
+
+		It("should NOT create workload-autoscaler in openshift mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-workload-autoscaler")
+		})
+
+		It("should NOT create spot-handler in openshift mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-spot-handler")
+		})
+
+		It("should NOT create pod-mutator in openshift mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-pod-mutator")
+		})
+
+		It("should NOT create kentroller in openshift mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
+		})
+
+		It("should have autoscaler-openshift config in release values", func() {
+			values, err := helmHelper.GetReleaseValues()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(values).To(ContainSubstring("autoscaler-openshift"))
+		})
+	})
+
+	// -----------------------------------------------------------------------
 	// Uninstall
 	// -----------------------------------------------------------------------
 	Context("clean uninstall", Ordered, func() {
@@ -467,6 +583,21 @@ func patchAgentForAnywhereE2E(namespace, apiURL, clusterName string) error {
 	_, err := utils.Run(cmd)
 	if err != nil {
 		return fmt.Errorf("failed to set agent env vars for anywhere mode: %w", err)
+	}
+	return nil
+}
+
+// patchAgentForOpenshiftE2E overrides API_URL on the castai-agent deployment
+// for the test environment. The provider is already set to "openshift" via
+// chart values — only the API URL needs to be overridden.
+func patchAgentForOpenshiftE2E(namespace, apiURL string) error {
+	cmd := exec.Command("kubectl", "set", "env", "deployment/castai-agent",
+		"-n", namespace,
+		fmt.Sprintf("API_URL=%s", apiURL),
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("failed to set agent env vars for openshift mode: %w", err)
 	}
 	return nil
 }
