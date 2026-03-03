@@ -25,8 +25,10 @@ autopilot:
   autoDetect: true
 
 serviceAccount:
-  # Specifies whether a service account should be created
+  # Specifies whether a service account and roles should be created
   create: true
+  # Specifies whether Roles/RoleBindings should be created for the service account
+  rbac: true
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
