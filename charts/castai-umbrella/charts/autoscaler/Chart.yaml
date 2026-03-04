@@ -59,6 +59,12 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: ai-optimizer-proxy.enabled
 
+  - name: castai-kvisor
+    alias: kvisor
+    version: "1.0.128"
+    repository: "https://castai.github.io/helm-charts"
+    condition: kvisor.enabled
+
   - name: castai-live
     alias: live
     version: "0.71.0"

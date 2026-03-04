@@ -90,6 +90,14 @@ ai-optimizer-proxy:
       name: castai-agent-metadata
       key: CLUSTER_ID
 
+kvisor:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+
 metrics-server:
   enabled: false
 

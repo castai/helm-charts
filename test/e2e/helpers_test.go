@@ -62,6 +62,7 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerMode(apiKey, provider string) erro
 		"--set", "autoscaler.live.enabled=false",
 		"--set", "autoscaler.pod-mutator.enabled=false",
 		"--set", "autoscaler.workload-autoscaler.enabled=false",
+		"--set", "autoscaler.kvisor.enabled=true",
 		"--set", "autoscaler.metrics-server.enabled=false",
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
