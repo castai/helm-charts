@@ -172,7 +172,7 @@ pgdog:
     # -- Count of Tokio threads spawned at startup; recommended setting is two per virtual CPU
     workers: 10
     # -- Default maximum number of server connections per database pool
-    default_pool_size: 10
+    default_pool_size: 500
     # -- Default pooler mode to use for database pools. Options: "session", "transaction", "statement"
     pooler_mode: "transaction"
     # -- Enables prepared statement support with varying levels of rewriting capability. Options: "disabled", "extended", "extended_anonymous", "full"
@@ -194,7 +194,7 @@ pgdog:
     # -- How long to wait for active clients to finish transactions when shutting down (in milliseconds)
     shutdown_timeout: 60000
     # -- Force-enable query parsing for advanced features like advisory locks in non-sharded databases
-    query_parser_enabled: true
+    query_parser: "on"
     # -- Path to the TLS certificate PgDog will use to setup TLS connections with clients
     tls_certificate: "/etc/ssl/certs/ssl-cert-snakeoil.pem"
     # -- Path to the TLS private key PgDog will use to setup TLS connections with clients
