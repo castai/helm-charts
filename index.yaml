@@ -2211,6 +2211,24 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-03-04T17:52:14.175185034Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - condition: autoscaler.enabled
+      name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components with profile-based installation.
+    digest: 74194985d9dab3b6dffe3f5dd39c3f80bff16d8b0c70682ae8021027b513dd26
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.9.2/castai-0.9.2.tgz
+    version: 0.9.2
+  - apiVersion: v2
     created: "2026-03-04T16:19:36.766847335Z"
     dependencies:
     - condition: kent.enabled
@@ -9147,6 +9165,15 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-db-agent-0.1.0/castai-db-agent-0.1.0.tgz
     version: 0.1.0
   castai-db-optimizer:
+  - apiVersion: v2
+    created: "2026-03-04T17:52:14.325559873Z"
+    description: CAST AI database cache deployment.
+    digest: 336d191bf57c4134a0a438fe083876921f087c4a50b0e53f4b4b1966dfed4984
+    name: castai-db-optimizer
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-db-optimizer-0.67.1/castai-db-optimizer-0.67.1.tgz
+    version: 0.67.1
   - apiVersion: v2
     created: "2026-03-04T15:36:16.18168059Z"
     description: CAST AI database cache deployment.
@@ -39802,4 +39829,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-03-04T17:32:45.310636461Z"
+generated: "2026-03-04T17:52:14.330562458Z"
