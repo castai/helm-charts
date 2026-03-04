@@ -49,7 +49,7 @@ data:
                 endpoint_name: {{ $endpoint.name | quote }}
               {{- if and $.Values.pgdog $.Values.pgdog.enabled }}
               castai.filters.postgres:
-                database_name_prefix: {{ printf "ep%d" $index | quote }}
+                database_name_prefix: "{{ $endpoint.name | default (ternary "default" (printf "default%d" $index) (eq $index 0)) }}"
               {{- end }}
           address:
             socket_address:
