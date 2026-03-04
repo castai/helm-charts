@@ -7,10 +7,6 @@
 #     from global.castai.provider (eks->aws, aks->azure, gke->gcp)
 #   - cluster-controller.aks.enabled must be set to true on AKS clusters
 
-# ---------------------------------------------------------------------------
-# Core — always on
-# ---------------------------------------------------------------------------
-
 agent:
   enabled: true
   replicaCount: 1
@@ -29,7 +25,7 @@ spot-handler:
   apiKeySecretRef: castai-credentials
 
 cluster-controller:
-  enabled: true
+  enabled: false
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -40,26 +36,22 @@ cluster-controller:
   aks:
     enabled: false
 
-# ---------------------------------------------------------------------------
-# WOOP stack — on by default
-# ---------------------------------------------------------------------------
-
 workload-autoscaler:
-  enabled: true
+  enabled: false
   fullnameOverride: castai-workload-autoscaler
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
 workload-autoscaler-exporter:
-  enabled: true
+  enabled: false
   fullnameOverride: castai-workload-autoscaler-exporter
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
 evictor:
-  enabled: true
+  enabled: false
   replicaCount: 1
   aggressiveMode: false
   overrideEnvFrom: true
@@ -68,10 +60,6 @@ evictor:
         name: castai-credentials
     - configMapRef:
         name: castai-agent-metadata
-
-# ---------------------------------------------------------------------------
-# Optional add-ons — opt-in
-# ---------------------------------------------------------------------------
 
 pod-mutator:
   enabled: false
@@ -102,17 +90,8 @@ ai-optimizer-proxy:
       name: castai-agent-metadata
       key: CLUSTER_ID
 
-# ---------------------------------------------------------------------------
-# Disabled by default 
-# ---------------------------------------------------------------------------
-
 metrics-server:
   enabled: false
-
-# ---------------------------------------------------------------------------
-# Disabled by default in autoscaler profile
-# (available for opt-in; full values documented in the live subchart)
-# ---------------------------------------------------------------------------
 
 live:
   enabled: false
