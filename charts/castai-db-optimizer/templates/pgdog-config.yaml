@@ -1,7 +1,7 @@
 {{- if and .Values.pgdog .Values.pgdog.enabled }}
 {{- $defaults := dict
   "workers" 10
-  "default_pool_size" 10
+  "default_pool_size" 500
   "pooler_mode" "transaction"
   "prepared_statements" "extended_anonymous"
   "healthcheck_interval" 30000
@@ -12,7 +12,7 @@
   "connect_timeout" 5000
   "checkout_timeout" 10000
   "shutdown_timeout" 60000
-  "query_parser_enabled" true
+  "query_parser" "on"
   "tls_certificate" "/etc/ssl/certs/ssl-cert-snakeoil.pem"
   "tls_private_key" "/etc/ssl/private/ssl-cert-snakeoil.key"
   "tls_verify" "prefer"
