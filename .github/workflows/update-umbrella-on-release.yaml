@@ -27,10 +27,6 @@ jobs:
           echo "skip=false" >> $GITHUB_OUTPUT
           echo "Parsed chart: ${CHART_NAME}, version: ${VERSION}"
 
-      - name: Install gh CLI
-        if: steps.parse.outputs.skip != 'true'
-        uses: dev-hanz-ops/install-gh-cli-action@v0.2.0
-
       - name: Wait for release workflow to complete
         if: steps.parse.outputs.skip != 'true'
         env:
