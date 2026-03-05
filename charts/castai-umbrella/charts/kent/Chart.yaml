@@ -16,7 +16,7 @@ dependencies:
     condition: cluster-controller.enabled
   - name: castai-kentroller
     alias: kentroller
-    version: "0.1.68"
+    version: "0.1.70"
     repository: "https://castai.github.io/helm-charts"
     condition: kentroller.enabled
   - name: castai-workload-autoscaler
