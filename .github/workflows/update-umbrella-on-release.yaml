@@ -27,6 +27,26 @@ jobs:
           echo "skip=false" >> $GITHUB_OUTPUT
           echo "Parsed chart: ${CHART_NAME}, version: ${VERSION}"
 
+      - name: Install gh CLI
+        if: steps.parse.outputs.skip != 'true'
+        uses: dev-hanz-ops/install-gh-cli-action@v0.2.0
+
+      - name: Wait for release workflow to complete
+        if: steps.parse.outputs.skip != 'true'
+        env:
+          GH_TOKEN: ${{ secrets.PAT_CICD }}
+        run: |
+          RELEASE_SHA="${{ github.event.release.target_commitish }}"
+          echo "Waiting for release workflow on SHA ${RELEASE_SHA}..."
+          RUN_ID=$(gh run list --repo ${{ github.repository }} --workflow=release.yaml --json databaseId,headSha --jq ".[] | select(.headSha == \"$RELEASE_SHA\") | .databaseId" | head -1)
+          if [ -z "$RUN_ID" ]; then
+            echo "No release workflow run found for SHA ${RELEASE_SHA}, skipping wait."
+            exit 0
+          fi
+          echo "Found run ID: ${RUN_ID}"
+          gh run watch "$RUN_ID" --repo ${{ github.repository }} --exit-status
+          echo "Release workflow completed."
+
       - name: Checkout
         if: steps.parse.outputs.skip != 'true'
         uses: actions/checkout@v4
