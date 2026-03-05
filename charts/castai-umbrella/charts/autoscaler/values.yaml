@@ -24,6 +24,14 @@ spot-handler:
       key: CLUSTER_ID
   apiKeySecretRef: castai-credentials
 
+kvisor:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+
 cluster-controller:
   enabled: false
   castai:
@@ -89,9 +97,6 @@ ai-optimizer-proxy:
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID
-
-metrics-server:
-  enabled: false
 
 live:
   enabled: false

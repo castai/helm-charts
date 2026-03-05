@@ -2,7 +2,7 @@ apiVersion: v2
 name: autoscaler
 description: Wrapper chart for CAST AI Autoscaler profile.
 type: application
-version: 0.5.0
+version: 0.6.0
 dependencies:
   - name: castai-agent
     alias: agent
@@ -49,13 +49,13 @@ dependencies:
     version: "0.0.111"
     repository: "https://castai.github.io/helm-charts"
     condition: ai-optimizer-proxy.enabled
+  - name: castai-kvisor
+    alias: kvisor
+    version: "1.0.130"
+    repository: "https://castai.github.io/helm-charts"
+    condition: kvisor.enabled
   - name: castai-live
     alias: live
     version: "0.75.0"
     repository: "https://castai.github.io/helm-charts"
     condition: live.enabled
-  - name: metrics-server
-    alias: metrics-server
-    version: "3.13.0"
-    repository: "https://kubernetes-sigs.github.io/metrics-server/"
-    condition: metrics-server.enabled

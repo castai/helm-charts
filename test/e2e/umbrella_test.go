@@ -215,6 +215,12 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
+		It("should create the kvisor-controller deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, releaseName+"-kvisor-controller")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
 		It("should have castai-agent registered with mothership", func() {
 			By("patching castai-agent with fake EKS env vars (provider=aws) so it can register")
 			Expect(patchAgentForE2E(umbrellaNamespace, apiURL)).To(Succeed())

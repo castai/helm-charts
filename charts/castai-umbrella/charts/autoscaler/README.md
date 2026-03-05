@@ -1,6 +1,6 @@
 # autoscaler
 
-![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Autoscaler profile.
 
@@ -8,17 +8,17 @@ Wrapper chart for CAST AI Autoscaler profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | agent(castai-agent) | 0.142.0 |
-| https://castai.github.io/helm-charts | ai-optimizer-proxy(castai-ai-optimizer-proxy) | 0.0.108 |
+| https://castai.github.io/helm-charts | agent(castai-agent) | 0.144.0 |
+| https://castai.github.io/helm-charts | ai-optimizer-proxy(castai-ai-optimizer-proxy) | 0.0.111 |
 | https://castai.github.io/helm-charts | cluster-controller(castai-cluster-controller) | 0.90.0 |
-| https://castai.github.io/helm-charts | evictor(castai-evictor) | 0.33.199 |
-| https://castai.github.io/helm-charts | live(castai-live) | 0.71.0 |
+| https://castai.github.io/helm-charts | evictor(castai-evictor) | 0.33.218 |
+| https://castai.github.io/helm-charts | kvisor(castai-kvisor) | 1.0.130 |
+| https://castai.github.io/helm-charts | live(castai-live) | 0.75.0 |
 | https://castai.github.io/helm-charts | pod-mutator(castai-pod-mutator) | 0.5.0 |
 | https://castai.github.io/helm-charts | pod-pinner(castai-pod-pinner) | 1.10.0 |
 | https://castai.github.io/helm-charts | spot-handler(castai-spot-handler) | 0.31.0 |
 | https://castai.github.io/helm-charts | workload-autoscaler(castai-workload-autoscaler) | 0.1.183 |
 | https://castai.github.io/helm-charts | workload-autoscaler-exporter(castai-workload-autoscaler-exporter) | 0.0.100 |
-| https://kubernetes-sigs.github.io/metrics-server/ | metrics-server(metrics-server) | 3.13.0 |
 
 ## Values
 
@@ -43,13 +43,16 @@ Wrapper chart for CAST AI Autoscaler profile.
 | evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
 | evictor.overrideEnvFrom | bool | `true` |  |
 | evictor.replicaCount | int | `1` |  |
+| kvisor.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| kvisor.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
+| kvisor.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
+| kvisor.enabled | bool | `true` |  |
 | live.castai-aws-vpc-cni.enabled | bool | `false` |  |
 | live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | live.controller.replicaCount | int | `0` |  |
 | live.daemon.labelNodeSubnet | bool | `true` |  |
 | live.enabled | bool | `false` |  |
-| metrics-server.enabled | bool | `false` |  |
 | pod-mutator.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | pod-mutator.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | pod-mutator.dependencyCheck.enabled | bool | `false` |  |
