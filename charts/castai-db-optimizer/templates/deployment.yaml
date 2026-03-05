@@ -215,6 +215,9 @@ spec:
               value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
             {{- end }}
 
+          volumeMounts:
+            - name: temp-storage
+              mountPath: /tmp
           readinessProbe:
             tcpSocket:
               port: 9050
