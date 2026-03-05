@@ -46,12 +46,12 @@ dependencies:
     condition: pod-pinner.enabled
   - name: castai-ai-optimizer-proxy
     alias: ai-optimizer-proxy
-    version: "0.0.111"
+    version: "0.0.108"
     repository: "https://castai.github.io/helm-charts"
     condition: ai-optimizer-proxy.enabled
   - name: castai-kvisor
     alias: kvisor
-    version: "1.0.128"
+    version: "1.0.130"
     repository: "https://castai.github.io/helm-charts"
     condition: kvisor.enabled
   - name: castai-live
