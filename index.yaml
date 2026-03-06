@@ -2211,6 +2211,24 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-03-06T17:23:12.845763618Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - condition: autoscaler.enabled
+      name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components with profile-based installation.
+    digest: a7a90776aedfa9f4892980c88e8e1495c5c5fa6de8a5267a76aab8da13c1a124
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.10.9/castai-0.10.9.tgz
+    version: 0.10.9
+  - apiVersion: v2
     created: "2026-03-06T14:33:27.947061348Z"
     dependencies:
     - condition: kent.enabled
@@ -30999,6 +31017,18 @@ entries:
     version: 0.1.0
   castai-watchdog:
   - annotations:
+      release-date: 2026-03-06T17:12:02
+    apiVersion: v2
+    appVersion: 1acb8809e6e10028990b6ac0b243633d45247fc3
+    created: "2026-03-06T17:23:12.987965805Z"
+    description: CAST AI Watchdog
+    digest: d1dda62582ac1d8e6c0fe597e5ffb7ef20257431e4359fab8c5c12c7c1a1d952
+    name: castai-watchdog
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-watchdog-0.2.354/castai-watchdog-0.2.354.tgz
+    version: 0.2.354
+  - annotations:
       release-date: 2026-03-06T13:53:28
     apiVersion: v2
     appVersion: 602761b582a9d45e9e404f4ce2a48f3090b6b3bc
@@ -40425,4 +40455,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-03-06T14:48:23.07833455Z"
+generated: "2026-03-06T17:23:12.992233081Z"
