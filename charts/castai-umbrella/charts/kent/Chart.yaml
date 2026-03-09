@@ -36,7 +36,7 @@ dependencies:
     condition: pod-mutator.enabled
   - name: castai-evictor
     alias: evictor
-    version: "0.33.219"
+    version: "0.33.220"
     repository: "https://castai.github.io/helm-charts"
     condition: evictor.enabled
   - name: metrics-server
