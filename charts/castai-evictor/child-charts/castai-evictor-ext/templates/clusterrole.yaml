@@ -122,3 +122,87 @@ rules:
       - list
       - watch
       - delete
+  # ------------------------------------------------
+  # Pod Mutations: retrieving pod mutations to apply in-memory.
+  # ------------------------------------------------
+  - apiGroups:
+      - pod-mutations.cast.ai
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+  # ------------------------------------------------
+  # Pod Mutations: finding out who owns a pod
+  # to apply mutations to it.
+  # ------------------------------------------------
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - statefulsets
+      - replicasets
+      - daemonsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "argoproj.io"
+    resources:
+      - rollouts
+    verbs:
+      - get
+      - list
+      - watch
+  # ------------------------------------------------
+  # Pod Mutations: retrieving pod mutations to apply in-memory.
+  # ------------------------------------------------
+  - apiGroups:
+      - pod-mutations.cast.ai
+    resources:
+      - "*"
+    verbs:
+      - get
+      - list
+      - watch
+  # ------------------------------------------------
+  # Pod Mutations: finding out who owns a pod
+  # to apply mutations to it.
+  # ------------------------------------------------
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - statefulsets
+      - replicasets
+      - daemonsets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - batch
+    resources:
+      - jobs
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - "argoproj.io"
+    resources:
+      - rollouts
+    verbs:
+      - get
+      - list
+      - watch
