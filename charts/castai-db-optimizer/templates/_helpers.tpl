@@ -41,6 +41,29 @@ tls_certificates:
 {{- end -}}
 
 {{/*
+How long other sidecars should wait for proxy to fully drain before terminating.
+*/}}
+{{- define "proxy.draining.sidecarTerminationDelay" -}}
+{{- add .Values.proxy.draining.gracePeriodSeconds 15 -}}
+{{- end -}}
+
+{{/*
+Helper for calculating terminationGracePeriodSeconds
+*/}}
+{{- define "terminationGracePeriodSeconds" -}}
+{{- if .Values.proxy.draining.enabled -}}
+  {{- $grace := add (include "proxy.draining.sidecarTerminationDelay" .) 15 | int -}}
+  {{- if and .Values.pgdog .Values.pgdog.enabled -}}
+    {{- add $grace (div .Values.pgdog.config.shutdown_timeout 1000) -}}
+  {{- else -}}
+    {{- $grace -}}
+  {{- end -}}
+{{- else -}}
+60
+{{- end -}}
+{{- end -}}
+
+{{/*
 Define common labels.
 */}}
 {{- define "labels" -}}

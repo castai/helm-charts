@@ -105,10 +105,12 @@ proxy:
   dnsLookupFamily: V4_PREFERRED
   # -- Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk
   dataStorageMedium: Memory
-  # -- Predrain timeout in seconds.
-  drainPreHook: 2
-  # -- Default drain time in seconds.
-  drainTimeSeconds: 60
+  # -- Graceful draining configuration.
+  draining:
+    # -- Enable graceful draining of connections before pod termination.
+    enabled: false
+    # -- How long to actively attempt draining existing connections.
+    gracePeriodSeconds: 30
   # -- Extra network debug logging.
   networkDebug: false
   # -- Name of a Kubernetes TLS Secret that contains the key pair to use for configuring TLS in the proxy. If not set, defaults to using a built-in key pair.
