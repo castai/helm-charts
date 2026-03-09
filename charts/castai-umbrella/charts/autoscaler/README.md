@@ -1,6 +1,6 @@
 # autoscaler
 
-![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Autoscaler profile.
 
@@ -8,17 +8,17 @@ Wrapper chart for CAST AI Autoscaler profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | agent(castai-agent) | 0.144.0 |
-| https://castai.github.io/helm-charts | ai-optimizer-proxy(castai-ai-optimizer-proxy) | 0.0.111 |
+| https://castai.github.io/helm-charts | agent(castai-agent) | 0.145.0 |
+| https://castai.github.io/helm-charts | ai-optimizer-proxy(castai-ai-optimizer-proxy) | 0.0.115 |
 | https://castai.github.io/helm-charts | cluster-controller(castai-cluster-controller) | 0.90.0 |
-| https://castai.github.io/helm-charts | evictor(castai-evictor) | 0.33.218 |
-| https://castai.github.io/helm-charts | kvisor(castai-kvisor) | 1.0.130 |
-| https://castai.github.io/helm-charts | live(castai-live) | 0.75.0 |
+| https://castai.github.io/helm-charts | evictor(castai-evictor) | 0.33.221 |
+| https://castai.github.io/helm-charts | kvisor(castai-kvisor) | 1.0.131 |
+| https://castai.github.io/helm-charts | live(castai-live) | 0.75.1 |
 | https://castai.github.io/helm-charts | pod-mutator(castai-pod-mutator) | 0.5.0 |
 | https://castai.github.io/helm-charts | pod-pinner(castai-pod-pinner) | 1.10.0 |
 | https://castai.github.io/helm-charts | spot-handler(castai-spot-handler) | 0.31.0 |
-| https://castai.github.io/helm-charts | workload-autoscaler(castai-workload-autoscaler) | 0.1.183 |
-| https://castai.github.io/helm-charts | workload-autoscaler-exporter(castai-workload-autoscaler-exporter) | 0.0.100 |
+| https://castai.github.io/helm-charts | workload-autoscaler(castai-workload-autoscaler) | 0.1.186 |
+| https://castai.github.io/helm-charts | workload-autoscaler-exporter(castai-workload-autoscaler-exporter) | 0.0.107 |
 
 ## Values
 
