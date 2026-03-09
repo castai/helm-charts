@@ -2,14 +2,13 @@ CHART_DIR := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 REPO_ROOT := $(realpath $(CHART_DIR)/../..)
 SUBCHARTS := $(wildcard $(CHART_DIR)/charts/*)
 
-define BUMP_PATCH_VERSION
+define BUMP_MINOR_VERSION
 	bump_version() { \
 		local chart_dir="$$1"; \
 		local current=$$(grep '^version:' "$$chart_dir/Chart.yaml" | awk '{print $$2}'); \
 		local major=$$(echo $$current | cut -d. -f1); \
 		local minor=$$(echo $$current | cut -d. -f2); \
-		local patch=$$(echo $$current | cut -d. -f3); \
-		local new="$$major.$$minor.$$((patch + 1))"; \
+		local new="$$major.$$((minor + 1)).0"; \
 		sed -i '' "s/^version: $$current/version: $$new/" "$$chart_dir/Chart.yaml"; \
 		echo "    $$(basename $$chart_dir): $$current -> $$new"; \
 	}
@@ -17,8 +16,8 @@ endef
 
 .PHONY: update
 update: ## Full update: bump versions, refresh deps, regenerate docs, lint, and validate.
-	@echo "==> Bumping chart patch versions..."
-	@$(BUMP_PATCH_VERSION) && \
+	@echo "==> Bumping chart minor versions..."
+	@$(BUMP_MINOR_VERSION) && \
 		for subchart in $(SUBCHARTS); do \
 			if [ -d "$$subchart" ] && [ -f "$$subchart/Chart.yaml" ]; then \
 				bump_version "$$subchart"; \
