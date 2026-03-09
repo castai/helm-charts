@@ -90,6 +90,8 @@ exporter:
   serviceAccount:
     # Specifies whether a service account should be created
     create: true
+    # Specifies whether Roles/RoleBindings should be created for the service account
+    rbac: true
     # The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ""
@@ -199,6 +201,11 @@ exporter:
       # - "foo"
 prometheus:
   enabled: false
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Specifies whether Roles/RoleBindings should be created for the service account
+    rbac: true
   replicaCount: 1
   image:
     repository: us-docker.pkg.dev/castai-hub/library/prom/prometheus
