@@ -2,17 +2,29 @@ CHART_DIR := $(dir $(realpath $(firstword $(MAKEFILE_LIST))))
 REPO_ROOT := $(realpath $(CHART_DIR)/../..)
 SUBCHARTS := $(wildcard $(CHART_DIR)/charts/*)
 
+define BUMP_PATCH_VERSION
+	bump_version() { \
+		local chart_dir="$$1"; \
+		local current=$$(grep '^version:' "$$chart_dir/Chart.yaml" | awk '{print $$2}'); \
+		local major=$$(echo $$current | cut -d. -f1); \
+		local minor=$$(echo $$current | cut -d. -f2); \
+		local patch=$$(echo $$current | cut -d. -f3); \
+		local new="$$major.$$minor.$$((patch + 1))"; \
+		sed -i '' "s/^version: $$current/version: $$new/" "$$chart_dir/Chart.yaml"; \
+		echo "    $$(basename $$chart_dir): $$current -> $$new"; \
+	}
+endef
+
 .PHONY: update
-update: ## Full update: bump version, refresh deps, regenerate docs, lint, and validate.
-	@echo "==> Bumping chart patch version..."
-	@cd $(CHART_DIR) && \
-		current=$$(grep '^version:' Chart.yaml | awk '{print $$2}') && \
-		major=$$(echo $$current | cut -d. -f1) && \
-		minor=$$(echo $$current | cut -d. -f2) && \
-		patch=$$(echo $$current | cut -d. -f3) && \
-		new="$$major.$$minor.$$((patch + 1))" && \
-		sed -i '' "s/^version: $$current/version: $$new/" Chart.yaml && \
-		echo "    $$current -> $$new"
+update: ## Full update: bump versions, refresh deps, regenerate docs, lint, and validate.
+	@echo "==> Bumping chart patch versions..."
+	@$(BUMP_PATCH_VERSION) && \
+		for subchart in $(SUBCHARTS); do \
+			if [ -d "$$subchart" ] && [ -f "$$subchart/Chart.yaml" ]; then \
+				bump_version "$$subchart"; \
+			fi; \
+		done && \
+		bump_version "$(CHART_DIR)"
 	@echo ""
 	@echo "==> Adding helm repositories..."
 	@helm repo add castai-helm https://castai.github.io/helm-charts 2>/dev/null || true
