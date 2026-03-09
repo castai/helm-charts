@@ -3,7 +3,17 @@ REPO_ROOT := $(realpath $(CHART_DIR)/../..)
 SUBCHARTS := $(wildcard $(CHART_DIR)/charts/*)
 
 .PHONY: update
-update: ## Full update: refresh deps, regenerate docs, lint, and validate.
+update: ## Full update: bump version, refresh deps, regenerate docs, lint, and validate.
+	@echo "==> Bumping chart patch version..."
+	@cd $(CHART_DIR) && \
+		current=$$(grep '^version:' Chart.yaml | awk '{print $$2}') && \
+		major=$$(echo $$current | cut -d. -f1) && \
+		minor=$$(echo $$current | cut -d. -f2) && \
+		patch=$$(echo $$current | cut -d. -f3) && \
+		new="$$major.$$minor.$$((patch + 1))" && \
+		sed -i '' "s/^version: $$current/version: $$new/" Chart.yaml && \
+		echo "    $$current -> $$new"
+	@echo ""
 	@echo "==> Adding helm repositories..."
 	@helm repo add castai-helm https://castai.github.io/helm-charts 2>/dev/null || true
 	@helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/ 2>/dev/null || true
