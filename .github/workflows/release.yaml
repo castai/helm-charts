@@ -102,6 +102,7 @@ jobs:
         id: update
         run: |
           CHANGED=false
+          BUMP_SUMMARY=""
 
           SUBCHART_FILES=(
             "charts/castai-umbrella/charts/autoscaler/Chart.yaml"
@@ -123,6 +124,7 @@ jobs:
                   echo "Updating ${CHART_NAME} in ${SUBCHART_FILE}: ${CURRENT} -> ${VERSION}"
                   yq -i "(.dependencies[] | select(.name == \"$CHART_NAME\") | .version) = \"${VERSION}\"" "$SUBCHART_FILE"
                   CHANGED=true
+                  BUMP_SUMMARY="${BUMP_SUMMARY:+$BUMP_SUMMARY, }${CHART_NAME} to v.${VERSION}"
                 fi
               fi
             done
@@ -132,6 +134,7 @@ jobs:
             echo "No umbrella subchart dependencies need updating."
           fi
           echo "changed=${CHANGED}" >> $GITHUB_OUTPUT
+          echo "bump_summary=${BUMP_SUMMARY}" >> $GITHUB_OUTPUT
 
       - name: Bump umbrella chart version
         if: steps.update.outputs.changed == 'true'
@@ -149,5 +152,5 @@ jobs:
         if: steps.update.outputs.changed == 'true'
         run: |
           git add charts/castai-umbrella/
-          git commit -m "[castai-umbrella] bump subchart dependencies"
+          git commit -m "[castai-umbrella] bump ${{ steps.update.outputs.bump_summary }}"
           git push
