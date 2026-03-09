@@ -18,19 +18,8 @@ update: ## Full update: refresh deps, regenerate docs, lint, and validate.
 	@helm dependency update $(CHART_DIR)
 	@echo "==> All dependencies updated and locked."
 	@echo ""
-	@echo "==> Regenerating docs..."
-	@for subchart in $(SUBCHARTS); do \
-		if [ -d "$$subchart" ] && [ -f "$$subchart/README.md" ]; then \
-			echo "    Generating docs for subchart: $$(basename $$subchart)"; \
-			helm-docs --chart-search-root "$$subchart" --template-files "$(REPO_ROOT)/scripts/README.md.gotmpl" 2>/dev/null \
-				|| helm-docs --chart-search-root "$$subchart"; \
-		fi; \
-	done
-	@if [ -f "$(CHART_DIR)/README.md" ]; then \
-		echo "    Generating docs for umbrella chart"; \
-		helm-docs --chart-search-root "$(CHART_DIR)" --template-files "$(REPO_ROOT)/scripts/README.md.gotmpl" 2>/dev/null \
-			|| helm-docs --chart-search-root "$(CHART_DIR)"; \
-	fi
+	@echo "==> Regenerating docs (via scripts/gen-docs.sh)..."
+	@cd $(REPO_ROOT) && ./scripts/gen-docs.sh -c castai-umbrella
 	@echo "==> Docs regenerated."
 	@echo ""
 	@echo "==> Linting charts..."
