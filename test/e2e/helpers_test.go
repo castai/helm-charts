@@ -76,6 +76,30 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerMode(apiKey, provider string) erro
 	return nil
 }
 
+func (h *UmbrellaHelmHelper) InstallAutoscalerAnywhereMode(apiKey, clusterName string) error {
+	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
+		chartPath,
+		"--namespace", h.namespace,
+		"--create-namespace",
+		"--set", "autoscaler-anywhere.enabled=true",
+		"--set", "autoscaler-anywhere.agent.enabled=true",
+		"--set", "autoscaler-anywhere.cluster-controller.enabled=true",
+		"--set", "autoscaler-anywhere.evictor.enabled=true",
+		"--set", "autoscaler-anywhere.pod-mutator.enabled=true",
+		"--set", "autoscaler-anywhere.workload-autoscaler.enabled=false",
+		"--set", "autoscaler-anywhere.workload-autoscaler-exporter.enabled=false",
+		"--set", fmt.Sprintf("autoscaler-anywhere.agent.additionalEnv.ANYWHERE_CLUSTER_NAME=%s", clusterName),
+		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
+		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
+		"--timeout", defaultHelmTimeout,
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("helm install autoscaler-anywhere mode failed: %w", err)
+	}
+	return nil
+}
+
 func (h *UmbrellaHelmHelper) Uninstall() error {
 	cmd := exec.Command("helm", "uninstall", h.releaseName,
 		"--namespace", h.namespace,
