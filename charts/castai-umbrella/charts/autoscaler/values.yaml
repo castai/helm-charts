@@ -7,13 +7,13 @@
 #     from global.castai.provider (eks->aws, aks->azure, gke->gcp)
 #   - cluster-controller.aks.enabled must be set to true on AKS clusters
 
-agent:
+castai-agent:
   enabled: true
   replicaCount: 1
   apiKeySecretRef: castai-credentials
   createNamespace: false
 
-spot-handler:
+castai-spot-handler:
   enabled: true
   castai:
     # provider is resolved by the spot-handler chart from global.castai.provider.
@@ -24,7 +24,7 @@ spot-handler:
       key: CLUSTER_ID
   apiKeySecretRef: castai-credentials
 
-kvisor:
+castai-kvisor:
   enabled: true
   castai:
     apiKeySecretRef: castai-credentials
@@ -32,7 +32,7 @@ kvisor:
       name: castai-agent-metadata
       key: CLUSTER_ID
 
-cluster-controller:
+castai-cluster-controller:
   enabled: false
   castai:
     apiKeySecretRef: castai-credentials
@@ -44,21 +44,21 @@ cluster-controller:
   aks:
     enabled: false
 
-workload-autoscaler:
+castai-workload-autoscaler:
   enabled: false
   fullnameOverride: castai-workload-autoscaler
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
-workload-autoscaler-exporter:
+castai-workload-autoscaler-exporter:
   enabled: false
   fullnameOverride: castai-workload-autoscaler-exporter
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
-evictor:
+castai-evictor:
   enabled: false
   replicaCount: 1
   aggressiveMode: false
@@ -69,7 +69,7 @@ evictor:
     - configMapRef:
         name: castai-agent-metadata
 
-pod-mutator:
+castai-pod-mutator:
   enabled: false
   fullnameOverride: castai-pod-mutator
   dependencyCheck:
@@ -81,7 +81,7 @@ pod-mutator:
     - configMapRef:
         name: castai-agent-metadata
 
-pod-pinner:
+castai-pod-pinner:
   enabled: false
   castai:
     apiKeySecretRef: castai-credentials
@@ -90,7 +90,7 @@ pod-pinner:
       key: CLUSTER_ID
   replicaCount: 0
 
-ai-optimizer-proxy:
+castai-ai-optimizer-proxy:
   enabled: false
   castai:
     apiKeySecretRef: castai-credentials
@@ -98,7 +98,7 @@ ai-optimizer-proxy:
       name: castai-agent-metadata
       key: CLUSTER_ID
 
-live:
+castai-live:
   enabled: false
   castai:
     apiKeySecretRef: castai-credentials
