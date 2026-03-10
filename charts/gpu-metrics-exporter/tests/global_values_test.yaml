@@ -1,0 +1,51 @@
+suite: global values take precedence over local values
+templates:
+  - gpu-exporter-configmap.yaml
+  - secret.yaml
+  - daemonset.yaml
+set:
+  global.castai.apiKey: "global-api-key"
+  global.castai.apiURL: "https://global.api.cast.ai"
+  global.castai.provider: "gke"
+  global.castai.clusterID: "global-cluster-id"
+  castai.apiKey: "local-api-key"
+  castai.apiUrl: "https://local.api.cast.ai"
+  provider: "eks"
+  castai.clusterId: "local-cluster-id"
+tests:
+  - it: ConfigMap uses global CAST_API not local
+    template: gpu-exporter-configmap.yaml
+    asserts:
+      - equal:
+          path: data.CAST_API
+          value: "https://global.api.cast.ai"
+
+  - it: ConfigMap uses local CLUSTER_ID (global.castai.clusterID is not supported)
+    template: gpu-exporter-configmap.yaml
+    asserts:
+      - equal:
+          path: data.CLUSTER_ID
+          value: "local-cluster-id"
+
+  - it: Secret uses local API key (global.castai.apiKey is not supported)
+    template: secret.yaml
+    asserts:
+      - equal:
+          path: data.API_KEY
+          value: "bG9jYWwtYXBpLWtleQ=="
+
+  - it: DaemonSet uses global provider gke so no priorityClassName
+    template: daemonset.yaml
+    asserts:
+      - notExists:
+          path: spec.template.spec.priorityClassName
+
+  - it: DaemonSet uses global provider gke so nvidia volume is present
+    template: daemonset.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: "nvidia-install-dir-host"
+            hostPath:
+              path: /home/kubernetes/bin/nvidia

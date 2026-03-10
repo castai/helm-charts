@@ -1,0 +1,48 @@
+suite: local values work when globals are absent
+templates:
+  - gpu-exporter-configmap.yaml
+  - secret.yaml
+  - daemonset.yaml
+set:
+  castai.apiKey: "local-api-key"
+  castai.apiUrl: "https://local.api.cast.ai"
+  provider: "eks"
+  castai.clusterId: "local-cluster-id"
+tests:
+  - it: ConfigMap uses local CAST_API
+    template: gpu-exporter-configmap.yaml
+    asserts:
+      - equal:
+          path: data.CAST_API
+          value: "https://local.api.cast.ai"
+
+  - it: ConfigMap uses local CLUSTER_ID
+    template: gpu-exporter-configmap.yaml
+    asserts:
+      - equal:
+          path: data.CLUSTER_ID
+          value: "local-cluster-id"
+
+  - it: Secret uses local API key
+    template: secret.yaml
+    asserts:
+      - equal:
+          path: data.API_KEY
+          value: "bG9jYWwtYXBpLWtleQ=="
+
+  - it: DaemonSet uses local provider eks so priorityClassName is set
+    template: daemonset.yaml
+    asserts:
+      - equal:
+          path: spec.template.spec.priorityClassName
+          value: "system-node-critical"
+
+  - it: DaemonSet uses local provider eks so nvidia volume is absent
+    template: daemonset.yaml
+    asserts:
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: "nvidia-install-dir-host"
+            hostPath:
+              path: /home/kubernetes/bin/nvidia

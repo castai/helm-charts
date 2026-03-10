@@ -1,0 +1,33 @@
+suite: mutual exclusivity of cluster ID sources
+templates:
+  - validation.yaml
+set:
+  castai.apiKey: "test-key"
+  castai.apiUrl: "https://api.cast.ai"
+  provider: "gke"
+tests:
+  - it: fails when both clusterIdSecretRef and clusterIdConfigMapKeyRef are set
+    set:
+      castai.clusterIdSecretRef: "my-secret"
+      castai.clusterIdConfigMapKeyRef.name: "my-configmap"
+      castai.clusterIdConfigMapKeyRef.key: "CLUSTER_ID"
+    asserts:
+      - failedTemplate:
+          errorMessage: "only one of castai.clusterId, castai.clusterIdSecretRef, or castai.clusterIdConfigMapKeyRef may be set"
+
+  - it: fails when both clusterId and clusterIdSecretRef are set
+    set:
+      castai.clusterId: "my-cluster"
+      castai.clusterIdSecretRef: "my-secret"
+    asserts:
+      - failedTemplate:
+          errorMessage: "only one of castai.clusterId, castai.clusterIdSecretRef, or castai.clusterIdConfigMapKeyRef may be set"
+
+  - it: fails when both clusterId and clusterIdConfigMapKeyRef are set
+    set:
+      castai.clusterId: "my-cluster"
+      castai.clusterIdConfigMapKeyRef.name: "my-configmap"
+      castai.clusterIdConfigMapKeyRef.key: "CLUSTER_ID"
+    asserts:
+      - failedTemplate:
+          errorMessage: "only one of castai.clusterId, castai.clusterIdSecretRef, or castai.clusterIdConfigMapKeyRef may be set"

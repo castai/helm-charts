@@ -29,7 +29,8 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if eq (required ".Values.provider is required (gke|eks|aks|omni)" .Values.provider) "eks" }}
+      {{- $provider := include "gpu-metrics-exporter.provider" . }}
+      {{- if eq (required "provider or global.castai.provider is required (gke|eks|aks|omni)" $provider) "eks" }}
       priorityClassName: system-node-critical
       {{- end }}
       serviceAccountName: {{ include "gpu-metrics-exporter.serviceAccountName" . }}
@@ -41,7 +42,7 @@ spec:
         - name: {{- include "dcgm-exporter.config-map" . | indent 1 }}
           configMap:
             name: {{- include "dcgm-exporter.config-map" . | indent 1 }}
-        {{- if eq .Values.provider "gke" }}
+        {{- if eq $provider "gke" }}
         - name: "nvidia-install-dir-host"
           hostPath:
             path: /home/kubernetes/bin/nvidia
@@ -56,7 +57,7 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- else if (eq .Values.provider "gke")}}
+      {{- else if (eq $provider "gke")}}
       {{- with .Values.gke.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
@@ -111,6 +112,12 @@ spec:
                 secretKeyRef:
                   name: {{ .Values.castai.clusterIdSecretRef }}
                   key: CLUSTER_ID
+          {{- else if .Values.castai.clusterIdConfigMapKeyRef.name }}
+            - name: "CLUSTER_ID"
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.clusterIdConfigMapKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdConfigMapKeyRef.key | default "CLUSTER_ID" }}
           {{- end }}
           {{- if .Values.dcgmExporter.enabled }}
             - name: "DCGM_HOST"
@@ -128,14 +135,14 @@ spec:
                 - NET_RAW
             runAsNonRoot: false
             runAsUser: 0
-            {{- if eq .Values.provider "gke"}}
+            {{- if eq $provider "gke"}}
             privileged: true
             {{- end }}
           image: "{{ .Values.dcgmExporter.image.repository }}:{{ .Values.dcgmExporter.image.tag }}"
           imagePullPolicy: {{ .Values.dcgmExporter.image.pullPolicy }}
           command: [ "/bin/bash", "-c" ]
           args:
-          {{- if eq .Values.provider "gke"}}
+          {{- if eq $provider "gke"}}
             {{- if .Values.dcgmExporter.useExternalHostEngine }}
             - hostname $NODE_NAME; dcgm-exporter --remote-hostengine-info $(NODE_IP) -f /etc/dcgm-exporter/counters.csv
             {{- else }}
@@ -162,7 +169,7 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
-            {{- if eq .Values.provider "gke" }}
+            {{- if eq $provider "gke" }}
             - name: "NODE_IP"
               valueFrom:
                 fieldRef:
@@ -176,7 +183,7 @@ spec:
             - name: "pod-gpu-resources"
               readOnly: true
               mountPath: "/var/lib/kubelet/pod-resources"
-            {{- if eq .Values.provider "gke" }}
+            {{- if eq $provider "gke" }}
             - name: "nvidia-install-dir-host"
               mountPath: /usr/local/nvidia
             {{- end }}
