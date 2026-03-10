@@ -297,6 +297,7 @@ spec:
             - --parent-shutdown-time-s
             - "30"
 
+          {{- if .Values.proxy.draining.enabled }}
           readinessProbe:
             exec:
               command:
@@ -305,6 +306,7 @@ spec:
                 - 'curl -sf localhost:9901/ready | grep -q "^LIVE"'
             periodSeconds: 1
             failureThreshold: 1
+          {{- end }}
           resources:
             requests:
               memory: {{ .Values.resources.proxy.memoryRequest }}
