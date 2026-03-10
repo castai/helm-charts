@@ -296,8 +296,6 @@ spec:
             - immediate
             - --parent-shutdown-time-s
             - "30"
-            - --drain-time-s
-            - "25"
 
           readinessProbe:
             exec:
