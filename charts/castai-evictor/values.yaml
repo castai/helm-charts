@@ -70,6 +70,15 @@ woop:
   # When false, all WOOP-related read requests will go to the API server.
   useK8sClientCache: true
 
+# podMutations -- Specifies settings for working with PodMutation CRs.
+podMutations:
+  # If true, Evictor will apply PodMutation CRs to pod specs in-memory during scheduling simulation.
+  # This allows the evictor to make correct consolidation decisions for pods that were created
+  # before a PodMutation CR existed (or before the pod-mutator webhook applied it), whose
+  # running specs do not yet reflect the intended mutation.
+  # This option requires the castai-pod-mutator to be installed in the cluster.
+  enabled: false
+
 # karpenterMode -- Specifies settings for working with Karpenter NodePool and NodeClaim resources.
 karpenterMode:
   # If true, Evictor will consider Karpenter NodePool and NodeClaim information when making eviction decisions.
