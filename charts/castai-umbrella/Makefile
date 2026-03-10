@@ -16,26 +16,37 @@ endef
 
 .PHONY: update
 update: ## Full update: bump versions, refresh deps, regenerate docs, lint, and validate.
-	@echo "==> Bumping chart minor versions..."
-	@$(BUMP_MINOR_VERSION) && \
-		for subchart in $(SUBCHARTS); do \
-			if [ -d "$$subchart" ] && [ -f "$$subchart/Chart.yaml" ]; then \
-				bump_version "$$subchart"; \
-			fi; \
-		done && \
-		bump_version "$(CHART_DIR)"
-	@echo ""
 	@echo "==> Adding helm repositories..."
 	@helm repo add castai-helm https://castai.github.io/helm-charts 2>/dev/null || true
 	@helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/ 2>/dev/null || true
 	@helm repo update
-	@for subchart in $(SUBCHARTS); do \
+	@echo ""
+	@echo "==> Updating subchart dependencies and bumping changed charts..."
+	@umbrella_changed=false; \
+	$(BUMP_MINOR_VERSION) && \
+	for subchart in $(SUBCHARTS); do \
 		if [ -d "$$subchart" ] && [ -f "$$subchart/Chart.yaml" ]; then \
-			echo "==> Updating dependencies for subchart: $$(basename $$subchart)"; \
-			helm dependency update "$$subchart"; \
+			echo "  Updating dependencies for $$(basename $$subchart)..."; \
+			helm dependency update "$$subchart" > /dev/null; \
+			if ! git diff --quiet -- "$$subchart"; then \
+				echo "    Changes detected, bumping version"; \
+				bump_version "$$subchart"; \
+				umbrella_changed=true; \
+			else \
+				echo "    No changes, skipping version bump"; \
+			fi; \
 		fi; \
-	done
-	@echo "==> Updating dependencies for umbrella chart"
+	done; \
+	if $$umbrella_changed; then \
+		echo ""; \
+		echo "==> Bumping umbrella chart version..."; \
+		bump_version "$(CHART_DIR)"; \
+	else \
+		echo ""; \
+		echo "==> No subcharts changed, skipping umbrella chart version bump"; \
+	fi
+	@echo ""
+	@echo "==> Updating umbrella chart dependencies..."
 	@helm dependency update $(CHART_DIR)
 	@echo "==> All dependencies updated and locked."
 	@echo ""
