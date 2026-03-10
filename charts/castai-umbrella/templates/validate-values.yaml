@@ -3,22 +3,22 @@
 {{- if not .Values.global.castai.apiKey }}
 {{ fail "global.castai.apiKey is required when enabling kent, autoscaler, or autoscaler-anywhere profile (set --set global.castai.apiKey=<API_KEY>)" }}
 {{- end }}
-{{- $autoscalerSpotHandler := index .Values.autoscaler "spot-handler" | default dict }}
+{{- $autoscalerSpotHandler := index .Values.autoscaler "castai-spot-handler" | default dict }}
 {{- $autoscalerSpotHandlerCastai := index $autoscalerSpotHandler "castai" | default dict }}
-{{- $autoscalerAgent := .Values.autoscaler.agent | default dict }}
+{{- $autoscalerAgent := index .Values.autoscaler "castai-agent" | default dict }}
 {{- $global := .Values.global | default dict }}
 {{- $globalCastai := index $global "castai" | default dict }}
 {{- if and .Values.autoscaler.enabled (not (or (index $autoscalerAgent "provider") (index $globalCastai "provider"))) }}
-{{ fail "autoscaler agent provider is required when autoscaler profile is enabled (set either --set autoscaler.agent.provider=<eks|aks|gke|kops|anywhere> or --set global.castai.provider=<eks|aks|gke|kops|anywhere>)" }}
+{{ fail "autoscaler castai-agent provider is required when autoscaler profile is enabled (set either --set autoscaler.castai-agent.provider=<eks|aks|gke|kops|anywhere> or --set global.castai.provider=<eks|aks|gke|kops|anywhere>)" }}
 {{- end }}
 {{- if and .Values.autoscaler.enabled (not (or (index $autoscalerSpotHandlerCastai "provider") (index $globalCastai "provider"))) }}
-{{ fail "autoscaler spot-handler provider is required when autoscaler profile is enabled (set either --set autoscaler.spot-handler.castai.provider=<aws|azure|gcp> or --set global.castai.provider=<eks|aks|gke|aws|azure|gcp>)" }}
+{{ fail "autoscaler castai-spot-handler provider is required when autoscaler profile is enabled (set either --set autoscaler.castai-spot-handler.castai.provider=<aws|azure|gcp> or --set global.castai.provider=<eks|aks|gke|aws|azure|gcp>)" }}
 {{- end }}
 {{- if $autoscalerAnywhereEnabled }}
-{{- $anywhereAgent := (index .Values "autoscaler-anywhere").agent | default dict }}
+{{- $anywhereAgent := index (index .Values "autoscaler-anywhere") "castai-agent" | default dict }}
 {{- $anywhereAdditionalEnv := $anywhereAgent.additionalEnv | default dict }}
 {{- if not (index $anywhereAdditionalEnv "ANYWHERE_CLUSTER_NAME") }}
-{{ fail "autoscaler-anywhere.agent.additionalEnv.ANYWHERE_CLUSTER_NAME is required when autoscaler-anywhere profile is enabled (set --set autoscaler-anywhere.agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<CLUSTER_NAME>)" }}
+{{ fail "autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME is required when autoscaler-anywhere profile is enabled (set --set autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<CLUSTER_NAME>)" }}
 {{- end }}
 {{- end }}
 {{- end }}

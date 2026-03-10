@@ -32,6 +32,14 @@ castai-kvisor:
       name: castai-agent-metadata
       key: CLUSTER_ID
 
+gpu-metrics-exporter:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+
 castai-cluster-controller:
   enabled: false
   castai:
@@ -110,10 +118,3 @@ castai-live:
   controller:
     replicaCount: 0
 
-gpu-metrics-exporter:
-  enabled: false
-  castai:
-    apiKeySecretRef: castai-credentials
-    clusterIdConfigMapKeyRef:
-      name: castai-agent-metadata
-      key: CLUSTER_ID

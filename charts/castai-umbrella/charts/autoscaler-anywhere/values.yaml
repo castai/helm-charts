@@ -2,20 +2,20 @@
 # For non-managed Kubernetes clusters (bare metal, on-prem, edge, etc.).
 #
 # Cluster name must be provided via:
-#   --set autoscaler-anywhere.agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<name>
+#   --set autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<name>
 
 # ---------------------------------------------------------------------------
 # Core
 # ---------------------------------------------------------------------------
 
-agent:
+castai-agent:
   enabled: true
   replicaCount: 2
   provider: anywhere
   apiKeySecretRef: castai-credentials
   createNamespace: false
 
-cluster-controller:
+castai-cluster-controller:
   enabled: true
   castai:
     apiKeySecretRef: castai-credentials
@@ -30,21 +30,21 @@ cluster-controller:
 # WOOP stack
 # ---------------------------------------------------------------------------
 
-workload-autoscaler:
+castai-workload-autoscaler:
   enabled: true
   fullnameOverride: castai-workload-autoscaler
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
-workload-autoscaler-exporter:
+castai-workload-autoscaler-exporter:
   enabled: true
   fullnameOverride: castai-workload-autoscaler-exporter
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
-evictor:
+castai-evictor:
   enabled: true
   replicaCount: 0
   aggressiveMode: false
@@ -59,7 +59,7 @@ evictor:
 # Pod mutator — enabled by default for anywhere
 # ---------------------------------------------------------------------------
 
-pod-mutator:
+castai-pod-mutator:
   enabled: true
   fullnameOverride: castai-pod-mutator
   dependencyCheck:
