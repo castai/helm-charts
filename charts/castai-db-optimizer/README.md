@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.68.0](https://img.shields.io/badge/Version-0.68.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.69.0](https://img.shields.io/badge/Version-0.69.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -73,7 +73,6 @@ CAST AI database cache deployment.
 | proxy.cache.cacheSizeBytes | int | `2147483648` | Maximum cache size in bytes, _should_ be divisible by cacheShards |
 | proxy.cache.pendingShards | int | `0` | Number of in-flight cache shards _must_ be power of 2.  Use 0 to auto-calculate based on concurrency. |
 | proxy.cache.pendingSizeBytes | int | `134217728` | Maximum size of in-flight cache entries, _should_ be divisible by pendingShards |
-| proxy.concurrency | int | `0` | Number of parallel processing streams. Use 0 to auto-calculate based on CPU limits. |
 | proxy.connectionLimits | object | `{"maxConnections":10000,"maxPendingRequests":1024,"maxRequests":1024,"maxRetries":3}` | Envoy upstream connection limits, numbers given are the envoy defaults. |
 | proxy.coredumpCollectionMode | string | `"None"` | Disable core dump collection by default |
 | proxy.dataStorageMedium | string | `"Memory"` | Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk |
