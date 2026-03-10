@@ -2,7 +2,7 @@ apiVersion: v2
 name: autoscaler
 description: Wrapper chart for CAST AI Autoscaler profile.
 type: application
-version: 0.7.0
+version: 0.8.0
 dependencies:
   - name: castai-agent
     alias: agent
@@ -59,3 +59,8 @@ dependencies:
     version: "0.75.1"
     repository: "https://castai.github.io/helm-charts"
     condition: live.enabled
+  - name: gpu-metrics-exporter
+    alias: gpu-metrics-exporter
+    version: "0.1.28"
+    repository: "file://../../../../../gpu-metrics-exporter/charts/gpu-metrics-exporter"
+    condition: gpu-metrics-exporter.enabled

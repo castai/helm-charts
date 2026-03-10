@@ -4,7 +4,7 @@ dependencies:
   version: 0.145.0
 - name: castai-spot-handler
   repository: https://castai.github.io/helm-charts
-  version: 0.31.0
+  version: 0.32.0
 - name: castai-cluster-controller
   repository: https://castai.github.io/helm-charts
   version: 0.90.0
@@ -16,7 +16,7 @@ dependencies:
   version: 0.0.107
 - name: castai-evictor
   repository: https://castai.github.io/helm-charts
-  version: 0.33.221
+  version: 0.34.0
 - name: castai-pod-mutator
   repository: https://castai.github.io/helm-charts
   version: 0.5.0
@@ -32,5 +32,8 @@ dependencies:
 - name: castai-live
   repository: https://castai.github.io/helm-charts
   version: 0.75.1
-digest: sha256:1bd19c461d2c5179538eb77d68a8ce71cc7df4a6b1ff982958e75639c9976508
-generated: "2026-03-09T19:57:24.929375+01:00"
+- name: gpu-metrics-exporter
+  repository: file://../../../../../gpu-metrics-exporter/charts/gpu-metrics-exporter
+  version: 0.1.28
+digest: sha256:759bc7d17e6585c7dce1e5e2742843dc51a140f600a9944eef2560d1da35c130
+generated: "2026-03-10T10:03:41.446892+01:00"

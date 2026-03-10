@@ -109,3 +109,11 @@ live:
     labelNodeSubnet: true
   controller:
     replicaCount: 0
+
+gpu-metrics-exporter:
+  enabled: false
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
