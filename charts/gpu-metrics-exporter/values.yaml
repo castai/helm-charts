@@ -1,3 +1,8 @@
+global:
+  castai:
+    apiURL: ""
+    provider: ""
+
 provider: "" # gke | eks | aks | omni
 imagePullSecrets: [ ]
 
@@ -21,6 +26,13 @@ castai:
   # The referenced secret must provide the ID of the cluster in .data["CLUSTER_ID"]
   # clusterId and clusterIdSecretRef are mutually exclusive
   clusterIdSecretRef:
+
+  # Name of ConfigMap key ref for CLUSTER_ID.
+  # clusterIdConfigMapKeyRef and clusterIdSecretRef and clusterId are mutually exclusive.
+  # The referenced ConfigMap must provide the cluster ID in the specified key.
+  clusterIdConfigMapKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
   
   # CASTAI public api url.
   apiUrl: "https://api.cast.ai"

@@ -59,7 +59,7 @@ var _ = BeforeSuite(func() {
 	_, err = utils.Run(exec.Command("helm", "repo", "update", "castai-helm"))
 	ExpectWithOffset(1, err).NotTo(HaveOccurred(), "Failed to update helm repos")
 
-	for _, subChart := range []string{"kent", "autoscaler"} {
+	for _, subChart := range []string{"kent", "autoscaler", "autoscaler-anywhere"} {
 		p := filepath.Join(repoRoot, "charts", "castai-umbrella", "charts", subChart)
 		if _, statErr := os.Stat(p); statErr == nil {
 			By(fmt.Sprintf("running helm dependency update on %s subchart", subChart))

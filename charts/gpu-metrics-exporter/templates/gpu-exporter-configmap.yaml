@@ -3,10 +3,10 @@ kind: ConfigMap
 metadata:
   name: {{- include "gpu-metrics-exporter.config-map" . | indent 1}}
 data:
-{{- if not .Values.castai.clusterIdSecretRef }}
+{{- if and (not .Values.castai.clusterIdSecretRef) (not .Values.castai.clusterIdConfigMapKeyRef.name) }}
   CLUSTER_ID: {{ required "castai.clusterId must be provided" .Values.castai.clusterId | quote }}
 {{- end }}
-  CAST_API: {{ required "castai.apiUrl must be provided" .Values.castai.apiUrl | quote }}
+  CAST_API: {{ required "castai.apiUrl or global.castai.apiURL must be provided" (include "gpu-metrics-exporter.apiURL" .) | quote }}
 
 {{- $config := .Values.gpuMetricsExporter.config | default dict }}
 {{- $otherConfig := omit $config "CLUSTER_ID" "CAST_API"}}
