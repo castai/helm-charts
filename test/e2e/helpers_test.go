@@ -167,6 +167,15 @@ func (p *PodHelper) VerifyDeploymentAbsent(g Gomega, deploymentName string) {
 		fmt.Sprintf("Deployment %s should NOT exist", deploymentName))
 }
 
+// VerifyDaemonSetAbsent checks that NO daemonset with the given name exists.
+func (p *PodHelper) VerifyDaemonSetAbsent(g Gomega, daemonSetName string) {
+	cmd := exec.Command("kubectl", "get", "daemonset", daemonSetName,
+		"-n", p.namespace, "-o", "name")
+	_, err := utils.Run(cmd)
+	g.Expect(err).To(HaveOccurred(),
+		fmt.Sprintf("DaemonSet %s should NOT exist", daemonSetName))
+}
+
 // VerifySecretExists checks that a secret with the given name exists.
 func (p *PodHelper) VerifySecretExists(g Gomega, secretName string) {
 	cmd := exec.Command("kubectl", "get", "secret", secretName,

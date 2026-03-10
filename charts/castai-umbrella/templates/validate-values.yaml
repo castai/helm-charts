@@ -5,9 +5,10 @@
 {{- end }}
 {{- $autoscalerSpotHandler := index .Values.autoscaler "spot-handler" | default dict }}
 {{- $autoscalerSpotHandlerCastai := index $autoscalerSpotHandler "castai" | default dict }}
+{{- $autoscalerAgent := .Values.autoscaler.agent | default dict }}
 {{- $global := .Values.global | default dict }}
 {{- $globalCastai := index $global "castai" | default dict }}
-{{- if and .Values.autoscaler.enabled (not (or .Values.autoscaler.agent.provider (index $globalCastai "provider"))) }}
+{{- if and .Values.autoscaler.enabled (not (or (index $autoscalerAgent "provider") (index $globalCastai "provider"))) }}
 {{ fail "autoscaler agent provider is required when autoscaler profile is enabled (set either --set autoscaler.agent.provider=<eks|aks|gke|kops|anywhere> or --set global.castai.provider=<eks|aks|gke|kops|anywhere>)" }}
 {{- end }}
 {{- if and .Values.autoscaler.enabled (not (or (index $autoscalerSpotHandlerCastai "provider") (index $globalCastai "provider"))) }}
