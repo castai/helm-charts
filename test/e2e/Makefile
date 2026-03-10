@@ -11,7 +11,7 @@
 #   CASTAI_API_KEY=<your-key> make e2e-kent
 #   CASTAI_API_KEY=<your-key> make e2e-autoscaler
 
-.PHONY: e2e e2e-kent e2e-autoscaler e2e-upgrade e2e-uninstall deps tidy
+.PHONY: e2e e2e-kent e2e-autoscaler e2e-autoscaler-anywhere e2e-upgrade e2e-uninstall deps tidy
 
 # Run all e2e tests (each context creates its own Kind cluster)
 e2e:
@@ -24,6 +24,10 @@ e2e-kent:
 # Run only the autoscaler mode tests
 e2e-autoscaler:
 	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler mode"
+
+# Run only the autoscaler-anywhere mode tests
+e2e-autoscaler-anywhere:
+	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler-anywhere mode"
 
 # Run only the upgrade tests
 e2e-upgrade:

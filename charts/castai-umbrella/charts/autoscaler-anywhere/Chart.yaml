@@ -1,61 +1,42 @@
 apiVersion: v2
-name: autoscaler
-description: Wrapper chart for CAST AI Autoscaler profile.
+name: autoscaler-anywhere
+description: Wrapper chart for CAST AI Autoscaler Anywhere profile (non-managed clusters).
 type: application
-version: 0.8.0
+version: 0.2.0
+
 dependencies:
   - name: castai-agent
     alias: agent
     version: "0.145.0"
     repository: "https://castai.github.io/helm-charts"
     condition: agent.enabled
-  - name: castai-spot-handler
-    alias: spot-handler
-    version: "0.32.0"
-    repository: "https://castai.github.io/helm-charts"
-    condition: spot-handler.enabled
+
   - name: castai-cluster-controller
     alias: cluster-controller
     version: "0.90.0"
     repository: "https://castai.github.io/helm-charts"
     condition: cluster-controller.enabled
+
   - name: castai-workload-autoscaler
     alias: workload-autoscaler
     version: "0.1.186"
     repository: "https://castai.github.io/helm-charts"
     condition: workload-autoscaler.enabled
+
   - name: castai-workload-autoscaler-exporter
     alias: workload-autoscaler-exporter
     version: "0.0.107"
     repository: "https://castai.github.io/helm-charts"
     condition: workload-autoscaler-exporter.enabled
+
   - name: castai-evictor
     alias: evictor
     version: "0.34.0"
     repository: "https://castai.github.io/helm-charts"
     condition: evictor.enabled
+
   - name: castai-pod-mutator
     alias: pod-mutator
     version: "0.5.0"
     repository: "https://castai.github.io/helm-charts"
     condition: pod-mutator.enabled
-  - name: castai-pod-pinner
-    alias: pod-pinner
-    version: "1.10.0"
-    repository: "https://castai.github.io/helm-charts"
-    condition: pod-pinner.enabled
-  - name: castai-ai-optimizer-proxy
-    alias: ai-optimizer-proxy
-    version: "0.0.115"
-    repository: "https://castai.github.io/helm-charts"
-    condition: ai-optimizer-proxy.enabled
-  - name: castai-kvisor
-    alias: kvisor
-    version: "1.0.131"
-    repository: "https://castai.github.io/helm-charts"
-    condition: kvisor.enabled
-  - name: castai-live
-    alias: live
-    version: "0.75.1"
-    repository: "https://castai.github.io/helm-charts"
-    condition: live.enabled
