@@ -10,6 +10,7 @@
 #   CASTAI_API_KEY=<your-key> make e2e
 #   CASTAI_API_KEY=<your-key> make e2e-kent
 #   CASTAI_API_KEY=<your-key> make e2e-autoscaler
+#   CASTAI_API_KEY=<your-key> make e2e-autoscaler-anywhere
 
 .PHONY: e2e e2e-kent e2e-autoscaler e2e-autoscaler-anywhere e2e-upgrade e2e-uninstall deps tidy
 

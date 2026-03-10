@@ -10,6 +10,7 @@ all pods and releases are healthy, and tears everything down afterwards.
 |---|---|
 | **kent mode** | `kent.enabled=true` – installs castai-agent + castai-kentroller |
 | **autoscaler mode** | `autoscaler.enabled=true` – installs castai-agent + cluster-controller + evictor |
+| **autoscaler-anywhere mode** | `autoscaler-anywhere.enabled=true` – installs castai-agent + cluster-controller + evictor + pod-mutator (no spot-handler) |
 | **clean uninstall** | Installs autoscaler mode then uninstalls; verifies no leftover resources |
 
 ## Prerequisites
@@ -32,6 +33,9 @@ CASTAI_API_KEY=<your-key> make e2e-kent
 
 # Run only autoscaler mode
 CASTAI_API_KEY=<your-key> make e2e-autoscaler
+
+# Run only autoscaler-anywhere mode
+CASTAI_API_KEY=<your-key> make e2e-autoscaler-anywhere
 
 # Run uninstall test
 CASTAI_API_KEY=<your-key> make e2e-uninstall
