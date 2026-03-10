@@ -19,7 +19,7 @@ Wrapper chart for CAST AI Autoscaler profile.
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.32.0 |
 | https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.186 |
 | https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 0.0.107 |
-| https://castai.github.io/helm-charts | gpu-metrics-exporter(gpu-metrics-exporter) | 0.1.29 |
+| https://castai.github.io/helm-charts | gpu-metrics-exporter | 0.1.29 |
 
 ## Values
 
