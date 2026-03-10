@@ -276,26 +276,20 @@ spec:
             runAsUser: 1000
           {{- end }}
           command:
-            - /home/castai/coredumpwrapper.sh
-          args:
-            - /home/castai/envoy
+            - /bin/sh
             - -c
-            - /home/castai/envoy.yaml
-            - --component-log-level
-            - {{ .Values.proxy.logLevel }}
-            - --file-flush-interval-msec
-            - "25000"
-            - --enable-core-dump
-            - --concurrency
-            {{- if (int .Values.proxy.concurrency) }}
-            - "{{ .Values.proxy.concurrency }}"
-            {{- else }}
-            - "{{ include "cpu-to-concurrency" .Values.resources.proxy.cpu }}"
-            {{- end }}
-            - --drain-strategy
-            - immediate
-            - --parent-shutdown-time-s
-            - "30"
+            - |
+              CONCURRENCY=$(( (CPU_REQUEST_MILLICORES + 999) / 1000 ))
+              exec /home/castai/coredumpwrapper.sh \
+                /home/castai/envoy \
+                -c /home/castai/envoy.yaml \
+                --component-log-level {{ .Values.proxy.logLevel }} \
+                --file-flush-interval-msec 25000 \
+                --enable-core-dump \
+                --concurrency "$CONCURRENCY" \
+                --drain-strategy immediate \
+                --parent-shutdown-time-s 30 \
+                --drain-time-s 25
 
           {{- if .Values.proxy.draining.enabled }}
           readinessProbe:
@@ -316,6 +310,12 @@ spec:
               memory: {{ .Values.resources.proxy.memoryLimit }}
             {{- end }}
           env:
+            - name: CPU_REQUEST_MILLICORES
+              valueFrom:
+                resourceFieldRef:
+                  containerName: proxy
+                  resource: requests.cpu
+                  divisor: "1m"
             - name: API_URL
               value: {{ required "apiURL must be provided" .Values.apiURL | printf "https://%s" }}
             - name: CACHE_GROUP_ID
