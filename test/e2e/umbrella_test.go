@@ -250,6 +250,10 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
 		})
 
+		It("should NOT create gpu-metrics-exporter daemonset when disabled (default)", func() {
+			podHelper.VerifyDaemonSetAbsent(Default, "gpu-metrics-exporter")
+		})
+
 		It("should have autoscaler config in release values", func() {
 			values, err := helmHelper.GetReleaseValues()
 			Expect(err).NotTo(HaveOccurred())
