@@ -215,9 +215,6 @@ spec:
               value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
             {{- end }}
 
-          volumeMounts:
-            - name: temp-storage
-              mountPath: /tmp
           {{- if .Values.proxy.draining.enabled }}
           lifecycle:
             preStop:
@@ -228,8 +225,10 @@ spec:
             tcpSocket:
               port: 9050
             initialDelaySeconds: 0
-          {{- if and .Values.pgdog .Values.pgdog.enabled }}
           volumeMounts:
+            - name: temp-storage
+              mountPath: /tmp
+          {{- if and .Values.pgdog .Values.pgdog.enabled }}
             - name: pgdog-config-output
               mountPath: /etc/pgdog
           {{- end }}
