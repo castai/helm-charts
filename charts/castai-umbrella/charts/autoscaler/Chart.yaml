@@ -49,7 +49,6 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
   - name: gpu-metrics-exporter
-    alias: gpu-metrics-exporter
     version: "0.1.29"
     repository: "https://castai.github.io/helm-charts"
     condition: gpu-metrics-exporter.enabled
