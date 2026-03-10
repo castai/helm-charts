@@ -38,7 +38,7 @@ spec:
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
-      terminationGracePeriodSeconds: {{ .Values.proxy.drainTimeSeconds | default 60 }}
+      terminationGracePeriodSeconds: {{ include "terminationGracePeriodSeconds" . }}
       {{- with .Values.dnsPolicy }}
       dnsPolicy: {{ . }}
       {{- end }}
@@ -218,6 +218,12 @@ spec:
           volumeMounts:
             - name: temp-storage
               mountPath: /tmp
+          {{- if .Values.proxy.draining.enabled }}
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: {{ include "proxy.draining.sidecarTerminationDelay" . }}
+          {{- end }}
           readinessProbe:
             tcpSocket:
               port: 9050
@@ -236,10 +242,17 @@ spec:
         - name: proxy
           image: "{{.Values.proxyImage.repository}}:{{ include "proxyImage" . }}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
+          {{- if .Values.proxy.draining.enabled }}
           lifecycle:
             preStop:
               exec:
-                command: ["sleep", {{ .Values.proxy.drainPreHook | default 10 | quote }} ]
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    curl -sf -X POST localhost:9901/healthcheck/fail || true
+                    sleep {{ .Values.proxy.draining.gracePeriodSeconds }}
+          {{- end }}
           ports:
             - name: proxy-metrics
               containerPort: 9901
@@ -283,9 +296,17 @@ spec:
             - immediate
             - --parent-shutdown-time-s
             - "30"
-            - --drain-time-s
-            - "25"
 
+          {{- if .Values.proxy.draining.enabled }}
+          readinessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - 'curl -sf localhost:9901/ready | grep -q "^LIVE"'
+            periodSeconds: 1
+            failureThreshold: 1
+          {{- end }}
           resources:
             requests:
               memory: {{ .Values.resources.proxy.memoryRequest }}
@@ -338,6 +359,12 @@ spec:
             {{- range $index, $endpoint := .Values.endpoints }}
             - "{{ $endpoint.hostname }}?port={{ add $.Values.cloudSqlProxy.basePort $index }}"
             {{- end }}
+          {{- if .Values.proxy.draining.enabled }}
+          lifecycle:
+            preStop:
+              sleep:
+                seconds: {{ include "proxy.draining.sidecarTerminationDelay" . }}
+          {{- end }}
           securityContext:
             runAsNonRoot: true
           resources:
@@ -358,6 +385,15 @@ spec:
             - --users
             - /etc/pgdog/users.toml
             {{- end }}
+          {{- if .Values.proxy.draining.enabled }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - until ! curl -s localhost:9901/ready >/dev/null 2>&1; do sleep 1; done
+          {{- end }}
           securityContext:
             capabilities:
               drop:
