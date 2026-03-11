@@ -46,7 +46,7 @@ data:
           metadata:
             filter_metadata:
               castai.filters.common:
-                endpoint_name: {{ $endpoint.name | quote }}
+                endpoint_name: {{ $endpoint.name | default "default" | quote }}
               {{- if and $.Values.pgdog $.Values.pgdog.enabled }}
               castai.filters.postgres:
                 database_name_prefix: "{{ $endpoint.name | default (ternary "default" (printf "default%d" $index) (eq $index 0)) }}"
