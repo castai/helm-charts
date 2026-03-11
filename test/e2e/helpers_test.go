@@ -99,6 +99,24 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerAnywhereMode(apiKey, clusterName s
 	return nil
 }
 
+func (h *UmbrellaHelmHelper) InstallAutoscalerOpenshiftMode(apiKey string) error {
+	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
+		chartPath,
+		"--namespace", h.namespace,
+		"--create-namespace",
+		"--set", "autoscaler-openshift.enabled=true",
+		"--set", "autoscaler-openshift.castai-agent.enabled=true",
+		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
+		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
+		"--timeout", defaultHelmTimeout,
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("helm install autoscaler-openshift mode failed: %w", err)
+	}
+	return nil
+}
+
 func (h *UmbrellaHelmHelper) Uninstall() error {
 	cmd := exec.Command("helm", "uninstall", h.releaseName,
 		"--namespace", h.namespace,
