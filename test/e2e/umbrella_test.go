@@ -140,7 +140,7 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 		const (
 			kindClusterName = "castai-umbrella-autoscaler"
 			releaseName     = "castai-auto"
-			provider        = "aws"
+			provider        = "eks"
 		)
 		var (
 			kindHelper      *KindHelper
@@ -217,12 +217,12 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 
 		It("should create the kvisor-controller deployment", func() {
 			Eventually(func(g Gomega) {
-				podHelper.VerifyDeploymentExists(g, releaseName+"-kvisor-controller")
+				podHelper.VerifyDeploymentExists(g, releaseName+"-castai-kvisor-controller")
 			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
 		It("should have castai-agent registered with mothership", func() {
-			By("patching castai-agent with fake EKS env vars (provider=aws) so it can register")
+			By("patching castai-agent with fake EKS env vars (provider=eks) so it can register")
 			Expect(patchAgentForE2E(umbrellaNamespace, apiURL)).To(Succeed())
 
 			By("waiting for castai-agent to register — configmap is created only after successful registration")
@@ -250,8 +250,10 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
 		})
 
-		It("should NOT create gpu-metrics-exporter daemonset when disabled (default)", func() {
-			podHelper.VerifyDaemonSetAbsent(Default, "gpu-metrics-exporter")
+		It("should create the gpu-metrics-exporter daemonset (enabled by default)", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDaemonSetExists(g, releaseName+"-gpu-metrics-exporter")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
 		It("should have autoscaler config in release values", func() {
@@ -399,6 +401,7 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 		const (
 			kindClusterName = "castai-umbrella-uninstall"
 			releaseName     = "castai-uninstall"
+			provider        = "eks"
 		)
 		var (
 			kindHelper      *KindHelper
@@ -424,7 +427,7 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 		})
 
 		It("should install in autoscaler mode", func() {
-			Expect(helmHelper.InstallAutoscalerMode(apiKey, "aws")).To(Succeed())
+			Expect(helmHelper.InstallAutoscalerMode(apiKey, provider)).To(Succeed())
 		})
 
 		It("should uninstall cleanly", func() {
