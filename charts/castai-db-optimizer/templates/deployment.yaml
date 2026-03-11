@@ -218,8 +218,11 @@ spec:
           {{- if .Values.proxy.draining.enabled }}
           lifecycle:
             preStop:
-              sleep:
-                seconds: {{ include "proxy.draining.sidecarTerminationDelay" . }}
+              exec:
+                command:
+                  - query-processor
+                  - sleep
+                  - {{ include "proxy.draining.sidecarTerminationDelay" . }}s
           {{- end }}
           readinessProbe:
             tcpSocket:
@@ -358,12 +361,6 @@ spec:
             {{- range $index, $endpoint := .Values.endpoints }}
             - "{{ $endpoint.hostname }}?port={{ add $.Values.cloudSqlProxy.basePort $index }}"
             {{- end }}
-          {{- if .Values.proxy.draining.enabled }}
-          lifecycle:
-            preStop:
-              sleep:
-                seconds: {{ include "proxy.draining.sidecarTerminationDelay" . }}
-          {{- end }}
           securityContext:
             runAsNonRoot: true
           resources:
