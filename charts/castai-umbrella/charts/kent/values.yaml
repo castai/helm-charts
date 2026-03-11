@@ -21,9 +21,8 @@ castai-kentroller:
   enabled: true
   castai:
     apiKeySecretRef: castai-credentials
-  envFrom:
-    - configMapRef:
-        name: castai-agent-metadata
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
 
 castai-workload-autoscaler:
   enabled: true
