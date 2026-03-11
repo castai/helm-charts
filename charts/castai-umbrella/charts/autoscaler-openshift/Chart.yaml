@@ -6,7 +6,6 @@ version: 0.1.0
 
 dependencies:
   - name: castai-agent
-    alias: agent
-    version: "0.140.0"
+    version: "0.145.0"
     repository: "https://castai.github.io/helm-charts"
-    condition: agent.enabled
+    condition: castai-agent.enabled

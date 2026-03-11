@@ -32,6 +32,7 @@ CAST AI agent deployment chart.
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
 | extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-agent"` |  |
+| grpcURL | string | `"grpc.cast.ai:443"` | gRPC endpoint URL. When set, it is included in the agent-metadata ConfigMap |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/agent"` |  |

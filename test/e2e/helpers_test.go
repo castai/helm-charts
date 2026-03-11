@@ -31,13 +31,13 @@ func (h *UmbrellaHelmHelper) InstallKentMode(apiKey string) error {
 		"--namespace", h.namespace,
 		"--create-namespace",
 		"--set", "kent.enabled=true",
-		"--set", "kent.agent.enabled=true",
-		"--set", "kent.kentroller.enabled=true",
-		"--set", "kent.cluster-controller.enabled=true",
-		"--set", "kent.evictor.enabled=true",
-		"--set", "kent.live.enabled=false",
-		"--set", "kent.pod-mutator.enabled=false",
-		"--set", "kent.workload-autoscaler.enabled=false",
+		"--set", "kent.castai-agent.enabled=true",
+		"--set", "kent.castai-kentroller.enabled=true",
+		"--set", "kent.castai-cluster-controller.enabled=true",
+		"--set", "kent.castai-evictor.enabled=true",
+		"--set", "kent.castai-live.enabled=false",
+		"--set", "kent.castai-pod-mutator.enabled=false",
+		"--set", "kent.castai-workload-autoscaler.enabled=false",
 		"--set", "kent.metrics-server.enabled=false",
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
@@ -56,13 +56,13 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerMode(apiKey, provider string) erro
 		"--namespace", h.namespace,
 		"--create-namespace",
 		"--set", "autoscaler.enabled=true",
-		"--set", "autoscaler.agent.enabled=true",
-		"--set", "autoscaler.cluster-controller.enabled=true",
-		"--set", "autoscaler.evictor.enabled=true",
-		"--set", "autoscaler.live.enabled=false",
-		"--set", "autoscaler.pod-mutator.enabled=false",
-		"--set", "autoscaler.workload-autoscaler.enabled=false",
-		"--set", "autoscaler.metrics-server.enabled=false",
+		"--set", "autoscaler.castai-agent.enabled=true",
+		"--set", "autoscaler.castai-cluster-controller.enabled=true",
+		"--set", "autoscaler.castai-evictor.enabled=true",
+		"--set", "autoscaler.castai-live.enabled=false",
+		"--set", "autoscaler.castai-pod-mutator.enabled=false",
+		"--set", "autoscaler.castai-workload-autoscaler.enabled=false",
+		"--set", "autoscaler.castai-kvisor.enabled=true",
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
 		"--set", fmt.Sprintf("global.castai.provider=%s", provider),
@@ -81,13 +81,13 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerAnywhereMode(apiKey, clusterName s
 		"--namespace", h.namespace,
 		"--create-namespace",
 		"--set", "autoscaler-anywhere.enabled=true",
-		"--set", "autoscaler-anywhere.agent.enabled=true",
-		"--set", "autoscaler-anywhere.cluster-controller.enabled=true",
-		"--set", "autoscaler-anywhere.evictor.enabled=true",
-		"--set", "autoscaler-anywhere.pod-mutator.enabled=true",
-		"--set", "autoscaler-anywhere.workload-autoscaler.enabled=false",
-		"--set", "autoscaler-anywhere.workload-autoscaler-exporter.enabled=false",
-		"--set", fmt.Sprintf("autoscaler-anywhere.agent.additionalEnv.ANYWHERE_CLUSTER_NAME=%s", clusterName),
+		"--set", "autoscaler-anywhere.castai-agent.enabled=true",
+		"--set", "autoscaler-anywhere.castai-cluster-controller.enabled=true",
+		"--set", "autoscaler-anywhere.castai-evictor.enabled=true",
+		"--set", "autoscaler-anywhere.castai-pod-mutator.enabled=true",
+		"--set", "autoscaler-anywhere.castai-workload-autoscaler.enabled=false",
+		"--set", "autoscaler-anywhere.castai-workload-autoscaler-exporter.enabled=false",
+		"--set", fmt.Sprintf("autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=%s", clusterName),
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
 		"--timeout", defaultHelmTimeout,
@@ -105,7 +105,7 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerOpenshiftMode(apiKey string) error
 		"--namespace", h.namespace,
 		"--create-namespace",
 		"--set", "autoscaler-openshift.enabled=true",
-		"--set", "autoscaler-openshift.agent.enabled=true",
+		"--set", "autoscaler-openshift.castai-agent.enabled=true",
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
 		"--timeout", defaultHelmTimeout,
@@ -182,6 +182,25 @@ func (p *PodHelper) VerifyDeploymentAbsent(g Gomega, deploymentName string) {
 	_, err := utils.Run(cmd)
 	g.Expect(err).To(HaveOccurred(),
 		fmt.Sprintf("Deployment %s should NOT exist", deploymentName))
+}
+
+// VerifyDaemonSetExists checks a daemonset with the given name exists.
+func (p *PodHelper) VerifyDaemonSetExists(g Gomega, daemonSetName string) {
+	cmd := exec.Command("kubectl", "get", "daemonset", daemonSetName,
+		"-n", p.namespace, "-o", "name")
+	output, err := utils.Run(cmd)
+	g.Expect(err).NotTo(HaveOccurred(),
+		fmt.Sprintf("DaemonSet %s should exist in namespace %s", daemonSetName, p.namespace))
+	g.Expect(output).To(ContainSubstring(daemonSetName))
+}
+
+// VerifyDaemonSetAbsent checks that NO daemonset with the given name exists.
+func (p *PodHelper) VerifyDaemonSetAbsent(g Gomega, daemonSetName string) {
+	cmd := exec.Command("kubectl", "get", "daemonset", daemonSetName,
+		"-n", p.namespace, "-o", "name")
+	_, err := utils.Run(cmd)
+	g.Expect(err).To(HaveOccurred(),
+		fmt.Sprintf("DaemonSet %s should NOT exist", daemonSetName))
 }
 
 // VerifySecretExists checks that a secret with the given name exists.

@@ -74,3 +74,11 @@ Create the name of the gpu-metrics-exporter config map
 {{- define "gpu-metrics-exporter.config-map" -}}
 {{- printf "%s-%s" .Release.Name "gpu-metrics-exporter" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
+
+{{- define "gpu-metrics-exporter.apiURL" -}}
+{{- coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiUrl -}}
+{{- end }}
+
+{{- define "gpu-metrics-exporter.provider" -}}
+{{- coalesce (dig "castai" "provider" "" (.Values.global | default dict)) .Values.provider -}}
+{{- end }}

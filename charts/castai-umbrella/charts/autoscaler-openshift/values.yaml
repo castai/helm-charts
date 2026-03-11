@@ -2,14 +2,14 @@
 #
 # SCC handling (default: restricted profile, OpenShift assigns UIDs):
 #   To provide specific UIDs instead:
-#     --set autoscaler-openshift.agent.openshift.scc.useRestrictedProfile=false
-#     --set autoscaler-openshift.agent.securityContext.runAsUser=<UID>
-#     --set autoscaler-openshift.agent.securityContext.runAsGroup=<GID>
-#     --set autoscaler-openshift.agent.securityContext.fsGroup=<GID>
+#     --set autoscaler-openshift.castai-agent.openshift.scc.useRestrictedProfile=false
+#     --set autoscaler-openshift.castai-agent.securityContext.runAsUser=<UID>
+#     --set autoscaler-openshift.castai-agent.securityContext.runAsGroup=<GID>
+#     --set autoscaler-openshift.castai-agent.securityContext.fsGroup=<GID>
 #   To disable SCC entirely (rely on OpenShift default restricted-v2):
-#     --set autoscaler-openshift.agent.openshift.scc.enabled=false
+#     --set autoscaler-openshift.castai-agent.openshift.scc.enabled=false
 
-agent:
+castai-agent:
   enabled: true
   replicaCount: 1
   provider: openshift
@@ -20,7 +20,7 @@ agent:
   # Security context: runAsUser/runAsGroup/fsGroup are nulled out by default
   # (matches agent.go behavior — lets OpenShift manage UIDs).
   # Override with specific values if needed:
-  #   --set autoscaler-openshift.agent.securityContext.runAsUser=<UID>
+  #   --set autoscaler-openshift.castai-agent.securityContext.runAsUser=<UID>
   securityContext:
     runAsUser: null
     runAsGroup: null

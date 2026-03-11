@@ -84,6 +84,8 @@ spec:
               value: {{ .Values.woop.enabled | quote }}
             - name: WOOP_USE_K8S_CLIENT_CACHE
               value: {{ .Values.woop.useK8sClientCache | quote }}
+            - name: POD_MUTATIONS_ENABLED
+              value: {{ .Values.podMutations.enabled | quote }}
             - name: KARPENTER_MODE_ENABLED
               value: {{ .Values.karpenterMode.enabled | quote }}
             - name: SCOPED_MODE

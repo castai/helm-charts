@@ -1,6 +1,6 @@
 # kent
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.4.1](https://img.shields.io/badge/Version-0.4.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Kent profile.
 
@@ -8,53 +8,53 @@ Wrapper chart for CAST AI Kent profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | agent(castai-agent) | 0.140.0 |
-| https://castai.github.io/helm-charts | cluster-controller(castai-cluster-controller) | 0.89.1 |
-| https://castai.github.io/helm-charts | evictor(castai-evictor) | 0.33.199 |
-| https://castai.github.io/helm-charts | kentroller(castai-kentroller) | 0.1.56 |
-| https://castai.github.io/helm-charts | live(castai-live) | 0.71.0 |
-| https://castai.github.io/helm-charts | pod-mutator(castai-pod-mutator) | 0.5.0 |
-| https://castai.github.io/helm-charts | workload-autoscaler(castai-workload-autoscaler) | 0.1.183 |
-| https://kubernetes-sigs.github.io/metrics-server/ | metrics-server(metrics-server) | 3.13.0 |
+| https://castai.github.io/helm-charts | castai-agent | 0.145.0 |
+| https://castai.github.io/helm-charts | castai-cluster-controller | 0.90.0 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.34.2 |
+| https://castai.github.io/helm-charts | castai-kentroller | 0.1.72 |
+| https://castai.github.io/helm-charts | castai-live | 0.75.1 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.5.0 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.186 |
+| https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| agent.apiKeySecretRef | string | `"castai-credentials"` |  |
-| agent.createNamespace | bool | `false` |  |
-| agent.enabled | bool | `true` |  |
-| agent.provider | string | `"eks"` |  |
-| agent.replicaCount | int | `1` |  |
-| cluster-controller.autoscaling.enabled | bool | `false` |  |
-| cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
-| cluster-controller.enabled | bool | `true` |  |
-| cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| evictor.aggressiveMode | bool | `true` |  |
-| evictor.enabled | bool | `true` |  |
-| evictor.envFrom[0].secretRef.name | string | `"castai-credentials"` |  |
-| evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| evictor.karpenterMode.enabled | bool | `true` |  |
-| evictor.overrideEnvFrom | bool | `true` |  |
-| evictor.replicaCount | int | `1` |  |
-| kentroller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
-| kentroller.enabled | bool | `true` |  |
-| kentroller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| live.castai-aws-vpc-cni.enabled | bool | `true` |  |
-| live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
-| live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
-| live.controller.replicaCount | int | `0` |  |
-| live.daemon.labelNodeSubnet | bool | `true` |  |
-| live.enabled | bool | `true` |  |
+| castai-agent.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-agent.createNamespace | bool | `false` |  |
+| castai-agent.enabled | bool | `true` |  |
+| castai-agent.provider | string | `"eks"` |  |
+| castai-agent.replicaCount | int | `1` |  |
+| castai-cluster-controller.autoscaling.enabled | bool | `false` |  |
+| castai-cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-cluster-controller.enabled | bool | `true` |  |
+| castai-cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-evictor.aggressiveMode | bool | `true` |  |
+| castai-evictor.enabled | bool | `true` |  |
+| castai-evictor.envFrom[0].secretRef.name | string | `"castai-credentials"` |  |
+| castai-evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-evictor.karpenterMode.enabled | bool | `true` |  |
+| castai-evictor.overrideEnvFrom | bool | `true` |  |
+| castai-evictor.replicaCount | int | `1` |  |
+| castai-kentroller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-kentroller.enabled | bool | `true` |  |
+| castai-kentroller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-live.castai-aws-vpc-cni.enabled | bool | `true` |  |
+| castai-live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| castai-live.controller.replicaCount | int | `0` |  |
+| castai-live.daemon.labelNodeSubnet | bool | `true` |  |
+| castai-live.enabled | bool | `true` |  |
+| castai-pod-mutator.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-pod-mutator.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| castai-pod-mutator.dependencyCheck.enabled | bool | `false` |  |
+| castai-pod-mutator.enabled | bool | `true` |  |
+| castai-pod-mutator.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-workload-autoscaler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-workload-autoscaler.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| castai-workload-autoscaler.enabled | bool | `true` |  |
 | metrics-server.enabled | bool | `false` |  |
-| pod-mutator.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
-| pod-mutator.castai.configMapRef | string | `"castai-agent-metadata"` |  |
-| pod-mutator.dependencyCheck.enabled | bool | `false` |  |
-| pod-mutator.enabled | bool | `true` |  |
-| pod-mutator.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| workload-autoscaler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
-| workload-autoscaler.castai.configMapRef | string | `"castai-agent-metadata"` |  |
-| workload-autoscaler.enabled | bool | `true` |  |
 
 ----------------------------------------------
-Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
+Autogenerated from chart metadata using [helm-docs v1.14.2](https://github.com/norwoodj/helm-docs/releases/v1.14.2)

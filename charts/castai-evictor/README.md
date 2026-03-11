@@ -6,7 +6,7 @@ Cluster utilization defragmentation tool
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/castai-evictor-ext | castai-evictor-ext | 0.4.0 |
+| file://child-charts/castai-evictor-ext | castai-evictor-ext | 0.5.0 |
 
 ## Values
 
@@ -63,6 +63,7 @@ Cluster utilization defragmentation tool
 | overrideEnvFrom | bool | `false` | If set to true, completely overrides the default `envFrom` section for the evictor container. When false (default), values provided here will be appended to the chart's defaults. |
 | podAnnotations | object | `{}` |  |
 | podLabels | object | `{}` |  |
+| podMutations | object | `{"enabled":false}` | Specifies settings for working with PodMutation CRs. |
 | rbac.enabled | bool | `true` |  |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |

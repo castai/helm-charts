@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.66.1](https://img.shields.io/badge/Version-0.66.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.68.1](https://img.shields.io/badge/Version-0.68.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -34,10 +34,10 @@ CAST AI database cache deployment.
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
-| pgdog.config | object | `{"checkout_timeout":10000,"connect_timeout":5000,"default_pool_size":10,"healthcheck_interval":30000,"healthcheck_timeout":5000,"idle_healthcheck_delay":5000,"idle_healthcheck_interval":30000,"log_connections":false,"log_disconnections":false,"passthrough_auth":"enabled_plain","pooler_mode":"transaction","prepared_statements":"extended_anonymous","prepared_statements_limit":5000,"query_cache_limit":500,"query_parser_enabled":true,"rollback_timeout":5000,"shutdown_timeout":60000,"tls_certificate":"/etc/ssl/certs/ssl-cert-snakeoil.pem","tls_private_key":"/etc/ssl/private/ssl-cert-snakeoil.key","tls_verify":"prefer","workers":10}` | Pgdog general configuration settings. Corresponds to [general] section in pgdog.toml: https://docs.pgdog.dev/configuration/pgdog.toml/general/. |
+| pgdog.config | object | `{"checkout_timeout":10000,"connect_timeout":5000,"default_pool_size":500,"healthcheck_interval":30000,"healthcheck_timeout":5000,"idle_healthcheck_delay":5000,"idle_healthcheck_interval":30000,"log_connections":false,"log_disconnections":false,"passthrough_auth":"enabled_plain","pooler_mode":"transaction","prepared_statements":"extended_anonymous","prepared_statements_limit":5000,"query_cache_limit":500,"query_parser":"on","rollback_timeout":5000,"shutdown_timeout":60000,"tls_certificate":"/etc/ssl/certs/ssl-cert-snakeoil.pem","tls_private_key":"/etc/ssl/private/ssl-cert-snakeoil.key","tls_verify":"prefer","workers":10}` | Pgdog general configuration settings. Corresponds to [general] section in pgdog.toml: https://docs.pgdog.dev/configuration/pgdog.toml/general/. |
 | pgdog.config.checkout_timeout | int | `10000` | Maximum amount of time a client is allowed to wait for a connection from the pool (in milliseconds) |
 | pgdog.config.connect_timeout | int | `5000` | Maximum amount of time to allow for PgDog to create a connection to Postgres (in milliseconds) |
-| pgdog.config.default_pool_size | int | `10` | Default maximum number of server connections per database pool |
+| pgdog.config.default_pool_size | int | `500` | Default maximum number of server connections per database pool |
 | pgdog.config.healthcheck_interval | int | `30000` | Frequency of healthchecks performed by PgDog to ensure connections provided to clients from the pool are working (in milliseconds) |
 | pgdog.config.healthcheck_timeout | int | `5000` | Health check timeout in milliseconds (custom field, not in official pgdog docs) |
 | pgdog.config.idle_healthcheck_delay | int | `5000` | Delay running idle healthchecks at PgDog startup to give databases (and pools) time to spin up (in milliseconds) |
@@ -49,7 +49,7 @@ CAST AI database cache deployment.
 | pgdog.config.prepared_statements | string | `"extended_anonymous"` | Enables prepared statement support with varying levels of rewriting capability. Options: "disabled", "extended", "extended_anonymous", "full" |
 | pgdog.config.prepared_statements_limit | int | `5000` | Maximum number of prepared statements that can be cached per connection |
 | pgdog.config.query_cache_limit | int | `500` | Maximum number of entries in the query cache |
-| pgdog.config.query_parser_enabled | bool | `true` | Force-enable query parsing for advanced features like advisory locks in non-sharded databases |
+| pgdog.config.query_parser | string | `"on"` | Force-enable query parsing for advanced features like advisory locks in non-sharded databases |
 | pgdog.config.rollback_timeout | int | `5000` | How long to allow for ROLLBACK queries to run on server connections with unfinished transactions (in milliseconds) |
 | pgdog.config.shutdown_timeout | int | `60000` | How long to wait for active clients to finish transactions when shutting down (in milliseconds) |
 | pgdog.config.tls_certificate | string | `"/etc/ssl/certs/ssl-cert-snakeoil.pem"` | Path to the TLS certificate PgDog will use to setup TLS connections with clients |
@@ -78,8 +78,9 @@ CAST AI database cache deployment.
 | proxy.coredumpCollectionMode | string | `"None"` | Disable core dump collection by default |
 | proxy.dataStorageMedium | string | `"Memory"` | Defines "emptyDir.medium" value for data storage volume. Set to "Memory" for tmpfs disk |
 | proxy.dnsLookupFamily | string | `"V4_PREFERRED"` | DNS lookup mode when communicating to outside. will prioritize IPV4 addresses. change to V6_ONLY to use v6 addresses instead. |
-| proxy.drainPreHook | int | `2` | Predrain timeout in seconds. |
-| proxy.drainTimeSeconds | int | `60` | Default drain time in seconds. |
+| proxy.draining | object | `{"enabled":false,"gracePeriodSeconds":30}` | Graceful draining configuration. |
+| proxy.draining.enabled | bool | `false` | Enable graceful draining of connections before pod termination. |
+| proxy.draining.gracePeriodSeconds | int | `30` | How long to actively attempt draining existing connections. |
 | proxy.logLevel | string | `"filter:info"` | Default proxy log level. |
 | proxy.networkDebug | bool | `false` | Extra network debug logging. |
 | proxy.tlsSecretName | string | `nil` | Name of a Kubernetes TLS Secret that contains the key pair to use for configuring TLS in the proxy. If not set, defaults to using a built-in key pair. |

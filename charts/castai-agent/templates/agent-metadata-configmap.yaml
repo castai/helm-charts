@@ -1,0 +1,18 @@
+{{- if or .Values.metadataStore.enabled (eq (include "castai-agent.provider" .) "anywhere") }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.metadataStore.configMapName }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  {{- if gt (len .Values.commonAnnotations) 0 }}
+  annotations:
+    {{- include "castai-agent.annotations" . | nindent 4 }}
+  {{- end }}
+data:
+  API_URL: {{ required "apiURL must be provided" (coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.apiURL) | quote }}
+  GRPC_URL: {{ required "grpcURL must be provided" (coalesce (dig "castai" "grpcURL" "" (.Values.global | default dict)) .Values.grpcURL) | quote }}
+  # CLUSTER_ID is NOT managed by Helm — it is written by the agent after cluster registration.
+  # Removing it from the template prevents helm upgrade from overwriting the agent's value.
+{{- end }}

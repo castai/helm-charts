@@ -1,4 +1,4 @@
-agent:
+castai-agent:
   enabled: true
   replicaCount: 1
   apiKeySecretRef: castai-credentials
@@ -7,7 +7,7 @@ agent:
   # executed for helm to create the namespace `helm --create-namespace`
   createNamespace: false
 
-cluster-controller:
+castai-cluster-controller:
   enabled: true
   castai:
     apiKeySecretRef: castai-credentials
@@ -17,7 +17,7 @@ cluster-controller:
   autoscaling:
     enabled: false
 
-kentroller:
+castai-kentroller:
   enabled: true
   castai:
     apiKeySecretRef: castai-credentials
@@ -25,14 +25,14 @@ kentroller:
     - configMapRef:
         name: castai-agent-metadata
 
-workload-autoscaler:
+castai-workload-autoscaler:
   enabled: true
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
 # controller.replicaCount: 0 = CLM disabled, 2 = CLM enabled.
-live:
+castai-live:
   enabled: true
   castai:
     apiKeySecretRef: castai-credentials
@@ -44,7 +44,7 @@ live:
   controller:
     replicaCount: 0
 
-pod-mutator:
+castai-pod-mutator:
   enabled: true
   dependencyCheck:
     enabled: false
@@ -55,7 +55,7 @@ pod-mutator:
     - configMapRef:
         name: castai-agent-metadata
 
-evictor:
+castai-evictor:
   enabled: true
   replicaCount: 1
   karpenterMode:

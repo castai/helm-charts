@@ -1,0 +1,34 @@
+suite: clusterIdConfigMapKeyRef wires CLUSTER_ID from external ConfigMap
+templates:
+  - gpu-exporter-configmap.yaml
+  - secret.yaml
+  - daemonset.yaml
+set:
+  castai.apiKeySecretRef: castai-credentials
+  castai.clusterIdConfigMapKeyRef.name: castai-agent-metadata
+  castai.clusterIdConfigMapKeyRef.key: CLUSTER_ID
+  global.castai.provider: gke
+tests:
+  - it: gpu-exporter ConfigMap omits CLUSTER_ID key
+    template: gpu-exporter-configmap.yaml
+    asserts:
+      - notExists:
+          path: data.CLUSTER_ID
+
+  - it: DaemonSet has CLUSTER_ID env var sourced from configMapKeyRef
+    template: daemonset.yaml
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: "CLUSTER_ID"
+            valueFrom:
+              configMapKeyRef:
+                name: castai-agent-metadata
+                key: CLUSTER_ID
+
+  - it: No gpu-metrics-exporter Secret is rendered (apiKeySecretRef is used instead)
+    template: secret.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
