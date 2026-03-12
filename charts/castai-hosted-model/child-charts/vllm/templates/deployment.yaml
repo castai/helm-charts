@@ -70,8 +70,14 @@ spec:
               - key: gcsCredentialsJson
                 path: credentials.json
         {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: models
+          persistentVolumeClaim:
+            claimName: {{ include "vllm.fullname" . }}-cache
+        {{- else }}
         - name: models
           emptyDir: {}
+        {{- end }}
         - name: startup-script
           configMap:
             name: {{ include "vllm.fullname" . }}-startup-script
@@ -79,11 +85,6 @@ spec:
         {{- if .Values.model.cache.enabled }}
         - name: cache-ready
           emptyDir: {}
-        {{- end }}
-        {{- if .Values.persistence.enabled }}
-        - name: vllm-cache
-          persistentVolumeClaim:
-            claimName: {{ include "vllm.fullname" . }}-cache
         {{- end }}
       containers:
         - name: "vllm"
@@ -227,6 +228,14 @@ spec:
           {{- end }}
             - name: models
               mountPath: /models
+              {{- if .Values.persistence.enabled }}
+              subPath: models
+              {{- end }}
+          {{- if .Values.persistence.enabled }}
+            - name: models
+              mountPath: /root/.cache/vllm
+              subPath: cache
+          {{- end }}
           {{- if eq .Values.model.sourceRegistry "gcs" }}
             - name: gcs-credentials-model
               mountPath: /etc/gcs-credentials
@@ -243,10 +252,6 @@ spec:
           {{- if .Values.model.cache.enabled }}
             - name: cache-ready
               mountPath: /cache-ready
-          {{- end }}
-          {{- if .Values.persistence.enabled }}
-            - name: vllm-cache
-              mountPath: /root/.cache/vllm
           {{- end }}
       initContainers:
         {{- if and .Values.model.cache.enabled .Values.useRunAiStreamer }}
@@ -322,6 +327,9 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /models
+              {{- if .Values.persistence.enabled }}
+              subPath: models
+              {{- end }}
             {{- if eq .Values.model.sourceRegistry "gcs" }}
             - name: gcs-credentials-model
               mountPath: /etc/gcs-credentials
@@ -350,6 +358,9 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /models
+              {{- if .Values.persistence.enabled }}
+              subPath: models
+              {{- end }}
             {{- if eq .Values.loraAdapter.sourceRegistry "gcs" }}
             - name: gcs-credentials-lora
               mountPath: /etc/gcs-credentials-lora
