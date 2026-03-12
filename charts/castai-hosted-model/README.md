@@ -1,6 +1,6 @@
 # castai-hosted-model
 
-CAST AI hosted model deployment chart.
+CAST AI hosted model deployment chart with PVC support for compilation caches.
 
 ## Requirements
 

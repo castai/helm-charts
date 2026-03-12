@@ -72,6 +72,11 @@ CAST AI hosted model deployment chart for vLLM.
 | modelDownloader.resources.limits.memory | string | `"500Mi"` |  |
 | modelDownloader.resources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.resources.requests.memory | string | `"500Mi"` |  |
+| persistence.accessMode | string | `"ReadWriteOnce"` |  |
+| persistence.annotations | object | `{}` |  |
+| persistence.enabled | bool | `false` |  |
+| persistence.size | string | `"50Gi"` |  |
+| persistence.storageClass | string | `""` |  |
 | podAnnotations | object | `{}` | Additional annotations labels to set for the vLLM pod |
 | podLabels | object | `{}` | Additional pod labels to set for the vLLM pod |
 | readinessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":5,"periodSeconds":5,"successThreshold":1,"timeoutSeconds":1}` | Readiness probe configuration |

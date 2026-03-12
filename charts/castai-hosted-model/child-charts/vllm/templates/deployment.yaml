@@ -80,6 +80,11 @@ spec:
         - name: cache-ready
           emptyDir: {}
         {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: vllm-cache
+          persistentVolumeClaim:
+            claimName: {{ include "vllm.fullname" . }}-cache
+        {{- end }}
       containers:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
@@ -238,6 +243,10 @@ spec:
           {{- if .Values.model.cache.enabled }}
             - name: cache-ready
               mountPath: /cache-ready
+          {{- end }}
+          {{- if .Values.persistence.enabled }}
+            - name: vllm-cache
+              mountPath: /root/.cache/vllm
           {{- end }}
       initContainers:
         {{- if and .Values.model.cache.enabled .Values.useRunAiStreamer }}

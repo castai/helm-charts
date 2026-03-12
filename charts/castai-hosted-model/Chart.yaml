@@ -1,8 +1,8 @@
 apiVersion: v2
 name: castai-hosted-model
-description: CAST AI hosted model deployment chart.
+description: CAST AI hosted model deployment chart with PVC support for compilation caches.
 type: application
-version: 0.0.48
+version: 0.0.49
 appVersion: "v0.0.1"
 dependencies:
   - name: vllm

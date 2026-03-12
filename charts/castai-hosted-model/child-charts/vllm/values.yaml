@@ -5,6 +5,13 @@ image:
 replicaCount: 1
 resources: {}
 
+persistence:
+  enabled: false
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 50Gi
+  annotations: {}
+
 modelDownloader:
   image:
     repository: "us-docker.pkg.dev/castai-hub/library/model-downloader"
