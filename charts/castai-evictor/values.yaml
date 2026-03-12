@@ -77,7 +77,7 @@ podMutations:
   # before a PodMutation CR existed (or before the pod-mutator webhook applied it), whose
   # running specs do not yet reflect the intended mutation.
   # This option requires the castai-pod-mutator to be installed in the cluster.
-  enabled: false
+  enabled: true
 
 # karpenterMode -- Specifies settings for working with Karpenter NodePool and NodeClaim resources.
 karpenterMode:
