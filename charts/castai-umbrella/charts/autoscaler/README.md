@@ -10,8 +10,8 @@ Wrapper chart for CAST AI Autoscaler profile.
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.145.0 |
 | https://castai.github.io/helm-charts | castai-ai-optimizer-proxy | 0.0.115 |
-| https://castai.github.io/helm-charts | castai-cluster-controller | 0.90.0 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.34.4 |
+| https://castai.github.io/helm-charts | castai-cluster-controller | 0.90.1 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.34.5 |
 | https://castai.github.io/helm-charts | castai-kvisor | 1.0.131 |
 | https://castai.github.io/helm-charts | castai-live | 0.75.1 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.5.0 |
