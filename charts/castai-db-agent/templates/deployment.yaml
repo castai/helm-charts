@@ -44,8 +44,10 @@ spec:
               {{- else }}
               value: "{{ required "target database port must be provided" .Values.database.port }}"
               {{- end }}
+              {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
             - name: DATABASE_SSL_MODE
               value: "disable"
+              {{- end }}
             - name: DATABASE_USE_IAM_AUTH
               value: "{{ .Values.database.useIAMAuth }}"
             - name: INDEX_ADVISOR_CLIENT_GRPC_ENDPOINT
