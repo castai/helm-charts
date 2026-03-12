@@ -149,6 +149,8 @@ queryProcessor:
   concurrency: 10
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
+  # -- Filepath for crash logs
+  crashLogPath: /tmp/query-processor-crash.log
 
 cloudSqlProxy:
   # -- Enable Cloud SQL Proxy sidecar
