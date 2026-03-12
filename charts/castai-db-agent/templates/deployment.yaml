@@ -33,9 +33,19 @@ spec:
             - name: CACHE_GROUP_ID
               value: "{{ required "cache group ID must be provided" .Values.cacheGroupID }}"
             - name: DATABASE_HOST
+              {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
+              value: "127.0.0.1"
+              {{- else }}
               value: "{{ required "target database host must be provided" .Values.database.host }}"
+              {{- end }}
             - name: DATABASE_PORT
+              {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
+              value: "{{ .Values.cloudSqlProxy.port }}"
+              {{- else }}
               value: "{{ required "target database port must be provided" .Values.database.port }}"
+              {{- end }}
+            - name: DATABASE_SSL_MODE
+              value: "disable"
             - name: DATABASE_USE_IAM_AUTH
               value: "{{ .Values.database.useIAMAuth }}"
             - name: INDEX_ADVISOR_CLIENT_GRPC_ENDPOINT
@@ -92,3 +102,23 @@ spec:
             {{- fail "database.username/database.password or database.credentialsSecretRef must be provided" }}
             {{- end }}
             {{- end }}
+        {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
+        - name: cloud-sql-proxy
+          image: "{{.Values.cloudSqlProxyImage.repository}}:{{ include "cloudSqlProxyImage" . }}"
+          imagePullPolicy: {{ $.Values.cloudSqlProxyImage.pullPolicy }}
+          args:
+            {{- if .Values.cloudSqlProxy.privateIp }}
+            - "--private-ip"
+            {{- end }}
+            {{- if .Values.cloudSqlProxy.autoIamAuthn }}
+            - "--auto-iam-authn"
+            {{- end }}
+            - "--structured-logs"
+            - "{{ $.Values.cloudSqlProxy.instanceConnectionName }}?port=10000"
+          securityContext:
+            runAsNonRoot: true
+          resources:
+            requests:
+              memory: "2Gi"
+              cpu: "1"
+        {{- end }}

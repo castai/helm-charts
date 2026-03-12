@@ -28,3 +28,7 @@ helm.sh/chart: {{ include "chart" . }}
 {{- define "dbAgentImage" -}}
 {{-  default (include "defaultDbAgentVersion" .) .Values.image.tag }}
 {{- end }}
+
+{{- define "cloudSqlProxyImage" -}}
+{{-  default (include "defaultCloudSqlProxyVersion" .) .Values.cloudSqlProxyImage.tag }}
+{{- end }}
