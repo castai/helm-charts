@@ -320,9 +320,6 @@ spec:
                         - state
                         type: object
                       type: array
-                      x-kubernetes-list-map-keys:
-                      - name
-                      x-kubernetes-list-type: map
                     name:
                       description: Name of the data source
                       type: string
