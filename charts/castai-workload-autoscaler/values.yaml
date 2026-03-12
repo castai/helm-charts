@@ -291,6 +291,9 @@ extraVolumes: []
 # -- Used to set additional volumemounts
 extraVolumeMounts: []
 
+gpu:
+  enabled: false
+
 watchListClient: true
 
 fullnameOverride: castai-workload-autoscaler

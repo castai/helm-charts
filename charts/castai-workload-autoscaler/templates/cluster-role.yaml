@@ -162,4 +162,40 @@ rules:
       - list
       - watch
   {{- end }}
+  {{- if .Values.gpu.enabled }}
+  # ---
+  # Permissions for GPU recommendation support - DRA ResourceClaims and ResourceSlices
+  # ---
+  - apiGroups:
+      - resource.k8s.io
+    resources:
+      - resourceclaims
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - resource.k8s.io
+    resources:
+      - resourceslices
+    verbs:
+      - get
+      - list
+      - watch
+  # ---
+  # Read permissions for nodes - required for checking pod/claim node compatibility
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  {{- end }}
 {{- end }}
