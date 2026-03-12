@@ -6,7 +6,7 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/castai-cluster-controller-ext | castai-cluster-controller-ext | 0.1.0 |
+| file://child-charts/castai-cluster-controller-ext | castai-cluster-controller-ext | 0.1.1 |
 
 ## Values
 
