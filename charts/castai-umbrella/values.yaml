@@ -9,8 +9,12 @@ global:
 kent:
   enabled: false
 
-autoscaler:
-  enabled: false
-
 autoscaler-anywhere:
   enabled: false
+
+# tags -- Enable a product tier.
+# tags.readonly=true  → enables readonly sub-chart (agent, spot-handler, kvisor, gpu-metrics-exporter)
+# tags.autoscaler=true → enables readonly + autoscaler sub-charts (adds cluster-controller, evictor, pod-mutator, pod-pinner, castai-live)
+tags:
+  readonly: false
+  autoscaler: false

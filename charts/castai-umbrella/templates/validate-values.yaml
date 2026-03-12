@@ -1,18 +1,19 @@
-{{- $autoscalerAnywhereEnabled := (index .Values "autoscaler-anywhere").enabled | default false }}
-{{- if or .Values.kent.enabled .Values.autoscaler.enabled $autoscalerAnywhereEnabled }}
+{{/* ── Tag-based mode validation ────────────────────────────────────────────── */}}
+{{- $tagsEnabled := or .Values.tags.readonly .Values.tags.autoscaler }}
+{{- if $tagsEnabled }}
 {{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling kent, autoscaler, or autoscaler-anywhere profile (set --set global.castai.apiKey=<API_KEY>)" }}
+{{ fail "global.castai.apiKey is required when enabling a mode tag (tags.readonly or tags.autoscaler)" }}
 {{- end }}
-{{- $autoscalerSpotHandler := index .Values.autoscaler "castai-spot-handler" | default dict }}
-{{- $autoscalerSpotHandlerCastai := index $autoscalerSpotHandler "castai" | default dict }}
-{{- $autoscalerAgent := index .Values.autoscaler "castai-agent" | default dict }}
-{{- $global := .Values.global | default dict }}
-{{- $globalCastai := index $global "castai" | default dict }}
-{{- if and .Values.autoscaler.enabled (not (or (index $autoscalerAgent "provider") (index $globalCastai "provider"))) }}
-{{ fail "autoscaler castai-agent provider is required when autoscaler profile is enabled (set either --set autoscaler.castai-agent.provider=<eks|aks|gke|kops|anywhere> or --set global.castai.provider=<eks|aks|gke|kops|anywhere>)" }}
+{{- if not .Values.global.castai.provider }}
+{{ fail "global.castai.provider is required when enabling a mode tag (eks, aks, gke, kops)" }}
 {{- end }}
-{{- if and .Values.autoscaler.enabled (not (or (index $autoscalerSpotHandlerCastai "provider") (index $globalCastai "provider"))) }}
-{{ fail "autoscaler castai-spot-handler provider is required when autoscaler profile is enabled (set either --set autoscaler.castai-spot-handler.castai.provider=<aws|azure|gcp> or --set global.castai.provider=<eks|aks|gke|aws|azure|gcp>)" }}
+{{- end }}
+
+{{/* ── Legacy profile validation ────────────────────────────────────────────── */}}
+{{- $autoscalerAnywhereEnabled := (index .Values "autoscaler-anywhere").enabled | default false }}
+{{- if or .Values.kent.enabled $autoscalerAnywhereEnabled }}
+{{- if not .Values.global.castai.apiKey }}
+{{ fail "global.castai.apiKey is required when enabling kent or autoscaler-anywhere profile (set --set global.castai.apiKey=<API_KEY>)" }}
 {{- end }}
 {{- if $autoscalerAnywhereEnabled }}
 {{- $anywhereAgent := index (index .Values "autoscaler-anywhere") "castai-agent" | default dict }}

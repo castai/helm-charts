@@ -1,18 +1,43 @@
 apiVersion: v2
 name: castai
-description: Umbrella chart for CAST AI components with profile-based installation.
+description: Umbrella chart for CAST AI components.
 type: application
 version: 0.17.8
 dependencies:
+  # ── Legacy profile sub-charts ─────────────────────────────────────────────────
   - name: kent
     version: "*"
     repository: "file://charts/kent"
     condition: kent.enabled
-  - name: autoscaler
-    version: "*"
-    repository: "file://charts/autoscaler"
-    condition: autoscaler.enabled
+
   - name: autoscaler-anywhere
     version: "*"
     repository: "file://charts/autoscaler-anywhere"
     condition: autoscaler-anywhere.enabled
+
+  # ── Mode sub-charts (tag-gated) ───────────────────────────────────────────────
+  # Usage:
+  #   helm upgrade -i castai castai-helm/castai -n castai-agent --create-namespace \
+  #     --set global.castai.apiKey=<KEY> \
+  #     --set global.castai.provider=<eks|aks|gke> \
+  #     --set tags.readonly=true
+  #
+  #   helm upgrade -i castai castai-helm/castai -n castai-agent --create-namespace \
+  #     --set global.castai.apiKey=<KEY> \
+  #     --set global.castai.provider=<eks|aks|gke> \
+  #     --set tags.autoscaler=true
+
+  - name: readonly
+    version: "*"
+    repository: "file://charts/readonly"
+    condition: readonly.enabled
+    tags:
+      - readonly
+      - autoscaler   # autoscaler mode includes readonly components
+
+  - name: autoscaler
+    version: "*"
+    repository: "file://charts/autoscaler"
+    condition: autoscaler.enabled
+    tags:
+      - autoscaler

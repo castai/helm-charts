@@ -1,47 +1,5 @@
-# Default values for the CAST AI Autoscaler profile.
-# Toggle individual components on/off as needed.
-#
-# Provider-specific notes:
-#   - global.castai.provider must be set to: eks | aks | gke
-#   - spot-handler.castai.provider is derived automatically by the spot-handler chart
-#     from global.castai.provider (eks->aws, aks->azure, gke->gcp)
-#   - cluster-controller.aks.enabled must be set to true on AKS clusters
-
-castai-agent:
-  enabled: true
-  replicaCount: 1
-  apiKeySecretRef: castai-credentials
-  createNamespace: false
-
-castai-spot-handler:
-  enabled: true
-  castai:
-    # provider is resolved by the spot-handler chart from global.castai.provider.
-    # Override here only if you need to decouple from the global value.
-    provider: ""
-    clusterIdConfigMapKeyRef:
-      name: castai-agent-metadata
-      key: CLUSTER_ID
-  apiKeySecretRef: castai-credentials
-
-castai-kvisor:
-  enabled: true
-  castai:
-    apiKeySecretRef: castai-credentials
-    clusterIdConfigMapKeyRef:
-      name: castai-agent-metadata
-      key: CLUSTER_ID
-
-gpu-metrics-exporter:
-  enabled: true
-  castai:
-    apiKeySecretRef: castai-credentials
-    clusterIdConfigMapKeyRef:
-      name: castai-agent-metadata
-      key: CLUSTER_ID
-
 castai-cluster-controller:
-  enabled: false
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
   envFrom:
@@ -52,22 +10,8 @@ castai-cluster-controller:
   aks:
     enabled: false
 
-castai-workload-autoscaler:
-  enabled: false
-  fullnameOverride: castai-workload-autoscaler
-  castai:
-    apiKeySecretRef: castai-credentials
-    configMapRef: castai-agent-metadata
-
-castai-workload-autoscaler-exporter:
-  enabled: false
-  fullnameOverride: castai-workload-autoscaler-exporter
-  castai:
-    apiKeySecretRef: castai-credentials
-    configMapRef: castai-agent-metadata
-
 castai-evictor:
-  enabled: false
+  enabled: true
   replicaCount: 1
   aggressiveMode: false
   overrideEnvFrom: true
@@ -78,7 +22,7 @@ castai-evictor:
         name: castai-agent-metadata
 
 castai-pod-mutator:
-  enabled: false
+  enabled: true
   fullnameOverride: castai-pod-mutator
   dependencyCheck:
     enabled: false
@@ -90,7 +34,7 @@ castai-pod-mutator:
         name: castai-agent-metadata
 
 castai-pod-pinner:
-  enabled: false
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
     clusterIdConfigMapKeyRef:
@@ -98,16 +42,8 @@ castai-pod-pinner:
       key: CLUSTER_ID
   replicaCount: 0
 
-castai-ai-optimizer-proxy:
-  enabled: false
-  castai:
-    apiKeySecretRef: castai-credentials
-    clusterIdConfigMapKeyRef:
-      name: castai-agent-metadata
-      key: CLUSTER_ID
-
 castai-live:
-  enabled: false
+  enabled: true
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
@@ -117,4 +53,3 @@ castai-live:
     labelNodeSubnet: true
   controller:
     replicaCount: 0
-
