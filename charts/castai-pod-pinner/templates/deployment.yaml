@@ -178,10 +178,8 @@ spec:
         - key: "scheduling.cast.ai/pod-pinning-preparing"
           operator: "Exists"
           effect: "NoSchedule"
-        - key: "provisioning.cast.ai/temporary"
-          operator: "Equal"
-          value: "resuming"
-          effect: "NoSchedule"
+        - key: CriticalAddonsOnly
+          operator: "Exists"
       {{- with .Values.tolerations }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
