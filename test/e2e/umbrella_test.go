@@ -463,21 +463,8 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
-		It("should have castai-agent registered with mothership", func() {
-			By("patching castai-agent with openshift provider env vars so it can register")
-			Expect(patchAgentForOpenshiftE2E(umbrellaNamespace, apiURL)).To(Succeed())
-
-			By("waiting for castai-agent to register — configmap is created only after successful registration")
-			Eventually(func(g Gomega) {
-				podHelper.VerifyAgentConnected(g)
-			}, 10*time.Minute, 10*time.Second).Should(Succeed())
-		})
-
-		It("should have castai-agent pod running and ready", func() {
-			Eventually(func(g Gomega) {
-				podHelper.VerifyAtLeastOnePodReady(g, "castai-agent")
-			}, 5*time.Minute, 10*time.Second).Should(Succeed())
-		})
+		// castai-agent with provider=openshift requires real OpenShift APIs to stay
+		// healthy — registration and pod readiness are not testable on Kind.
 
 		It("should NOT create cluster-controller in openshift mode", func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-cluster-controller")
@@ -600,20 +587,6 @@ func patchAgentForAnywhereE2E(namespace, apiURL, clusterName string) error {
 	return nil
 }
 
-// patchAgentForOpenshiftE2E overrides API_URL on the castai-agent deployment
-// for the test environment. The provider is already set to "openshift" via
-// chart values — only the API URL needs to be overridden.
-func patchAgentForOpenshiftE2E(namespace, apiURL string) error {
-	cmd := exec.Command("kubectl", "set", "env", "deployment/castai-agent",
-		"-n", namespace,
-		fmt.Sprintf("API_URL=%s", apiURL),
-	)
-	_, err := utils.Run(cmd)
-	if err != nil {
-		return fmt.Errorf("failed to set agent env vars for openshift mode: %w", err)
-	}
-	return nil
-}
 
 func discoverChartResources() {
 	cmds := [][]string{

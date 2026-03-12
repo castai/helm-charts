@@ -100,6 +100,11 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerAnywhereMode(apiKey, clusterName s
 }
 
 func (h *UmbrellaHelmHelper) InstallAutoscalerOpenshiftMode(apiKey string) error {
+	// The agent chart creates a Role/RoleBinding in the openshift-machine-api namespace
+	// when provider=openshift. Kind clusters don't have this namespace, so pre-create it.
+	// SCC resources are auto-skipped (gated on .Capabilities.APIVersions.Has "security.openshift.io/v1").
+	_, _ = utils.Run(exec.Command("kubectl", "create", "namespace", "openshift-machine-api"))
+
 	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
 		chartPath,
 		"--namespace", h.namespace,
