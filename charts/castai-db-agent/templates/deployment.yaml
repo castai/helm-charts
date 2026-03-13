@@ -83,7 +83,6 @@ spec:
               {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
               {{- end }}
-            {{- if .Values.database.useIAMAuth }}
             {{- if .Values.database.username }}
             - secretRef:
                 name: {{ include "name" $ }}-db-user
@@ -91,18 +90,7 @@ spec:
             - secretRef:
                 name: {{ .Values.database.credentialsSecretRef -}}
             {{- else }}
-            {{- fail "database.username or database.credentialsSecretRef must be provided when useIAMAuth is enabled" }}
-            {{- end }}
-            {{- else }}
-            {{- if and .Values.database.username .Values.database.password }}
-            - secretRef:
-                name: {{ include "name" $ }}-db-user
-            {{- else if .Values.database.credentialsSecretRef }}
-            - secretRef:
-                name: {{ .Values.database.credentialsSecretRef -}}
-            {{- else }}
-            {{- fail "database.username/database.password or database.credentialsSecretRef must be provided" }}
-            {{- end }}
+            {{- fail "database.username or database.credentialsSecretRef must be provided" }}
             {{- end }}
         {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
         - name: cloud-sql-proxy
@@ -116,7 +104,7 @@ spec:
             - "--auto-iam-authn"
             {{- end }}
             - "--structured-logs"
-            - "{{ $.Values.cloudSqlProxy.instanceConnectionName }}?port=10000"
+            - "{{ $.Values.database.host }}?port={{ $.Values.cloudSqlProxy.port }}"
           securityContext:
             runAsNonRoot: true
           resources:

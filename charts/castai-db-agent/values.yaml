@@ -37,8 +37,6 @@ collectors:
 cloudSqlProxy:
   # -- Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections
   enabled: false
-  # -- GCP Cloud SQL instance connection name (e.g., project:region:instance)
-  instanceConnectionName: ""
   # -- Have the proxy connect over private IP if connecting from a VPC-native GKE cluster
   privateIp: false
   # -- Have the proxy connect with Automatic IAM authentication
