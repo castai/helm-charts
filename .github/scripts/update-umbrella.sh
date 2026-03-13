@@ -8,14 +8,7 @@ CHART_NAME="${1:?chart name required}"
 VERSION="${2:?version required}"
 REPO_ROOT="${3:-.}"
 
-SUBCHART_FILES=(
-  "${REPO_ROOT}/charts/castai-umbrella/charts/autoscaler/Chart.yaml"
-  "${REPO_ROOT}/charts/castai-umbrella/charts/kent/Chart.yaml"
-  "${REPO_ROOT}/charts/castai-umbrella/charts/readonly/Chart.yaml"
-  "${REPO_ROOT}/charts/castai-umbrella/charts/node-autoscaler/Chart.yaml"
-  "${REPO_ROOT}/charts/castai-umbrella/charts/workload-autoscaler/Chart.yaml"
-  "${REPO_ROOT}/charts/castai-umbrella/charts/full/Chart.yaml"
-)
+mapfile -t SUBCHART_FILES < <(find "${REPO_ROOT}/charts/castai-umbrella/charts" -maxdepth 2 -name "Chart.yaml")
 
 CHANGED=false
 
