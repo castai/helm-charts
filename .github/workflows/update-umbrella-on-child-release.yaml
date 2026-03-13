@@ -26,6 +26,11 @@ jobs:
             exit 0
           fi
           CHART_NAME="${TAG%-${VERSION}}"
+          if [ "$CHART_NAME" == "castai" ]; then
+            echo "Tag '${TAG}' is the umbrella chart itself, skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
           echo "chart_name=${CHART_NAME}" >> $GITHUB_OUTPUT
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "skip=false" >> $GITHUB_OUTPUT
