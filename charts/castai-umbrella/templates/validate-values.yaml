@@ -16,8 +16,11 @@
 {{- if not .Values.global.castai.apiKey }}
 {{ fail "global.castai.apiKey is required when enabling a mode tag" }}
 {{- end }}
+{{- $modeTag := index $enabledTags 0 }}
+{{- if ne $modeTag "autoscaler-anywhere" }}
 {{- if not .Values.global.castai.provider }}
 {{ fail "global.castai.provider is required when enabling a mode tag (eks, aks, gke, kops)" }}
+{{- end }}
 {{- end }}
 {{- end }}
 
