@@ -1,6 +1,6 @@
 {{- if .Values.kent.enabled }}
 Thanks for installing CAST AI in Karpenter Enterprise mode.
-{{- else if (index .Values "autoscaler-anywhere").enabled }}
+{{- else if index .Values.tags "autoscaler-anywhere" }}
 Thanks for installing CAST AI in Autoscaler Anywhere mode.
 {{- else }}
 Thanks for installing CAST AI in Autoscaler mode.

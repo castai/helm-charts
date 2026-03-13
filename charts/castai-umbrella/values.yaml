@@ -6,9 +6,6 @@ global:
     # provider -- Kubernetes service provider: eks, aks, gke, kops, anywhere.
     provider: ""
 
-autoscaler-anywhere:
-  enabled: false
-
 kent:
   enabled: false
 
@@ -21,9 +18,11 @@ kent:
 #   node-autoscaler → full
 #   workload-autoscaler → full
 #
+# autoscaler-anywhere is standalone — no migration paths to/from other modes.
 # All other mode transitions require uninstall + reinstall.
 tags:
   readonly: false
   node-autoscaler: false
   workload-autoscaler: false
   full: false
+  autoscaler-anywhere: false

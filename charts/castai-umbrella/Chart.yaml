@@ -13,7 +13,8 @@ dependencies:
   - name: autoscaler-anywhere
     version: "*"
     repository: "file://charts/autoscaler-anywhere"
-    condition: autoscaler-anywhere.enabled
+    tags:
+      - autoscaler-anywhere
 
   # ── Mode sub-charts (tag-gated, mutually exclusive) ───────────────────────────
   # Each mode is self-contained and includes all components it requires.

@@ -1,6 +1,6 @@
 {{/* ── Collect enabled tags ─────────────────────────────────────────────────── */}}
 {{- $enabledTags := list }}
-{{- range $tag := list "readonly" "node-autoscaler" "workload-autoscaler" "full" }}
+{{- range $tag := list "readonly" "node-autoscaler" "workload-autoscaler" "full" "autoscaler-anywhere" }}
 {{- if index $.Values.tags $tag }}
 {{- $enabledTags = append $enabledTags $tag }}
 {{- end }}
@@ -21,15 +21,11 @@
 {{- end }}
 {{- end }}
 
-{{/* ── Legacy profile validation ────────────────────────────────────────────── */}}
-{{- $autoscalerAnywhereEnabled := (index .Values "autoscaler-anywhere").enabled | default false }}
-{{- if $autoscalerAnywhereEnabled }}
-{{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling autoscaler-anywhere profile" }}
-{{- end }}
+{{/* ── autoscaler-anywhere specific validation ──────────────────────────────── */}}
+{{- if index $.Values.tags "autoscaler-anywhere" }}
 {{- $anywhereAgent := index (index .Values "autoscaler-anywhere") "castai-agent" | default dict }}
 {{- $anywhereAdditionalEnv := $anywhereAgent.additionalEnv | default dict }}
 {{- if not (index $anywhereAdditionalEnv "ANYWHERE_CLUSTER_NAME") }}
-{{ fail "autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME is required when autoscaler-anywhere profile is enabled" }}
+{{ fail "autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME is required when autoscaler-anywhere tag is enabled" }}
 {{- end }}
 {{- end }}
