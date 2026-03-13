@@ -76,7 +76,7 @@ CAST AI hosted model deployment chart for vLLM.
 | persistence.annotations | object | `{}` |  |
 | persistence.enabled | bool | `false` |  |
 | persistence.size | string | `"50Gi"` |  |
-| persistence.storageClass | string | `"premium-rwo"` |  |
+| persistence.storageClass | string | `"liqo"` |  |
 | podAnnotations | object | `{}` | Additional annotations labels to set for the vLLM pod |
 | podLabels | object | `{}` | Additional pod labels to set for the vLLM pod |
 | readinessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":5,"periodSeconds":5,"successThreshold":1,"timeoutSeconds":1}` | Readiness probe configuration |
