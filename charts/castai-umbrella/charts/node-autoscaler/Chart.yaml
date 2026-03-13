@@ -1,54 +1,52 @@
 apiVersion: v2
-name: autoscaler
-description: Wrapper chart for CAST AI Autoscaler profile.
+name: node-autoscaler
+description: CAST AI node-autoscaler mode — includes all readonly components plus cluster-controller, evictor, pod-mutator, pod-pinner, castai-live.
 type: application
-version: 0.10.0
+version: 0.1.0
 dependencies:
+  # ── Readonly base ─────────────────────────────────────────────────────────────
   - name: castai-agent
     version: "0.145.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-agent.enabled
+
   - name: castai-spot-handler
     version: "0.32.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-spot-handler.enabled
-  - name: castai-cluster-controller
-    version: "0.90.1"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-cluster-controller.enabled
-  - name: castai-workload-autoscaler
-    version: "0.1.187"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-workload-autoscaler.enabled
-  - name: castai-workload-autoscaler-exporter
-    version: "0.0.108"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-workload-autoscaler-exporter.enabled
-  - name: castai-evictor
-    version: "0.34.7"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-evictor.enabled
-  - name: castai-pod-mutator
-    version: "0.6.0"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-pod-mutator.enabled
-  - name: castai-pod-pinner
-    version: "1.10.0"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-pod-pinner.enabled
-  - name: castai-ai-optimizer-proxy
-    version: "0.0.115"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-ai-optimizer-proxy.enabled
+
   - name: castai-kvisor
     version: "1.0.131"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
-  - name: castai-live
-    version: "0.75.1"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-live.enabled
+
   - name: gpu-metrics-exporter
     version: "0.1.29"
     repository: "https://castai.github.io/helm-charts"
     condition: gpu-metrics-exporter.enabled
+
+  # ── Node autoscaler components ────────────────────────────────────────────────
+  - name: castai-cluster-controller
+    version: "0.90.1"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-cluster-controller.enabled
+
+  - name: castai-evictor
+    version: "0.34.6"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-evictor.enabled
+
+  - name: castai-pod-mutator
+    version: "0.5.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-pod-mutator.enabled
+
+  - name: castai-pod-pinner
+    version: "1.10.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-pod-pinner.enabled
+
+  - name: castai-live
+    version: "0.75.1"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-live.enabled

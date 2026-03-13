@@ -1,12 +1,21 @@
 dependencies:
 - name: kent
   repository: file://charts/kent
-  version: 0.6.0
-- name: autoscaler
-  repository: file://charts/autoscaler
-  version: 0.10.0
+  version: 0.8.0
 - name: autoscaler-anywhere
   repository: file://charts/autoscaler-anywhere
   version: 0.3.0
-digest: sha256:4a380f6345482369facf5a81894f4631468b8e6a713df291ccb9afd8393c6925
-generated: "2026-03-12T11:30:04.157512+01:00"
+- name: readonly
+  repository: file://charts/readonly
+  version: 0.1.0
+- name: node-autoscaler
+  repository: file://charts/node-autoscaler
+  version: 0.1.0
+- name: workload-autoscaler
+  repository: file://charts/workload-autoscaler
+  version: 0.1.0
+- name: full
+  repository: file://charts/full
+  version: 0.1.0
+digest: sha256:6a6b2364e360944471010f4d048b407a41e82ec3fd5e8b83c3f39ccad32f4640
+generated: "2026-03-13T13:53:00.069747+02:00"
