@@ -1,8 +1,8 @@
-# node-autoscaler
+# full
 
 ![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
-CAST AI node-autoscaler mode — includes all readonly components plus cluster-controller, evictor, pod-mutator, pod-pinner, castai-live.
+CAST AI full mode — all components (node-autoscaler + workload-autoscaler).
 
 ## Requirements
 
@@ -16,6 +16,8 @@ CAST AI node-autoscaler mode — includes all readonly components plus cluster-c
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.5.0 |
 | https://castai.github.io/helm-charts | castai-pod-pinner | 1.10.0 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.32.0 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.186 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 0.0.107 |
 | https://castai.github.io/helm-charts | gpu-metrics-exporter | 0.1.29 |
 
 ## Values
@@ -63,6 +65,14 @@ CAST AI node-autoscaler mode — includes all readonly components plus cluster-c
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-spot-handler.castai.provider | string | `""` |  |
 | castai-spot-handler.enabled | bool | `true` |  |
+| castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-workload-autoscaler-exporter.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| castai-workload-autoscaler-exporter.enabled | bool | `true` |  |
+| castai-workload-autoscaler-exporter.fullnameOverride | string | `"castai-workload-autoscaler-exporter"` |  |
+| castai-workload-autoscaler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-workload-autoscaler.castai.configMapRef | string | `"castai-agent-metadata"` |  |
+| castai-workload-autoscaler.enabled | bool | `true` |  |
+| castai-workload-autoscaler.fullnameOverride | string | `"castai-workload-autoscaler"` |  |
 | gpu-metrics-exporter.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | gpu-metrics-exporter.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | gpu-metrics-exporter.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |

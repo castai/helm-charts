@@ -1,4 +1,7 @@
 dependencies:
+- name: kent
+  repository: file://charts/kent
+  version: 0.7.0
 - name: autoscaler-anywhere
   repository: file://charts/autoscaler-anywhere
   version: 0.3.0
@@ -14,8 +17,5 @@ dependencies:
 - name: full
   repository: file://charts/full
   version: 0.1.0
-- name: kent
-  repository: file://charts/kent
-  version: 0.6.0
-digest: sha256:9c1982f3f53410c2bcc20f11470765b1a18cabccf1d60fbe4107bfa4394005ab
-generated: "2026-03-13T12:26:08.15894+02:00"
+digest: sha256:dee02d02af3fb60b7bcd7158fe9ee972eee03193ed2b6bba3e3842ee6b6997c5
+generated: "2026-03-13T13:03:30.817343+02:00"
