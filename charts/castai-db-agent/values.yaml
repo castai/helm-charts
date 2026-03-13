@@ -10,12 +10,14 @@ cacheGroupID: ""
 database:
   host: ""
   port: 5432
-  # -- Username for database authentication
+  # -- Username for database authentication. For IAM auth, use the format: "service-account-name@project-id.iam"
   username: ""
-  # -- Password for database authentication
+  # -- Password for database authentication (not required when useIAMAuth is true)
   password: ""
-  # -- Name of secret with username for database authentication
+  # -- Name of secret with database credentials (username and password). Not required when using useIAMAuth with inline username.
   credentialsSecretRef: ""
+  # -- Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details.
+  useIAMAuth: false
 # -- URL to the CAST AI API gRPC endpoint.
 gRPCEndpoint: ""
 collectors:
@@ -32,3 +34,17 @@ collectors:
   excludedSchemas: ""
   # -- Comma-separated list of databases to exclude from database auto-discovery (optional)
   excludedDatabases: ""
+cloudSqlProxy:
+  # -- Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections
+  enabled: false
+  # -- Have the proxy connect over private IP if connecting from a VPC-native GKE cluster
+  privateIp: false
+  # -- Have the proxy connect with Automatic IAM authentication
+  autoIamAuthn: true
+  # -- Port on which Cloud SQL Proxy will listen
+  port: 5432
+
+cloudSqlProxyImage:
+  repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
+  pullPolicy: IfNotPresent
+  tag: ""  # uses values from _versions.tpl for default value
