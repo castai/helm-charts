@@ -1,0 +1,73 @@
+# Local testing only — not intended for CI. Run with act:
+#   act push -W .github/workflows/test-update-umbrella.yaml \
+#     -e .github/test-events/release-castai-agent.json
+name: Test Update Umbrella Chart
+
+on:
+  push:
+    branches:
+      - never-runs-in-ci
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.parse.outputs.skip }}
+      chart_name: ${{ steps.parse.outputs.chart_name }}
+      version: ${{ steps.parse.outputs.version }}
+    steps:
+      - name: Parse chart name and version from tag
+        id: parse
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          VERSION=$(echo "$TAG" | grep -oP '\d+\.\d+\.\d+$' || true)
+          if [ -z "$VERSION" ]; then
+            echo "Tag '${TAG}' does not match expected <chart-name>-x.y.z format, skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          CHART_NAME="${TAG%-${VERSION}}"
+          echo "chart_name=${CHART_NAME}" >> $GITHUB_OUTPUT
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+          echo "Parsed chart: ${CHART_NAME}, version: ${VERSION}"
+
+  update-umbrella:
+    needs: parse
+    if: needs.parse.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install yq
+        uses: mikefarah/yq@v4.44.3
+
+      - name: Update umbrella subchart dependencies and bump version
+        id: update
+        run: |
+          CHART_NAME="${{ needs.parse.outputs.chart_name }}"
+          VERSION="${{ needs.parse.outputs.version }}"
+          OUTPUT=$(.github/scripts/update-umbrella.sh "$CHART_NAME" "$VERSION" ".")
+          echo "$OUTPUT"
+          if echo "$OUTPUT" | grep -q "^CHANGED=true"; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify changes (dry-run — no push)
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          echo "=== castai-umbrella/Chart.yaml ==="
+          cat charts/castai-umbrella/Chart.yaml
+          echo ""
+          echo "=== Changed Chart.yaml files ==="
+          git diff --name-only
+          echo ""
+          echo "=== Diff ==="
+          git diff
+
+      - name: Report no-op
+        if: steps.update.outputs.changed != 'true'
+        run: echo "No umbrella changes needed for ${{ needs.parse.outputs.chart_name }}@${{ needs.parse.outputs.version }}"
