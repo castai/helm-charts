@@ -175,10 +175,14 @@ data:
         - name: query_processor_service
           type: LOGICAL_DNS
           connect_timeout: 1s
-          http2_protocol_options:
-            max_concurrent_streams: 100
-            initial_stream_window_size: 1048576
-            initial_connection_window_size: 1048576
+          typed_extension_protocol_options:
+            envoy.extensions.upstreams.http.v3.HttpProtocolOptions:
+              "@type": type.googleapis.com/envoy.extensions.upstreams.http.v3.HttpProtocolOptions
+              explicit_http_config:
+                http2_protocol_options:
+                  max_concurrent_streams: 100
+                  initial_stream_window_size: 1048576
+                  initial_connection_window_size: 1048576
           load_assignment:
             cluster_name: query_processor_service
             endpoints:
@@ -189,7 +193,11 @@ data:
                           address: 127.0.0.1
                           port_value: 9050
     admin:
-      access_log_path: "/tmp/admin_access.log"
+      access_log:
+        - name: envoy.access_loggers.file
+          typed_config:
+            "@type": type.googleapis.com/envoy.extensions.access_loggers.file.v3.FileAccessLog
+            path: "/tmp/admin_access.log"
       address:
         socket_address:
           address: 0.0.0.0
