@@ -17,7 +17,7 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
   - name: castai-workload-autoscaler
-    version: "0.1.187"
+    version: "0.1.188"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
   - name: castai-workload-autoscaler-exporter
