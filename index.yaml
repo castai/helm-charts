@@ -2241,6 +2241,28 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-03-13T11:16:15.112226177Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - condition: autoscaler.enabled
+      name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    - condition: autoscaler-anywhere.enabled
+      name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      version: '*'
+    description: Umbrella chart for CAST AI components with profile-based installation.
+    digest: 1278e1fd3360e96fd20a17d94a4c01822fb6cef6ee6d526a22e02ce1c48da220
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.17.8/castai-0.17.8.tgz
+    version: 0.17.8
+  - apiVersion: v2
     created: "2026-03-13T08:13:17.958581927Z"
     dependencies:
     - condition: kent.enabled
@@ -24099,6 +24121,22 @@ entries:
   castai-hosted-model:
   - apiVersion: v2
     appVersion: v0.0.1
+    created: "2026-03-13T11:16:15.34414009Z"
+    dependencies:
+    - condition: vllm.enabled
+      name: vllm
+      repository: file://child-charts/vllm
+      version: 0.0.42
+    description: CAST AI hosted model deployment chart with PVC support for compilation
+      caches.
+    digest: 3a8f6a3f01d2d48462556c8d3b4bb70812b0afdb9df12e21876599668a27d7cc
+    name: castai-hosted-model
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-hosted-model-0.0.49/castai-hosted-model-0.0.49.tgz
+    version: 0.0.49
+  - apiVersion: v2
+    appVersion: v0.0.1
     created: "2026-02-19T21:06:48.394740242Z"
     dependencies:
     - condition: vllm.enabled
@@ -42072,4 +42110,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-03-13T11:00:38.89154721Z"
+generated: "2026-03-13T11:16:15.348257865Z"
