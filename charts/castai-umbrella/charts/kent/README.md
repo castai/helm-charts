@@ -1,6 +1,6 @@
 # kent
 
-![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.8.0](https://img.shields.io/badge/Version-0.8.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Kent profile.
 
@@ -10,11 +10,11 @@ Wrapper chart for CAST AI Kent profile.
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.145.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.90.1 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.34.5 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.1 |
 | https://castai.github.io/helm-charts | castai-kentroller | 0.1.75 |
 | https://castai.github.io/helm-charts | castai-live | 0.75.1 |
-| https://castai.github.io/helm-charts | castai-pod-mutator | 0.5.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.186 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.6.0 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.188 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
 
 ## Values
