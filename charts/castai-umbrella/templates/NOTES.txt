@@ -9,7 +9,7 @@ Thanks for installing CAST AI in Node Autoscaler mode.
 {{- else if index .Values.tags "workload-autoscaler" }}
 Thanks for installing CAST AI in Workload Autoscaler mode.
 {{- else if index .Values.tags "full" }}
-Thanks for installing CAST AI in Full mode.
+Thanks for installing CAST AI.
 {{- else }}
 Thanks for installing CAST AI.
 {{- end }}
