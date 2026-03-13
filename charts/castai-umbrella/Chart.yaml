@@ -15,29 +15,41 @@ dependencies:
     repository: "file://charts/autoscaler-anywhere"
     condition: autoscaler-anywhere.enabled
 
-  # ── Mode sub-charts (tag-gated) ───────────────────────────────────────────────
+  # ── Mode sub-charts (tag-gated, mutually exclusive) ───────────────────────────
+  # Each mode is self-contained and includes all components it requires.
+  #
+  # Valid upgrade paths (additive, no restarts for unchanged resources):
+  #   readonly → node-autoscaler
+  #   readonly → workload-autoscaler
+  #   node-autoscaler → full
+  #   workload-autoscaler → full
+  #
   # Usage:
   #   helm upgrade -i castai castai-helm/castai -n castai-agent --create-namespace \
   #     --set global.castai.apiKey=<KEY> \
   #     --set global.castai.provider=<eks|aks|gke> \
-  #     --set tags.readonly=true
-  #
-  #   helm upgrade -i castai castai-helm/castai -n castai-agent --create-namespace \
-  #     --set global.castai.apiKey=<KEY> \
-  #     --set global.castai.provider=<eks|aks|gke> \
-  #     --set tags.autoscaler=true
+  #     --set tags.<mode>=true
 
   - name: readonly
     version: "*"
     repository: "file://charts/readonly"
-    condition: readonly.enabled
     tags:
       - readonly
-      - autoscaler   # autoscaler mode includes readonly components
 
-  - name: autoscaler
+  - name: node-autoscaler
     version: "*"
-    repository: "file://charts/autoscaler"
-    condition: autoscaler.enabled
+    repository: "file://charts/node-autoscaler"
     tags:
-      - autoscaler
+      - node-autoscaler
+
+  - name: workload-autoscaler
+    version: "*"
+    repository: "file://charts/workload-autoscaler"
+    tags:
+      - workload-autoscaler
+
+  - name: full
+    version: "*"
+    repository: "file://charts/full"
+    tags:
+      - full

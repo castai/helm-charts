@@ -6,15 +6,24 @@ global:
     # provider -- Kubernetes service provider: eks, aks, gke, kops, anywhere.
     provider: ""
 
-kent:
-  enabled: false
-
 autoscaler-anywhere:
   enabled: false
 
-# tags -- Enable a product tier.
-# tags.readonly=true  → enables readonly sub-chart (agent, spot-handler, kvisor, gpu-metrics-exporter)
-# tags.autoscaler=true → enables readonly + autoscaler sub-charts (adds cluster-controller, evictor, pod-mutator, pod-pinner, castai-live)
+kent:
+  enabled: false
+
+
+# tags -- Enable a product mode (mutually exclusive — pick one).
+#
+# Valid upgrade paths (additive, shared resources patched in-place, no restarts):
+#   readonly → node-autoscaler
+#   readonly → workload-autoscaler
+#   node-autoscaler → full
+#   workload-autoscaler → full
+#
+# All other mode transitions require uninstall + reinstall.
 tags:
   readonly: false
-  autoscaler: false
+  node-autoscaler: false
+  workload-autoscaler: false
+  full: false

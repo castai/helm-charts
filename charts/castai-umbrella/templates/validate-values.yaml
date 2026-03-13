@@ -1,8 +1,20 @@
-{{/* ── Tag-based mode validation ────────────────────────────────────────────── */}}
-{{- $tagsEnabled := or .Values.tags.readonly .Values.tags.autoscaler }}
-{{- if $tagsEnabled }}
+{{/* ── Collect enabled tags ─────────────────────────────────────────────────── */}}
+{{- $enabledTags := list }}
+{{- range $tag := list "readonly" "node-autoscaler" "workload-autoscaler" "full" }}
+{{- if index $.Values.tags $tag }}
+{{- $enabledTags = append $enabledTags $tag }}
+{{- end }}
+{{- end }}
+
+{{/* ── Mutual exclusivity ───────────────────────────────────────────────────── */}}
+{{- if gt (len $enabledTags) 1 }}
+{{ fail (printf "only one mode tag may be enabled at a time; got: %s" (join ", " $enabledTags)) }}
+{{- end }}
+
+{{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
+{{- if $enabledTags }}
 {{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling a mode tag (tags.readonly or tags.autoscaler)" }}
+{{ fail "global.castai.apiKey is required when enabling a mode tag" }}
 {{- end }}
 {{- if not .Values.global.castai.provider }}
 {{ fail "global.castai.provider is required when enabling a mode tag (eks, aks, gke, kops)" }}
@@ -11,15 +23,13 @@
 
 {{/* ── Legacy profile validation ────────────────────────────────────────────── */}}
 {{- $autoscalerAnywhereEnabled := (index .Values "autoscaler-anywhere").enabled | default false }}
-{{- if or .Values.kent.enabled $autoscalerAnywhereEnabled }}
-{{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling kent or autoscaler-anywhere profile (set --set global.castai.apiKey=<API_KEY>)" }}
-{{- end }}
 {{- if $autoscalerAnywhereEnabled }}
+{{- if not .Values.global.castai.apiKey }}
+{{ fail "global.castai.apiKey is required when enabling autoscaler-anywhere profile" }}
+{{- end }}
 {{- $anywhereAgent := index (index .Values "autoscaler-anywhere") "castai-agent" | default dict }}
 {{- $anywhereAdditionalEnv := $anywhereAgent.additionalEnv | default dict }}
 {{- if not (index $anywhereAdditionalEnv "ANYWHERE_CLUSTER_NAME") }}
-{{ fail "autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME is required when autoscaler-anywhere profile is enabled (set --set autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<CLUSTER_NAME>)" }}
-{{- end }}
+{{ fail "autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME is required when autoscaler-anywhere profile is enabled" }}
 {{- end }}
 {{- end }}
