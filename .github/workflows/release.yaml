@@ -1,6 +1,7 @@
 name: Release Charts
 
 on:
+  workflow_dispatch: # temporary, remove before merge
   push:
     branches:
       - main
@@ -8,9 +9,16 @@ on:
 jobs:
   release:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        charts_dir:
+          - charts
+          - charts/castai-evictor/child-charts
+          - charts/castai-cluster-controller/child-charts
+          - charts/castai-pod-pinner/child-charts
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
@@ -22,13 +30,14 @@ jobs:
       # We need to manually add repos for deps due to bug in https://github.com/helm/chart-releaser/issues/135
       - name: Add dependencies
         run: |
-          helm repo add vector https://helm.vector.dev
-          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          helm repo add incubator https://charts.helm.sh/incubator
-          helm repo add elasticsearch https://helm.elastic.co
-          helm repo add grafana https://grafana.github.io/helm-charts
-          helm repo add castai-helm https://castai.github.io/helm-charts
-          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+          helm repo add vector https://helm.vector.dev &
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts &
+          helm repo add incubator https://charts.helm.sh/incubator &
+          helm repo add elasticsearch https://helm.elastic.co &
+          helm repo add grafana https://grafana.github.io/helm-charts &
+          helm repo add castai-helm https://castai.github.io/helm-charts &
+          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/ &
+          wait
 
       - name: Install Helm
         uses: azure/setup-helm@v4.2.0
@@ -38,7 +47,9 @@ jobs:
       - name: Set up chart-testing
         uses: helm/chart-testing-action@v2.7.0
 
+      # Only the main charts dir needs umbrella deps; child-chart jobs can skip this.
       - name: Update umbrella subchart dependencies
+        if: matrix.charts_dir == 'charts'
         run: |
           helm dependency update charts/castai-umbrella/charts/kent
           helm dependency update charts/castai-umbrella/charts/readonly
@@ -50,34 +61,7 @@ jobs:
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c
         with:
-          charts_dir: charts
-          config: cr.yaml
-          skip_existing: true
-        env:
-          CR_TOKEN: "${{ secrets.PAT_CICD }}"
-
-      - name: Release evictor child charts
-        uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c
-        with:
-          charts_dir: charts/castai-evictor/child-charts
-          config: cr.yaml
-          skip_existing: true
-        env:
-          CR_TOKEN: "${{ secrets.PAT_CICD }}"
-
-      - name: Release cluster-controller child charts
-        uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c
-        with:
-          charts_dir: charts/castai-cluster-controller/child-charts
-          config: cr.yaml
-          skip_existing: true
-        env:
-          CR_TOKEN: "${{ secrets.PAT_CICD }}"
-
-      - name: Release pod pinner child charts
-        uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c
-        with:
-          charts_dir: charts/castai-pod-pinner/child-charts
+          charts_dir: ${{ matrix.charts_dir }}
           config: cr.yaml
           skip_existing: true
         env:
@@ -88,7 +72,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
