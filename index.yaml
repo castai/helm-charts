@@ -42106,6 +42106,25 @@ entries:
     version: 0.0.2
   reliability-metrics-ch-exporter:
   - apiVersion: v2
+    appVersion: v0.3.10
+    created: "2026-03-16T08:55:15.927949279Z"
+    dependencies:
+    - alias: clickhouse-operator
+      condition: operator.enabled
+      name: altinity-clickhouse-operator
+      repository: https://docs.altinity.com/clickhouse-operator/
+      version: 0.26.0
+    description: CAST AI Reliability Metrics infrastructure chart. Manages in-cluster
+      ClickHouse (Altinity operator) or external ClickHouse, schema migrations, metrics
+      exporter, and credentials for OTel collectors. Can be used standalone or as
+      a subchart of castai-kvisor.
+    digest: 6187bb1da9b788342c9a837c2531f9c265a110c749d9d2833ddd693f1446ba55
+    name: reliability-metrics-ch-exporter
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/reliability-metrics-ch-exporter-0.3.10/reliability-metrics-ch-exporter-0.3.10.tgz
+    version: 0.3.10
+  - apiVersion: v2
     appVersion: v0.3.9
     created: "2026-03-13T13:01:34.873609699Z"
     dependencies:
@@ -42374,4 +42393,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-03-13T17:13:33.631950312Z"
+generated: "2026-03-16T08:55:15.951842076Z"
