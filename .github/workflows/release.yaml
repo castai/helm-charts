@@ -40,12 +40,12 @@ jobs:
           wait
 
       - name: Install Helm
-        uses: azure/setup-helm@v4.2.0
+        uses: azure/setup-helm@v4.3.1
         with:
           version: v3.17.0
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.7.0
+        uses: helm/chart-testing-action@v2.8.0
 
       # Only the main charts dir needs umbrella deps; child-chart jobs can skip this.
       - name: Update umbrella subchart dependencies
@@ -59,7 +59,7 @@ jobs:
           helm dependency update charts/castai-umbrella/charts/autoscaler-anywhere
 
       - name: Run chart-releaser
-        uses: helm/chart-releaser-action@6203d709ca237fb26b724837f2c53716f244ee8c
+        uses: helm/chart-releaser-action@v1.7.0
         with:
           charts_dir: ${{ matrix.charts_dir }}
           config: cr.yaml
@@ -84,7 +84,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install yq
-        uses: mikefarah/yq@v4.44.3
+        uses: mikefarah/yq@v4.52.4
 
       - name: Update umbrella subchart dependencies
         id: update
