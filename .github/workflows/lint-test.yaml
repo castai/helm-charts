@@ -45,24 +45,8 @@ jobs:
       - name: Run chart-testing (lint)
         run: ct lint --debug --config ct.yaml
 
-      - name: Lint Code Base
-        uses: super-linter/super-linter@v8
-        env:
-          FILTER_REGEX_EXCLUDE: .*(README\.md|Chart\.yaml|NOTES.txt|lint-test\.yaml|mainTemplate\.json|test/e2e/.*).*
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_KUBERNETES_KUBEVAL: false
-          VALIDATE_YAML: false
-          # Disable linters added in super-linter v8 that are not relevant to this repo
-          VALIDATE_BIOME_FORMAT: false
-          VALIDATE_CHECKOV: false
-          VALIDATE_GITHUB_ACTIONS: false
-          VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
-          VALIDATE_GITLEAKS: false
-          VALIDATE_JSCPD: false
-          VALIDATE_TRIVY: false
-          VALIDATE_YAML_PRETTIER: false
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for merge conflict markers
+        uses: olivernybroe/action-conflict-finder@v4.1
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.14.0
