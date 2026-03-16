@@ -46,7 +46,7 @@ jobs:
         run: ct lint --debug --config ct.yaml
 
       - name: Lint Code Base
-        uses: super-linter/super-linter@v8
+        uses: super-linter/super-linter@v7
         env:
           FILTER_REGEX_EXCLUDE: .*(README\.md|Chart\.yaml|NOTES.txt|lint-test\.yaml|mainTemplate\.json|test/e2e/.*).*
           VALIDATE_ALL_CODEBASE: false
