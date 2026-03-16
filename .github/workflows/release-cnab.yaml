@@ -1,7 +1,6 @@
 name: Release CNAB
 
 on:
-  workflow_dispatch: # temporary, remove before merge
   push:
     tags:
     - 'castai*'
