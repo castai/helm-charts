@@ -2241,6 +2241,45 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-03-17T08:19:31.655050141Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: readonly
+      repository: file://charts/readonly
+      tags:
+      - readonly
+      version: '*'
+    - name: node-autoscaler
+      repository: file://charts/node-autoscaler
+      tags:
+      - node-autoscaler
+      version: '*'
+    - name: workload-autoscaler
+      repository: file://charts/workload-autoscaler
+      tags:
+      - workload-autoscaler
+      version: '*'
+    - name: full
+      repository: file://charts/full
+      tags:
+      - full
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 2ea1cf8fb04fd80b575f0896cf4f3701dbbe28eb30483d79db17cc0a31c5f3a2
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.19.10/castai-0.19.10.tgz
+    version: 0.19.10
+  - apiVersion: v2
     created: "2026-03-17T08:05:46.569466425Z"
     dependencies:
     - condition: kent.enabled
@@ -31263,6 +31302,21 @@ entries:
   castai-pod-pinner:
   - apiVersion: v2
     appVersion: v1.9.5
+    created: "2026-03-17T08:19:31.871672192Z"
+    dependencies:
+    - condition: castai-pod-pinner-ext.enabled
+      name: castai-pod-pinner-ext
+      repository: file://child-charts/castai-pod-pinner-ext
+      version: 1.1.0
+    description: CAST AI Pod Pinning deployment chart.
+    digest: 97ffb48996a40e3c9c42f22629c8fdb537e55144233d6e1e5403dad2811e82c5
+    name: castai-pod-pinner
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-pod-pinner-1.12.0/castai-pod-pinner-1.12.0.tgz
+    version: 1.12.0
+  - apiVersion: v2
+    appVersion: v1.9.5
     created: "2026-03-13T15:08:52.408472181Z"
     dependencies:
     - condition: castai-pod-pinner-ext.enabled
@@ -42862,4 +42916,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-03-17T08:05:46.573360858Z"
+generated: "2026-03-17T08:19:31.877446556Z"
