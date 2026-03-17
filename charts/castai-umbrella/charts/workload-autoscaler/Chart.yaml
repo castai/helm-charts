@@ -35,7 +35,7 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-mutator.enabled
   - name: castai-workload-autoscaler
-    version: "0.1.186"
+    version: "0.1.189"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
   - name: castai-workload-autoscaler-exporter
