@@ -2,49 +2,33 @@ apiVersion: v2
 name: castai
 description: Umbrella chart for CAST AI components.
 type: application
-version: 0.19.11
+version: 0.20.0
 dependencies:
   # ── Legacy profile sub-charts ─────────────────────────────────────────────────
   - name: kent
     version: "*"
     repository: "file://charts/kent"
     condition: kent.enabled
+
   - name: autoscaler-anywhere
     version: "*"
     repository: "file://charts/autoscaler-anywhere"
     tags:
       - autoscaler-anywhere
-  # ── Mode sub-charts (tag-gated, mutually exclusive) ───────────────────────────
-  # Each mode is self-contained and includes all components it requires.
+
+  # ── Autoscaler mode sub-chart ─────────────────────────────────────────────────
+  # A single sub-chart containing all mode components. Mode selection is controlled
+  # via tags.<mode>=true (readonly, node-autoscaler, workload-autoscaler, full —
+  # mutually exclusive).
   #
-  # Valid upgrade paths (additive, no restarts for unchanged resources):
-  #   readonly → node-autoscaler
-  #   readonly → workload-autoscaler
-  #   node-autoscaler → full
-  #   workload-autoscaler → full
+  # Component overrides use the stable autoscaler.* prefix across all mode upgrades:
+  #   --set autoscaler.castai-kvisor.enabled=false
   #
   # Usage:
   #   helm upgrade -i castai castai-helm/castai -n castai-agent --create-namespace \
   #     --set global.castai.apiKey=<KEY> \
   #     --set global.castai.provider=<eks|aks|gke> \
   #     --set tags.<mode>=true
-  - name: readonly
+  - name: autoscaler
     version: "*"
-    repository: "file://charts/readonly"
-    tags:
-      - readonly
-  - name: node-autoscaler
-    version: "*"
-    repository: "file://charts/node-autoscaler"
-    tags:
-      - node-autoscaler
-  - name: workload-autoscaler
-    version: "*"
-    repository: "file://charts/workload-autoscaler"
-    tags:
-      - workload-autoscaler
-  - name: full
-    version: "*"
-    repository: "file://charts/full"
-    tags:
-      - full
+    repository: "file://charts/autoscaler"

@@ -41,10 +41,7 @@ jobs:
       - name: Update umbrella subchart dependencies
         run: |
           helm dependency update charts/castai-umbrella/charts/kent
-          helm dependency update charts/castai-umbrella/charts/readonly
-          helm dependency update charts/castai-umbrella/charts/node-autoscaler
-          helm dependency update charts/castai-umbrella/charts/workload-autoscaler
-          helm dependency update charts/castai-umbrella/charts/full
+          helm dependency update charts/castai-umbrella/charts/autoscaler
           helm dependency update charts/castai-umbrella/charts/autoscaler-anywhere
 
       - name: Run chart-releaser
@@ -110,10 +107,7 @@ jobs:
 
           SUBCHART_FILES=(
             "charts/castai-umbrella/charts/kent/Chart.yaml"
-            "charts/castai-umbrella/charts/readonly/Chart.yaml"
-            "charts/castai-umbrella/charts/node-autoscaler/Chart.yaml"
-            "charts/castai-umbrella/charts/workload-autoscaler/Chart.yaml"
-            "charts/castai-umbrella/charts/full/Chart.yaml"
+            "charts/castai-umbrella/charts/autoscaler/Chart.yaml"
           )
 
           # Find charts whose Chart.yaml version changed in this push

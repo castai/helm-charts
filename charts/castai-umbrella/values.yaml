@@ -9,20 +9,14 @@ global:
 kent:
   enabled: false
 
-
-# tags -- Enable a product mode (mutually exclusive — pick one).
-#
-# Valid upgrade paths (additive, shared resources patched in-place, no restarts):
-#   readonly → node-autoscaler
-#   readonly → workload-autoscaler
-#   node-autoscaler → full
-#   workload-autoscaler → full
-#
-# autoscaler-anywhere is standalone — no migration paths to/from other modes.
-# All other mode transitions require uninstall + reinstall.
+# tags -- Profile mode selection (mutually exclusive — pick one).
+# Component overrides are stable across all mode upgrades with --reuse-values:
+#   --set autoscaler.castai-kvisor.enabled=false
 tags:
+  autoscaler-anywhere: false
   readonly: false
   node-autoscaler: false
   workload-autoscaler: false
   full: false
-  autoscaler-anywhere: false
+
+autoscaler: {}
