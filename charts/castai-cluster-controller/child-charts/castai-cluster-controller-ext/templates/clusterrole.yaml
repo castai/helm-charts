@@ -21,4 +21,17 @@ rules:
       - list
       - delete
       - watch
+  # ------------------------------------------------
+  # EvictorConfig: push config from Policies API
+  # ------------------------------------------------
+  - apiGroups:
+      - autoscaling.cast.ai
+    resources:
+      - evictorconfigs
+    verbs:
+      - get
+      - list
+      - watch
+      - patch
+      - update
  {{- end }}
