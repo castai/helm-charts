@@ -36,7 +36,7 @@ dependencies:
     condition: castai-pod-mutator.enabled
   # ── Node autoscaler extras ────────────────────────────────────────────────────
   - name: castai-pod-pinner
-    version: "1.11.0"
+    version: "1.12.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-pinner.enabled
   - name: castai-live
