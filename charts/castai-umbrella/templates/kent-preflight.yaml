@@ -1,0 +1,85 @@
+{{- if and .Values.kent.enabled (dig "preflight" "enabled" true .Values.kent) }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ .Release.Name }}-kent-preflight
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ .Release.Name }}-kent-preflight
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list"]
+  - apiGroups: ["apiextensions.k8s.io"]
+    resources: ["customresourcedefinitions"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Release.Name }}-kent-preflight
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Name }}-kent-preflight
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Release.Name }}-kent-preflight
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-kent-preflight
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 0
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ .Release.Name }}-kent-preflight
+      containers:
+        - name: preflight
+          image: bitnami/kubectl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Checking for Karpenter deployment..."
+              if ! kubectl get deployment -l app.kubernetes.io/name=karpenter -A --ignore-not-found \
+                | grep -q karpenter; then
+                echo "ERROR: No Karpenter deployment found in cluster."
+                echo "Install Karpenter before enabling KENT."
+                exit 1
+              fi
+              echo "Karpenter deployment found."
+
+              echo "Checking for Karpenter CRDs..."
+              if ! kubectl get crd nodepools.karpenter.sh --ignore-not-found \
+                | grep -q nodepools.karpenter.sh; then
+                echo "ERROR: CRD nodepools.karpenter.sh not found in cluster."
+                echo "Ensure Karpenter CRDs are installed before enabling KENT."
+                exit 1
+              fi
+              echo "Karpenter CRDs found. Proceeding with KENT installation."
+{{- end }}

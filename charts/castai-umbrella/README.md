@@ -22,6 +22,7 @@ Umbrella chart for CAST AI components.
 | global.castai.grpcURL | string | `"grpc.cast.ai:443"` |  |
 | global.castai.provider | string | `""` |  |
 | kent.enabled | bool | `false` |  |
+| kent.preflight.enabled | bool | `true` |  |
 | tags | object | `{"autoscaler-anywhere":false,"full":false,"node-autoscaler":false,"readonly":false,"workload-autoscaler":false}` | Profile mode selection (mutually exclusive — pick one). Component overrides are stable across all mode upgrades with --reuse-values:   --set autoscaler.castai-kvisor.enabled=false |
 
 ----------------------------------------------

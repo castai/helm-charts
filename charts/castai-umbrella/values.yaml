@@ -8,6 +8,8 @@ global:
 
 kent:
   enabled: false
+  preflight:
+    enabled: true
 
 # tags -- Profile mode selection (mutually exclusive — pick one).
 # Component overrides are stable across all mode upgrades with --reuse-values:
