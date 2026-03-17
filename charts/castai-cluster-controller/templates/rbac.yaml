@@ -38,6 +38,10 @@ rules:
   - apiGroups: [ "" ]
     resources: [ "events" ]
     verbs: [ "list" ]
+  # For managing EvictorConfig CRD (evictor runtime configuration).
+  - apiGroups: [ "autoscaling.cast.ai" ]
+    resources: [ "evictorconfigs" ]
+    verbs: [ "get", "list", "watch", "patch", "update" ]
   {{- if eq (include "cluster-controller.workloadAutoscalingEnabled" .) "true" }}
     # For CAST autoscaling CRDs management.
   - apiGroups: [ "autoscaling.cast.ai" ]
