@@ -69,19 +69,16 @@ spec:
               cycleInterval:
                 description: CycleInterval is the duration between evictor cycles
                   (e.g. "1m"). Sourced from Policies API.
-                pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|ms|s|m|h))+$
                 type: string
               drainRollbackTimeoutSeconds:
                 description: DrainRollbackTimeoutSeconds is the cordon rollback timeout
                   in seconds.
                 format: int32
-                minimum: 0
                 type: integer
               drainTimeoutSeconds:
                 description: DrainTimeoutSeconds is the per-node drain timeout in
                   seconds.
                 format: int32
-                minimum: 0
                 type: integer
               dryRun:
                 description: DryRun disables all mutations (evictions, cordon, soft
@@ -139,25 +136,21 @@ spec:
                 description: MaxTargetNodesPerCycle caps the number of nodes evicted
                   per cycle.
                 format: int32
-                minimum: 0
                 type: integer
               minTargetNodesPerCycle:
                 description: MinTargetNodesPerCycle is the minimum number of nodes
                   considered per cycle.
                 format: int32
-                minimum: 0
                 type: integer
               nodeGracePeriodMinutes:
                 description: NodeGracePeriodMinutes is how long a node must be idle
                   before it is a drain candidate. Sourced from Policies API.
                 format: int32
-                minimum: 0
                 type: integer
               podEvictionFailureBackOffSeconds:
                 description: PodEvictionFailureBackOffSeconds is the backoff duration
                   in seconds on pod eviction failure.
                 format: int32
-                minimum: 0
                 type: integer
               podMutationsEnabled:
                 description: PodMutationsEnabled enables applying PodMutation CRs
@@ -175,8 +168,6 @@ spec:
                 description: TargetNodePercentage is the percentage of nodes to consider
                   per cycle.
                 format: int32
-                maximum: 100
-                minimum: 0
                 type: integer
               toggleWindows:
                 description: ToggleWindows enables Windows node support.
