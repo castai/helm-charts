@@ -1,6 +1,6 @@
 # castai
 
-![Version: 0.19.1](https://img.shields.io/badge/Version-0.19.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.19.14](https://img.shields.io/badge/Version-0.19.14-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Umbrella chart for CAST AI components.
 
@@ -24,6 +24,7 @@ Umbrella chart for CAST AI components.
 | global.castai.grpcURL | string | `"grpc.cast.ai:443"` |  |
 | global.castai.provider | string | `""` |  |
 | kent.enabled | bool | `false` |  |
+| kent.preflight.enabled | bool | `true` |  |
 | tags | object | `{"autoscaler-anywhere":false,"full":false,"node-autoscaler":false,"readonly":false,"workload-autoscaler":false}` | Enable a product mode (mutually exclusive — pick one).  Valid upgrade paths (additive, shared resources patched in-place, no restarts):   readonly → node-autoscaler   readonly → workload-autoscaler   node-autoscaler → full   workload-autoscaler → full  autoscaler-anywhere is standalone — no migration paths to/from other modes. All other mode transitions require uninstall + reinstall. |
 
 ----------------------------------------------

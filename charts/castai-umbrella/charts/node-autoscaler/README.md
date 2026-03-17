@@ -10,11 +10,11 @@ CAST AI node-autoscaler mode — includes all readonly components plus cluster-c
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.145.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.90.1 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.34.6 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.2 |
 | https://castai.github.io/helm-charts | castai-kvisor | 1.0.131 |
 | https://castai.github.io/helm-charts | castai-live | 0.75.1 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.5.0 |
-| https://castai.github.io/helm-charts | castai-pod-pinner | 1.10.0 |
+| https://castai.github.io/helm-charts | castai-pod-pinner | 1.12.0 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.32.0 |
 | https://castai.github.io/helm-charts | gpu-metrics-exporter | 0.1.29 |
 
