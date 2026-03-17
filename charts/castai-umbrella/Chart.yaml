@@ -2,20 +2,18 @@ apiVersion: v2
 name: castai
 description: Umbrella chart for CAST AI components.
 type: application
-version: 0.21.0
+version: 0.21.1
 dependencies:
   # ── Legacy profile sub-charts ─────────────────────────────────────────────────
   - name: kent
     version: "*"
     repository: "file://charts/kent"
     condition: kent.enabled
-
   - name: autoscaler-anywhere
     version: "*"
     repository: "file://charts/autoscaler-anywhere"
     tags:
       - autoscaler-anywhere
-
   # ── Autoscaler mode sub-chart ─────────────────────────────────────────────────
   # A single sub-chart containing all mode components. Mode selection is controlled
   # via tags.<mode>=true (readonly, node-autoscaler, workload-autoscaler, full —
