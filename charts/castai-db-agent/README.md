@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.13.5](https://img.shields.io/badge/Version-0.13.5-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -10,16 +10,25 @@ CAST AI DB agent deployment.
 |-----|------|---------|-------------|
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API. |
 | cacheGroupID | string | `""` |  |
+| cloudSqlProxy.autoIamAuthn | bool | `true` | Have the proxy connect with Automatic IAM authentication |
+| cloudSqlProxy.enabled | bool | `false` | Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections |
+| cloudSqlProxy.instanceConnectionName | string | `""` | GCP Cloud SQL instance connection name (e.g., project:region:instance) |
+| cloudSqlProxy.port | int | `5432` | Port on which Cloud SQL Proxy will listen |
+| cloudSqlProxy.privateIp | bool | `false` | Have the proxy connect over private IP if connecting from a VPC-native GKE cluster |
+| cloudSqlProxyImage.pullPolicy | string | `"IfNotPresent"` |  |
+| cloudSqlProxyImage.repository | string | `"gcr.io/cloud-sql-connectors/cloud-sql-proxy"` |  |
+| cloudSqlProxyImage.tag | string | `""` |  |
 | collectors.excludedDatabases | string | `""` | Comma-separated list of databases to exclude from database auto-discovery (optional) |
 | collectors.excludedSchemas | string | `""` | Comma-separated list of schemas to exclude from collection (optional) |
 | collectors.indexes.runsEvery | string | `"15m"` | Frequency in which existing indexes are collected |
 | collectors.metadata.runsEvery | string | `"15m"` | Frequency in which table metadata is collected |
 | collectors.queries.runsEvery | string | `"15m"` | Frequency in which query statistics are collected |
-| database.credentialsSecretRef | string | `""` | Name of secret with username for database authentication |
+| database.credentialsSecretRef | string | `""` | Name of secret with database credentials (username and password). Not required when using useIAMAuth with inline username. |
 | database.host | string | `""` |  |
-| database.password | string | `""` | Password for database authentication |
+| database.password | string | `""` | Password for database authentication (not required when useIAMAuth is true) |
 | database.port | int | `5432` |  |
-| database.username | string | `""` | Username for database authentication |
+| database.useIAMAuth | bool | `false` | Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details. |
+| database.username | string | `""` | Username for database authentication. For IAM auth, use the format: "service-account-name@project-id.iam" |
 | gRPCEndpoint | string | `""` | URL to the CAST AI API gRPC endpoint. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-agent"` |  |

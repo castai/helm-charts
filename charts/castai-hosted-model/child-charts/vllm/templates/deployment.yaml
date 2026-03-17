@@ -70,8 +70,14 @@ spec:
               - key: gcsCredentialsJson
                 path: credentials.json
         {{- end }}
+        {{- if .Values.persistence.enabled }}
+        - name: models
+          persistentVolumeClaim:
+            claimName: {{ include "vllm.fullname" . }}-cache
+        {{- else }}
         - name: models
           emptyDir: {}
+        {{- end }}
         - name: startup-script
           configMap:
             name: {{ include "vllm.fullname" . }}-startup-script
@@ -177,9 +183,6 @@ spec:
             - name: http
               containerPort: {{ .Values.container.port }}
               protocol: TCP
-            - name: metrics
-              containerPort: {{ .Values.container.port }}
-              protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.startupProbe.enabled }}
@@ -222,6 +225,14 @@ spec:
           {{- end }}
             - name: models
               mountPath: /models
+              {{- if .Values.persistence.enabled }}
+              subPath: models
+              {{- end }}
+          {{- if .Values.persistence.enabled }}
+            - name: models
+              mountPath: /root/.cache/vllm
+              subPath: cache
+          {{- end }}
           {{- if eq .Values.model.sourceRegistry "gcs" }}
             - name: gcs-credentials-model
               mountPath: /etc/gcs-credentials
@@ -313,6 +324,9 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /models
+              {{- if .Values.persistence.enabled }}
+              subPath: models
+              {{- end }}
             {{- if eq .Values.model.sourceRegistry "gcs" }}
             - name: gcs-credentials-model
               mountPath: /etc/gcs-credentials
@@ -341,6 +355,9 @@ spec:
           volumeMounts:
             - name: models
               mountPath: /models
+              {{- if .Values.persistence.enabled }}
+              subPath: models
+              {{- end }}
             {{- if eq .Values.loraAdapter.sourceRegistry "gcs" }}
             - name: gcs-credentials-lora
               mountPath: /etc/gcs-credentials-lora

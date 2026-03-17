@@ -1,0 +1,54 @@
+apiVersion: v2
+name: full
+description: CAST AI full mode — all components (node-autoscaler + workload-autoscaler).
+type: application
+version: 0.1.0
+dependencies:
+  # ── Readonly base ─────────────────────────────────────────────────────────────
+  - name: castai-agent
+    version: "0.145.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-agent.enabled
+  - name: castai-spot-handler
+    version: "0.32.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-spot-handler.enabled
+  - name: castai-kvisor
+    version: "1.0.131"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-kvisor.enabled
+  - name: gpu-metrics-exporter
+    version: "0.1.29"
+    repository: "https://castai.github.io/helm-charts"
+    condition: gpu-metrics-exporter.enabled
+  # ── Shared autoscaler components ──────────────────────────────────────────────
+  - name: castai-cluster-controller
+    version: "0.90.1"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-cluster-controller.enabled
+  - name: castai-evictor
+    version: "0.35.2"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-evictor.enabled
+  - name: castai-pod-mutator
+    version: "0.5.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-pod-mutator.enabled
+  # ── Node autoscaler extras ────────────────────────────────────────────────────
+  - name: castai-pod-pinner
+    version: "1.11.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-pod-pinner.enabled
+  - name: castai-live
+    version: "0.75.1"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-live.enabled
+  # ── Workload autoscaler extras ────────────────────────────────────────────────
+  - name: castai-workload-autoscaler
+    version: "0.1.189"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-workload-autoscaler.enabled
+  - name: castai-workload-autoscaler-exporter
+    version: "0.0.110"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-workload-autoscaler-exporter.enabled

@@ -12,6 +12,10 @@ apiKey: ""
 # The referenced secret must provide the token in .data["API_KEY"].
 apiKeySecretRef: ""
 
+# organizationID -- ID of the organization
+#
+organizationID: ""
+
 # -- ID of the cache group for which cache configuration should be pulled.
 #
 cacheGroupID: ""
@@ -145,6 +149,8 @@ queryProcessor:
   concurrency: 10
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
+  # -- Filepath for crash logs
+  crashLogPath: /tmp/query-processor-crash.log
 
 cloudSqlProxy:
   # -- Enable Cloud SQL Proxy sidecar

@@ -1,12 +1,12 @@
 # castai-hosted-model
 
-CAST AI hosted model deployment chart.
+CAST AI hosted model deployment chart with PVC support for compilation caches.
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/vllm | vllm | 0.0.41 |
+| file://child-charts/vllm | vllm | 0.0.43 |
 
 ## Values
 

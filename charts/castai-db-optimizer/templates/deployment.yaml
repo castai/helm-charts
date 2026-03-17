@@ -178,6 +178,12 @@ spec:
               value: headless-{{ include "name" . }}
             - name: CACHE_GROUP_ID
               value: {{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." | quote }}
+            {{- if .Values.organizationID }}
+            - name: ORGANIZATION_ID
+              value: {{ .Values.organizationID | quote }}
+            {{- end }}
+            - name: CRASH_LOG_PATH
+              value: {{ .Values.queryProcessor.crashLogPath }}
             - name: OWN_IP
               valueFrom:
                 fieldRef:

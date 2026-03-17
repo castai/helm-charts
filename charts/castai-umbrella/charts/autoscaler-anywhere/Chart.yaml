@@ -3,33 +3,27 @@ name: autoscaler-anywhere
 description: Wrapper chart for CAST AI Autoscaler Anywhere profile (non-managed clusters).
 type: application
 version: 0.3.0
-
 dependencies:
   - name: castai-agent
     version: "0.145.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-agent.enabled
-
   - name: castai-cluster-controller
     version: "0.90.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
-
   - name: castai-workload-autoscaler
-    version: "0.1.186"
+    version: "0.1.189"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
-
   - name: castai-workload-autoscaler-exporter
-    version: "0.0.107"
+    version: "0.0.110"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler-exporter.enabled
-
   - name: castai-evictor
-    version: "0.34.0"
+    version: "0.35.2"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-evictor.enabled
-
   - name: castai-pod-mutator
     version: "0.5.0"
     repository: "https://castai.github.io/helm-charts"

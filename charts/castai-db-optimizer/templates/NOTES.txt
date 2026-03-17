@@ -1,0 +1,4 @@
+{{- if not .Values.organizationID }}
+WARNING: organizationID is not set. Some features may not work correctly.
+         Set organizationID in your values to associate this deployment with your CAST AI organization.
+{{- end }}

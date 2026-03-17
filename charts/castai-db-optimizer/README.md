@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.68.3](https://img.shields.io/badge/Version-0.68.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.69.1](https://img.shields.io/badge/Version-0.69.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -34,6 +34,7 @@ CAST AI database cache deployment.
 | endpoints[0].servicePort | int | `5432` | Port of the named service |
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
+| organizationID | string | `""` | ID of the organization  |
 | pgdog.config | object | `{"checkout_timeout":10000,"connect_timeout":5000,"default_pool_size":500,"healthcheck_interval":30000,"healthcheck_timeout":5000,"idle_healthcheck_delay":5000,"idle_healthcheck_interval":30000,"log_connections":false,"log_disconnections":false,"passthrough_auth":"enabled_plain","pooler_mode":"transaction","prepared_statements":"extended_anonymous","prepared_statements_limit":5000,"query_cache_limit":500,"query_parser":"on","rollback_timeout":5000,"shutdown_timeout":60000,"tls_certificate":"/etc/ssl/certs/ssl-cert-snakeoil.pem","tls_private_key":"/etc/ssl/private/ssl-cert-snakeoil.key","tls_verify":"prefer","workers":10}` | Pgdog general configuration settings. Corresponds to [general] section in pgdog.toml: https://docs.pgdog.dev/configuration/pgdog.toml/general/. |
 | pgdog.config.checkout_timeout | int | `10000` | Maximum amount of time a client is allowed to wait for a connection from the pool (in milliseconds) |
 | pgdog.config.connect_timeout | int | `5000` | Maximum amount of time to allow for PgDog to create a connection to Postgres (in milliseconds) |
@@ -107,6 +108,7 @@ CAST AI database cache deployment.
 | proxySqlImage.repository | string | `"docker.io/proxysql/proxysql"` |  |
 | proxySqlImage.tag | string | `""` |  |
 | queryProcessor.concurrency | int | `10` | Number of worker threads. This should ideally be tuned around 1.5 - 2x times more than expected amount of CPU usage. |
+| queryProcessor.crashLogPath | string | `"/tmp/query-processor-crash.log"` | Filepath for crash logs |
 | queryProcessor.debug | bool | `false` | Enable additional debugging features to aid troubleshooting. |
 | queryProcessor.logLevel | string | `"warn"` | Default query-processor log level. |
 | queryProcessor.queryCacheBytes | int | `524288000` | Default query-processor query cache byte size. |
