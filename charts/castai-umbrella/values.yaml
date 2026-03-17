@@ -9,7 +9,6 @@ global:
 kent:
   enabled: false
 
-
 # tags -- Enable a product mode (mutually exclusive — pick one).
 #
 # Valid upgrade paths (additive, shared resources patched in-place, no restarts):
@@ -26,3 +25,103 @@ tags:
   workload-autoscaler: false
   full: false
   autoscaler-anywhere: false
+
+# ── Component defaults ────────────────────────────────────────────────────────
+# Components are enabled/disabled by mode tags in Chart.yaml.
+# To disable a specific component regardless of mode:
+#   --set castai-kvisor.enabled=false
+# To re-enable one disabled by default:
+#   --set castai-pod-pinner.enabled=true
+#
+# Note: do NOT set <component>.enabled here — that would override the tag-based
+# activation mechanism. Leave enable/disable control to tags and explicit --set overrides.
+
+castai-agent:
+  replicaCount: 1
+  apiKeySecretRef: castai-credentials
+  createNamespace: false
+
+castai-spot-handler:
+  castai:
+    provider: ""
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+  apiKeySecretRef: castai-credentials
+
+castai-kvisor:
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+
+gpu-metrics-exporter:
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+
+castai-cluster-controller:
+  castai:
+    apiKeySecretRef: castai-credentials
+  envFrom:
+    - configMapRef:
+        name: castai-agent-metadata
+  autoscaling:
+    enabled: true
+  aks:
+    enabled: false
+
+castai-evictor:
+  replicaCount: 1
+  aggressiveMode: false
+  overrideEnvFrom: true
+  envFrom:
+    - secretRef:
+        name: castai-credentials
+    - configMapRef:
+        name: castai-agent-metadata
+
+castai-pod-mutator:
+  fullnameOverride: castai-pod-mutator
+  dependencyCheck:
+    enabled: false
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+  envFrom:
+    - configMapRef:
+        name: castai-agent-metadata
+
+castai-pod-pinner:
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+  replicaCount: 0
+
+castai-live:
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+  castai-aws-vpc-cni:
+    enabled: false
+  daemon:
+    labelNodeSubnet: true
+  controller:
+    replicaCount: 0
+
+castai-workload-autoscaler:
+  fullnameOverride: castai-workload-autoscaler
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+
+castai-workload-autoscaler-exporter:
+  fullnameOverride: castai-workload-autoscaler-exporter
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
