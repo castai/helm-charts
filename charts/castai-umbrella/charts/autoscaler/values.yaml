@@ -1,5 +1,11 @@
-# tags -- Enable a product mode (mutually exclusive — pick one).
-# Set via: --set autoscaler.tags.<mode>=true
+# Mode selection is NOT configured here.
+#
+# Helm evaluates dependency tags against the ROOT chart's values. Mode tags
+# must be set at the umbrella root:
+#   --set tags.<mode>=true   (readonly | node-autoscaler | workload-autoscaler | full)
+#
+# Setting autoscaler.tags.<mode>=true has no effect on component activation
+# and bypasses the umbrella's mutual-exclusivity and required-value validation.
 #
 # Valid upgrade paths (additive, shared resources patched in-place, no restarts):
 #   readonly → node-autoscaler
@@ -12,11 +18,6 @@
 # Component overrides use the stable autoscaler.* prefix and are preserved
 # across all mode upgrades with --reuse-values:
 #   --set autoscaler.castai-kvisor.enabled=false
-tags:
-  readonly: false
-  node-autoscaler: false
-  workload-autoscaler: false
-  full: false
 
 # ── Component defaults ────────────────────────────────────────────────────────
 # Do NOT set <component>.enabled here — that would override the tag-based
