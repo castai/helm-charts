@@ -1,0 +1,22 @@
+apiVersion: autoscaling.cast.ai/v1alpha1
+kind: EvictorConfig
+metadata:
+  name: castai-evictor-config
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade,pre-delete
+spec:
+  dryRun: {{ .Values.dryRun }}
+  aggressiveMode: {{ .Values.aggressiveMode }}
+  scopedMode: {{ .Values.scopedMode }}
+  cycleInterval: {{ .Values.cycleInterval }}
+  nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
+  maxTargetNodesPerCycle: {{ .Values.maxNodesToEvictPerCycle }}
+  softTaintingEnabled: {{ .Values.softTainting.enabled }}
+  cleanupKarpenterNodes: {{ .Values.karpenterNodeCleanup.enabled }}
+  liveMigrationEnabled: {{ .Values.liveMigration.enabled }}
+  woopEnabled: {{ .Values.woop.enabled }}
+  karpenterModeEnabled: {{ .Values.karpenterMode.enabled }}
+  podMutationsEnabled: {{ .Values.podMutations.enabled }}
+  ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
