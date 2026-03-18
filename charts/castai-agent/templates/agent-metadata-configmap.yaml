@@ -1,4 +1,4 @@
-{{- if or .Values.metadataStore.enabled (eq (include "castai-agent.provider" .) "anywhere") }}
+{{- if and .Values.metadataStore.createConfigMap (or .Values.metadataStore.enabled (eq (include "castai-agent.provider" .) "anywhere")) }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
