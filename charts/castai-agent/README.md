@@ -37,6 +37,9 @@ CAST AI agent deployment chart.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/agent"` |  |
 | imagePullSecrets | list | `[]` | what secret should be used for pulling the image |
+| metadataStore.adoptJob | object | `{"enabled":true,"image":{"repository":"alpine/k8s","tag":"1.31.0"}}` | configuration for the pre-upgrade job that adopts an existing runtime-created castai-agent-metadata ConfigMap into Helm management. |
+| metadataStore.adoptJob.enabled | bool | `true` | enables the pre-upgrade job that adopts an existing runtime-created ConfigMap into Helm management |
+| metadataStore.adoptJob.image | object | `{"repository":"alpine/k8s","tag":"1.31.0"}` | image used by the pre-upgrade adoption job |
 | metadataStore.configMapName | string | `"castai-agent-metadata"` | namespace of config map to store metadata |
 | metadataStore.configMapNamespace | string | `"castai-agent"` |  |
 | metadataStore.enabled | bool | `true` | specifies whether agent should store metadata in a config map |

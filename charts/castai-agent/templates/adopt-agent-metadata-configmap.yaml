@@ -1,0 +1,73 @@
+{{- if and .Values.metadataStore.adoptJob.enabled (or .Values.metadataStore.enabled (eq (include "castai-agent.provider" .) "anywhere")) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "castai-agent.fullname" . }}-adopt-metadata-cm
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-agent.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-5"
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    {{- with .Values.commonAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 60
+  template:
+    metadata:
+      labels:
+        {{- include "castai-agent.selectorLabels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "castai-agent.serviceAccountName" . }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+      containers:
+        - name: adopt
+          image: "{{ .Values.metadataStore.adoptJob.image.repository }}:{{ .Values.metadataStore.adoptJob.image.tag }}"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              CM="{{ .Values.metadataStore.configMapName }}"
+              NS="{{ .Release.Namespace }}"
+              RELEASE="{{ .Release.Name }}"
+
+              # Exit cleanly if the ConfigMap doesn't exist (fresh install path)
+              if ! kubectl get configmap "$CM" -n "$NS" > /dev/null 2>&1; then
+                echo "ConfigMap $CM not found, nothing to adopt."
+                exit 0
+              fi
+
+              # Exit cleanly if already managed by Helm (idempotent)
+              MANAGED_BY=$(kubectl get configmap "$CM" -n "$NS" -o jsonpath='{.metadata.labels.app\.kubernetes\.io/managed-by}' 2>/dev/null || true)
+              if [ "$MANAGED_BY" = "Helm" ]; then
+                echo "ConfigMap $CM is already managed by Helm, nothing to do."
+                exit 0
+              fi
+
+              echo "Adopting ConfigMap $CM into Helm release $RELEASE..."
+              kubectl annotate configmap "$CM" -n "$NS" \
+                "meta.helm.sh/release-name=$RELEASE" \
+                "meta.helm.sh/release-namespace=$NS" \
+                --overwrite
+              kubectl label configmap "$CM" -n "$NS" \
+                "app.kubernetes.io/managed-by=Helm" \
+                --overwrite
+              echo "Done."
+{{- end }}

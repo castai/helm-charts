@@ -198,6 +198,15 @@ metadataStore:
   configMapName: castai-agent-metadata
   # metadataStore.configMapName -- namespace of config map to store metadata
   configMapNamespace: castai-agent
+  # metadataStore.adoptJob -- configuration for the pre-upgrade job that adopts an existing
+  # runtime-created castai-agent-metadata ConfigMap into Helm management.
+  adoptJob:
+    # metadataStore.adoptJob.enabled -- enables the pre-upgrade job that adopts an existing runtime-created ConfigMap into Helm management
+    enabled: true
+    # metadataStore.adoptJob.image -- image used by the pre-upgrade adoption job
+    image:
+      repository: alpine/k8s
+      tag: "1.31.0"
 
 # -- Used to set additional environment variables for the pod-mutator container via configMaps or secrets.
 envFrom: []
