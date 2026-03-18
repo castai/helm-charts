@@ -1,5 +1,12 @@
 replicas: 2
 
+# -- Rolling update strategy configuration.
+rollingUpdate:
+  # -- Maximum number of pods that can be created above the desired number of pods during an update.
+  maxSurge: "100%"
+  # -- Maximum number of pods that can be unavailable during an update. Set to 1 for sequential pod termination.
+  maxUnavailable: 0
+
 # -- URL to the CAST AI API server.
 apiURL: "api.cast.ai"
 
