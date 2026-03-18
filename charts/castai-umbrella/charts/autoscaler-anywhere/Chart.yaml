@@ -5,7 +5,7 @@ type: application
 version: 0.4.0
 dependencies:
   - name: castai-agent
-    version: "0.146.0"
+    version: "0.147.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-agent.enabled
   - name: castai-cluster-controller
