@@ -123,6 +123,9 @@ CAST AI database cache deployment.
 | resources.queryProcessor.cpu | string | `"2"` |  |
 | resources.queryProcessor.memoryLimit | string | `"1Gi"` |  |
 | resources.queryProcessor.memoryRequest | string | `"1Gi"` |  |
+| rollingUpdate | object | `{"maxSurge":"100%","maxUnavailable":0}` | Rolling update strategy configuration. |
+| rollingUpdate.maxSurge | string | `"100%"` | Maximum number of pods that can be created above the desired number of pods during an update. |
+| rollingUpdate.maxUnavailable | int | `0` | Maximum number of pods that can be unavailable during an update. Set to 1 for sequential pod termination. |
 | service.trafficDistribution | string | `""` | Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+. Ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-distribution |
 | serviceAccountName | string | `""` | The name of the service account to be used by the pod. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/ |
 | tolerations | object | `{}` | Pod toleration rules. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |
