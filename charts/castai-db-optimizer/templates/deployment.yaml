@@ -17,8 +17,8 @@ spec:
       {{- include "selectorLabels" . | nindent 6 }}
   strategy:
     rollingUpdate:
-      maxSurge: 100%
-      maxUnavailable: 0
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
     type: RollingUpdate
   template:
     metadata:
