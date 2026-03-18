@@ -28,6 +28,8 @@ castai-agent:
   replicaCount: 1
   apiKeySecretRef: castai-credentials
   createNamespace: false
+  metadataStore:
+    createConfigMap: true
 
 castai-spot-handler:
   castai:
