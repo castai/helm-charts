@@ -3966,6 +3966,16 @@ entries:
   castai-agent:
   - apiVersion: v2
     appVersion: v0.116.0
+    created: "2026-03-18T16:29:12.344345162Z"
+    description: CAST AI agent deployment chart.
+    digest: 263aecea8f82047aa720f877597a492fe76f57c8a03517e08c9d43f730bdfe9c
+    name: castai-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-agent-0.147.0/castai-agent-0.147.0.tgz
+    version: 0.147.0
+  - apiVersion: v2
+    appVersion: v0.116.0
     created: "2026-03-18T09:25:28.970893303Z"
     description: CAST AI agent deployment chart.
     digest: 9e416644d01323bce66292eee2f6be0d4bdf5fe783a20a5ce9a3015593a34a03
@@ -10998,6 +11008,15 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-db-agent-0.1.0/castai-db-agent-0.1.0.tgz
     version: 0.1.0
   castai-db-optimizer:
+  - apiVersion: v2
+    created: "2026-03-18T16:29:12.499962148Z"
+    description: CAST AI database cache deployment.
+    digest: 8567b362cb3895fac0418d8c15e3da16aafd71b61da9b8b4951852312c78d16b
+    name: castai-db-optimizer
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-db-optimizer-0.70.1/castai-db-optimizer-0.70.1.tgz
+    version: 0.70.1
   - apiVersion: v2
     created: "2026-03-18T15:02:37.26759351Z"
     description: CAST AI database cache deployment.
@@ -43630,4 +43649,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-03-18T15:02:37.271864178Z"
+generated: "2026-03-18T16:29:12.507279288Z"
