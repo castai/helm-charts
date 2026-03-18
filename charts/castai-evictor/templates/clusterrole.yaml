@@ -63,23 +63,6 @@ rules:
     resources: [ "pods/eviction" ]
     verbs: [ "create" ]
   # ------------------------------------------------
-  # EvictorConfig CRD — dynamic configuration pushed by the autoscaler
-  # ------------------------------------------------
-  - apiGroups:
-      - autoscaling.cast.ai
-    resources:
-      - evictorconfigs
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - autoscaling.cast.ai
-    resources:
-      - evictorconfigs/status
-    verbs:
-      - update
-  # ------------------------------------------------
   # Leader election
   # ------------------------------------------------
   - apiGroups:
