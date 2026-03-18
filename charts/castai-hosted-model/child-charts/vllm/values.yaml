@@ -99,7 +99,7 @@ service:
   type: ClusterIP
   port: 8000
 
-task: "generate"
+task:
 enableChunkedPrefill: true
 maxNumBatchedTokens: 10000
 enableAutoToolChoice: false

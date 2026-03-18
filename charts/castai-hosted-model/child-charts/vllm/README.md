@@ -108,5 +108,5 @@ CAST AI hosted model deployment chart for vLLM.
 | startupProbe.enabled | bool | `true` | Enable or disable startup probe |
 | startupProbe.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for startup probe) |
 | startupProbe.timeoutSeconds | int | `1` | Number of seconds after which the probe times out |
-| task | string | `"generate"` |  |
+| task | string | `nil` |  |
 | useRunAiStreamer | bool | `false` |  |
