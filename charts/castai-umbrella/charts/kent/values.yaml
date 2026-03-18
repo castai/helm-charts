@@ -6,6 +6,8 @@ castai-agent:
   provider: eks
   # executed for helm to create the namespace `helm --create-namespace`
   createNamespace: false
+  metadataStore:
+    createConfigMap: true
 
 castai-cluster-controller:
   enabled: true

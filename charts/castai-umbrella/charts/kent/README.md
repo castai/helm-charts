@@ -8,10 +8,10 @@ Wrapper chart for CAST AI Kent profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.145.0 |
+| https://castai.github.io/helm-charts | castai-agent | 0.146.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.90.1 |
 | https://castai.github.io/helm-charts | castai-evictor | 0.35.2 |
-| https://castai.github.io/helm-charts | castai-kentroller | 0.1.83 |
+| https://castai.github.io/helm-charts | castai-kentroller | 0.1.85 |
 | https://castai.github.io/helm-charts | castai-live | 0.75.1 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.6.0 |
 | https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.189 |
@@ -24,6 +24,7 @@ Wrapper chart for CAST AI Kent profile.
 | castai-agent.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-agent.createNamespace | bool | `false` |  |
 | castai-agent.enabled | bool | `true` |  |
+| castai-agent.metadataStore.createConfigMap | bool | `true` |  |
 | castai-agent.provider | string | `"eks"` |  |
 | castai-agent.replicaCount | int | `1` |  |
 | castai-cluster-controller.autoscaling.enabled | bool | `false` |  |
