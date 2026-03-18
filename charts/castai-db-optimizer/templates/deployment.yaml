@@ -186,8 +186,10 @@ spec:
               value: headless-{{ include "name" . }}
             - name: CACHE_GROUP_ID
               value: {{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." | quote }}
+            {{- if and .Values.proxySql .Values.proxySql.enabled }}
             - name: POOLING_METRICS_PORT
-              value: "0" # Conditionally when mySQL Proxy enabled
+              value: "0" # not implemented yet
+            {{- end }}
             {{- if .Values.organizationID }}
             - name: ORGANIZATION_ID
               value: {{ .Values.organizationID | quote }}
