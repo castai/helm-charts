@@ -1,0 +1,85 @@
+suite: kvisor grpcAddr configuration
+set:
+  castai-kvisor.enabled: true
+  castai-kvisor.castai.apiKeySecretRef: castai-credentials
+  castai-kvisor.castai.clusterIdConfigMapKeyRef.name: castai-agent-metadata
+  castai-kvisor.castai.clusterIdConfigMapKeyRef.key: CLUSTER_ID
+  global.castai.provider: eks
+tests:
+  - it: controller uses custom grpcAddr
+    template: charts/castai-kvisor/templates/controller.yaml
+    set:
+      castai-kvisor.castai.grpcAddr: "kvisor.prod-eu.cast.ai:443"
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CASTAI_API_GRPC_ADDR
+            value: "kvisor.prod-eu.cast.ai:443"
+
+  - it: agent uses custom grpcAddr
+    template: charts/castai-kvisor/templates/agent.yaml
+    set:
+      castai-kvisor.castai.grpcAddr: "kvisor.prod-eu.cast.ai:443"
+    documentSelector:
+      path: kind
+      value: DaemonSet
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CASTAI_API_GRPC_ADDR
+            value: "kvisor.prod-eu.cast.ai:443"
+
+  - it: controller uses default grpcAddr when not overridden
+    template: charts/castai-kvisor/templates/controller.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CASTAI_API_GRPC_ADDR
+            value: "kvisor.prod-master.cast.ai:443"
+
+  - it: global.castai.grpcURL does NOT override controller grpcAddr
+    template: charts/castai-kvisor/templates/controller.yaml
+    set:
+      global.castai.grpcURL: "custom-grpc.cast.ai:443"
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CASTAI_API_GRPC_ADDR
+            value: "kvisor.prod-master.cast.ai:443"
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CASTAI_API_GRPC_ADDR
+            value: "custom-grpc.cast.ai:443"
+
+  - it: global.castai.grpcURL does NOT override agent grpcAddr
+    template: charts/castai-kvisor/templates/agent.yaml
+    set:
+      global.castai.grpcURL: "custom-grpc.cast.ai:443"
+    documentSelector:
+      path: kind
+      value: DaemonSet
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CASTAI_API_GRPC_ADDR
+            value: "kvisor.prod-master.cast.ai:443"
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CASTAI_API_GRPC_ADDR
+            value: "custom-grpc.cast.ai:443"
