@@ -13,7 +13,7 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
   - name: castai-kentroller
-    version: "0.1.86"
+    version: "0.1.87"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kentroller.enabled
   - name: castai-workload-autoscaler
