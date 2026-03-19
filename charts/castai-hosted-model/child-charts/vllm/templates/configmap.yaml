@@ -23,11 +23,11 @@ data:
     exec vllm serve --model="${MODEL_PATH}" "$@"
     {{- else }}
 
-    SOURCE_MODEL="{{- if eq .Values.model.sourceRegistry "gcs" -}}gs://{{ .Values.model.name }}{{- else -}}s3://{{ .Values.model.name }}{{- end -}}"
+    SOURCE_MODEL="{{- if eq .Values.model.sourceRegistry "gcs" -}}gs://{{ .Values.model.name }}{{- else if eq .Values.model.sourceRegistry "azure" -}}az://{{ .Values.model.name }}{{- else -}}s3://{{ .Values.model.name }}{{- end -}}"
 
     CACHE_BUCKET="{{ .Values.model.cache.bucket }}"
     CACHE_DIR="{{ include "model.dirName" . }}"
-    CACHE_MODEL="{{- if eq .Values.model.cache.bucketType "gcs" -}}gs://${CACHE_BUCKET}/${CACHE_DIR}{{- else -}}s3://${CACHE_BUCKET}/${CACHE_DIR}{{- end -}}"
+    CACHE_MODEL="{{- if eq .Values.model.cache.bucketType "gcs" -}}gs://${CACHE_BUCKET}/${CACHE_DIR}{{- else if eq .Values.model.cache.bucketType "azure" -}}az://${CACHE_BUCKET}/${CACHE_DIR}{{- else -}}s3://${CACHE_BUCKET}/${CACHE_DIR}{{- end -}}"
 
     CACHE_READY_FILE="/cache-ready/{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}/.copy.manifest"
 
@@ -36,6 +36,12 @@ data:
       MODEL_PATH="${CACHE_MODEL}"
       if [[ "{{ .Values.model.cache.bucketType }}" == "gcs" ]]; then
         export GOOGLE_APPLICATION_CREDENTIALS="${CACHE_GOOGLE_APPLICATION_CREDENTIALS}"
+      elif [[ "{{ .Values.model.cache.bucketType }}" == "azure" ]]; then
+        export AZURE_STORAGE_ACCOUNT_NAME="${CACHE_AZURE_STORAGE_ACCOUNT}"
+        export AZURE_STORAGE_ACCOUNT="${CACHE_AZURE_STORAGE_ACCOUNT}"
+        export AZURE_CLIENT_ID="${CACHE_AZURE_CLIENT_ID}"
+        export AZURE_TENANT_ID="${CACHE_AZURE_TENANT_ID}"
+        export AZURE_CLIENT_SECRET="${CACHE_AZURE_CLIENT_SECRET}"
       else
         export AWS_ACCESS_KEY_ID="${CACHE_AWS_ACCESS_KEY_ID}"
         export AWS_SECRET_ACCESS_KEY="${CACHE_AWS_SECRET_ACCESS_KEY}"
@@ -48,6 +54,12 @@ data:
       MODEL_PATH="${SOURCE_MODEL}"
       if [[ "{{ .Values.model.sourceRegistry }}" == "gcs" ]]; then
         export GOOGLE_APPLICATION_CREDENTIALS="${SOURCE_GCS_CREDENTIALS_FILE}"
+      elif [[ "{{ .Values.model.sourceRegistry }}" == "azure" ]]; then
+        export AZURE_STORAGE_ACCOUNT_NAME="${SOURCE_AZURE_STORAGE_ACCOUNT}"
+        export AZURE_STORAGE_ACCOUNT="${SOURCE_AZURE_STORAGE_ACCOUNT}"
+        export AZURE_CLIENT_ID="${SOURCE_AZURE_CLIENT_ID}"
+        export AZURE_TENANT_ID="${SOURCE_AZURE_TENANT_ID}"
+        export AZURE_CLIENT_SECRET="${SOURCE_AZURE_CLIENT_SECRET}"
       else
         export AWS_ACCESS_KEY_ID="${SOURCE_S3_ACCESS_KEY_ID}"
         export AWS_SECRET_ACCESS_KEY="${SOURCE_S3_SECRET_ACCESS_KEY}"

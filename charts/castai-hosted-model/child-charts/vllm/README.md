@@ -33,6 +33,10 @@ CAST AI hosted model deployment chart for vLLM.
 | livenessProbe.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for liveness probe) |
 | livenessProbe.timeoutSeconds | int | `1` | Number of seconds after which the probe times out |
 | loraAdapter.name | string | `nil` | HF Adapter name or path in object storage |
+| loraAdapter.registry.azure.clientId | string | `nil` |  |
+| loraAdapter.registry.azure.clientSecret | string | `nil` |  |
+| loraAdapter.registry.azure.storageAccount | string | `nil` |  |
+| loraAdapter.registry.azure.tenantId | string | `nil` |  |
 | loraAdapter.registry.createSecret | bool | `true` |  |
 | loraAdapter.registry.gcs.credentialsJsonBase64 | string | `nil` |  |
 | loraAdapter.registry.hf.token | string | `nil` |  |
@@ -44,6 +48,10 @@ CAST AI hosted model deployment chart for vLLM.
 | loraAdapter.sourceRegistry | string | `"hf"` |  |
 | maxLoraRank | int | `128` |  |
 | maxNumBatchedTokens | int | `10000` |  |
+| model.cache.azure.clientId | string | `nil` |  |
+| model.cache.azure.clientSecret | string | `nil` |  |
+| model.cache.azure.storageAccount | string | `nil` |  |
+| model.cache.azure.tenantId | string | `nil` |  |
 | model.cache.bucket | string | `""` |  |
 | model.cache.bucketType | string | `"gcs"` |  |
 | model.cache.copyJob.backoffLimit | int | `3` |  |
@@ -57,6 +65,10 @@ CAST AI hosted model deployment chart for vLLM.
 | model.cache.s3.secretAccessKey | string | `nil` |  |
 | model.cache.secretName | string | `nil` |  |
 | model.name | string | `nil` | HF Model name or path in object storage |
+| model.registry.azure.clientId | string | `nil` |  |
+| model.registry.azure.clientSecret | string | `nil` |  |
+| model.registry.azure.storageAccount | string | `nil` |  |
+| model.registry.azure.tenantId | string | `nil` |  |
 | model.registry.createSecret | bool | `true` |  |
 | model.registry.gcs.credentialsJsonBase64 | string | `nil` |  |
 | model.registry.hf.token | string | `nil` |  |
@@ -68,7 +80,7 @@ CAST AI hosted model deployment chart for vLLM.
 | model.servedName | string | `nil` | Optional override for the served model name. If not set, defaults to model.name |
 | model.sourceRegistry | string | `"hf"` |  |
 | modelDownloader.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/model-downloader"` |  |
-| modelDownloader.image.tag | string | `"v0.0.8"` |  |
+| modelDownloader.image.tag | string | `"v0.0.11"` |  |
 | modelDownloader.resources.limits.memory | string | `"500Mi"` |  |
 | modelDownloader.resources.requests.cpu | string | `"100m"` |  |
 | modelDownloader.resources.requests.memory | string | `"500Mi"` |  |
@@ -96,5 +108,5 @@ CAST AI hosted model deployment chart for vLLM.
 | startupProbe.enabled | bool | `true` | Enable or disable startup probe |
 | startupProbe.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for startup probe) |
 | startupProbe.timeoutSeconds | int | `1` | Number of seconds after which the probe times out |
-| task | string | `"generate"` |  |
+| task | string | `nil` |  |
 | useRunAiStreamer | bool | `false` |  |
