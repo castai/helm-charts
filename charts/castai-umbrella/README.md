@@ -64,12 +64,12 @@ Upgrades add components; downgrades are not supported because removing active co
 
 ### Upgrading between modes
 
-Use `--reuse-values` to preserve existing configuration when switching modes. Component overrides under `autoscaler.*` are stable across all mode upgrades.
+Use `--reset-then-reuse-values` to preserve existing configuration when switching modes. Component overrides under `autoscaler.*` are stable across all mode upgrades.
 
 ```shell
 helm upgrade castai castai-helm/castai \
   --namespace castai-agent \
-  --reuse-values \
+  --reset-then-reuse-values \
   --set tags.readonly=false \
   --set tags.full=true
 ```
@@ -123,7 +123,7 @@ Any component can be excluded regardless of the selected mode:
 ```shell
 helm upgrade castai castai-helm/castai \
   --namespace castai-agent \
-  --reuse-values \
+  --reset-then-reuse-values \
   --set autoscaler.castai-kvisor.enabled=false
 ```
 
@@ -150,6 +150,7 @@ kubectl create secret generic castai-credentials \
 helm upgrade --install castai castai-helm/castai \
   --namespace castai-agent --create-namespace \
   --set global.castai.apiURL=https://api.cast.ai \
+  --set global.castai.apiKey=<YOUR_API_KEY> \
   --set tags.autoscaler-anywhere=true \
   --set autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<CLUSTER_NAME>
 ```
@@ -161,7 +162,7 @@ Use the `autoscaler-anywhere.<component>.*` prefix:
 ```shell
 helm upgrade castai castai-helm/castai \
   --namespace castai-agent \
-  --reuse-values \
+  --reset-then-reuse-values \
   --set autoscaler-anywhere.castai-evictor.aggressiveMode=true
 ```
 
@@ -198,7 +199,7 @@ Use the `kent.<component>.*` prefix:
 ```shell
 helm upgrade castai castai-helm/castai \
   --namespace castai-agent \
-  --reuse-values \
+  --reset-then-reuse-values \
   --set kent.metrics-server.enabled=true \
   --set kent.castai-live.controller.replicaCount=2
 ```
