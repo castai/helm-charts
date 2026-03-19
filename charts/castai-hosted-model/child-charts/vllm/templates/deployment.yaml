@@ -287,6 +287,8 @@ spec:
                  SOURCE_S3_SECRET_ACCESS_KEY="${CACHE_AWS_SECRET_ACCESS_KEY}" \
                  SOURCE_S3_REGION="${CACHE_AWS_REGION}" \
                  SOURCE_S3_ENDPOINT="${CACHE_AWS_ENDPOINT_URL}" \
+              {{- else if eq .Values.model.cache.bucketType "azure" }}
+                 SOURCE_AZURE_STORAGE_ACCOUNT="${CACHE_AZURE_STORAGE_ACCOUNT}" \
               {{- end }}
                  SOURCE_REMOTE_DIRS="{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}/.copy.manifest" \
                  DESTINATION_LOCAL_DIR="/tmp/cache-check" \
@@ -302,6 +304,8 @@ spec:
                 export SOURCE_S3_SECRET_ACCESS_KEY="${CACHE_AWS_SECRET_ACCESS_KEY}"
                 export SOURCE_S3_REGION="${CACHE_AWS_REGION}"
                 export SOURCE_S3_ENDPOINT="${CACHE_AWS_ENDPOINT_URL}"
+                {{- else if eq .Values.model.cache.bucketType "azure" }}
+                export SOURCE_AZURE_STORAGE_ACCOUNT="${CACHE_AZURE_STORAGE_ACCOUNT}"
                 {{- end }}
                 export SOURCE_REMOTE_DIRS="{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}"
               else

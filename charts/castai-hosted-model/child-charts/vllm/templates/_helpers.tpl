@@ -119,6 +119,36 @@ Usage: {{ include "modelSourceCredentialsEnvVars" . | nindent 12 }}
       name: {{ include "modelRegistrySecretName" . }}
       key: "awsEndpointUrl"
       optional: true
+{{- else if eq .Values.model.sourceRegistry "azure" }}
+- name: SOURCE_TYPE
+  value: "azure"
+- name: SOURCE_AZURE_STORAGE_ACCOUNT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "azureStorageAccount"
+      optional: true
+{{- if .Values.model.registry.azure.clientId }}
+- name: SOURCE_AZURE_CLIENT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "azureClientId"
+{{- end }}
+{{- if .Values.model.registry.azure.tenantId }}
+- name: SOURCE_AZURE_TENANT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "azureTenantId"
+{{- end }}
+{{- if .Values.model.registry.azure.clientSecret }}
+- name: SOURCE_AZURE_CLIENT_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelRegistrySecretName" . }}
+      key: "azureClientSecret"
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -157,6 +187,35 @@ Usage: {{ include "modelCacheCredentialsEnvVars" . | nindent 12 }}
       key: "awsEndpointUrl"
       optional: true
 {{- end }}
+{{- if and .Values.model.cache.enabled (eq .Values.model.cache.bucketType "azure") }}
+- name: CACHE_AZURE_STORAGE_ACCOUNT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureStorageAccount"
+      optional: true
+{{- if .Values.model.cache.azure.clientId }}
+- name: CACHE_AZURE_CLIENT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureClientId"
+{{- end }}
+{{- if .Values.model.cache.azure.tenantId }}
+- name: CACHE_AZURE_TENANT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureTenantId"
+{{- end }}
+{{- if .Values.model.cache.azure.clientSecret }}
+- name: CACHE_AZURE_CLIENT_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureClientSecret"
+{{- end }}
+{{- end }}
 {{- end }}
 
 {{/*
@@ -180,6 +239,8 @@ Usage {{ include "modelReference" . }}
 gs://{{ .Values.model.name }}
 {{- else if and .Values.useRunAiStreamer (eq .Values.model.sourceRegistry "s3") -}}
 s3://{{ .Values.model.name }}
+{{- else if and .Values.useRunAiStreamer (eq .Values.model.sourceRegistry "azure") -}}
+az://{{ .Values.model.name }}
 {{- else -}}
 /models/{{ .Values.model.name }}
 {{- end -}}
@@ -244,6 +305,48 @@ Usage: {{ include "loraSourceCredentialsEnvVars" (list "gcs" .) }}
       name: {{ include "loraRegistrySecretName" $ctx }}
       key: "awsEndpointUrl"
       optional: true
+{{- else if eq $storageType "azure" -}}
+- name: SOURCE_TYPE
+  value: "azure"
+- name: SOURCE_AZURE_STORAGE_ACCOUNT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "azureStorageAccount"
+      optional: true
+- name: AZURE_STORAGE_ACCOUNT_NAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "azureStorageAccount"
+      optional: true
+- name: AZURE_STORAGE_ACCOUNT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "azureStorageAccount"
+      optional: true
+{{- if $ctx.Values.loraAdapter.registry.azure.clientId }}
+- name: AZURE_CLIENT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "azureClientId"
+{{- end }}
+{{- if $ctx.Values.loraAdapter.registry.azure.tenantId }}
+- name: AZURE_TENANT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "azureTenantId"
+{{- end }}
+{{- if $ctx.Values.loraAdapter.registry.azure.clientSecret }}
+- name: AZURE_CLIENT_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "loraRegistrySecretName" $ctx }}
+      key: "azureClientSecret"
+{{- end }}
 {{- end -}}
 {{- end }}
 
@@ -284,6 +387,40 @@ Usage: {{ include "modelDestinationEnvVars" . | nindent 12 }}
       name: {{ include "modelCacheSecretName" . }}
       key: "awsEndpointUrl"
       optional: true
+{{- else if eq .Values.model.cache.bucketType "azure" }}
+- name: DESTINATION_AZURE_STORAGE_ACCOUNT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureStorageAccount"
+      optional: true
+- name: AZURE_STORAGE_ACCOUNT_NAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureStorageAccount"
+      optional: true
+{{- if .Values.model.cache.azure.clientId }}
+- name: AZURE_CLIENT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureClientId"
+{{- end }}
+{{- if .Values.model.cache.azure.tenantId }}
+- name: AZURE_TENANT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureTenantId"
+{{- end }}
+{{- if .Values.model.cache.azure.clientSecret }}
+- name: AZURE_CLIENT_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureClientSecret"
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -322,6 +459,40 @@ Usage: {{ include "modelCacheCheckerEnvVars" . | nindent 12 }}
       name: {{ include "modelCacheSecretName" . }}
       key: "awsEndpointUrl"
       optional: true
+{{- else if eq .Values.model.cache.bucketType "azure" }}
+- name: SOURCE_AZURE_STORAGE_ACCOUNT
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureStorageAccount"
+      optional: true
+- name: AZURE_STORAGE_ACCOUNT_NAME
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureStorageAccount"
+      optional: true
+{{- if .Values.model.cache.azure.clientId }}
+- name: AZURE_CLIENT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureClientId"
+{{- end }}
+{{- if .Values.model.cache.azure.tenantId }}
+- name: AZURE_TENANT_ID
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureTenantId"
+{{- end }}
+{{- if .Values.model.cache.azure.clientSecret }}
+- name: AZURE_CLIENT_SECRET
+  valueFrom:
+    secretKeyRef:
+      name: {{ include "modelCacheSecretName" . }}
+      key: "azureClientSecret"
+{{- end }}
 {{- end }}
 - name: SOURCE_REMOTE_DIRS
   value: "{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}/.copy.manifest"
