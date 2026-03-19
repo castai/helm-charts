@@ -1,0 +1,83 @@
+{{- if and .Values.proxySql .Values.proxySql.enabled }}
+{{- $defaults := dict
+  "threads" 4
+  "max_connections" 2048
+  "stacksize" 1048576
+  "have_compress" true
+  "free_connections_pct" 10
+  "connect_timeout_server" 5000
+  "default_query_timeout" 36000000
+  "auto_increment_delay_multiplex" 5
+  "max_backend_connections" 100
+  "multiplexing" true
+-}}
+{{- $userConfig := .Values.proxySql.config | default dict -}}
+{{- $mergedConfig := merge (deepCopy $userConfig) $defaults -}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "name" . }}-proxysql-config
+  labels:
+    {{- include "labels" . | nindent 4 }}
+  annotations:
+    {{- include "annotations" . | nindent 4 }}
+data:
+  proxysql.cnf: |
+    datadir="/var/lib/proxysql"
+
+    admin_variables=
+    {
+        admin_credentials="admin:admin"
+        mysql_ifaces="127.0.0.1:6032"
+    }
+
+    mysql_variables=
+    {
+        threads={{ $mergedConfig.threads | int64 }}
+        max_connections={{ $mergedConfig.max_connections | int64 }}
+        stacksize={{ $mergedConfig.stacksize | int64 }}
+        have_compress={{ $mergedConfig.have_compress }}
+        free_connections_pct={{ $mergedConfig.free_connections_pct | int64 }}
+        interfaces="0.0.0.0:6033"
+        default_query_timeout={{ $mergedConfig.default_query_timeout | int64 }}
+        connect_timeout_server={{ $mergedConfig.connect_timeout_server | int64 }}
+        auto_increment_delay_multiplex={{ $mergedConfig.auto_increment_delay_multiplex | int64 }}
+        monitor_enabled=false
+    }
+
+    mysql_servers=
+    (
+    {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
+      {
+        address="127.0.0.1"
+        port={{ $.Values.cloudSqlProxy.basePort | int64 }}
+        hostgroup=0
+        max_connections={{ $mergedConfig.max_backend_connections | int64 }}
+        use_ssl=0
+      }
+    {{- else }}
+    {{- range $index, $endpoint := .Values.endpoints }}
+      {
+        address="{{ required "endpoint hostname must be provided" $endpoint.hostname }}"
+        port={{ required "endpoint targetPort is required" $endpoint.targetPort | int64 }}
+        hostgroup=0
+        max_connections={{ $mergedConfig.max_backend_connections | int64 }}
+        use_ssl=1
+      }{{ if lt $index (sub (len $.Values.endpoints) 1) }},{{ end }}
+    {{- end }}
+    {{- end }}
+    )
+
+    mysql_query_rules=
+    (
+      {
+        rule_id=1
+        active=1
+        match_pattern=".*"
+        destination_hostgroup=0
+        apply=1
+        multiplex={{ if $mergedConfig.multiplexing }}2{{ else }}0{{ end }}
+      }
+    )
+{{- end }}
