@@ -12,16 +12,30 @@ Umbrella chart for CAST AI components.
 
 ## Usage
 
-### Mode overview
+This chart bundles three independent product profiles. Enable exactly one per install.
 
-Select exactly one mode tag per install. Each tag enables a fixed set of components.
+| Bundle | Enabled by | Target clusters | Components |
+|--------|-----------|----------------|-----------|
+| **autoscaler** | `tags.<mode>=true` | Managed cloud (EKS, AKS, GKE) | Mode-dependent — see [Autoscaler](#autoscaler) |
+| **autoscaler-anywhere** | `tags.autoscaler-anywhere=true` | Non-managed (bare metal, on-prem, edge) | castai-agent, castai-cluster-controller, castai-workload-autoscaler, castai-workload-autoscaler-exporter, castai-evictor, castai-pod-mutator |
+| **kent** | `kent.enabled=true` | EKS only | castai-agent, castai-cluster-controller, castai-kentroller, castai-workload-autoscaler, castai-live, castai-pod-mutator, castai-evictor |
 
-| Tag | Components | Purpose |
-|-----|-----------|---------|
-| `readonly` | castai-agent, castai-spot-handler, castai-kvisor, gpu-metrics-exporter | Observability only — no cluster changes |
-| `node-autoscaler` | readonly components + castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-pod-pinner, castai-live | Node provisioning and bin-packing |
-| `workload-autoscaler` | readonly components + castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-workload-autoscaler, castai-workload-autoscaler-exporter | Vertical pod autoscaling |
+---
+
+## Autoscaler
+
+For managed cloud clusters (EKS, AKS, GKE). Select exactly one mode tag — each tag enables a fixed set of components on top of the base observability stack.
+
+### Modes
+
+| Tag | Additional components | Purpose |
+|-----|-----------------------|---------|
+| `readonly` | _(none)_ | Observability only — no cluster changes |
+| `node-autoscaler` | castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-pod-pinner, castai-live | Node provisioning and bin-packing |
+| `workload-autoscaler` | castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-workload-autoscaler, castai-workload-autoscaler-exporter | Vertical pod autoscaling |
 | `full` | all of the above | Node + workload autoscaling |
+
+Base components present in every mode: castai-agent, castai-spot-handler, castai-kvisor, gpu-metrics-exporter.
 
 ### Install
 
@@ -41,7 +55,7 @@ Replace `tags.readonly` with the desired mode tag (`node-autoscaler`, `workload-
 
 ### Accepted mode upgrade paths
 
-Not all mode transitions are supported. The table below shows which target modes are valid from each current mode.
+Upgrades add components; downgrades are not supported because removing active controllers can leave the cluster in an inconsistent state. If you need to move to a lower mode, uninstall the release first and re-install with the target mode.
 
 | From \ To | `readonly` | `node-autoscaler` | `workload-autoscaler` | `full` |
 |-----------|:----------:|:-----------------:|:---------------------:|:------:|
@@ -49,8 +63,6 @@ Not all mode transitions are supported. The table below shows which target modes
 | `node-autoscaler` | ✗ | — | ✗ | ✓ |
 | `workload-autoscaler` | ✗ | ✗ | — | ✓ |
 | `full` | ✗ | ✗ | ✗ | — |
-
-Upgrades add components; downgrades are not supported because removing active controllers can leave the cluster in an inconsistent state. If you need to move to a lower mode, uninstall the release first and re-install with the target mode.
 
 ### Upgrading between modes
 
@@ -72,6 +84,7 @@ Pass component-specific values through the `autoscaler.<component>.*` prefix:
 helm upgrade --install castai castai-helm/castai \
   --namespace castai-agent --create-namespace \
   --set global.castai.apiKey=<YOUR_API_KEY> \
+  --set global.castai.apiURL=https://api.cast.ai \
   --set global.castai.provider=eks \
   --set tags.full=true \
   --set autoscaler.castai-agent.replicaCount=2 \
@@ -84,6 +97,7 @@ Or via a values file:
 global:
   castai:
     apiKey: "<YOUR_API_KEY>"
+    apiURL: "https://api.cast.ai"
     provider: eks
 
 tags:
@@ -106,7 +120,7 @@ helm upgrade --install castai castai-helm/castai \
 
 ### Disabling a component
 
-Any component can be excluded from an install or upgrade regardless of the selected mode:
+Any component can be excluded regardless of the selected mode:
 
 ```shell
 helm upgrade castai castai-helm/castai \
@@ -114,6 +128,84 @@ helm upgrade castai castai-helm/castai \
   --reuse-values \
   --set autoscaler.castai-kvisor.enabled=false
 ```
+
+---
+
+## Autoscaler Anywhere
+
+For non-managed Kubernetes clusters (bare metal, on-prem, edge). Authentication uses a pre-created `castai-credentials` Secret instead of inline API key flags.
+
+### Prerequisites
+
+Create the credentials secret before installing:
+
+```shell
+kubectl create namespace castai-agent
+kubectl create secret generic castai-credentials \
+  --namespace castai-agent \
+  --from-literal=TOKEN=<YOUR_API_KEY>
+```
+
+### Install
+
+```shell
+helm upgrade --install castai castai-helm/castai \
+  --namespace castai-agent --create-namespace \
+  --set global.castai.apiURL=https://api.cast.ai \
+  --set tags.autoscaler-anywhere=true \
+  --set autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<CLUSTER_NAME>
+```
+
+### Configuring individual components
+
+Use the `autoscaler-anywhere.<component>.*` prefix:
+
+```shell
+helm upgrade castai castai-helm/castai \
+  --namespace castai-agent \
+  --reuse-values \
+  --set autoscaler-anywhere.castai-evictor.aggressiveMode=true
+```
+
+---
+
+## Kent
+
+CAST AI Kent profile for EKS clusters. Like Autoscaler Anywhere, authentication uses a pre-created `castai-credentials` Secret.
+
+### Prerequisites
+
+Create the credentials secret before installing:
+
+```shell
+kubectl create namespace castai-agent
+kubectl create secret generic castai-credentials \
+  --namespace castai-agent \
+  --from-literal=TOKEN=<YOUR_API_KEY>
+```
+
+### Install
+
+```shell
+helm upgrade --install castai castai-helm/castai \
+  --namespace castai-agent --create-namespace \
+  --set global.castai.apiURL=https://api.cast.ai \
+  --set kent.enabled=true
+```
+
+### Configuring individual components
+
+Use the `kent.<component>.*` prefix:
+
+```shell
+helm upgrade castai castai-helm/castai \
+  --namespace castai-agent \
+  --reuse-values \
+  --set kent.metrics-server.enabled=true \
+  --set kent.castai-live.controller.replicaCount=2
+```
+
+---
 
 ## Values
 
