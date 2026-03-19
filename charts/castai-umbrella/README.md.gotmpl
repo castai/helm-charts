@@ -144,6 +144,7 @@ kubectl create secret generic castai-credentials \
 helm upgrade --install castai castai-helm/castai \
   --namespace castai-agent --create-namespace \
   --set global.castai.apiURL=https://api.cast.ai \
+  --set global.castai.apiKey=<YOUR_API_KEY> \
   --set tags.autoscaler-anywhere=true \
   --set autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<CLUSTER_NAME>
 ```
