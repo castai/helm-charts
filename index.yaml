@@ -4097,6 +4097,16 @@ entries:
     version: 0.3.0
   castai-agent:
   - apiVersion: v2
+    appVersion: v0.118.0
+    created: "2026-03-19T09:52:18.888555507Z"
+    description: CAST AI agent deployment chart.
+    digest: e0d883853a60e8c0b9575e6da98cfcec26469651a5a434bfe72c3d55b345713f
+    name: castai-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-agent-0.148.0/castai-agent-0.148.0.tgz
+    version: 0.148.0
+  - apiVersion: v2
     appVersion: v0.116.0
     created: "2026-03-18T16:29:12.344345162Z"
     description: CAST AI agent deployment chart.
@@ -25216,6 +25226,22 @@ entries:
   castai-hosted-model:
   - apiVersion: v2
     appVersion: v0.0.1
+    created: "2026-03-19T09:52:19.029045257Z"
+    dependencies:
+    - condition: vllm.enabled
+      name: vllm
+      repository: file://child-charts/vllm
+      version: 0.0.44
+    description: CAST AI hosted model deployment chart with PVC support for compilation
+      caches.
+    digest: 5c8c02b27982c66133127607896e934a4f5ec2bbec9f11fb860b77260c2ce4fa
+    name: castai-hosted-model
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-hosted-model-0.0.52/castai-hosted-model-0.0.52.tgz
+    version: 0.0.52
+  - apiVersion: v2
+    appVersion: v0.0.1
     created: "2026-03-19T09:10:16.955709313Z"
     dependencies:
     - condition: vllm.enabled
@@ -43875,4 +43901,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-03-19T09:32:43.901796598Z"
+generated: "2026-03-19T09:52:19.034199176Z"
