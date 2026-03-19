@@ -1,6 +1,6 @@
 # autoscaler
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, full.
 
@@ -8,16 +8,16 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.146.0 |
+| https://castai.github.io/helm-charts | castai-agent | 0.147.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.90.1 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.2 |
-| https://castai.github.io/helm-charts | castai-kvisor | 1.0.139 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.3 |
+| https://castai.github.io/helm-charts | castai-kvisor | 1.0.140 |
 | https://castai.github.io/helm-charts | castai-live | 0.75.1 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.5.0 |
 | https://castai.github.io/helm-charts | castai-pod-pinner | 1.11.0 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.32.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.186 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 0.0.107 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.190 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 0.0.111 |
 | https://castai.github.io/helm-charts | gpu-metrics-exporter | 0.1.29 |
 
 ## Values
