@@ -28,14 +28,12 @@ For managed cloud clusters (EKS, AKS, GKE). Select exactly one mode tag — each
 
 ### Modes
 
-| Tag | Additional components | Purpose |
-|-----|-----------------------|---------|
-| `readonly` | _(none)_ | Observability only — no cluster changes |
-| `node-autoscaler` | castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-pod-pinner, castai-live | Node provisioning and bin-packing |
-| `workload-autoscaler` | castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-workload-autoscaler, castai-workload-autoscaler-exporter | Vertical pod autoscaling |
-| `full` | all of the above | Node + workload autoscaling |
-
-Base components present in every mode: castai-agent, castai-spot-handler, castai-kvisor, gpu-metrics-exporter.
+| Tag | Components | Purpose |
+|-----|-----------|---------|
+| `readonly` | castai-agent, castai-spot-handler, castai-kvisor, gpu-metrics-exporter | Observability only — no cluster changes |
+| `node-autoscaler` | castai-agent, castai-spot-handler, castai-kvisor, gpu-metrics-exporter, castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-pod-pinner, castai-live | Node provisioning and bin-packing |
+| `workload-autoscaler` | castai-agent, castai-spot-handler, castai-kvisor, gpu-metrics-exporter, castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-workload-autoscaler, castai-workload-autoscaler-exporter | Vertical pod autoscaling |
+| `full` | castai-agent, castai-spot-handler, castai-kvisor, gpu-metrics-exporter, castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-pod-pinner, castai-live, castai-workload-autoscaler, castai-workload-autoscaler-exporter | Node + workload autoscaling |
 
 ### Install
 
