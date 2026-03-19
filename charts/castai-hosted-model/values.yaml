@@ -11,6 +11,9 @@ placementJob:
   # -- The names of GPUs that shouldn't be used for this job.
   blacklistedGPUNames: []
 
+  # -- Allowed GPU counts for tensor parallel compatibility. If set, only nodes with these GPU counts will be considered.
+  allowedGPUCounts: []
+
   image:
     # -- The image to use for the job
     repository: us-docker.pkg.dev/castai-hub/library/busybox

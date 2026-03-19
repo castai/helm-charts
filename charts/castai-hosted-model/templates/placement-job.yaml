@@ -37,6 +37,14 @@ spec:
                       - {{ . }}
                     {{- end }}
                   {{- end }}
+                  {{- if gt (len .Values.placementJob.allowedGPUCounts) 0 }}
+                  - key: nvidia.com/gpu.count
+                    operator: In
+                    values:
+                    {{- range .Values.placementJob.allowedGPUCounts }}
+                      - "{{ . }}"
+                    {{- end }}
+                  {{- end }}
                   - key: nvidia.com/gpu.total-memory
                     operator: Gt
                     values:
