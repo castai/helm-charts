@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.15.1](https://img.shields.io/badge/Version-0.15.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -12,7 +12,6 @@ CAST AI DB agent deployment.
 | cacheGroupID | string | `""` |  |
 | cloudSqlProxy.autoIamAuthn | bool | `true` | Have the proxy connect with Automatic IAM authentication |
 | cloudSqlProxy.enabled | bool | `false` | Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections |
-| cloudSqlProxy.instanceConnectionName | string | `""` | GCP Cloud SQL instance connection name (e.g., project:region:instance) |
 | cloudSqlProxy.port | int | `5432` | Port on which Cloud SQL Proxy will listen |
 | cloudSqlProxy.privateIp | bool | `false` | Have the proxy connect over private IP if connecting from a VPC-native GKE cluster |
 | cloudSqlProxyImage.pullPolicy | string | `"IfNotPresent"` |  |
