@@ -81,10 +81,8 @@ priorityClass:
 tolerations:
   - key: scheduling.cast.ai/spot
     operator: Exists
-  - effect: NoSchedule
-    key: provisioning.cast.ai/temporary
-    operator: Equal
-    value: "resuming"
+  - key: CriticalAddonsOnly
+    operator: Exists
 
 webhook:
   failurePolicy: "Ignore"

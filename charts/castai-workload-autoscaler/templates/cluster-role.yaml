@@ -149,6 +149,17 @@ rules:
       - get
       - list
       - watch
+  # ---
+  # Read permissions for nodes - required for checking pod/claim node compatibility and node-proportional resource scaling
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
   {{- if .Values.resourceQuotaAwareScaling.enabled }}
   # ---
   # Read permissions for resource quotas - required for quota-aware scaling
@@ -182,17 +193,6 @@ rules:
       - resource.k8s.io
     resources:
       - resourceslices
-    verbs:
-      - get
-      - list
-      - watch
-  # ---
-  # Read permissions for nodes - required for checking pod/claim node compatibility
-  # ---
-  - apiGroups:
-      - ""
-    resources:
-      - nodes
     verbs:
       - get
       - list
