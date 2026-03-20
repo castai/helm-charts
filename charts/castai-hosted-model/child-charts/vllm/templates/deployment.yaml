@@ -73,7 +73,7 @@ spec:
         {{- if .Values.persistence.enabled }}
         - name: models
           persistentVolumeClaim:
-            claimName: {{ include "vllm.fullname" . }}-cache
+            claimName: {{ include "vllm.fullname" . }}-cache-{{ .Values.persistence.nameSuffix }}
         {{- else }}
         - name: models
           emptyDir: {}
