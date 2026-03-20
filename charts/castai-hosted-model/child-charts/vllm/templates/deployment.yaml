@@ -74,7 +74,8 @@ spec:
         - name: models
           persistentVolumeClaim:
             claimName: {{ include "vllm.fullname" . }}-cache-{{ .Values.persistence.nameSuffix }}
-        {{- else if .Values.persistence.hostPath.enabled }}
+        {{- end }}
+        {{- if .Values.persistence.hostPath.enabled }}
         - name: models
           hostPath:
             path: {{ .Values.persistence.hostPath.path }}/models
@@ -83,7 +84,8 @@ spec:
           hostPath:
             path: {{ .Values.persistence.hostPath.path }}/cache
             type: {{ .Values.persistence.hostPath.type }}
-        {{- else }}
+        {{- end }}
+        {{- if and (not .Values.persistence.enabled) (not .Values.persistence.hostPath.enabled) }}
         - name: models
           emptyDir: {}
         {{- end }}
@@ -241,7 +243,8 @@ spec:
             - name: models
               mountPath: /root/.cache/vllm
               subPath: cache
-          {{- else if .Values.persistence.hostPath.enabled }}
+          {{- end }}
+          {{- if .Values.persistence.hostPath.enabled }}
             - name: vllm-cache
               mountPath: /root/.cache/vllm
           {{- end }}
