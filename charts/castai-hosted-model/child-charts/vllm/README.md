@@ -87,6 +87,7 @@ CAST AI hosted model deployment chart for vLLM.
 | persistence.accessMode | string | `"ReadWriteOnce"` |  |
 | persistence.annotations | object | `{}` |  |
 | persistence.enabled | bool | `false` |  |
+| persistence.nameSuffix | string | `"v1"` |  |
 | persistence.size | string | `"50Gi"` |  |
 | persistence.storageClass | string | `"liqo"` |  |
 | podAnnotations | object | `{}` | Additional annotations labels to set for the vLLM pod |
