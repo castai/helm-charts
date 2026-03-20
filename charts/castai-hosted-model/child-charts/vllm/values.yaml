@@ -180,6 +180,33 @@ extraArgs: []
 #   - "--max-logprobs=20"
 #   - "--disable-sliding-window"
 
+# -- Disaggregated prefill configuration (P2P NCCL connector)
+disaggPrefill:
+  # -- Enable disaggregated prefill mode
+  enabled: false
+  # -- Role of this instance: "kv_producer" (prefill) or "kv_consumer" (decode)
+  role: ""
+  # -- ZMQ port for KV cache transfer coordination on this instance
+  kvPort: 21001
+  # -- KV cache buffer size in bytes. Small for producer (~10), large for consumer (~8e9)
+  kvBufferSize: "1e1"
+  # -- IP or hostname of the disagg proxy ZMQ service
+  proxyIP: ""
+  # -- ZMQ service discovery port on the proxy
+  proxyPort: 30001
+  # -- KV transfer send type: PUT_ASYNC (recommended), PUT, GET
+  sendType: "PUT_ASYNC"
+  # -- InfiniBand configuration for high-speed KV transfer
+  infiniband:
+    # -- Enable InfiniBand transport for NCCL (sets NCCL_NET=IB)
+    enabled: false
+    # -- Comma-separated list of IB HCA devices to use (e.g. "mlx5_0,mlx5_1,...,mlx5_7")
+    # -- Set to empty string to let NCCL auto-detect
+    hcaDevices: ""
+    # -- Private subnet IP to bind for NCCL communication (NCCL_SOCKET_IFNAME)
+    # -- Set to the interface name of the private high-speed subnet (e.g. "ib0" or "eth1")
+    socketIfname: ""
+
 # -- Additional pod labels to set for the vLLM pod
 podLabels: {}
 # -- Additional annotations labels to set for the vLLM pod

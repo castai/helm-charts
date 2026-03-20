@@ -11,5 +11,35 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+    {{- if .Values.disaggPrefill.enabled }}
+    - port: {{ .Values.disaggPrefill.kvPort }}
+      targetPort: kv-transfer
+      protocol: TCP
+      name: kv-transfer
+    {{- end }}
   selector:
     {{- include "vllm.selectorLabels" . | nindent 4 }}
+{{- if .Values.disaggPrefill.enabled }}
+---
+# Headless service for direct pod-IP discovery by the disagg proxy
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vllm.fullname" . }}-headless
+  labels:
+    {{- include "vllm.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+    - port: {{ .Values.container.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: {{ .Values.disaggPrefill.kvPort }}
+      targetPort: kv-transfer
+      protocol: TCP
+      name: kv-transfer
+  selector:
+    {{- include "vllm.selectorLabels" . | nindent 4 }}
+{{- end }}
