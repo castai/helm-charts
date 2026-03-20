@@ -1,9 +1,17 @@
 {{- if .Values.kent.enabled }}
 Thanks for installing CAST AI in Karpenter Enterprise mode.
-{{- else if (index .Values "autoscaler-anywhere").enabled }}
+{{- else if index .Values.tags "autoscaler-anywhere" }}
 Thanks for installing CAST AI in Autoscaler Anywhere mode.
 {{- else if (index .Values "autoscaler-openshift").enabled }}
 Thanks for installing CAST AI in Autoscaler OpenShift mode.
+{{- else if index .Values.tags "readonly" }}
+Thanks for installing CAST AI in Readonly mode.
+{{- else if index .Values.tags "node-autoscaler" }}
+Thanks for installing CAST AI in Node Autoscaler mode.
+{{- else if index .Values.tags "workload-autoscaler" }}
+Thanks for installing CAST AI in Workload Autoscaler mode.
+{{- else if index .Values.tags "full" }}
+Thanks for installing CAST AI.
 {{- else }}
-Thanks for installing CAST AI in Autoscaler mode.
+Thanks for installing CAST AI.
 {{- end }}

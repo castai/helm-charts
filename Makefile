@@ -14,7 +14,7 @@ lint-all: ## Lint all charts in the 'charts' directory.
 	docker run --rm -i  \
 		-v $(REPO_ROOT):/repo \
 		--workdir /repo \
-		quay.io/helmpack/chart-testing:v3.6.0 \
+		quay.io/helmpack/chart-testing:v3.14.0 \
 		ct lint --debug --config ct.yaml --all
 
 .PHONY: validate

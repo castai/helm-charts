@@ -8,12 +8,20 @@ global:
 
 kent:
   enabled: false
+  preflight:
+    enabled: true
 
-autoscaler:
-  enabled: false
-
-autoscaler-anywhere:
-  enabled: false
+# tags -- Profile mode selection (mutually exclusive — pick one).
+# Component overrides are stable across all mode upgrades with --reuse-values:
+#   --set autoscaler.castai-kvisor.enabled=false
+tags:
+  autoscaler-anywhere: false
+  readonly: false
+  node-autoscaler: false
+  workload-autoscaler: false
+  full: false
 
 autoscaler-openshift:
   enabled: false
+
+autoscaler: {}

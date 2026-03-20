@@ -149,6 +149,17 @@ rules:
       - get
       - list
       - watch
+  # ---
+  # Read permissions for nodes - required for checking pod/claim node compatibility and node-proportional resource scaling
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
   {{- if .Values.resourceQuotaAwareScaling.enabled }}
   # ---
   # Read permissions for resource quotas - required for quota-aware scaling
@@ -157,6 +168,31 @@ rules:
       - ""
     resources:
       - resourcequotas
+    verbs:
+      - get
+      - list
+      - watch
+  {{- end }}
+  {{- if .Values.gpu.enabled }}
+  # ---
+  # Permissions for GPU recommendation support - DRA ResourceClaims and ResourceSlices
+  # ---
+  - apiGroups:
+      - resource.k8s.io
+    resources:
+      - resourceclaims
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  - apiGroups:
+      - resource.k8s.io
+    resources:
+      - resourceslices
     verbs:
       - get
       - list

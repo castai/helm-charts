@@ -1,5 +1,12 @@
 replicas: 2
 
+# -- Rolling update strategy configuration.
+rollingUpdate:
+  # -- Maximum number of pods that can be created above the desired number of pods during an update.
+  maxSurge: "100%"
+  # -- Maximum number of pods that can be unavailable during an update. Set to 1 for sequential pod termination.
+  maxUnavailable: 0
+
 # -- URL to the CAST AI API server.
 apiURL: "api.cast.ai"
 
@@ -11,6 +18,10 @@ apiKey: ""
 # apiKey and apiKeySecretRef are mutually exclusive
 # The referenced secret must provide the token in .data["API_KEY"].
 apiKeySecretRef: ""
+
+# organizationID -- ID of the organization
+#
+organizationID: ""
 
 # -- ID of the cache group for which cache configuration should be pulled.
 #
@@ -145,6 +156,8 @@ queryProcessor:
   concurrency: 10
   # -- Enable additional debugging features to aid troubleshooting.
   debug: false
+  # -- Filepath for crash logs
+  crashLogPath: /tmp/query-processor-crash.log
 
 cloudSqlProxy:
   # -- Enable Cloud SQL Proxy sidecar

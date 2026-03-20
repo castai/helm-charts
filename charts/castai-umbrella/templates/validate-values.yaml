@@ -1,25 +1,38 @@
-{{- $autoscalerAnywhereEnabled := (index .Values "autoscaler-anywhere").enabled | default false }}
+{{/* ── Collect enabled tags ─────────────────────────────────────────────────── */}}
+{{- $enabledTags := list }}
+{{- range $tag := list "readonly" "node-autoscaler" "workload-autoscaler" "full" "autoscaler-anywhere" }}
+{{- if index $.Values.tags $tag }}
+{{- $enabledTags = append $enabledTags $tag }}
+{{- end }}
+{{- end }}
+
 {{- $autoscalerOpenshiftEnabled := (index .Values "autoscaler-openshift").enabled | default false }}
-{{- if or .Values.kent.enabled .Values.autoscaler.enabled $autoscalerAnywhereEnabled $autoscalerOpenshiftEnabled }}
+
+{{/* ── Mutual exclusivity ───────────────────────────────────────────────────── */}}
+{{- if gt (len $enabledTags) 1 }}
+{{ fail (printf "only one mode tag may be enabled at a time; got: %s" (join ", " $enabledTags)) }}
+{{- end }}
+
+{{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
+{{- if or $enabledTags $autoscalerOpenshiftEnabled }}
 {{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling kent, autoscaler, autoscaler-anywhere, or autoscaler-openshift profile (set --set global.castai.apiKey=<API_KEY>)" }}
+{{ fail "global.castai.apiKey is required when enabling a mode tag or autoscaler-openshift profile" }}
 {{- end }}
-{{- $autoscalerSpotHandler := index .Values.autoscaler "castai-spot-handler" | default dict }}
-{{- $autoscalerSpotHandlerCastai := index $autoscalerSpotHandler "castai" | default dict }}
-{{- $autoscalerAgent := index .Values.autoscaler "castai-agent" | default dict }}
-{{- $global := .Values.global | default dict }}
-{{- $globalCastai := index $global "castai" | default dict }}
-{{- if and .Values.autoscaler.enabled (not (or (index $autoscalerAgent "provider") (index $globalCastai "provider"))) }}
-{{ fail "autoscaler castai-agent provider is required when autoscaler profile is enabled (set either --set autoscaler.castai-agent.provider=<eks|aks|gke|kops|anywhere> or --set global.castai.provider=<eks|aks|gke|kops|anywhere>)" }}
+{{- if $enabledTags }}
+{{- $modeTag := index $enabledTags 0 }}
+{{- if ne $modeTag "autoscaler-anywhere" }}
+{{- if not .Values.global.castai.provider }}
+{{ fail "global.castai.provider is required when enabling a mode tag (eks, aks, gke, kops)" }}
 {{- end }}
-{{- if and .Values.autoscaler.enabled (not (or (index $autoscalerSpotHandlerCastai "provider") (index $globalCastai "provider"))) }}
-{{ fail "autoscaler castai-spot-handler provider is required when autoscaler profile is enabled (set either --set autoscaler.castai-spot-handler.castai.provider=<aws|azure|gcp> or --set global.castai.provider=<eks|aks|gke|aws|azure|gcp>)" }}
 {{- end }}
-{{- if $autoscalerAnywhereEnabled }}
+{{- end }}
+{{- end }}
+
+{{/* ── autoscaler-anywhere specific validation ──────────────────────────────── */}}
+{{- if index $.Values.tags "autoscaler-anywhere" }}
 {{- $anywhereAgent := index (index .Values "autoscaler-anywhere") "castai-agent" | default dict }}
 {{- $anywhereAdditionalEnv := $anywhereAgent.additionalEnv | default dict }}
 {{- if not (index $anywhereAdditionalEnv "ANYWHERE_CLUSTER_NAME") }}
-{{ fail "autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME is required when autoscaler-anywhere profile is enabled (set --set autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=<CLUSTER_NAME>)" }}
-{{- end }}
+{{ fail "autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME is required when autoscaler-anywhere tag is enabled" }}
 {{- end }}
 {{- end }}

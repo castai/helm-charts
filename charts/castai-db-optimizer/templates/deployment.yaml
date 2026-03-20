@@ -1,4 +1,5 @@
 {{- $pgDogPort := 6432}}
+{{- $proxySqlPort := 6033}}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -17,8 +18,8 @@ spec:
       {{- include "selectorLabels" . | nindent 6 }}
   strategy:
     rollingUpdate:
-      maxSurge: 100%
-      maxUnavailable: 0
+      maxSurge: {{ .Values.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.rollingUpdate.maxUnavailable }}
     type: RollingUpdate
   template:
     metadata:
@@ -81,6 +82,13 @@ spec:
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog-config-output
           emptyDir: {}
+        {{- end }}
+        {{- if and .Values.proxySql .Values.proxySql.enabled }}
+        - name: proxysql-data
+          emptyDir: {}
+        - name: proxysql-config
+          configMap:
+            name: {{ include "name" . }}-proxysql-config
         {{- end }}
       {{- if and .Values.pgdog .Values.pgdog.enabled }}
       initContainers:
@@ -178,6 +186,16 @@ spec:
               value: headless-{{ include "name" . }}
             - name: CACHE_GROUP_ID
               value: {{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." | quote }}
+            {{- if and .Values.proxySql .Values.proxySql.enabled }}
+            - name: POOLING_METRICS_PORT
+              value: "0" # not implemented yet
+            {{- end }}
+            {{- if .Values.organizationID }}
+            - name: ORGANIZATION_ID
+              value: {{ .Values.organizationID | quote }}
+            {{- end }}
+            - name: CRASH_LOG_PATH
+              value: {{ .Values.queryProcessor.crashLogPath }}
             - name: OWN_IP
               valueFrom:
                 fieldRef:
@@ -214,12 +232,19 @@ spec:
             - name: PGDOG_ADMIN_URI
               value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
             {{- end }}
+            {{- if and .Values.proxySql .Values.proxySql.enabled }}
+            - name: PROXY_SQL_ADMIN_URI
+              value: mysql://admin:admin@tcp(127.0.0.1:6032)/
+            {{- end }}
 
           {{- if .Values.proxy.draining.enabled }}
           lifecycle:
             preStop:
-              sleep:
-                seconds: {{ include "proxy.draining.sidecarTerminationDelay" . }}
+              exec:
+                command:
+                  - query-processor
+                  - sleep
+                  - {{ include "proxy.draining.sidecarTerminationDelay" . }}s
           {{- end }}
           readinessProbe:
             tcpSocket:
@@ -358,12 +383,6 @@ spec:
             {{- range $index, $endpoint := .Values.endpoints }}
             - "{{ $endpoint.hostname }}?port={{ add $.Values.cloudSqlProxy.basePort $index }}"
             {{- end }}
-          {{- if .Values.proxy.draining.enabled }}
-          lifecycle:
-            preStop:
-              sleep:
-                seconds: {{ include "proxy.draining.sidecarTerminationDelay" . }}
-          {{- end }}
           securityContext:
             runAsNonRoot: true
           resources:
@@ -418,4 +437,84 @@ spec:
               memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
             limits:
               memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
+        {{- end }}
+        {{- if and .Values.proxySql .Values.proxySql.enabled }}
+        - name: proxysql
+          image: "{{.Values.proxySqlImage.repository}}:{{ include "proxySqlImage" . }}"
+          imagePullPolicy: {{.Values.proxySqlImage.pullPolicy}}
+          command:
+            - proxysql
+          args:
+            - --config
+            - /etc/proxysql/proxysql.cnf
+            - --datadir
+            - /var/lib/proxysql
+            - --reload
+            - -f
+          {{- if .Values.proxy.draining.enabled }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - until ! curl -s localhost:9901/ready >/dev/null 2>&1; do sleep 1; done
+          {{- end }}
+          ports:
+            - name: mysql
+              containerPort: 6033
+              protocol: TCP
+            - name: admin
+              containerPort: 6032
+              protocol: TCP
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 999
+          env:
+            {{- if .Values.proxySql.usersSecretRef }}
+            - name: PROXY_SQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.proxySql.usersSecretRef }}
+                  key: PROXY_SQL_USERNAME
+            - name: PROXY_SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.proxySql.usersSecretRef }}
+                  key: PROXY_SQL_PASSWORD
+            {{- else if and .Values.proxySql.user .Values.proxySql.password }}
+            - name: PROXY_SQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "name" . }}-proxysql-users
+                  key: PROXY_SQL_USERNAME
+            - name: PROXY_SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "name" . }}-proxysql-users
+                  key: PROXY_SQL_PASSWORD
+            {{- end }}
+          readinessProbe:
+            tcpSocket:
+              port: {{ $proxySqlPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          volumeMounts:
+            - name: proxysql-data
+              mountPath: /var/lib/proxysql
+            - name: proxysql-config
+              mountPath: /etc/proxysql
+              readOnly: true
+          resources:
+            requests:
+              cpu: {{ .Values.proxySql.resources.cpu | default "500m" }}
+              memory: {{ .Values.proxySql.resources.memory | default "256Mi" }}
+            limits:
+              memory: {{ .Values.proxySql.resources.memory | default "256Mi" }}
         {{- end }}

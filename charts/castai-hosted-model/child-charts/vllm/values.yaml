@@ -5,10 +5,17 @@ image:
 replicaCount: 1
 resources: {}
 
+persistence:
+  enabled: false
+  storageClass: "liqo"
+  accessMode: ReadWriteOnce
+  size: 50Gi
+  annotations: {}
+
 modelDownloader:
   image:
     repository: "us-docker.pkg.dev/castai-hub/library/model-downloader"
-    tag: "v0.0.8"
+    tag: "v0.0.11"
   resources:
     requests:
       memory: "500Mi"
@@ -36,6 +43,11 @@ model:
       secretAccessKey:
       region:
       endpointUrl:
+    azure:
+      storageAccount:
+      clientId:
+      tenantId:
+      clientSecret:
   cache:
     enabled: false
     bucket: ""
@@ -52,6 +64,11 @@ model:
       secretAccessKey:
       region:
       endpointUrl:
+    azure:
+      storageAccount:
+      clientId:
+      tenantId:
+      clientSecret:
 
 loraAdapter:
   # -- HF Adapter name or path in object storage
@@ -69,6 +86,11 @@ loraAdapter:
       secretAccessKey:
       region:
       endpointUrl:
+    azure:
+      storageAccount:
+      clientId:
+      tenantId:
+      clientSecret:
 
 container:
   port: 8000
@@ -77,7 +99,7 @@ service:
   type: ClusterIP
   port: 8000
 
-task: "generate"
+task:
 enableChunkedPrefill: true
 maxNumBatchedTokens: 10000
 enableAutoToolChoice: false

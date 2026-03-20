@@ -840,6 +840,73 @@ spec:
                           description: ResourceList is a set of (resource name, quantity)
                             pairs.
                           type: object
+                        resourceStrategy:
+                          description: |-
+                            ResourceStrategy resolves requests dynamically at pod admission time.
+                            If the strategy cannot be resolved (e.g. node allocatable is unavailable or the configuration is invalid),
+                            the handler falls back to the Requests and Limits fields.
+                          properties:
+                            nodeAllocatablePercentage:
+                              description: NodeAllocatablePercentage configures node-proportional
+                                resource scaling using fixed percentages.
+                              properties:
+                                limits:
+                                  description: Limits configures ratios applied to
+                                    resolved requests to produce container limits.
+                                    Omit to leave limits unset.
+                                  properties:
+                                    cpuRatio:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: CPURatio multiplies the resolved
+                                        CPU request to produce the CPU limit. Omit
+                                        to leave limits unset.
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    memoryRatio:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: MemoryRatio multiplies the resolved
+                                        memory request to produce the memory limit.
+                                        Omit to leave limits unset.
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  type: object
+                                requests:
+                                  description: Requests configures what percentage
+                                    of node allocatable to use for container requests.
+                                  properties:
+                                    cpuPercent:
+                                      description: CPUPercent percentage of node allocatable
+                                        CPU. Range [1, 100].
+                                      format: int32
+                                      maximum: 100
+                                      minimum: 1
+                                      type: integer
+                                    memoryPercent:
+                                      description: MemoryPercent percentage of node
+                                        allocatable memory. Range [1, 100].
+                                      format: int32
+                                      maximum: 100
+                                      minimum: 1
+                                      type: integer
+                                  required:
+                                  - cpuPercent
+                                  - memoryPercent
+                                  type: object
+                              required:
+                              - requests
+                              type: object
+                            type:
+                              description: Type identifies which strategy is configured.
+                              enum:
+                              - NodeAllocatablePercentage
+                              type: string
+                          required:
+                          - type
+                          type: object
                       type: object
                     type: array
                   verticalHash:
@@ -922,6 +989,73 @@ spec:
                         x-kubernetes-int-or-string: true
                       description: ResourceList is a set of (resource name, quantity)
                         pairs.
+                      type: object
+                    resourceStrategy:
+                      description: |-
+                        ResourceStrategy resolves requests dynamically at pod admission time.
+                        If the strategy cannot be resolved (e.g. node allocatable is unavailable or the configuration is invalid),
+                        the handler falls back to the Requests and Limits fields.
+                      properties:
+                        nodeAllocatablePercentage:
+                          description: NodeAllocatablePercentage configures node-proportional
+                            resource scaling using fixed percentages.
+                          properties:
+                            limits:
+                              description: Limits configures ratios applied to resolved
+                                requests to produce container limits. Omit to leave
+                                limits unset.
+                              properties:
+                                cpuRatio:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: CPURatio multiplies the resolved CPU
+                                    request to produce the CPU limit. Omit to leave
+                                    limits unset.
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                memoryRatio:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: MemoryRatio multiplies the resolved
+                                    memory request to produce the memory limit. Omit
+                                    to leave limits unset.
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                              type: object
+                            requests:
+                              description: Requests configures what percentage of
+                                node allocatable to use for container requests.
+                              properties:
+                                cpuPercent:
+                                  description: CPUPercent percentage of node allocatable
+                                    CPU. Range [1, 100].
+                                  format: int32
+                                  maximum: 100
+                                  minimum: 1
+                                  type: integer
+                                memoryPercent:
+                                  description: MemoryPercent percentage of node allocatable
+                                    memory. Range [1, 100].
+                                  format: int32
+                                  maximum: 100
+                                  minimum: 1
+                                  type: integer
+                              required:
+                              - cpuPercent
+                              - memoryPercent
+                              type: object
+                          required:
+                          - requests
+                          type: object
+                        type:
+                          description: Type identifies which strategy is configured.
+                          enum:
+                          - NodeAllocatablePercentage
+                          type: string
+                      required:
+                      - type
                       type: object
                   type: object
                 type: array

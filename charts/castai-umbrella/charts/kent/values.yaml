@@ -6,6 +6,8 @@ castai-agent:
   provider: eks
   # executed for helm to create the namespace `helm --create-namespace`
   createNamespace: false
+  metadataStore:
+    createConfigMap: true
 
 castai-cluster-controller:
   enabled: true
@@ -21,9 +23,8 @@ castai-kentroller:
   enabled: true
   castai:
     apiKeySecretRef: castai-credentials
-  envFrom:
-    - configMapRef:
-        name: castai-agent-metadata
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
 
 castai-workload-autoscaler:
   enabled: true
