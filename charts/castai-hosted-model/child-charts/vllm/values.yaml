@@ -12,6 +12,10 @@ persistence:
   size: 50Gi
   annotations: {}
   nameSuffix: v1
+  hostPath:
+    enabled: false
+    path: ""
+    type: DirectoryOrCreate
 
 modelDownloader:
   image:
