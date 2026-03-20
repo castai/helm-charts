@@ -6,7 +6,7 @@ CAST AI hosted model deployment chart with PVC support for compilation caches.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/vllm | vllm | 0.0.44 |
+| file://child-charts/vllm | vllm | 0.0.45 |
 
 ## Values
 
