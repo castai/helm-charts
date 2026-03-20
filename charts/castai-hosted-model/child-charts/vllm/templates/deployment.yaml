@@ -146,10 +146,36 @@ spec:
             - "--swap-space={{ .Values.swapSpace }}" # in GiB
             {{- end }}
             - "--show-hidden-metrics-for-version=0.10" # temp fix because AIBrix controller still uses the deprecated metrics
+            {{- if .Values.disaggPrefill.enabled }}
+            - "--kv-transfer-config"
+            - {{ printf "{\"kv_connector\":\"P2pNcclConnector\",\"kv_role\":\"%s\",\"kv_buffer_size\":\"%s\",\"kv_port\":%d,\"kv_connector_extra_config\":{\"proxy_ip\":\"%s\",\"proxy_port\":%d,\"http_ip\":\"$(POD_IP)\",\"http_port\":%d,\"send_type\":\"%s\"}}" .Values.disaggPrefill.role .Values.disaggPrefill.kvBufferSize (int .Values.disaggPrefill.kvPort) .Values.disaggPrefill.proxyIP (int .Values.disaggPrefill.proxyPort) (int .Values.container.port) .Values.disaggPrefill.sendType | quote }}
+            {{- end }}
             {{- range .Values.extraArgs }}
             - {{ . | quote }}
             {{- end }}
           env:
+            {{- if .Values.disaggPrefill.enabled }}
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            {{- if .Values.disaggPrefill.infiniband.enabled }}
+            - name: NCCL_NET
+              value: "IB"
+            {{- if .Values.disaggPrefill.infiniband.hcaDevices }}
+            - name: NCCL_IB_HCA
+              value: {{ .Values.disaggPrefill.infiniband.hcaDevices | quote }}
+            {{- end }}
+            {{- if .Values.disaggPrefill.infiniband.socketIfname }}
+            - name: NCCL_SOCKET_IFNAME
+              value: {{ .Values.disaggPrefill.infiniband.socketIfname | quote }}
+            {{- end }}
+            - name: NCCL_IB_GID_INDEX
+              value: "3"
+            - name: NCCL_IB_QPS_PER_CONNECTION
+              value: "8"
+            {{- end }}
+            {{- end }}
             - name: VLLM_IMAGE_FETCH_TIMEOUT # MM Models
               value: "60"
             - name: HF_HOME # Otherwise transformers will not respect download dir in vLLM
@@ -183,6 +209,11 @@ spec:
             - name: http
               containerPort: {{ .Values.container.port }}
               protocol: TCP
+            {{- if .Values.disaggPrefill.enabled }}
+            - name: kv-transfer
+              containerPort: {{ .Values.disaggPrefill.kvPort }}
+              protocol: TCP
+            {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           {{- if .Values.startupProbe.enabled }}
