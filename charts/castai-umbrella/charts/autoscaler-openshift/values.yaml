@@ -9,6 +9,10 @@
 #   To disable SCC entirely (rely on OpenShift default restricted-v2):
 #     --set autoscaler-openshift.castai-agent.openshift.scc.enabled=false
 
+# ---------------------------------------------------------------------------
+# Core
+# ---------------------------------------------------------------------------
+
 castai-agent:
   enabled: true
   replicaCount: 1
@@ -17,10 +21,9 @@ castai-agent:
   createNamespace: false
   image:
     repository: us-docker.pkg.dev/castai-hub/library/agent-rh-ubi
-  # Security context: runAsUser/runAsGroup/fsGroup are nulled out by default
-  # (matches agent.go behavior — lets OpenShift manage UIDs).
-  # Override with specific values if needed:
-  #   --set autoscaler-openshift.castai-agent.securityContext.runAsUser=<UID>
+  metadataStore:
+    createConfigMap: true
+  # Pod security: null UIDs let OpenShift manage them via SCC
   securityContext:
     runAsUser: null
     runAsGroup: null
@@ -38,3 +41,4 @@ castai-agent:
     scc:
       enabled: true
       useRestrictedProfile: true
+

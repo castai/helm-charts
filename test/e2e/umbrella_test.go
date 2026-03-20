@@ -466,27 +466,11 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 		// castai-agent with provider=openshift requires real OpenShift APIs to stay
 		// healthy — registration and pod readiness are not testable on Kind.
 
-		It("should NOT create cluster-controller in openshift mode", func() {
+		It("should NOT create any other deployments in openshift mode", func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-cluster-controller")
-		})
-
-		It("should NOT create evictor in openshift mode", func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-evictor")
-		})
-
-		It("should NOT create workload-autoscaler in openshift mode", func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-workload-autoscaler")
-		})
-
-		It("should NOT create spot-handler in openshift mode", func() {
-			podHelper.VerifyDeploymentAbsent(Default, "castai-spot-handler")
-		})
-
-		It("should NOT create pod-mutator in openshift mode", func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-pod-mutator")
-		})
-
-		It("should NOT create kentroller in openshift mode", func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
 		})
 

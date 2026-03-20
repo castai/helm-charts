@@ -92,6 +92,8 @@ jobs:
           SUBCHART_FILES=(
             "charts/castai-umbrella/charts/kent/Chart.yaml"
             "charts/castai-umbrella/charts/autoscaler/Chart.yaml"
+            "charts/castai-umbrella/charts/autoscaler-anywhere/Chart.yaml"
+            "charts/castai-umbrella/charts/autoscaler-openshift/Chart.yaml"
           )
 
           # Find charts whose Chart.yaml version changed in this push

@@ -18,7 +18,8 @@ dependencies:
   - name: autoscaler-openshift
     version: "*"
     repository: "file://charts/autoscaler-openshift"
-    condition: autoscaler-openshift.enabled
+    tags:
+      - autoscaler-openshift
   # ── Autoscaler mode sub-chart ─────────────────────────────────────────────────
   # A single sub-chart containing all mode components. Mode selection is controlled
   # via tags.<mode>=true (readonly, node-autoscaler, workload-autoscaler, full —
