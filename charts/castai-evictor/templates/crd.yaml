@@ -1,0 +1,192 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.3
+  name: evictorconfigs.autoscaling.cast.ai
+spec:
+  group: autoscaling.cast.ai
+  names:
+    kind: EvictorConfig
+    listKind: EvictorConfigList
+    plural: evictorconfigs
+    singular: evictorconfig
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.dryRun
+      name: DryRun
+      type: boolean
+    - jsonPath: .spec.scopedMode
+      name: ScopedMode
+      type: boolean
+    - jsonPath: .spec.cycleInterval
+      name: CycleInterval
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: |-
+              EvictorConfigSpec holds all evictor configuration.
+              All fields use pointer types so that a merge-patch can distinguish
+              "not included in this patch" (nil) from "explicitly set to false/0".
+              Fields are annotated as Dynamic or Static:
+                - Dynamic: patched by the autoscaler on policy change, no pod restart needed.
+                - Static: set once by the helm chart at install time; currently read-only via CRD
+                  but pointer types keep the door open for future dynamic promotion.
+            properties:
+              aggressiveMode:
+                description: AggressiveMode enables more aggressive node selection.
+                  Sourced from Policies API.
+                type: boolean
+              cleanupKarpenterNodes:
+                description: CleanupKarpenterNodes enables cleanup of orphan Karpenter
+                  NodeClaims. Sourced from Policies API.
+                type: boolean
+              cycleInterval:
+                description: CycleInterval is the duration between evictor cycles
+                  (e.g. "1m"). Sourced from Policies API.
+                type: string
+              drainRollbackTimeoutSeconds:
+                description: DrainRollbackTimeoutSeconds is the cordon rollback timeout
+                  in seconds.
+                format: int32
+                type: integer
+              drainTimeoutSeconds:
+                description: DrainTimeoutSeconds is the per-node drain timeout in
+                  seconds.
+                format: int32
+                type: integer
+              dryRun:
+                description: DryRun disables all mutations (evictions, cordon, soft
+                  taints). Sourced from Policies API.
+                type: boolean
+              emitNodeRelatedPodEvents:
+                description: EmitNodeRelatedPodEvents enables Kubernetes events for
+                  node-related pod evictions. Sourced from cluster settings.
+                type: boolean
+              evictionConfig:
+                description: EvictionConfig is the advanced per-workload eviction
+                  configuration (mirrors the YAML config file).
+                items:
+                  description: EvictionConfigEntry is one entry in the advanced per-workload
+                    eviction settings.
+                  properties:
+                    aggressive:
+                      description: Aggressive overrides the global aggressive mode
+                        for matched pods.
+                      type: boolean
+                    disruptionBudgetOverride:
+                      description: DisruptionBudgetOverride overrides PDB enforcement
+                        for matched pods.
+                      type: boolean
+                    namespaceRegex:
+                      description: NamespaceRegex matches namespaces eligible for
+                        these settings.
+                      type: string
+                    podRegex:
+                      description: PodRegex matches pod names eligible for these settings.
+                      type: string
+                  type: object
+                type: array
+              ignorePodDisruptionBudgets:
+                description: IgnorePodDisruptionBudgets disables PDB enforcement during
+                  eviction.
+                type: boolean
+              isReady:
+                description: IsReady indicates whether the evictor is permitted to
+                  operate (cluster in ready state). Sourced from Policies API.
+                type: boolean
+              isStandalone:
+                description: IsStandalone indicates whether the evictor is running
+                  in standalone mode (phase-1 or Anywhere cluster). Sourced from Policies
+                  API.
+                type: boolean
+              karpenterModeEnabled:
+                description: KarpenterModeEnabled enables Karpenter-aware scheduling.
+                type: boolean
+              liveMigrationEnabled:
+                description: LiveMigrationEnabled enables LIVE pod migration as an
+                  alternative to eviction.
+                type: boolean
+              maxTargetNodesPerCycle:
+                description: MaxTargetNodesPerCycle caps the number of nodes evicted
+                  per cycle.
+                format: int32
+                type: integer
+              minTargetNodesPerCycle:
+                description: MinTargetNodesPerCycle is the minimum number of nodes
+                  considered per cycle.
+                format: int32
+                type: integer
+              nodeGracePeriodMinutes:
+                description: NodeGracePeriodMinutes is how long a node must be idle
+                  before it is a drain candidate. Sourced from Policies API.
+                format: int32
+                type: integer
+              podEvictionFailureBackOffSeconds:
+                description: PodEvictionFailureBackOffSeconds is the backoff duration
+                  in seconds on pod eviction failure.
+                format: int32
+                type: integer
+              podMutationsEnabled:
+                description: PodMutationsEnabled enables applying PodMutation CRs
+                  during eviction simulation.
+                type: boolean
+              scopedMode:
+                description: ScopedMode restricts evictor to nodes with the CAST AI
+                  label. Sourced from Policies API.
+                type: boolean
+              softTaintingEnabled:
+                description: SoftTaintingEnabled enables soft tainting of drain candidates.
+                  Sourced from Policies API.
+                type: boolean
+              targetNodePercentage:
+                description: TargetNodePercentage is the percentage of nodes to consider
+                  per cycle.
+                format: int32
+                type: integer
+              toggleWindows:
+                description: ToggleWindows enables Windows node support.
+                type: boolean
+              woopEnabled:
+                description: WOOPEnabled enables WOOP (workload autoscaler) recommendation
+                  application.
+                type: boolean
+            type: object
+          status:
+            properties:
+              observedGeneration:
+                description: ObservedGeneration is the generation last processed by
+                  the evictor.
+                format: int64
+                type: integer
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
