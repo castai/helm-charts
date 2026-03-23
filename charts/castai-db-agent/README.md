@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.15.1](https://img.shields.io/badge/Version-0.15.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.15.2](https://img.shields.io/badge/Version-0.15.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -9,6 +9,7 @@ CAST AI DB agent deployment.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API. |
+| apiURL | string | `""` |  |
 | cacheGroupID | string | `""` |  |
 | cloudSqlProxy.autoIamAuthn | bool | `true` | Have the proxy connect with Automatic IAM authentication |
 | cloudSqlProxy.enabled | bool | `false` | Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections |
