@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.71.0](https://img.shields.io/badge/Version-0.71.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.71.1](https://img.shields.io/badge/Version-0.71.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -58,6 +58,7 @@ CAST AI database cache deployment.
 | pgdog.config.tls_verify | string | `"prefer"` | Determines how TLS connections to Postgres servers are handled. Options: "none", "prefer", "verify_ca", "verify_full" |
 | pgdog.config.workers | int | `10` | Count of Tokio threads spawned at startup; recommended setting is two per virtual CPU |
 | pgdog.enabled | bool | `false` | Enable pgdog connection pooler sidecar |
+| pgdog.logLevel | string | `"warn"` | Log level for PgDog |
 | pgdog.password | string | `""` | Pgdog password (plain string). Mutually exclusive with usersSecretRef |
 | pgdog.resources.cpu | string | `"500m"` |  |
 | pgdog.resources.memory | string | `"256Mi"` |  |
