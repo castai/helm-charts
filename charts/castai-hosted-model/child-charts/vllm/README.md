@@ -87,6 +87,9 @@ CAST AI hosted model deployment chart for vLLM.
 | persistence.accessMode | string | `"ReadWriteOnce"` |  |
 | persistence.annotations | object | `{}` |  |
 | persistence.enabled | bool | `false` |  |
+| persistence.hostPath.enabled | bool | `false` |  |
+| persistence.hostPath.path | string | `""` |  |
+| persistence.hostPath.type | string | `"DirectoryOrCreate"` |  |
 | persistence.nameSuffix | string | `"v1"` |  |
 | persistence.size | string | `"50Gi"` |  |
 | persistence.storageClass | string | `"liqo"` |  |

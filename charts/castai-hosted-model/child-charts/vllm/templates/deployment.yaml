@@ -74,7 +74,18 @@ spec:
         - name: models
           persistentVolumeClaim:
             claimName: {{ include "vllm.fullname" . }}-cache-{{ .Values.persistence.nameSuffix }}
-        {{- else }}
+        {{- end }}
+        {{- if .Values.persistence.hostPath.enabled }}
+        - name: models
+          hostPath:
+            path: {{ .Values.persistence.hostPath.path }}/models
+            type: {{ .Values.persistence.hostPath.type }}
+        - name: vllm-cache
+          hostPath:
+            path: {{ .Values.persistence.hostPath.path }}/cache
+            type: {{ .Values.persistence.hostPath.type }}
+        {{- end }}
+        {{- if and (not .Values.persistence.enabled) (not .Values.persistence.hostPath.enabled) }}
         - name: models
           emptyDir: {}
         {{- end }}
@@ -232,6 +243,10 @@ spec:
             - name: models
               mountPath: /root/.cache/vllm
               subPath: cache
+          {{- end }}
+          {{- if .Values.persistence.hostPath.enabled }}
+            - name: vllm-cache
+              mountPath: /root/.cache/vllm
           {{- end }}
           {{- if eq .Values.model.sourceRegistry "gcs" }}
             - name: gcs-credentials-model
