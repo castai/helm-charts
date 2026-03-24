@@ -6,20 +6,24 @@
 {{- end }}
 {{- end }}
 
+{{- $autoscalerOpenshiftEnabled := (index .Values "autoscaler-openshift").enabled | default false }}
+
 {{/* ── Mutual exclusivity ───────────────────────────────────────────────────── */}}
 {{- if gt (len $enabledTags) 1 }}
 {{ fail (printf "only one mode tag may be enabled at a time; got: %s" (join ", " $enabledTags)) }}
 {{- end }}
 
 {{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
-{{- if $enabledTags }}
+{{- if or $enabledTags $autoscalerOpenshiftEnabled }}
 {{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling a mode tag" }}
+{{ fail "global.castai.apiKey is required when enabling a mode tag or autoscaler-openshift profile" }}
 {{- end }}
+{{- if $enabledTags }}
 {{- $modeTag := index $enabledTags 0 }}
 {{- if ne $modeTag "autoscaler-anywhere" }}
 {{- if not .Values.global.castai.provider }}
 {{ fail "global.castai.provider is required when enabling a mode tag (eks, aks, gke, kops)" }}
+{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
