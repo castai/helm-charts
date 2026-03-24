@@ -9,7 +9,7 @@ CAST AI DB agent deployment.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API. |
-| apiURL | string | `""` |  |
+| apiURL | string | `""` | URL to the CAST AI API endpoint. |
 | cacheGroupID | string | `""` |  |
 | cloudSqlProxy.autoIamAuthn | bool | `true` | Have the proxy connect with Automatic IAM authentication |
 | cloudSqlProxy.enabled | bool | `false` | Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections |
