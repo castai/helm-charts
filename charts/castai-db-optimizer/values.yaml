@@ -170,6 +170,8 @@ cloudSqlProxy:
   autoIamAuthn: false
 
 pgdog:
+  # -- Log level for PgDog
+  logLevel: warn
   # -- Enable pgdog connection pooler sidecar
   enabled: false
   # -- Pgdog user (plain string). Mutually exclusive with usersSecretRef

@@ -437,6 +437,9 @@ spec:
               memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
             limits:
               memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
+          env:
+            - name: RUST_LOG
+              value: {{ .Values.pgdog.logLevel }}
         {{- end }}
         {{- if and .Values.proxySql .Values.proxySql.enabled }}
         - name: proxysql
