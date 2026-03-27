@@ -28,8 +28,10 @@ data:
 
     admin_variables=
     {
-        admin_credentials="admin:admin"
+        admin_credentials="${PROXY_SQL_ADMIN_USERNAME}:${PROXY_SQL_ADMIN_PASSWORD}"
         mysql_ifaces="127.0.0.1:6032"
+        restapi_enabled=true
+        restapi_port=6070
     }
 
     mysql_variables=
@@ -78,6 +80,16 @@ data:
         destination_hostgroup=0
         apply=1
         multiplex={{ if $mergedConfig.multiplexing }}2{{ else }}0{{ end }}
+      }
+    )
+
+    mysql_users=
+    (
+      {
+        username = "${PROXY_SQL_USERNAME}"
+        password = "${PROXY_SQL_PASSWORD}"
+        default_hostgroup = 0
+        active = 1
       }
     )
 {{- end }}
