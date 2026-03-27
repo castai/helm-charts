@@ -110,6 +110,18 @@ spec:
               user = "admin"
               password = "admin"
               EOF
+          env:
+            {{- $pgdogSecretName := ternary .Values.pgdog.usersSecretRef (printf "%s-pgdog-users" (include "name" .)) (ne .Values.pgdog.usersSecretRef "") }}
+            - name: PGDOG_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $pgdogSecretName }}
+                  key: PGDOG_ADMIN_USERNAME
+            - name: PGDOG_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $pgdogSecretName }}
+                  key: PGDOG_ADMIN_PASSWORD
           volumeMounts:
             - name: pgdog-config-output
               mountPath: /etc/pgdog
@@ -188,7 +200,17 @@ spec:
               value: {{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." | quote }}
             {{- if and .Values.proxySql .Values.proxySql.enabled }}
             - name: POOLING_METRICS_PORT
-              value: "0" # not implemented yet
+              value: "6070"
+            - name: PROXY_SQL_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.proxySql.usersSecretRef }}{{ .Values.proxySql.usersSecretRef }}{{ else }}{{ include "name" . }}-proxysql-users{{ end }}
+                  key: PROXY_SQL_ADMIN_USERNAME
+            - name: PROXY_SQL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.proxySql.usersSecretRef }}{{ .Values.proxySql.usersSecretRef }}{{ else }}{{ include "name" . }}-proxysql-users{{ end }}
+                  key: PROXY_SQL_ADMIN_PASSWORD
             {{- end }}
             {{- if .Values.organizationID }}
             - name: ORGANIZATION_ID
@@ -229,8 +251,23 @@ spec:
             - name: PGDOG_USERS_OUTPUT_FILE
               value: /etc/pgdog/users.toml
             {{- end }}
+            {{- $pgdogSecretName := ternary .Values.pgdog.usersSecretRef (printf "%s-pgdog-users" (include "name" .)) (ne .Values.pgdog.usersSecretRef "") }}
+            - name: PGDOG_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $pgdogSecretName }}
+                  key: PGDOG_ADMIN_USERNAME
+            - name: PGDOG_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $pgdogSecretName }}
+                  key: PGDOG_ADMIN_PASSWORD
             - name: PGDOG_ADMIN_URI
-              value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
+              value: postgresql://$(PGDOG_ADMIN_USERNAME):$(PGDOG_ADMIN_PASSWORD)@localhost:{{ $pgDogPort }}/admin
+            {{- end }}
+            {{- if and .Values.proxySql .Values.proxySql.enabled }}
+            - name: PROXY_SQL_ADMIN_URI
+              value: mysql://$(PROXY_SQL_ADMIN_USERNAME):$(PROXY_SQL_ADMIN_PASSWORD)@tcp(127.0.0.1:6032)/
             {{- end }}
             {{- if and .Values.proxySql .Values.proxySql.enabled }}
             - name: PROXY_SQL_ADMIN_URI
@@ -437,9 +474,6 @@ spec:
               memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
             limits:
               memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
-          env:
-            - name: RUST_LOG
-              value: {{ .Values.pgdog.logLevel }}
         {{- end }}
         {{- if and .Values.proxySql .Values.proxySql.enabled }}
         - name: proxysql
@@ -453,6 +487,7 @@ spec:
             - --datadir
             - /var/lib/proxysql
             - --reload
+            - --prometheus
             - -f
           {{- if .Values.proxy.draining.enabled }}
           lifecycle:
@@ -470,6 +505,9 @@ spec:
             - name: admin
               containerPort: 6032
               protocol: TCP
+            - name: metrics
+              containerPort: 6070
+              protocol: TCP
           securityContext:
             capabilities:
               drop:
@@ -478,29 +516,27 @@ spec:
             runAsNonRoot: true
             runAsUser: 999
           env:
-            {{- if .Values.proxySql.usersSecretRef }}
+            {{- $proxySqlSecretName := ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
             - name: PROXY_SQL_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.proxySql.usersSecretRef }}
+                  name: {{ $proxySqlSecretName }}
                   key: PROXY_SQL_USERNAME
             - name: PROXY_SQL_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.proxySql.usersSecretRef }}
+                  name: {{ $proxySqlSecretName }}
                   key: PROXY_SQL_PASSWORD
-            {{- else if and .Values.proxySql.user .Values.proxySql.password }}
-            - name: PROXY_SQL_USERNAME
+            - name: PROXY_SQL_ADMIN_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "name" . }}-proxysql-users
-                  key: PROXY_SQL_USERNAME
-            - name: PROXY_SQL_PASSWORD
+                  name: {{ $proxySqlSecretName }}
+                  key: PROXY_SQL_ADMIN_USERNAME
+            - name: PROXY_SQL_ADMIN_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "name" . }}-proxysql-users
-                  key: PROXY_SQL_PASSWORD
-            {{- end }}
+                  name: {{ $proxySqlSecretName }}
+                  key: PROXY_SQL_ADMIN_PASSWORD
           readinessProbe:
             tcpSocket:
               port: {{ $proxySqlPort }}
