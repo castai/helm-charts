@@ -120,8 +120,8 @@ spec:
             {{- if .Values.maxNumSeqs }}
             - "--max-num-seqs={{ .Values.maxNumSeqs }}"
             {{- end }}
-            {{- if .Values.task }}
-            - "--task={{ .Values.task }}"
+            {{- if .Values.runner }}
+            - "--runner={{ .Values.runner }}"
             {{- end }}
             - "--dtype={{ required "Required value 'dtype' must be defined" .Values.dtype }}"
             - "--kv-cache-dtype={{ required "Required value 'kvCacheDtype' must be defined" .Values.kvCacheDtype }}"
@@ -153,10 +153,6 @@ spec:
             {{- if .Values.enableEager }}
             - "--enforce-eager"
             {{- end }}
-            {{- if .Values.swapSpace }}
-            - "--swap-space={{ .Values.swapSpace }}" # in GiB
-            {{- end }}
-            - "--show-hidden-metrics-for-version=0.10" # temp fix because AIBrix controller still uses the deprecated metrics
             {{- range .Values.extraArgs }}
             - {{ . | quote }}
             {{- end }}
