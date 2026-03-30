@@ -86,12 +86,15 @@ spec:
         {{- if and .Values.proxySql .Values.proxySql.enabled }}
         - name: proxysql-data
           emptyDir: {}
-        - name: proxysql-config
+        - name: proxysql-config-template
           configMap:
             name: {{ include "name" . }}-proxysql-config
+        - name: proxysql-config-output
+          emptyDir: {}
         {{- end }}
-      {{- if and .Values.pgdog .Values.pgdog.enabled }}
+      {{- if or (and .Values.pgdog .Values.pgdog.enabled) (and .Values.proxySql .Values.proxySql.enabled) }}
       initContainers:
+        {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog-init
           image: "{{.Values.pgdogImage.repository}}:{{ include "pgdogImage" . }}"
           imagePullPolicy: {{.Values.pgdogImage.pullPolicy}}
@@ -99,7 +102,7 @@ spec:
             - /bin/sh
             - -c
             - |
-              cat > /etc/pgdog/pgdog.toml << 'EOF'
+              cat > /etc/pgdog/pgdog.toml << EOF
               [general]
               port             = 6432
               openmetrics_port = 9090
@@ -107,8 +110,8 @@ spec:
 
               [admin]
               name = "admin"
-              user = "admin"
-              password = "admin"
+              user = "$PGDOG_ADMIN_USERNAME"
+              password = "$PGDOG_ADMIN_PASSWORD"
               EOF
           env:
             {{- $pgdogSecretName := ternary .Values.pgdog.usersSecretRef (printf "%s-pgdog-users" (include "name" .)) (ne .Values.pgdog.usersSecretRef "") }}
@@ -132,6 +135,57 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 1000
+        {{- end }}
+        {{- if and .Values.proxySql .Values.proxySql.enabled }}
+        - name: proxysql-init
+          image: "{{.Values.proxySqlImage.repository}}:{{ include "proxySqlImage" . }}"
+          imagePullPolicy: {{.Values.proxySqlImage.pullPolicy}}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              sed \
+                -e "s|\${PROXY_SQL_USERNAME}|$PROXY_SQL_USERNAME|g" \
+                -e "s|\${PROXY_SQL_PASSWORD}|$PROXY_SQL_PASSWORD|g" \
+                -e "s|\${PROXY_SQL_ADMIN_USERNAME}|$PROXY_SQL_ADMIN_USERNAME|g" \
+                -e "s|\${PROXY_SQL_ADMIN_PASSWORD}|$PROXY_SQL_ADMIN_PASSWORD|g" \
+                /etc/proxysql-template/proxysql.cnf > /etc/proxysql/proxysql.cnf
+          env:
+            {{- $proxySqlSecretName := ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
+            - name: PROXY_SQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $proxySqlSecretName }}
+                  key: PROXY_SQL_USERNAME
+            - name: PROXY_SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $proxySqlSecretName }}
+                  key: PROXY_SQL_PASSWORD
+            - name: PROXY_SQL_ADMIN_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $proxySqlSecretName }}
+                  key: PROXY_SQL_ADMIN_USERNAME
+            - name: PROXY_SQL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ $proxySqlSecretName }}
+                  key: PROXY_SQL_ADMIN_PASSWORD
+          volumeMounts:
+            - name: proxysql-config-template
+              mountPath: /etc/proxysql-template
+              readOnly: true
+            - name: proxysql-config-output
+              mountPath: /etc/proxysql
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 999
+        {{- end }}
       {{- end }}
       containers:
         - name: query-processor
@@ -547,7 +601,7 @@ spec:
           volumeMounts:
             - name: proxysql-data
               mountPath: /var/lib/proxysql
-            - name: proxysql-config
+            - name: proxysql-config-output
               mountPath: /etc/proxysql
               readOnly: true
           resources:
