@@ -1,12 +1,10 @@
 {{/* ── Collect enabled tags ─────────────────────────────────────────────────── */}}
 {{- $enabledTags := list }}
-{{- range $tag := list "readonly" "node-autoscaler" "workload-autoscaler" "full" "autoscaler-anywhere" }}
+{{- range $tag := list "readonly" "node-autoscaler" "workload-autoscaler" "full" "autoscaler-anywhere" "autoscaler-openshift" }}
 {{- if index $.Values.tags $tag }}
 {{- $enabledTags = append $enabledTags $tag }}
 {{- end }}
 {{- end }}
-
-{{- $autoscalerOpenshiftEnabled := (index .Values "autoscaler-openshift").enabled | default false }}
 
 {{/* ── Mutual exclusivity ───────────────────────────────────────────────────── */}}
 {{- if gt (len $enabledTags) 1 }}
@@ -14,16 +12,14 @@
 {{- end }}
 
 {{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
-{{- if or $enabledTags $autoscalerOpenshiftEnabled }}
-{{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling a mode tag or autoscaler-openshift profile" }}
-{{- end }}
 {{- if $enabledTags }}
+{{- if not .Values.global.castai.apiKey }}
+{{ fail "global.castai.apiKey is required when enabling a mode tag" }}
+{{- end }}
 {{- $modeTag := index $enabledTags 0 }}
-{{- if ne $modeTag "autoscaler-anywhere" }}
+{{- if and (ne $modeTag "autoscaler-anywhere") (ne $modeTag "autoscaler-openshift") }}
 {{- if not .Values.global.castai.provider }}
 {{ fail "global.castai.provider is required when enabling a mode tag (eks, aks, gke, kops)" }}
-{{- end }}
 {{- end }}
 {{- end }}
 {{- end }}

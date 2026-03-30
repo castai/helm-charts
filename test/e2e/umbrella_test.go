@@ -470,6 +470,7 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-cluster-controller")
 			podHelper.VerifyDeploymentAbsent(Default, "castai-evictor")
 			podHelper.VerifyDeploymentAbsent(Default, "castai-workload-autoscaler")
+			podHelper.VerifyDeploymentAbsent(Default, "castai-spot-handler")
 			podHelper.VerifyDeploymentAbsent(Default, "castai-pod-mutator")
 			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
 		})
@@ -570,7 +571,6 @@ func patchAgentForAnywhereE2E(namespace, apiURL, clusterName string) error {
 	}
 	return nil
 }
-
 
 func discoverChartResources() {
 	cmds := [][]string{
