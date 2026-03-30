@@ -10,11 +10,11 @@ Wrapper chart for CAST AI Kent profile.
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.149.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.91.0 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.3 |
-| https://castai.github.io/helm-charts | castai-kentroller | 0.1.92 |
-| https://castai.github.io/helm-charts | castai-live | 0.75.1 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.9 |
+| https://castai.github.io/helm-charts | castai-kentroller | 0.1.103 |
+| https://castai.github.io/helm-charts | castai-live | 0.78.0 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.7.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.191 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.194 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
 
 ## Values
@@ -37,7 +37,7 @@ Wrapper chart for CAST AI Kent profile.
 | castai-evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
 | castai-evictor.karpenterMode.enabled | bool | `true` |  |
 | castai-evictor.overrideEnvFrom | bool | `true` |  |
-| castai-evictor.replicaCount | int | `1` |  |
+| castai-evictor.replicaCount | int | `0` |  |
 | castai-kentroller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-kentroller.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-kentroller.enabled | bool | `true` |  |

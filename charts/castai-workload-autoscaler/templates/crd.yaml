@@ -762,6 +762,33 @@ spec:
                     default: false
                     type: boolean
                 type: object
+              limitsPolicy:
+                description: LimitsPolicy defines per-resource limit handling strategies.
+                properties:
+                  cpu:
+                    description: CPU defines how the autoscaler handles CPU limits.
+                    properties:
+                      type:
+                        description: Type is the limit policy strategy.
+                        enum:
+                        - keepLimits
+                        type: string
+                    required:
+                    - type
+                    type: object
+                  memory:
+                    description: Memory defines how the autoscaler handles memory
+                      limits.
+                    properties:
+                      type:
+                        description: Type is the limit policy strategy.
+                        enum:
+                        - keepLimits
+                        type: string
+                    required:
+                    - type
+                    type: object
+                type: object
               postStartup:
                 description: Defines workload settings during post-startup period.
                 properties:
