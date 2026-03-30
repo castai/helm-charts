@@ -323,10 +323,6 @@ spec:
             - name: PROXY_SQL_ADMIN_URI
               value: mysql://$(PROXY_SQL_ADMIN_USERNAME):$(PROXY_SQL_ADMIN_PASSWORD)@tcp(127.0.0.1:6032)/
             {{- end }}
-            {{- if and .Values.proxySql .Values.proxySql.enabled }}
-            - name: PROXY_SQL_ADMIN_URI
-              value: mysql://admin:admin@tcp(127.0.0.1:6032)/
-            {{- end }}
 
           {{- if .Values.proxy.draining.enabled }}
           lifecycle:
@@ -528,6 +524,9 @@ spec:
               memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
             limits:
               memory: {{ .Values.pgdog.resources.memory | default "256Mi" }}
+          env:
+            - name: RUST_LOG
+              value: {{ .Values.pgdog.logLevel }}
         {{- end }}
         {{- if and .Values.proxySql .Values.proxySql.enabled }}
         - name: proxysql
