@@ -294,4 +294,22 @@ gpu:
 
 watchListClient: true
 
+# preDeleteHook -- Configuration for the Helm pre-delete hook that strips finalizers
+# from all Recommendation CRs before the agent is uninstalled.
+#
+# How it works:
+#   1. When `helm uninstall` is run, Helm executes this Job first.
+#   2. The Job strips finalizers from all Recommendation CRs cluster-wide.
+#   3. Helm then deletes the CRD, which cascades to all CR instances.
+#   4. Workload resource mutations are NOT reverted — pods keep their current resources.
+#
+# Note: this only applies to clean `helm uninstall`. Forceful removal of the
+# agent (e.g. deleting the Deployment directly) bypasses this hook entirely.
+preDeleteHook:
+  enabled: true
+  # backoffLimit -- Number of retries before marking the Job as failed.
+  backoffLimit: 3
+  # activeDeadlineSeconds -- Maximum time (in seconds) to wait for cleanup to finish.
+  activeDeadlineSeconds: 300
+
 fullnameOverride: castai-workload-autoscaler
