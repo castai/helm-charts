@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.71.1](https://img.shields.io/badge/Version-0.71.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.71.2](https://img.shields.io/badge/Version-0.71.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -89,6 +89,8 @@ CAST AI database cache deployment.
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
+| proxySql.adminPassword | string | `"admin"` | ProxySQL admin interface password. Required when user/password are set. |
+| proxySql.adminUser | string | `"admin"` | ProxySQL admin interface username. Stored in the proxysql-users secret. |
 | proxySql.config.auto_increment_delay_multiplex | int | `5` | Delay multiplexing for N queries after auto-increment INSERT |
 | proxySql.config.connect_timeout_server | int | `5000` | Backend connection timeout in milliseconds |
 | proxySql.config.default_query_timeout | int | `36000000` | Default query timeout in milliseconds |
@@ -100,11 +102,11 @@ CAST AI database cache deployment.
 | proxySql.config.stacksize | int | `1048576` | Stacksize for ProxySQL threads |
 | proxySql.config.threads | int | `4` | Number of ProxySQL threads |
 | proxySql.enabled | bool | `false` | Enable ProxySQL pooler sidecar (MySQL only) |
-| proxySql.password | string | `""` | ProxySQL password (plain string). Mutually exclusive with usersSecretRef |
+| proxySql.password | string | `""` | ProxySQL upstream DB password (plain string). Mutually exclusive with usersSecretRef |
 | proxySql.resources.cpu | string | `"500m"` |  |
 | proxySql.resources.memory | string | `"256Mi"` |  |
-| proxySql.user | string | `""` | ProxySQL user (plain string). Mutually exclusive with usersSecretRef |
-| proxySql.usersSecretRef | string | `""` | Reference to existing secret containing username and password. Mutually exclusive with user/password The secret must contain the kes named "PROXY_SQL_USERNAME" and "PROXY_SQL_PASSWORD" with the ProxySQL users configuration |
+| proxySql.user | string | `""` | ProxySQL upstream DB user (plain string). Mutually exclusive with usersSecretRef |
+| proxySql.usersSecretRef | string | `""` | Reference to existing secret containing username and password. Mutually exclusive with user/password. The secret must contain keys "PROXY_SQL_USERNAME", "PROXY_SQL_PASSWORD", "PROXY_SQL_ADMIN_USERNAME", and "PROXY_SQL_ADMIN_PASSWORD". |
 | proxySqlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxySqlImage.repository | string | `"docker.io/proxysql/proxysql"` |  |
 | proxySqlImage.tag | string | `""` |  |
