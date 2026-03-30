@@ -28,6 +28,8 @@ spec:
           env:
             - name: LOG_LEVEL
               value: "{{ required "log level must be provided" .Values.logLevel }}"
+            - name: API_URL
+              value:  "{{ .Values.apiURL | default "https://api.cast.ai/" }}"
             - name: ORGANIZATION_ID
               value: "{{ required "organization ID must be provided" .Values.organizationID }}"
             - name: CACHE_GROUP_ID

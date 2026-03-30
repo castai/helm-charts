@@ -45,17 +45,8 @@ jobs:
       - name: Run chart-testing (lint)
         run: ct lint --debug --config ct.yaml
 
-      - name: Lint Code Base
-        uses: docker://github/super-linter:v3.12.0
-        env:
-          # Do not lint cnab-config/castai-agent/mainTemplate.json until super-linter is upgraded to recent version.
-          # v3.12.0 does not support Azure ARM API newer than 2022-05-01.
-          FILTER_REGEX_EXCLUDE: .*(README\.md|Chart\.yaml|NOTES.txt|lint-test\.yaml|mainTemplate\.json|test/e2e/.*).*
-          VALIDATE_ALL_CODEBASE: false
-          VALIDATE_KUBERNETES_KUBEVAL: false
-          VALIDATE_YAML: false
-          DEFAULT_BRANCH: main
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check for merge conflict markers
+        uses: olivernybroe/action-conflict-finder@v4.1
 
       - name: Create kind cluster
         uses: helm/kind-action@v1.14.0
