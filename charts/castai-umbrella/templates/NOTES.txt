@@ -2,6 +2,8 @@
 Thanks for installing CAST AI in Karpenter Enterprise mode.
 {{- else if index .Values.tags "autoscaler-anywhere" }}
 Thanks for installing CAST AI in Autoscaler Anywhere mode.
+{{- else if index .Values.tags "autoscaler-openshift" }}
+Thanks for installing CAST AI in Autoscaler OpenShift mode.
 {{- else if index .Values.tags "readonly" }}
 Thanks for installing CAST AI in Readonly mode.
 {{- else if index .Values.tags "node-autoscaler" }}
