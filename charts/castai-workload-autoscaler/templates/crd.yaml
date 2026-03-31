@@ -906,19 +906,21 @@ spec:
                                     of node allocatable to use for container requests.
                                   properties:
                                     cpuPercent:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
                                       description: CPUPercent percentage of node allocatable
-                                        CPU. Range [1, 100].
-                                      format: int32
-                                      maximum: 100
-                                      minimum: 1
-                                      type: integer
+                                        CPU. Range (0, 100].
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
                                     memoryPercent:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
                                       description: MemoryPercent percentage of node
-                                        allocatable memory. Range [1, 100].
-                                      format: int32
-                                      maximum: 100
-                                      minimum: 1
-                                      type: integer
+                                        allocatable memory. Range (0, 100].
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
                                   required:
                                   - cpuPercent
                                   - memoryPercent
@@ -1056,19 +1058,21 @@ spec:
                                 node allocatable to use for container requests.
                               properties:
                                 cpuPercent:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
                                   description: CPUPercent percentage of node allocatable
-                                    CPU. Range [1, 100].
-                                  format: int32
-                                  maximum: 100
-                                  minimum: 1
-                                  type: integer
+                                    CPU. Range (0, 100].
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
                                 memoryPercent:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
                                   description: MemoryPercent percentage of node allocatable
-                                    memory. Range [1, 100].
-                                  format: int32
-                                  maximum: 100
-                                  minimum: 1
-                                  type: integer
+                                    memory. Range (0, 100].
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
                               required:
                               - cpuPercent
                               - memoryPercent
