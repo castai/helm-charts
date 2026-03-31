@@ -105,6 +105,10 @@ resources:
   limits:
     memory: 512Mi
 
+leaderElection:
+  enabled: true
+  leaseName: "castai-pod-mutator-leader-election"
+
 hostNetwork: false
 # dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
 dnsPolicy: ""

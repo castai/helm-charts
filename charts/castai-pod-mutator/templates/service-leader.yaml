@@ -1,0 +1,16 @@
+{{- if .Values.leaderElection.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "pod-mutator.fullname" . }}-leader
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "pod-mutator.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: {{ .Values.service.webhookPortName | default "https" }}
+      protocol: TCP
+      port: 443
+      targetPort: 9443
+  type: ClusterIP
+{{- end }}
