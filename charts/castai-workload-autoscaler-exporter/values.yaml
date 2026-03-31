@@ -224,6 +224,10 @@ prometheus:
   storage:
     size: 2Gi
     retention: "1h"
+  # scrapeJMXExporter -- When true, adds a Prometheus scrape job that targets pods
+  # instrumented by the JMX exporter webhook (label workloads.cast.ai/jmx-exporter-injected=true).
+  # Enable alongside jmxExporter.enabled in the castai-workload-autoscaler chart.
+  scrapeJMXExporter: true
   scrape: []
   #    - port: 8443
   #      path: /metrics
