@@ -6,6 +6,8 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "pod-mutator.labels" . | nindent 4 }}
+  annotations:
+    ignore-check.kube-linter.io/dangling-service: "EndpointSlice is managed by the service leader controller"
 spec:
   ports:
     - name: {{ .Values.service.webhookPortName | default "https" }}
