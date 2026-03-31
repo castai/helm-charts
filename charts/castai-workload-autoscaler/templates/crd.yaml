@@ -1116,6 +1116,29 @@ spec:
                 required:
                 - type
                 type: object
+              runtimeSpec:
+                additionalProperties:
+                  description: ContainerRuntimeSpec describes the runtime configuration
+                    for a single container.
+                  properties:
+                    autoInstrument:
+                      description: |-
+                        AutoInstrument controls whether the runtime should be automatically instrumented
+                        (e.g. JMX exporter injection for JVM containers).
+                      type: boolean
+                    runtime:
+                      description: Runtime identifies the container runtime (e.g.
+                        jvm).
+                      enum:
+                      - jvm
+                      type: string
+                  required:
+                  - runtime
+                  type: object
+                description: |-
+                  RuntimeSpec defines per-container runtime configuration for auto-instrumentation.
+                  Key is the container name.
+                type: object
               startup:
                 description: Defines workload settings during startup period.
                 properties:
