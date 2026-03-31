@@ -102,7 +102,7 @@ spec:
             - /bin/sh
             - -c
             - |
-              cat > /etc/pgdog/pgdog.toml << EOF
+              cat > /etc/pgdog/pgdog.toml << 'EOF'
               [general]
               port             = 6432
               openmetrics_port = 9090
@@ -110,21 +110,9 @@ spec:
 
               [admin]
               name = "admin"
-              user = "$PGDOG_ADMIN_USERNAME"
-              password = "$PGDOG_ADMIN_PASSWORD"
+              user = "admin"
+              password = "admin"
               EOF
-          env:
-            {{- $pgdogSecretName := ternary .Values.pgdog.usersSecretRef (printf "%s-pgdog-users" (include "name" .)) (ne .Values.pgdog.usersSecretRef "") }}
-            - name: PGDOG_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $pgdogSecretName }}
-                  key: PGDOG_ADMIN_USERNAME
-            - name: PGDOG_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $pgdogSecretName }}
-                  key: PGDOG_ADMIN_PASSWORD
           volumeMounts:
             - name: pgdog-config-output
               mountPath: /etc/pgdog
@@ -305,19 +293,8 @@ spec:
             - name: PGDOG_USERS_OUTPUT_FILE
               value: /etc/pgdog/users.toml
             {{- end }}
-            {{- $pgdogSecretName := ternary .Values.pgdog.usersSecretRef (printf "%s-pgdog-users" (include "name" .)) (ne .Values.pgdog.usersSecretRef "") }}
-            - name: PGDOG_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $pgdogSecretName }}
-                  key: PGDOG_ADMIN_USERNAME
-            - name: PGDOG_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $pgdogSecretName }}
-                  key: PGDOG_ADMIN_PASSWORD
             - name: PGDOG_ADMIN_URI
-              value: postgresql://$(PGDOG_ADMIN_USERNAME):$(PGDOG_ADMIN_PASSWORD)@localhost:{{ $pgDogPort }}/admin
+              value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
             {{- end }}
             {{- if and .Values.proxySql .Values.proxySql.enabled }}
             - name: PROXY_SQL_ADMIN_URI
