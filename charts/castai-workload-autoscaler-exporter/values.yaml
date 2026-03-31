@@ -229,6 +229,9 @@ prometheus:
   #      path: /metrics
   #      labels:
   #        foo: bar
+  #      metricNames:
+  #        - up
+  #        - go_memstats_.*
   scrapeConfigs: []
 #    - job_name: "kubernetes-2112-metrics"
 #      kubernetes_sd_configs:

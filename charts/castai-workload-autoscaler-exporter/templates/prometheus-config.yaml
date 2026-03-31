@@ -49,6 +49,12 @@ data:
             action: keep
             regex: "{{ $value }}"
           {{- end }}
+          {{- if .metricNames }}
+        metric_relabel_configs:
+          - source_labels: [__name__]
+            action: keep
+            regex: ({{ .metricNames | join "|" }})
+          {{- end }}
       {{- end }}
 
       {{- if .Values.prometheus.scrapeConfigs }}
