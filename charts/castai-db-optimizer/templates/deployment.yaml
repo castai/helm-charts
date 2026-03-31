@@ -546,7 +546,6 @@ spec:
             runAsNonRoot: true
             runAsUser: 999
           env:
-            {{- if .Values.proxySql.usersSecretRef }}
             {{- $proxySqlSecretName := ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
             - name: PROXY_SQL_USERNAME
               valueFrom:
@@ -568,7 +567,6 @@ spec:
                 secretKeyRef:
                   name: {{ $proxySqlSecretName }}
                   key: PROXY_SQL_ADMIN_PASSWORD
-          {{- end }}
           readinessProbe:
             tcpSocket:
               port: {{ $proxySqlPort }}
