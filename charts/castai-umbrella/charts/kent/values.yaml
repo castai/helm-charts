@@ -32,6 +32,12 @@ castai-workload-autoscaler:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
 
+castai-workload-autoscaler-exporter:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+    configMapRef: castai-agent-metadata
+
 # controller.replicaCount: 0 = CLM disabled, 2 = CLM enabled.
 castai-live:
   enabled: true
