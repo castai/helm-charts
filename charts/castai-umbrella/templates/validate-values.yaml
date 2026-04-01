@@ -13,8 +13,11 @@
 
 {{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
 {{- if $enabledTags }}
-{{- if not .Values.global.castai.apiKey }}
-{{ fail "global.castai.apiKey is required when enabling a mode tag" }}
+{{- if and (not .Values.global.castai.apiKey) (not .Values.global.castai.apiKeySecretRef) }}
+{{ fail "Either global.castai.apiKey or global.castai.apiKeySecretRef is required when enabling a mode tag" }}
+{{- end }}
+{{- if and .Values.global.castai.apiKey .Values.global.castai.apiKeySecretRef }}
+{{ fail "global.castai.apiKey and global.castai.apiKeySecretRef are mutually exclusive" }}
 {{- end }}
 {{- $modeTag := index $enabledTags 0 }}
 {{- if and (ne $modeTag "autoscaler-anywhere") (ne $modeTag "autoscaler-openshift") }}
