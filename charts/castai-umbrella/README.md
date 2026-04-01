@@ -52,6 +52,26 @@ helm upgrade --install castai castai-helm/castai \
 
 Replace `tags.readonly` with the desired mode tag (`node-autoscaler`, `workload-autoscaler`, or `full`).
 
+#### Using an external secret (Sealed Secrets / ESO / Vault)
+
+If you manage secrets externally, pre-create the `castai-credentials` Secret and pass `apiKeySecretRef` instead of `apiKey`:
+
+```shell
+kubectl create namespace castai-agent
+kubectl create secret generic castai-credentials \
+  --namespace castai-agent \
+  --from-literal=API_KEY=<YOUR_API_KEY>
+
+helm upgrade --install castai castai-helm/castai \
+  --namespace castai-agent --create-namespace \
+  --set global.castai.apiKeySecretRef=castai-credentials \
+  --set global.castai.apiURL=https://api.cast.ai \
+  --set global.castai.provider=<eks|aks|gke> \
+  --set tags.readonly=true
+```
+
+The Secret must contain a key named `API_KEY` and be in the same namespace as the release. `apiKey` and `apiKeySecretRef` are mutually exclusive.
+
 ### Accepted mode upgrade paths
 
 Upgrades add components; downgrades are not supported because removing active controllers can leave the cluster in an inconsistent state. If you need to move to a lower mode, uninstall the release first and re-install with the target mode.
@@ -213,6 +233,7 @@ helm upgrade castai castai-helm/castai \
 |-----|------|---------|-------------|
 | autoscaler | object | `{}` |  |
 | global.castai.apiKey | string | `""` |  |
+| global.castai.apiKeySecretRef | string | `""` |  |
 | global.castai.apiURL | string | `"https://api.cast.ai"` |  |
 | global.castai.grpcURL | string | `"grpc.cast.ai:443"` |  |
 | global.castai.provider | string | `""` |  |

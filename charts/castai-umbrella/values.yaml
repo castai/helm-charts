@@ -1,6 +1,9 @@
 global:
   castai:
     apiKey: ""
+    # apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
+    # The secret must have a key named API_KEY. Mutually exclusive with apiKey.
+    apiKeySecretRef: ""
     apiURL: "https://api.cast.ai"
     grpcURL: "grpc.cast.ai:443"
     # provider -- Kubernetes service provider: eks, aks, gke, kops, anywhere.
