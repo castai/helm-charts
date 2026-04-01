@@ -768,26 +768,78 @@ spec:
                   cpu:
                     description: CPU defines how the autoscaler handles CPU limits.
                     properties:
+                      multiplier:
+                        anyOf:
+                        - type: integer
+                        - type: string
+                        description: |-
+                          Multiplier is the factor applied to the recommended request to compute the limit.
+                          Required when Type is multiplierLimits. E.g. "1500m" for 1.5x. Must be >= 1.
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
+                        x-kubernetes-validations:
+                        - message: must be greater than or equal to 1
+                          rule: quantity(self).compareTo(quantity('1')) >= 0
+                      onlyIfOriginalExist:
+                        description: OnlyIfOriginalExist skips setting a limit when
+                          the container has no current limit.
+                        type: boolean
+                      onlyIfOriginalLower:
+                        description: OnlyIfOriginalLower keeps the existing limit
+                          when it is already higher than the computed one.
+                        type: boolean
                       type:
                         description: Type is the limit policy strategy.
                         enum:
                         - keepLimits
+                        - multiplierLimits
+                        - noLimits
+                        - maintainRatio
                         type: string
                     required:
                     - type
                     type: object
+                    x-kubernetes-validations:
+                    - message: multiplier is required when type is multiplierLimits
+                      rule: self.type != 'multiplierLimits' || has(self.multiplier)
                   memory:
                     description: Memory defines how the autoscaler handles memory
                       limits.
                     properties:
+                      multiplier:
+                        anyOf:
+                        - type: integer
+                        - type: string
+                        description: |-
+                          Multiplier is the factor applied to the recommended request to compute the limit.
+                          Required when Type is multiplierLimits. E.g. "1500m" for 1.5x. Must be >= 1.
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
+                        x-kubernetes-validations:
+                        - message: must be greater than or equal to 1
+                          rule: quantity(self).compareTo(quantity('1')) >= 0
+                      onlyIfOriginalExist:
+                        description: OnlyIfOriginalExist skips setting a limit when
+                          the container has no current limit.
+                        type: boolean
+                      onlyIfOriginalLower:
+                        description: OnlyIfOriginalLower keeps the existing limit
+                          when it is already higher than the computed one.
+                        type: boolean
                       type:
                         description: Type is the limit policy strategy.
                         enum:
                         - keepLimits
+                        - multiplierLimits
+                        - noLimits
+                        - maintainRatio
                         type: string
                     required:
                     - type
                     type: object
+                    x-kubernetes-validations:
+                    - message: multiplier is required when type is multiplierLimits
+                      rule: self.type != 'multiplierLimits' || has(self.multiplier)
                 type: object
               postStartup:
                 description: Defines workload settings during post-startup period.
