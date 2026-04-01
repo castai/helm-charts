@@ -13,7 +13,7 @@
 
 {{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
 {{- if $enabledTags }}
-{{- if not .Values.global.castai.apiKey }}
+{{- if and .Values.global.castai.manageApiKeySecret (not .Values.global.castai.apiKey) }}
 {{ fail "global.castai.apiKey is required when enabling a mode tag" }}
 {{- end }}
 {{- $modeTag := index $enabledTags 0 }}

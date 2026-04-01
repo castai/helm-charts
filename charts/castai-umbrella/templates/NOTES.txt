@@ -15,3 +15,19 @@ Thanks for installing CAST AI.
 {{- else }}
 Thanks for installing CAST AI.
 {{- end }}
+
+{{- if not .Values.global.castai.manageApiKeySecret }}
+⚠️  IMPORTANT: You must create the castai-credentials secret manually:
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: castai-credentials
+  namespace: {{ .Release.Namespace }}
+data:
+  API_KEY: "<API KEY BASE64 ENCODED STRING>"
+---
+
+% kubectl apply -f secret.yaml
+{{- end }}
