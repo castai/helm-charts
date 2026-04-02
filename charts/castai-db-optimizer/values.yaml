@@ -222,8 +222,8 @@ pgdog:
     log_connections: false
     # -- If enabled, log every time a user disconnects from PgDog
     log_disconnections: false
-    # -- Maximum number of prepared statements that can be cached per connection
-    prepared_statements_limit: 5000
+    # -- Maximum number of prepared statements that can be cached per connection. Default: none (unlimited)
+    # prepared_statements_limit: 5000
     # -- Maximum number of entries in the query cache
     query_cache_limit: 500
     # -- Enables/disable passthrough authentication. Option: "enabled_plain", "disabled". Although PgDog supports just "enabled", we do not as communication is container-container and using TLS would only add unnecessary overhead
