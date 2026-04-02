@@ -18,11 +18,12 @@
   "tls_verify" "prefer"
   "log_connections" false
   "log_disconnections" false
-  "prepared_statements_limit" 5000
   "query_cache_limit" 500
 -}}
 {{- $userConfig := .Values.pgdog.config | default dict -}}
 {{- $mergedConfig := merge (deepCopy $userConfig) $defaults -}}
+{{- /* Remove prepared_statements_limit from merged config; it will be rendered separately only if set */ -}}
+{{- $_ := unset $mergedConfig "prepared_statements_limit" -}}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -45,6 +46,9 @@ data:
     {{- else }}
     {{ $key | printf "%-25s" }} =   {{ $value }}
     {{- end }}
+    {{- end }}
+    {{- with .Values.pgdog.config.prepared_statements_limit }}
+    {{ "prepared_statements_limit" | printf "%-25s" }} =   {{ . }}
     {{- end }}
 
     [admin]
