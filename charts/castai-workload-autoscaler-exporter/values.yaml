@@ -193,7 +193,7 @@ exporter:
     metricsClientInsecure: false
     # Deprecated: use metricLimit instead
     metric_limit: ~
-    metricLimit: 5000
+    metricLimit: 10000
     # SidecarNamePatterns is a list of container names that are considered sidecars. If container label
     # is empty, then single non-sidecar container is used as main container. The property has internal
     # default value.
