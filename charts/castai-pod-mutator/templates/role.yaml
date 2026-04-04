@@ -23,3 +23,46 @@ rules:
       - get
       - update
       - patch
+{{- if .Values.leaderElection.enabled }}
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    verbs:
+      - create
+      - list
+  - apiGroups:
+      - "coordination.k8s.io"
+    resources:
+      - leases
+    resourceNames:
+      - {{ .Values.leaderElection.leaseName }}
+    verbs:
+      - get
+      - watch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+  - apiGroups:
+      - "discovery.k8s.io"
+    resources:
+      - endpointslices
+    verbs:
+      - list
+      - watch
+      - create
+  - apiGroups:
+      - "discovery.k8s.io"
+    resources:
+      - endpointslices
+    resourceNames:
+      - {{ include "pod-mutator.fullname" . }}-leader
+    verbs:
+      - get
+      - update
+      - patch
+{{- end }}
