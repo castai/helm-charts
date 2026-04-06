@@ -72,6 +72,42 @@ helm upgrade --install castai castai-helm/castai \
 
 The Secret must contain a key named `API_KEY` and be in the same namespace as the release. `apiKey` and `apiKeySecretRef` are mutually exclusive.
 
+#### Using ExternalSecret (External Secrets Operator)
+
+If you use the [External Secrets Operator](https://external-secrets.io), you can provision the `castai-credentials` secret directly from your secret store using `extraObjects` — no manual `kubectl create secret` step required.
+
+```yaml
+global:
+  castai:
+    apiKey: ""                          # leave empty — ExternalSecret creates the secret
+    apiKeySecretRef: castai-credentials
+    apiURL: "https://api.cast.ai"
+    provider: eks
+
+tags:
+  full: true
+
+extraObjects:
+  - apiVersion: external-secrets.io/v1beta1
+    kind: ExternalSecret
+    metadata:
+      name: castai-api-key-sync
+    spec:
+      refreshInterval: 1h
+      secretStoreRef:
+        name: my-secret-store           # your SecretStore or ClusterSecretStore name
+        kind: SecretStore
+      target:
+        name: castai-credentials        # must be exactly this
+        creationPolicy: Owner
+      data:
+        - secretKey: API_KEY            # must be exactly this
+          remoteRef:
+            key: castai/api-key         # path in your secret store
+```
+
+The `ExternalSecret` is rendered into the same namespace as the release. All subcharts, including `castai-evictor` which reads credentials via `envFrom`, will find the `castai-credentials` secret automatically.
+
 ### Accepted mode upgrade paths
 
 Upgrades add components; downgrades are not supported because removing active controllers can leave the cluster in an inconsistent state. If you need to move to a lower mode, uninstall the release first and re-install with the target mode.
@@ -232,6 +268,7 @@ helm upgrade castai castai-helm/castai \
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | autoscaler | object | `{}` |  |
+| extraObjects | list | `[]` | List of extra Kubernetes objects to render with the chart. Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella. Each item must be a valid Kubernetes manifest (apiVersion, kind, metadata, spec). |
 | global.castai.apiKey | string | `""` |  |
 | global.castai.apiKeySecretRef | string | `""` |  |
 | global.castai.apiURL | string | `"https://api.cast.ai"` |  |
