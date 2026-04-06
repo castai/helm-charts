@@ -26,3 +26,8 @@ tags:
   full: false
 
 autoscaler: {}
+
+# extraObjects -- List of extra Kubernetes objects to render with the chart.
+# Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella.
+# Each item must be a valid Kubernetes manifest (apiVersion, kind, metadata, spec).
+extraObjects: []
