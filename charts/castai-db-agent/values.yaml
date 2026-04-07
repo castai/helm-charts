@@ -20,6 +20,8 @@ database:
   credentialsSecretRef: ""
   # -- Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details.
   useIAMAuth: false
+  # -- Database protocol to use. Supported values: postgres, mysql.
+  protocol: postgres
 # -- URL to the CAST AI API gRPC endpoint.
 gRPCEndpoint: ""
 collectors:

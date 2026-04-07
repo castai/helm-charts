@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.15.2](https://img.shields.io/badge/Version-0.15.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -27,6 +27,7 @@ CAST AI DB agent deployment.
 | database.host | string | `""` |  |
 | database.password | string | `""` | Password for database authentication (not required when useIAMAuth is true) |
 | database.port | int | `5432` |  |
+| database.protocol | string | `"postgres"` | Database protocol to use. Supported values: postgres, mysql. |
 | database.useIAMAuth | bool | `false` | Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details. |
 | database.username | string | `""` | Username for database authentication. For IAM auth, use the format: "service-account-name@project-id.iam" |
 | gRPCEndpoint | string | `""` | URL to the CAST AI API gRPC endpoint. |
