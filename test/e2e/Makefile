@@ -13,7 +13,7 @@
 #   CASTAI_API_KEY=<your-key> make e2e-autoscaler-anywhere
 #   CASTAI_API_KEY=<your-key> make e2e-autoscaler-openshift
 
-.PHONY: e2e e2e-kent e2e-autoscaler e2e-autoscaler-anywhere e2e-autoscaler-openshift e2e-upgrade e2e-uninstall deps tidy
+.PHONY: e2e e2e-kent e2e-autoscaler e2e-autoscaler-workload e2e-autoscaler-anywhere e2e-autoscaler-openshift e2e-upgrade e2e-uninstall deps tidy
 
 # Run all e2e tests (each context creates its own Kind cluster)
 e2e:
@@ -27,6 +27,10 @@ e2e-kent:
 e2e-autoscaler:
 	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler mode"
 
+# Run only the autoscaler workload-autoscaler mode tests
+e2e-autoscaler-workload:
+	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler workload-autoscaler mode"
+
 # Run only the autoscaler-anywhere mode tests
 e2e-autoscaler-anywhere:
 	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler-anywhere mode"
@@ -35,9 +39,9 @@ e2e-autoscaler-anywhere:
 e2e-autoscaler-openshift:
 	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler-openshift mode"
 
-# Run only the upgrade tests
+# Run only the readonly-to-full upgrade tests
 e2e-upgrade:
-	go test ./... -v -timeout 30m --ginkgo.focus="in-place upgrade"
+	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler readonly-to-full upgrade"
 
 # Run only the uninstall tests
 e2e-uninstall:

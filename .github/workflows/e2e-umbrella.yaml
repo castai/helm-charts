@@ -1,0 +1,74 @@
+name: Umbrella E2E Tests
+
+on:
+  # Run on PRs where the title contains "castai-umbrella".
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  # Run automatically when a castai-umbrella release is published.
+  release:
+    types: [published]
+  # Allow manual runs with optional mode filter.
+  workflow_dispatch:
+    inputs:
+      focus:
+        description: "Ginkgo focus filter (leave empty to run all modes)"
+        required: false
+        default: ""
+
+jobs:
+  e2e:
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'castai-')) ||
+      (github.event_name == 'pull_request' && contains(github.event.pull_request.title, 'castai-umbrella'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: test/e2e/go.mod
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4.3.1
+        with:
+          version: v3.17.0
+
+      - name: Install kind
+        uses: helm/kind-action@v1.12.0
+        with:
+          install_only: true
+
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
+
+      - name: Add Helm repos
+        run: |
+          helm repo add castai-helm https://castai.github.io/helm-charts
+          helm repo update castai-helm
+
+      - name: Update umbrella subchart dependencies
+        run: |
+          for sub in kent autoscaler autoscaler-anywhere autoscaler-openshift; do
+            path="charts/castai-umbrella/charts/${sub}"
+            if [ -d "$path" ]; then
+              helm dependency update "$path"
+            fi
+          done
+          helm dependency update charts/castai-umbrella
+
+      - name: Run e2e tests
+        env:
+          CASTAI_API_KEY: ${{ secrets.CASTAI_API_KEY }}
+          API_URL: ${{ vars.CASTAI_API_URL }}
+        run: |
+          FOCUS="${{ github.event.inputs.focus }}"
+          ARGS="-v -timeout 75m"
+          if [ -n "$FOCUS" ]; then
+            ARGS="$ARGS --ginkgo.focus=${FOCUS}"
+          fi
+          cd test/e2e && go test ./... $ARGS
