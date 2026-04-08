@@ -30104,6 +30104,22 @@ entries:
     version: 0.0.1-test-2337327050
   castai-kvisor:
   - apiVersion: v2
+    appVersion: v1.55.15
+    created: "2026-04-08T10:09:33.466768281Z"
+    dependencies:
+    - alias: reliabilityMetrics
+      condition: reliabilityMetrics.enabled
+      name: reliability-metrics-ch-exporter
+      repository: https://castai.github.io/helm-charts
+      version: 0.3.14
+    description: CAST AI security and observability.
+    digest: adc6d86b5e4bdbec5cf80c3318a41cf68fc2cdc32628c8a4fcf407cf738c3f60
+    name: castai-kvisor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-kvisor-1.0.145/castai-kvisor-1.0.145.tgz
+    version: 1.0.145
+  - apiVersion: v2
     appVersion: v1.55.14
     created: "2026-04-07T14:08:01.721760058Z"
     dependencies:
@@ -48145,4 +48161,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-04-08T08:50:33.04126026Z"
+generated: "2026-04-08T10:09:33.49376937Z"
