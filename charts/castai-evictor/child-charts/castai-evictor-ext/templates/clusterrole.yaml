@@ -42,15 +42,6 @@ rules:
       - list
       - watch
   # ------------------------------------------------
-  # EvictorConfig: update status subresource
-  # ------------------------------------------------
-  - apiGroups:
-      - autoscaling.cast.ai
-    resources:
-      - evictorconfigs/status
-    verbs:
-      - update
-  # ------------------------------------------------
   # WOOP: finding out who owns a pod
   # to find a proper recommendation for it.
   # ------------------------------------------------

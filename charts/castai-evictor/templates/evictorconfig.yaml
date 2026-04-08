@@ -1,22 +1,42 @@
 apiVersion: autoscaling.cast.ai/v1alpha1
 kind: EvictorConfig
 metadata:
-  name: castai-evictor-config
+  name: evictor-config
   labels:
     {{- include "evictor.labels" . | nindent 4 }}
   annotations:
-    helm.sh/hook: post-install,post-upgrade,pre-delete
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation
 spec:
-  dryRun: {{ .Values.dryRun }}
-  aggressiveMode: {{ .Values.aggressiveMode }}
-  scopedMode: {{ .Values.scopedMode }}
-  cycleInterval: {{ .Values.cycleInterval }}
-  nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
-  maxTargetNodesPerCycle: {{ .Values.maxNodesToEvictPerCycle }}
-  softTaintingEnabled: {{ .Values.softTainting.enabled }}
-  cleanupKarpenterNodes: {{ .Values.karpenterNodeCleanup.enabled }}
-  liveMigrationEnabled: {{ .Values.liveMigration.enabled }}
-  woopEnabled: {{ .Values.woop.enabled }}
-  karpenterModeEnabled: {{ .Values.karpenterMode.enabled }}
-  podMutationsEnabled: {{ .Values.podMutations.enabled }}
-  ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
+  managementMode: {{ .Values.managedByCASTAI | ternary "castai" "self-managed" }}
+  system:
+    enabled: true
+  config:
+    dryRun: {{ .Values.dryRun }}
+    aggressiveMode: {{ .Values.aggressiveMode }}
+    scopedMode: {{ .Values.scopedMode }}
+    targetAllNodes: false
+    softTainting: {{ .Values.softTainting.enabled }}
+    emitNodeRelatedPodEvents: false
+    cleanupKarpenterNodes: {{ .Values.karpenterNodeCleanup.enabled }}
+    cycleInterval: {{ .Values.cycleInterval | quote }}
+    nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
+    drainTimeout: "10m"
+    drainRollbackTimeout: "1m"
+    podEvictionFailureBackOff: "5s"
+    windows: false
+    ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
+    forceDisableLiveMigration: {{ not .Values.liveMigration.enabled }}
+    forceDisableWOOP: {{ not .Values.woop.enabled }}
+    forceDisablePodMutations: {{ not .Values.podMutations.enabled }}
+    forceDisableKarpenterMode: {{ not .Values.karpenterMode.enabled }}
+    maxTargetNodesPerCycle: {{ .Values.maxNodesToEvictPerCycle }}
+    minTargetNodesPerCycle: 5
+    targetNodePercentage: 10
+    pricingAwarenessEnabled: false
+    pricingModel:
+      spotDiscount: 0.5
+      baseCPUCost: 7.0
+      baseMemCost: 1.0
+    arm64Supported: true

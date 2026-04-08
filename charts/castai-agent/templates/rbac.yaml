@@ -166,7 +166,7 @@ rules:
   - apiGroups:
       - "autoscaling.cast.ai"
     resources:
-      - recommendations
+      - "*"
     verbs:
       - get
       - list
@@ -187,14 +187,6 @@ rules:
       - resourceclaimtemplates
       - resourceslices
       - devicetaintrules
-    verbs:
-      - get
-      - list
-      - watch
-  - apiGroups:
-      - "autoscaling.cast.ai"
-    resources:
-      - custommetricsexporterconfigs
     verbs:
       - get
       - list

@@ -4,6 +4,9 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.17.3
+    helm.sh/resource-policy: keep
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "-10"
   name: evictorconfigs.autoscaling.cast.ai
 spec:
   group: autoscaling.cast.ai
@@ -15,19 +18,22 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.dryRun
+    - jsonPath: .spec.config.dryRun
       name: DryRun
       type: boolean
-    - jsonPath: .spec.scopedMode
+    - jsonPath: .spec.config.scopedMode
       name: ScopedMode
       type: boolean
-    - jsonPath: .spec.cycleInterval
+    - jsonPath: .spec.config.cycleInterval
       name: CycleInterval
+      type: string
+    - jsonPath: .spec.managementMode
+      name: ManagementMode
       type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
-    name: v1
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         properties:
@@ -51,137 +57,276 @@ spec:
           spec:
             description: |-
               EvictorConfigSpec holds all evictor configuration.
-              All fields use pointer types so that a merge-patch can distinguish
-              "not included in this patch" (nil) from "explicitly set to false/0".
-              Fields are annotated as Dynamic or Static:
-                - Dynamic: patched by the autoscaler on policy change, no pod restart needed.
-                - Static: set once by the helm chart at install time; currently read-only via CRD
-                  but pointer types keep the door open for future dynamic promotion.
+              The spec is split into three sections:
+                - managementMode: who owns this config (CAST AI platform or self-managed).
+                - system: top-level operational switches.
+                - config: functional runtime knobs, reconciled by the mothership on every
+                  snapshot sync in managed mode, applied as-is in self-managed mode.
+                - evictionConfig: per-workload eviction rules, always customer-managed.
             properties:
-              aggressiveMode:
-                description: AggressiveMode enables more aggressive node selection.
-                  Sourced from Policies API.
-                type: boolean
-              cleanupKarpenterNodes:
-                description: CleanupKarpenterNodes enables cleanup of orphan Karpenter
-                  NodeClaims. Sourced from Policies API.
-                type: boolean
-              cycleInterval:
-                description: CycleInterval is the duration between evictor cycles
-                  (e.g. "1m"). Sourced from Policies API.
+              managementMode:
+                description: |-
+                  ManagementMode controls who reconciles this CR.
+                  "castai" means the CAST AI platform owns it and will overwrite diverging fields on every snapshot sync.
+                  "self-managed" means the cluster operator owns it; the UI displays these settings as read-only.
+                enum:
+                - castai
+                - self-managed
                 type: string
-              drainRollbackTimeoutSeconds:
-                description: DrainRollbackTimeoutSeconds is the cordon rollback timeout
-                  in seconds.
-                format: int32
-                type: integer
-              drainTimeoutSeconds:
-                description: DrainTimeoutSeconds is the per-node drain timeout in
-                  seconds.
-                format: int32
-                type: integer
-              dryRun:
-                description: DryRun disables all mutations (evictions, cordon, soft
-                  taints). Sourced from Policies API.
-                type: boolean
-              emitNodeRelatedPodEvents:
-                description: EmitNodeRelatedPodEvents enables Kubernetes events for
-                  node-related pod evictions. Sourced from cluster settings.
-                type: boolean
+              system:
+                description: System holds top-level operational switches for the evictor.
+                properties:
+                  enabled:
+                    description: |-
+                      Enabled controls whether the evictor is permitted to operate.
+                      When false, the evictor will not perform any evictions regardless of other settings.
+                      Sourced from Policies API (formerly "isReady").
+                    type: boolean
+                required:
+                - enabled
+                type: object
+              config:
+                description: |-
+                  Config holds all functional runtime configuration knobs.
+                  In managed mode these are reconciled by the mothership on every snapshot sync.
+                  In self-managed mode they are applied as-is from the CR.
+                properties:
+                  dryRun:
+                    description: DryRun disables all mutations (evictions, cordon, soft taints) — the evictor only logs what it would do. Sourced from Policies API.
+                    type: boolean
+                  aggressiveMode:
+                    description: AggressiveMode enables more aggressive node selection, including single-replica pods and jobs. Sourced from Policies API.
+                    type: boolean
+                  scopedMode:
+                    description: ScopedMode restricts the evictor to nodes carrying the CAST AI managed-by label. Sourced from Policies API.
+                    type: boolean
+                  softTainting:
+                    description: SoftTainting enables soft tainting of drain candidates instead of hard cordon. Sourced from Policies API (formerly "useSoftTainting").
+                    type: boolean
+                  targetAllNodes:
+                    description: TargetAllNodes makes the evictor consider non-CAST-managed nodes as eviction candidates. Sourced from Policies API (formerly "isStandalone").
+                    type: boolean
+                  emitNodeRelatedPodEvents:
+                    description: EmitNodeRelatedPodEvents enables Kubernetes events for node-related pod evictions. Sourced from cluster settings.
+                    type: boolean
+                  cleanupKarpenterNodes:
+                    description: CleanupKarpenterNodes enables cleanup of orphan Karpenter NodeClaims after a node is drained. Sourced from Policies API.
+                    type: boolean
+                  cycleInterval:
+                    description: CycleInterval is the duration between evictor cycles (e.g. "1m"). Sourced from Policies API.
+                    type: string
+                  nodeGracePeriodMinutes:
+                    description: NodeGracePeriodMinutes is how long a node must be idle before it becomes a drain candidate. Sourced from Policies API.
+                    format: int32
+                    type: integer
+                  drainTimeout:
+                    description: DrainTimeout is the per-node drain timeout as a duration string (e.g. "10m").
+                    type: string
+                  drainRollbackTimeout:
+                    description: DrainRollbackTimeout is the cordon rollback timeout as a duration string (e.g. "1m").
+                    type: string
+                  podEvictionFailureBackOff:
+                    description: PodEvictionFailureBackOff is the backoff duration after a pod eviction failure (e.g. "5s").
+                    type: string
+                  windows:
+                    description: Windows enables Windows node support (formerly "TOGGLE_WINDOWS").
+                    type: boolean
+                  ignorePodDisruptionBudgets:
+                    description: IgnorePodDisruptionBudgets disables PDB enforcement during eviction. Use with caution — this may disrupt application availability guarantees.
+                    type: boolean
+                  # Capability-detected feature escape hatches.
+                  # These features are auto-detected at runtime; set the corresponding flag to true
+                  # only to force-disable a feature that would otherwise be enabled automatically.
+                  forceDisableLiveMigration:
+                    description: ForceDisableLiveMigration prevents the evictor from using LIVE pod migration even when the capability is detected. Inverted from the former "LIVE_MIGRATION_ENABLED" env var.
+                    type: boolean
+                  forceDisableWOOP:
+                    description: ForceDisableWOOP prevents the evictor from applying WOOP recommendations even when the capability is detected. Inverted from the former "WOOP_ENABLED" env var.
+                    type: boolean
+                  forceDisablePodMutations:
+                    description: ForceDisablePodMutations prevents the evictor from applying PodMutation CRs during scheduling simulation even when the capability is detected. Inverted from the former "POD_MUTATIONS_ENABLED" env var.
+                    type: boolean
+                  forceDisableKarpenterMode:
+                    description: ForceDisableKarpenterMode prevents the evictor from using Karpenter-aware scheduling even when the capability is detected. Inverted from the former "KARPENTER_MODE_ENABLED" env var.
+                    type: boolean
+                  maxTargetNodesPerCycle:
+                    description: MaxTargetNodesPerCycle caps the number of nodes targeted per eviction cycle.
+                    format: int32
+                    type: integer
+                  minTargetNodesPerCycle:
+                    description: MinTargetNodesPerCycle is the minimum number of nodes considered per eviction cycle.
+                    format: int32
+                    type: integer
+                  targetNodePercentage:
+                    description: TargetNodePercentage is the percentage of eligible nodes to consider per cycle.
+                    format: int32
+                    type: integer
+                  pricingAwarenessEnabled:
+                    description: PricingAwarenessEnabled makes the evictor factor in node pricing when selecting eviction candidates (formerly "TOGGLE_PRICING_AWARENESS").
+                    type: boolean
+                  pricingModel:
+                    description: PricingModel overrides the default cost coefficients used for pricing-aware eviction decisions. Only effective when pricingAwarenessEnabled is true.
+                    properties:
+                      spotDiscount:
+                        description: SpotDiscount is the fractional discount applied to spot instance pricing (e.g. 0.5 = 50% cheaper than on-demand).
+                        type: number
+                      baseCPUCost:
+                        description: BaseCPUCost is the base cost coefficient per CPU core.
+                        type: number
+                      baseMemCost:
+                        description: BaseMemCost is the base cost coefficient per GiB of memory.
+                        type: number
+                    required:
+                    - spotDiscount
+                    - baseCPUCost
+                    - baseMemCost
+                    type: object
+                  arm64Supported:
+                    description: Arm64Supported indicates that arm64 nodes are present and workloads may be scheduled on them during bin-packing simulation.
+                    type: boolean
+                required:
+                - dryRun
+                - aggressiveMode
+                - scopedMode
+                - targetAllNodes
+                - softTainting
+                - emitNodeRelatedPodEvents
+                - cleanupKarpenterNodes
+                - cycleInterval
+                - nodeGracePeriodMinutes
+                - drainTimeout
+                - drainRollbackTimeout
+                - podEvictionFailureBackOff
+                - windows
+                - ignorePodDisruptionBudgets
+                - forceDisableLiveMigration
+                - forceDisableWOOP
+                - forceDisablePodMutations
+                - forceDisableKarpenterMode
+                - maxTargetNodesPerCycle
+                - minTargetNodesPerCycle
+                - targetNodePercentage
+                - pricingAwarenessEnabled
+                - pricingModel
+                - arm64Supported
+                type: object
               evictionConfig:
-                description: EvictionConfig is the advanced per-workload eviction
-                  configuration (mirrors the YAML config file).
+                description: |-
+                  EvictionConfig holds per-workload eviction rules.
+                  Each entry targets either pods (via podSelector) or nodes (via nodeSelector) — exactly one must be set.
+                  These rules are always customer-managed regardless of managementMode.
                 items:
-                  description: EvictionConfigEntry is one entry in the advanced per-workload
-                    eviction settings.
+                  description: EvictionConfigEntry is one per-workload or per-node eviction rule.
                   properties:
-                    aggressive:
-                      description: Aggressive overrides the global aggressive mode
-                        for matched pods.
-                      type: boolean
-                    disruptionBudgetOverride:
-                      description: DisruptionBudgetOverride overrides PDB enforcement
-                        for matched pods.
-                      type: boolean
-                    namespaceRegex:
-                      description: NamespaceRegex matches namespaces eligible for
-                        these settings.
-                      type: string
-                    podRegex:
-                      description: PodRegex matches pod names eligible for these settings.
-                      type: string
+                    podSelector:
+                      description: |-
+                        PodSelector targets pods matching the given criteria.
+                        Mutually exclusive with nodeSelector.
+                      properties:
+                        namespace:
+                          description: Namespace restricts matching to a specific namespace. Omit to match all namespaces.
+                          type: string
+                        kind:
+                          description: Kind restricts matching to pods owned by a specific owner kind (e.g. Deployment, StatefulSet, Job).
+                          type: string
+                        replicasMin:
+                          description: ReplicasMin restricts matching to workloads with at least this many replicas.
+                          format: int32
+                          type: integer
+                        labelSelector:
+                          description: LabelSelector restricts matching to pods with labels satisfying this selector.
+                          properties:
+                            matchLabels:
+                              additionalProperties:
+                                type: string
+                              description: MatchLabels is a map of key-value pairs that must all be present on the pod labels.
+                              type: object
+                            matchExpressions:
+                              description: MatchExpressions is a list of label selector requirements.
+                              items:
+                                description: A label selector requirement is a selector that contains values, a key, and an operator.
+                                properties:
+                                  key:
+                                    description: Key is the label key the selector applies to.
+                                    type: string
+                                  operator:
+                                    description: Operator represents the key's relationship to the value set. Valid operators are In, NotIn, Exists, DoesNotExist.
+                                    type: string
+                                  values:
+                                    description: Values is an array of string values. Required for In and NotIn operators, must be empty for Exists and DoesNotExist.
+                                    items:
+                                      type: string
+                                    type: array
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                          type: object
+                      type: object
+                    nodeSelector:
+                      description: |-
+                        NodeSelector targets nodes matching the given label selector.
+                        Mutually exclusive with podSelector.
+                      properties:
+                        labelSelector:
+                          description: LabelSelector restricts matching to nodes with labels satisfying this selector.
+                          properties:
+                            matchLabels:
+                              additionalProperties:
+                                type: string
+                              description: MatchLabels is a map of key-value pairs that must all be present on the node labels.
+                              type: object
+                            matchExpressions:
+                              description: MatchExpressions is a list of label selector requirements.
+                              items:
+                                description: A label selector requirement is a selector that contains values, a key, and an operator.
+                                properties:
+                                  key:
+                                    description: Key is the label key the selector applies to.
+                                    type: string
+                                  operator:
+                                    description: Operator represents the key's relationship to the value set. Valid operators are In, NotIn, Exists, DoesNotExist.
+                                    type: string
+                                  values:
+                                    description: Values is an array of string values. Required for In and NotIn operators, must be empty for Exists and DoesNotExist.
+                                    items:
+                                      type: string
+                                    type: array
+                                required:
+                                - key
+                                - operator
+                                type: object
+                              type: array
+                          type: object
+                      type: object
+                    settings:
+                      description: Settings defines the eviction behavior applied to matched pods or nodes.
+                      properties:
+                        removalDisabled:
+                          description: RemovalDisabled prevents the evictor from evicting matched pods or draining matched nodes.
+                          type: boolean
+                        disposable:
+                          description: Disposable forces matched pods to be treated as evictable regardless of other protection rules (e.g. StatefulSet membership).
+                          type: boolean
+                        aggressive:
+                          description: Aggressive applies aggressive eviction mode to matched pods, overriding the global aggressiveMode setting.
+                          type: boolean
+                      type: object
+                  x-kubernetes-validations:
+                  - rule: "has(self.podSelector) != has(self.nodeSelector)"
+                    message: "exactly one of podSelector or nodeSelector must be set"
                   type: object
                 type: array
-              ignorePodDisruptionBudgets:
-                description: IgnorePodDisruptionBudgets disables PDB enforcement during
-                  eviction.
-                type: boolean
-              isReady:
-                description: IsReady indicates whether the evictor is permitted to
-                  operate (cluster in ready state). Sourced from Policies API.
-                type: boolean
-              isStandalone:
-                description: IsStandalone indicates whether the evictor is running
-                  in standalone mode (phase-1 or Anywhere cluster). Sourced from Policies
-                  API.
-                type: boolean
-              karpenterModeEnabled:
-                description: KarpenterModeEnabled enables Karpenter-aware scheduling.
-                type: boolean
-              liveMigrationEnabled:
-                description: LiveMigrationEnabled enables LIVE pod migration as an
-                  alternative to eviction.
-                type: boolean
-              maxTargetNodesPerCycle:
-                description: MaxTargetNodesPerCycle caps the number of nodes evicted
-                  per cycle.
-                format: int32
-                type: integer
-              minTargetNodesPerCycle:
-                description: MinTargetNodesPerCycle is the minimum number of nodes
-                  considered per cycle.
-                format: int32
-                type: integer
-              nodeGracePeriodMinutes:
-                description: NodeGracePeriodMinutes is how long a node must be idle
-                  before it is a drain candidate. Sourced from Policies API.
-                format: int32
-                type: integer
-              podEvictionFailureBackOffSeconds:
-                description: PodEvictionFailureBackOffSeconds is the backoff duration
-                  in seconds on pod eviction failure.
-                format: int32
-                type: integer
-              podMutationsEnabled:
-                description: PodMutationsEnabled enables applying PodMutation CRs
-                  during eviction simulation.
-                type: boolean
-              scopedMode:
-                description: ScopedMode restricts evictor to nodes with the CAST AI
-                  label. Sourced from Policies API.
-                type: boolean
-              softTaintingEnabled:
-                description: SoftTaintingEnabled enables soft tainting of drain candidates.
-                  Sourced from Policies API.
-                type: boolean
-              targetNodePercentage:
-                description: TargetNodePercentage is the percentage of nodes to consider
-                  per cycle.
-                format: int32
-                type: integer
-              toggleWindows:
-                description: ToggleWindows enables Windows node support.
-                type: boolean
-              woopEnabled:
-                description: WOOPEnabled enables WOOP (workload autoscaler) recommendation
-                  application.
-                type: boolean
+            required:
+            - managementMode
+            - system
+            - config
             type: object
           status:
             properties:
               observedGeneration:
-                description: ObservedGeneration is the generation last processed by
-                  the evictor.
+                description: ObservedGeneration is the .metadata.generation last processed by the evictor.
                 format: int64
                 type: integer
             type: object
