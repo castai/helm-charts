@@ -199,14 +199,6 @@ rules:
       - get
       - list
       - watch
-  - apiGroups:
-      - "storageoptimization.cast.ai"
-    resources:
-      - nodediskrecommendations
-    verbs:
-      - get
-      - list
-      - watch
   - nonResourceURLs:
       - "/version"
     verbs:
