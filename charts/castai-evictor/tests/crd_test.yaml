@@ -53,6 +53,9 @@ tests:
       - equal:
           path: metadata.annotations["helm.sh/hook-weight"]
           value: "-10"
+      - equal:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+          value: before-hook-creation
 
   # ── Top-level required fields ────────────────────────────────────────────────
 
