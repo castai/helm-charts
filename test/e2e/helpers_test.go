@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
-	"time"
 
 	. "github.com/onsi/gomega"
 
@@ -26,19 +25,16 @@ func NewUmbrellaHelmHelper(releaseName, namespace, apiURL string) *UmbrellaHelmH
 }
 
 func (h *UmbrellaHelmHelper) InstallKentMode(apiKey string) error {
+	// preflight checks for Karpenter deployment + CRDs which don't exist on Kind.
+	// castai-aws-vpc-cni runs a pre-install hook that patches the aws-node daemonset,
+	// which also doesn't exist on Kind.
 	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
 		chartPath,
 		"--namespace", h.namespace,
 		"--create-namespace",
 		"--set", "kent.enabled=true",
-		"--set", "kent.castai-agent.enabled=true",
-		"--set", "kent.castai-kentroller.enabled=true",
-		"--set", "kent.castai-cluster-controller.enabled=true",
-		"--set", "kent.castai-evictor.enabled=true",
-		"--set", "kent.castai-live.enabled=false",
-		"--set", "kent.castai-pod-mutator.enabled=false",
-		"--set", "kent.castai-workload-autoscaler.enabled=false",
-		"--set", "kent.metrics-server.enabled=false",
+		"--set", "kent.preflight.enabled=false",
+		"--set", "kent.castai-live.castai-aws-vpc-cni.enabled=false",
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
 		"--timeout", defaultHelmTimeout,
@@ -50,19 +46,74 @@ func (h *UmbrellaHelmHelper) InstallKentMode(apiKey string) error {
 	return nil
 }
 
-func (h *UmbrellaHelmHelper) InstallAutoscalerMode(apiKey, provider string) error {
+func (h *UmbrellaHelmHelper) InstallAutoscalerReadonlyMode(apiKey, provider string) error {
+	// readonly tag activates: castai-agent, castai-spot-handler, castai-kvisor, gpu-metrics-exporter.
 	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
 		chartPath,
 		"--namespace", h.namespace,
 		"--create-namespace",
-		"--set", "autoscaler.enabled=true",
-		"--set", "autoscaler.castai-agent.enabled=true",
-		"--set", "autoscaler.castai-cluster-controller.enabled=true",
-		"--set", "autoscaler.castai-evictor.enabled=true",
-		"--set", "autoscaler.castai-live.enabled=false",
-		"--set", "autoscaler.castai-pod-mutator.enabled=false",
-		"--set", "autoscaler.castai-workload-autoscaler.enabled=false",
-		"--set", "autoscaler.castai-kvisor.enabled=true",
+		"--set", "tags.readonly=true",
+		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
+		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
+		"--set", fmt.Sprintf("global.castai.provider=%s", provider),
+		"--timeout", defaultHelmTimeout,
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("helm install autoscaler readonly mode failed: %w", err)
+	}
+	return nil
+}
+
+func (h *UmbrellaHelmHelper) UpgradeToFullMode() error {
+	// Swap readonly tag for full. --reuse-values preserves apiKey/apiURL/provider.
+	// readonly → full is not an additive path so both tags must be set explicitly.
+	cmd := exec.Command("helm", "upgrade", h.releaseName,
+		chartPath,
+		"--namespace", h.namespace,
+		"--reuse-values",
+		"--set", "tags.readonly=false",
+		"--set", "tags.full=true",
+		"--timeout", defaultHelmTimeout,
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("helm upgrade to full mode failed: %w", err)
+	}
+	return nil
+}
+
+func (h *UmbrellaHelmHelper) InstallAutoscalerWorkloadMode(apiKey, provider string) error {
+	// workload-autoscaler tag activates: castai-agent, castai-spot-handler, castai-kvisor,
+	// gpu-metrics-exporter, castai-cluster-controller, castai-evictor, castai-pod-mutator,
+	// castai-workload-autoscaler, castai-workload-autoscaler-exporter.
+	// NOT included: castai-pod-pinner, castai-live (those are node-autoscaler + full only).
+	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
+		chartPath,
+		"--namespace", h.namespace,
+		"--create-namespace",
+		"--set", "tags.workload-autoscaler=true",
+		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
+		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
+		"--set", fmt.Sprintf("global.castai.provider=%s", provider),
+		"--timeout", defaultHelmTimeout,
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("helm install autoscaler workload mode failed: %w", err)
+	}
+	return nil
+}
+
+func (h *UmbrellaHelmHelper) InstallAutoscalerMode(apiKey, provider string) error {
+	// node-autoscaler tag activates: castai-agent, castai-spot-handler, castai-kvisor,
+	// gpu-metrics-exporter, castai-cluster-controller, castai-evictor, castai-pod-mutator,
+	// castai-pod-pinner, castai-live (see autoscaler/Chart.yaml tag definitions).
+	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
+		chartPath,
+		"--namespace", h.namespace,
+		"--create-namespace",
+		"--set", "tags.node-autoscaler=true",
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
 		"--set", fmt.Sprintf("global.castai.provider=%s", provider),
@@ -76,17 +127,14 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerMode(apiKey, provider string) erro
 }
 
 func (h *UmbrellaHelmHelper) InstallAutoscalerAnywhereMode(apiKey, clusterName string) error {
+	// tags.autoscaler-anywhere includes the autoscaler-anywhere sub-chart.
+	// Components within that sub-chart are enabled by default in its values.yaml;
+	// ANYWHERE_CLUSTER_NAME is passed via additionalEnv so the agent can register.
 	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
 		chartPath,
 		"--namespace", h.namespace,
 		"--create-namespace",
-		"--set", "autoscaler-anywhere.enabled=true",
-		"--set", "autoscaler-anywhere.castai-agent.enabled=true",
-		"--set", "autoscaler-anywhere.castai-cluster-controller.enabled=true",
-		"--set", "autoscaler-anywhere.castai-evictor.enabled=true",
-		"--set", "autoscaler-anywhere.castai-pod-mutator.enabled=true",
-		"--set", "autoscaler-anywhere.castai-workload-autoscaler.enabled=false",
-		"--set", "autoscaler-anywhere.castai-workload-autoscaler-exporter.enabled=false",
+		"--set", "tags.autoscaler-anywhere=true",
 		"--set", fmt.Sprintf("autoscaler-anywhere.castai-agent.additionalEnv.ANYWHERE_CLUSTER_NAME=%s", clusterName),
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
@@ -120,9 +168,13 @@ func (h *UmbrellaHelmHelper) InstallAutoscalerOpenshiftMode(apiKey string) error
 }
 
 func (h *UmbrellaHelmHelper) Uninstall() error {
+	// --no-hooks skips pre/post-delete hooks (e.g. webhook teardown calls) that
+	// block when pods are unhealthy. The namespace and Kind cluster are deleted
+	// immediately after, so hook-managed resources are cleaned up anyway.
 	cmd := exec.Command("helm", "uninstall", h.releaseName,
 		"--namespace", h.namespace,
 		"--ignore-not-found",
+		"--no-hooks",
 		"--timeout", defaultHelmTimeout,
 	)
 	_, err := utils.Run(cmd)
@@ -234,12 +286,6 @@ func (n *NamespaceHelper) VerifyExists(g Gomega, namespace string) {
 	cmd := exec.Command("kubectl", "get", "ns", namespace)
 	_, err := utils.Run(cmd)
 	g.Expect(err).NotTo(HaveOccurred(), fmt.Sprintf("Namespace %s should exist", namespace))
-}
-
-func waitForDeployment(podHelper *PodHelper, name string, timeout time.Duration) {
-	Eventually(func(g Gomega) {
-		podHelper.VerifyDeploymentExists(g, name)
-	}, timeout, 5*time.Second).Should(Succeed())
 }
 
 // VerifyAtLeastOnePodReady checks that the named deployment has at least one
