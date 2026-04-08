@@ -1,5 +1,7 @@
 {{- if .Values.prometheus.enabled }}
-{{- $scrapeConfigs := required "Either Values.prometheus.scrapeConfigs or Values.prometheus.scrape must be set" (or .Values.prometheus.scrapeConfigs .Values.prometheus.scrape) }}
+{{- if not (or .Values.prometheus.scrapeConfigs .Values.prometheus.scrape .Values.prometheus.scrapeJMXExporter) }}
+  {{- required "prometheus is enabled but no scrape targets configured: set at least one of prometheus.scrape, prometheus.scrapeConfigs, or prometheus.scrapeJMXExporter" nil }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -49,9 +51,46 @@ data:
             action: keep
             regex: "{{ $value }}"
           {{- end }}
+          {{- if .metricNames }}
+        metric_relabel_configs:
+          - source_labels: [__name__]
+            action: keep
+            regex: ({{ .metricNames | join "|" }})
+          {{- end }}
       {{- end }}
 
       {{- if .Values.prometheus.scrapeConfigs }}
       {{- toYaml .Values.prometheus.scrapeConfigs | nindent 6 }}
+      {{- end }}
+
+      {{- if .Values.prometheus.scrapeJMXExporter }}
+      - job_name: "jmx-exporter"
+        scrape_interval: 15s
+        scrape_timeout: 15s
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_jmx_exporter_injected]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_container_port_name]
+            action: keep
+            regex: "jmx-metrics-.*"
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            action: replace
+            target_label: container
+        metric_relabel_configs:
+          # Keep only JVM / Java metrics exposed by the JMX Prometheus Java agent.
+          # Covers heap/non-heap memory, GC, threads, class loading, compilation,
+          # OS/process info, and the agent's own scrape meta-metrics.
+          - source_labels: [__name__]
+            action: keep
+            regex: "jvm_.*|java_.*|jmx_scrape_.*"
       {{- end }}
 {{- end }}

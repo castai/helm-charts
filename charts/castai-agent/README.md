@@ -39,6 +39,7 @@ CAST AI agent deployment chart.
 | imagePullSecrets | list | `[]` | what secret should be used for pulling the image |
 | metadataStore.configMapName | string | `"castai-agent-metadata"` | namespace of config map to store metadata |
 | metadataStore.configMapNamespace | string | `"castai-agent"` |  |
+| metadataStore.createConfigMap | bool | `false` | specifies whether Helm should create the metadata ConfigMap. When false (default), the agent creates it at runtime. Set to true when installing via the umbrella chart so the ConfigMap is available before other sub-charts start. |
 | metadataStore.enabled | bool | `true` | specifies whether agent should store metadata in a config map |
 | monitor.resources.requests.cpu | string | `"100m"` |  |
 | monitor.resources.requests.memory | string | `"128Mi"` |  |

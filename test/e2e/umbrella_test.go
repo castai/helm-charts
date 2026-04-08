@@ -122,8 +122,10 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 			}, 5*time.Minute, 10*time.Second).Should(Succeed())
 		})
 
-		It("should NOT create workload-autoscaler in kent mode", func() {
-			podHelper.VerifyDeploymentAbsent(Default, "castai-workload-autoscaler")
+		It("should create the castai-workload-autoscaler deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-workload-autoscaler")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
 		It("should have kent config in release values", func() {
@@ -270,6 +272,118 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 	})
 
 	// -----------------------------------------------------------------------
+	// Autoscaler workload-autoscaler mode
+	// -----------------------------------------------------------------------
+	Context("autoscaler workload-autoscaler mode", Ordered, func() {
+		const (
+			kindClusterName = "castai-umbrella-workload"
+			releaseName     = "castai-workload"
+			provider        = "eks"
+		)
+		var (
+			kindHelper      *KindHelper
+			helmHelper      *UmbrellaHelmHelper
+			podHelper       *PodHelper
+			namespaceHelper *NamespaceHelper
+			apiKey          string
+		)
+
+		BeforeAll(func() {
+			verifyAPIKey := func(g Gomega) { apiKey = getAPIKey(g) }
+			verifyAPIKey(Default)
+			kindHelper = NewKindHelper(kindClusterName)
+			helmHelper = NewUmbrellaHelmHelper(releaseName, umbrellaNamespace, apiURL)
+			podHelper = NewPodHelper(umbrellaNamespace)
+			namespaceHelper = NewNamespaceHelper()
+			By(fmt.Sprintf("creating Kind cluster: %s", kindClusterName))
+			Expect(kindHelper.Create()).To(Succeed())
+			Expect(kindHelper.SetKubeContext()).To(Succeed())
+			kindHelper.WaitForReady(Default)
+		})
+
+		AfterAll(func() {
+			_ = helmHelper.Uninstall()
+			_ = namespaceHelper.Delete(umbrellaNamespace)
+			_ = kindHelper.Delete()
+		})
+
+		AfterEach(func() {
+			if CurrentSpecReport().Failed() {
+				collectDebugInfo(umbrellaNamespace)
+			}
+		})
+
+		It("should install successfully in workload-autoscaler mode", func() {
+			Expect(helmHelper.InstallAutoscalerWorkloadMode(apiKey, provider)).To(Succeed())
+		})
+
+		It("should have the release in deployed status", func() {
+			Eventually(helmHelper.VerifyReleaseInstalled, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should log all resources created by the chart (discovery)", func() {
+			discoverChartResources()
+		})
+
+		It("should create the castai-agent deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-agent")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-cluster-controller deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-cluster-controller")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-evictor deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-evictor")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-workload-autoscaler deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-workload-autoscaler")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-workload-autoscaler-exporter deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-workload-autoscaler-exporter")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the kvisor-controller deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, releaseName+"-castai-kvisor-controller")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the gpu-metrics-exporter daemonset", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDaemonSetExists(g, releaseName+"-gpu-metrics-exporter")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should NOT create node-autoscaler-only components", func() {
+			// castai-pod-pinner and castai-live are node-autoscaler + full only
+			podHelper.VerifyDeploymentAbsent(Default, "castai-pod-pinner")
+		})
+
+		It("should NOT create kent-only kentroller", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
+		})
+
+		It("should have workload-autoscaler tag in release values", func() {
+			values, err := helmHelper.GetReleaseValues()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(values).To(ContainSubstring("workload-autoscaler"))
+		})
+	})
+
+	// -----------------------------------------------------------------------
 	// Autoscaler Anywhere mode
 	// -----------------------------------------------------------------------
 	Context("autoscaler-anywhere mode", Ordered, func() {
@@ -391,6 +505,192 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 			values, err := helmHelper.GetReleaseValues()
 			Expect(err).NotTo(HaveOccurred())
 			Expect(values).To(ContainSubstring("autoscaler-anywhere"))
+		})
+	})
+
+	// -----------------------------------------------------------------------
+	// Autoscaler OpenShift mode
+	// -----------------------------------------------------------------------
+	Context("autoscaler-openshift mode", Ordered, func() {
+		const (
+			kindClusterName = "castai-umbrella-openshift"
+			releaseName     = "castai-openshift"
+		)
+		var (
+			kindHelper      *KindHelper
+			helmHelper      *UmbrellaHelmHelper
+			podHelper       *PodHelper
+			namespaceHelper *NamespaceHelper
+			apiKey          string
+		)
+
+		BeforeAll(func() {
+			verifyAPIKey := func(g Gomega) { apiKey = getAPIKey(g) }
+			verifyAPIKey(Default)
+			kindHelper = NewKindHelper(kindClusterName)
+			helmHelper = NewUmbrellaHelmHelper(releaseName, umbrellaNamespace, apiURL)
+			podHelper = NewPodHelper(umbrellaNamespace)
+			namespaceHelper = NewNamespaceHelper()
+			By(fmt.Sprintf("creating Kind cluster: %s", kindClusterName))
+			Expect(kindHelper.Create()).To(Succeed())
+			Expect(kindHelper.SetKubeContext()).To(Succeed())
+			kindHelper.WaitForReady(Default)
+		})
+
+		AfterAll(func() {
+			_ = helmHelper.Uninstall()
+			_ = namespaceHelper.Delete(umbrellaNamespace)
+			_ = kindHelper.Delete()
+		})
+
+		AfterEach(func() {
+			if CurrentSpecReport().Failed() {
+				collectDebugInfo(umbrellaNamespace)
+			}
+		})
+
+		It("should install successfully in autoscaler-openshift mode", func() {
+			Expect(helmHelper.InstallAutoscalerOpenshiftMode(apiKey)).To(Succeed())
+		})
+
+		It("should have the release in deployed status", func() {
+			Eventually(helmHelper.VerifyReleaseInstalled, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should log all resources created by the chart (discovery)", func() {
+			discoverChartResources()
+		})
+
+		It("should create the castai-agent namespace", func() {
+			namespaceHelper.VerifyExists(Default, umbrellaNamespace)
+		})
+
+		It("should create the castai-credentials secret", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifySecretExists(g, "castai-credentials")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the castai-agent deployment", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-agent")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		// castai-agent with provider=openshift requires real OpenShift APIs to stay
+		// healthy — registration and pod readiness are not testable on Kind.
+
+		It("should NOT create any other deployments in openshift mode", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-cluster-controller")
+			podHelper.VerifyDeploymentAbsent(Default, "castai-evictor")
+			podHelper.VerifyDeploymentAbsent(Default, "castai-workload-autoscaler")
+			podHelper.VerifyDeploymentAbsent(Default, "castai-spot-handler")
+			podHelper.VerifyDeploymentAbsent(Default, "castai-pod-mutator")
+			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
+		})
+
+		It("should have autoscaler-openshift config in release values", func() {
+			values, err := helmHelper.GetReleaseValues()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(values).To(ContainSubstring("autoscaler-openshift"))
+		})
+	})
+
+	// -----------------------------------------------------------------------
+	// Readonly → Full upgrade
+	// -----------------------------------------------------------------------
+	Context("autoscaler readonly-to-full upgrade", Ordered, func() {
+		const (
+			kindClusterName = "castai-umbrella-upgrade"
+			releaseName     = "castai-upgrade"
+			provider        = "eks"
+		)
+		var (
+			kindHelper      *KindHelper
+			helmHelper      *UmbrellaHelmHelper
+			podHelper       *PodHelper
+			namespaceHelper *NamespaceHelper
+			apiKey          string
+		)
+
+		BeforeAll(func() {
+			verifyAPIKey := func(g Gomega) { apiKey = getAPIKey(g) }
+			verifyAPIKey(Default)
+			kindHelper = NewKindHelper(kindClusterName)
+			helmHelper = NewUmbrellaHelmHelper(releaseName, umbrellaNamespace, apiURL)
+			podHelper = NewPodHelper(umbrellaNamespace)
+			namespaceHelper = NewNamespaceHelper()
+			By(fmt.Sprintf("creating Kind cluster: %s", kindClusterName))
+			Expect(kindHelper.Create()).To(Succeed())
+			Expect(kindHelper.SetKubeContext()).To(Succeed())
+			kindHelper.WaitForReady(Default)
+		})
+
+		AfterAll(func() {
+			_ = helmHelper.Uninstall()
+			_ = namespaceHelper.Delete(umbrellaNamespace)
+			_ = kindHelper.Delete()
+		})
+
+		AfterEach(func() {
+			if CurrentSpecReport().Failed() {
+				collectDebugInfo(umbrellaNamespace)
+			}
+		})
+
+		It("should install successfully in readonly mode", func() {
+			Expect(helmHelper.InstallAutoscalerReadonlyMode(apiKey, provider)).To(Succeed())
+		})
+
+		It("should have the release in deployed status after readonly install", func() {
+			Eventually(helmHelper.VerifyReleaseInstalled, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create readonly-only components", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-agent")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDaemonSetExists(g, releaseName+"-gpu-metrics-exporter")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should NOT have full-mode components before upgrade", func() {
+			podHelper.VerifyDeploymentAbsent(Default, "castai-cluster-controller")
+			podHelper.VerifyDeploymentAbsent(Default, "castai-evictor")
+			podHelper.VerifyDeploymentAbsent(Default, "castai-workload-autoscaler")
+		})
+
+		It("should upgrade successfully to full mode", func() {
+			Expect(helmHelper.UpgradeToFullMode()).To(Succeed())
+		})
+
+		It("should have the release in deployed status after upgrade", func() {
+			Eventually(helmHelper.VerifyReleaseInstalled, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should still have readonly components after upgrade", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-agent")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should have full-mode components after upgrade", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-cluster-controller")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-evictor")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-workload-autoscaler")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should have full tag in release values after upgrade", func() {
+			values, err := helmHelper.GetReleaseValues()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(values).To(ContainSubstring("full"))
 		})
 	})
 

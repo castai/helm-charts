@@ -136,6 +136,12 @@ spec:
             - name: CLUSTER_AUTOSCALER_ARGS
               value: {{ include "workload-autoscaler.clusterAutoscalerArgs" . | quote }}
             {{- end }}
+            {{- if .Values.jmxExporter.enabled }}
+            - name: JMX_EXPORTER_ENABLED
+              value: "true"
+            - name: JMX_EXPORTER_INIT_IMAGE
+              value: "{{ .Values.jmxExporter.initImage.repository }}:{{ .Values.jmxExporter.initImage.tag }}"
+            {{- end }}
             - name: WEBHOOK_PORT
               value: {{ quote .Values.webhook.port }}
             - name: METRICS_PORT

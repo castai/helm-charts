@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.69.2](https://img.shields.io/badge/Version-0.69.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.73.0](https://img.shields.io/badge/Version-0.73.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -35,7 +35,7 @@ CAST AI database cache deployment.
 | endpoints[0].targetPort | int | `5432` | Port of the upstream database instance. |
 | nodeSelector | object | `{}` | Pod node selector rules. Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/ |
 | organizationID | string | `""` | ID of the organization  |
-| pgdog.config | object | `{"checkout_timeout":10000,"connect_timeout":5000,"default_pool_size":500,"healthcheck_interval":30000,"healthcheck_timeout":5000,"idle_healthcheck_delay":5000,"idle_healthcheck_interval":30000,"log_connections":false,"log_disconnections":false,"passthrough_auth":"enabled_plain","pooler_mode":"transaction","prepared_statements":"extended_anonymous","prepared_statements_limit":5000,"query_cache_limit":500,"query_parser":"on","rollback_timeout":5000,"shutdown_timeout":60000,"tls_certificate":"/etc/ssl/certs/ssl-cert-snakeoil.pem","tls_private_key":"/etc/ssl/private/ssl-cert-snakeoil.key","tls_verify":"prefer","workers":10}` | Pgdog general configuration settings. Corresponds to [general] section in pgdog.toml: https://docs.pgdog.dev/configuration/pgdog.toml/general/. |
+| pgdog.config | object | `{"checkout_timeout":10000,"connect_timeout":5000,"default_pool_size":500,"healthcheck_interval":30000,"healthcheck_timeout":5000,"idle_healthcheck_delay":5000,"idle_healthcheck_interval":30000,"log_connections":false,"log_disconnections":false,"passthrough_auth":"enabled_plain","pooler_mode":"transaction","prepared_statements":"extended_anonymous","query_cache_limit":500,"query_parser":"on","rollback_timeout":5000,"shutdown_timeout":60000,"tls_certificate":"/etc/ssl/certs/ssl-cert-snakeoil.pem","tls_private_key":"/etc/ssl/private/ssl-cert-snakeoil.key","tls_verify":"prefer","workers":10}` | Pgdog general configuration settings. Corresponds to [general] section in pgdog.toml: https://docs.pgdog.dev/configuration/pgdog.toml/general/. |
 | pgdog.config.checkout_timeout | int | `10000` | Maximum amount of time a client is allowed to wait for a connection from the pool (in milliseconds) |
 | pgdog.config.connect_timeout | int | `5000` | Maximum amount of time to allow for PgDog to create a connection to Postgres (in milliseconds) |
 | pgdog.config.default_pool_size | int | `500` | Default maximum number of server connections per database pool |
@@ -48,7 +48,6 @@ CAST AI database cache deployment.
 | pgdog.config.passthrough_auth | string | `"enabled_plain"` | Enables/disable passthrough authentication. Option: "enabled_plain", "disabled". Although PgDog supports just "enabled", we do not as communication is container-container and using TLS would only add unnecessary overhead |
 | pgdog.config.pooler_mode | string | `"transaction"` | Default pooler mode to use for database pools. Options: "session", "transaction", "statement" |
 | pgdog.config.prepared_statements | string | `"extended_anonymous"` | Enables prepared statement support with varying levels of rewriting capability. Options: "disabled", "extended", "extended_anonymous", "full" |
-| pgdog.config.prepared_statements_limit | int | `5000` | Maximum number of prepared statements that can be cached per connection |
 | pgdog.config.query_cache_limit | int | `500` | Maximum number of entries in the query cache |
 | pgdog.config.query_parser | string | `"on"` | Force-enable query parsing for advanced features like advisory locks in non-sharded databases |
 | pgdog.config.rollback_timeout | int | `5000` | How long to allow for ROLLBACK queries to run on server connections with unfinished transactions (in milliseconds) |
@@ -58,6 +57,7 @@ CAST AI database cache deployment.
 | pgdog.config.tls_verify | string | `"prefer"` | Determines how TLS connections to Postgres servers are handled. Options: "none", "prefer", "verify_ca", "verify_full" |
 | pgdog.config.workers | int | `10` | Count of Tokio threads spawned at startup; recommended setting is two per virtual CPU |
 | pgdog.enabled | bool | `false` | Enable pgdog connection pooler sidecar |
+| pgdog.logLevel | string | `"warn"` | Log level for PgDog |
 | pgdog.password | string | `""` | Pgdog password (plain string). Mutually exclusive with usersSecretRef |
 | pgdog.resources.cpu | string | `"500m"` |  |
 | pgdog.resources.memory | string | `"256Mi"` |  |
@@ -88,6 +88,8 @@ CAST AI database cache deployment.
 | proxyImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxyImage.repository | string | `"us-docker.pkg.dev/castai-hub/library/dbo-proxy"` |  |
 | proxyImage.tag | string | `""` |  |
+| proxySql.adminPassword | string | `"admin"` | ProxySQL admin interface password. Required when user/password are set. |
+| proxySql.adminUser | string | `"admin"` | ProxySQL admin interface username. Stored in the proxysql-users secret. |
 | proxySql.config.auto_increment_delay_multiplex | int | `5` | Delay multiplexing for N queries after auto-increment INSERT |
 | proxySql.config.connect_timeout_server | int | `5000` | Backend connection timeout in milliseconds |
 | proxySql.config.default_query_timeout | int | `36000000` | Default query timeout in milliseconds |
@@ -99,11 +101,11 @@ CAST AI database cache deployment.
 | proxySql.config.stacksize | int | `1048576` | Stacksize for ProxySQL threads |
 | proxySql.config.threads | int | `4` | Number of ProxySQL threads |
 | proxySql.enabled | bool | `false` | Enable ProxySQL pooler sidecar (MySQL only) |
-| proxySql.password | string | `""` | ProxySQL password (plain string). Mutually exclusive with usersSecretRef |
+| proxySql.password | string | `""` | ProxySQL upstream DB password (plain string). Mutually exclusive with usersSecretRef |
 | proxySql.resources.cpu | string | `"500m"` |  |
 | proxySql.resources.memory | string | `"256Mi"` |  |
-| proxySql.user | string | `""` | ProxySQL user (plain string). Mutually exclusive with usersSecretRef |
-| proxySql.usersSecretRef | string | `""` | Reference to existing secret containing username and password. Mutually exclusive with user/password The secret must contain the kes named "PROXY_SQL_USERNAME" and "PROXY_SQL_PASSWORD" with the ProxySQL users configuration |
+| proxySql.user | string | `""` | ProxySQL upstream DB user (plain string). Mutually exclusive with usersSecretRef |
+| proxySql.usersSecretRef | string | `""` | Reference to existing secret containing username and password. Mutually exclusive with user/password. The secret must contain keys "PROXY_SQL_USERNAME", "PROXY_SQL_PASSWORD", "PROXY_SQL_ADMIN_USERNAME", and "PROXY_SQL_ADMIN_PASSWORD". |
 | proxySqlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxySqlImage.repository | string | `"docker.io/proxysql/proxysql"` |  |
 | proxySqlImage.tag | string | `""` |  |
@@ -123,6 +125,9 @@ CAST AI database cache deployment.
 | resources.queryProcessor.cpu | string | `"2"` |  |
 | resources.queryProcessor.memoryLimit | string | `"1Gi"` |  |
 | resources.queryProcessor.memoryRequest | string | `"1Gi"` |  |
+| rollingUpdate | object | `{"maxSurge":"100%","maxUnavailable":0}` | Rolling update strategy configuration. |
+| rollingUpdate.maxSurge | string | `"100%"` | Maximum number of pods that can be created above the desired number of pods during an update. |
+| rollingUpdate.maxUnavailable | int | `0` | Maximum number of pods that can be unavailable during an update. Set to 1 for sequential pod termination. |
 | service.trafficDistribution | string | `""` | Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+. Ref: https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-distribution |
 | serviceAccountName | string | `""` | The name of the service account to be used by the pod. Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/ |
 | tolerations | object | `{}` | Pod toleration rules. Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/ |

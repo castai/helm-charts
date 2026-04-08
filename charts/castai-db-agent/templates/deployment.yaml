@@ -28,6 +28,8 @@ spec:
           env:
             - name: LOG_LEVEL
               value: "{{ required "log level must be provided" .Values.logLevel }}"
+            - name: API_URL
+              value:  "{{ .Values.apiURL | default "https://api.cast.ai/" }}"
             - name: ORGANIZATION_ID
               value: "{{ required "organization ID must be provided" .Values.organizationID }}"
             - name: CACHE_GROUP_ID
@@ -50,6 +52,8 @@ spec:
               {{- end }}
             - name: DATABASE_USE_IAM_AUTH
               value: "{{ .Values.database.useIAMAuth }}"
+            - name: DATABASE_PROTOCOL
+              value: "{{ .Values.database.protocol }}"
             - name: INDEX_ADVISOR_CLIENT_GRPC_ENDPOINT
               value: "{{ required "gRPC endpoint must be provided" .Values.gRPCEndpoint }}"
             - name: COLLECTORS_INDEXES_RUNS_EVERY

@@ -73,8 +73,19 @@ spec:
         {{- if .Values.persistence.enabled }}
         - name: models
           persistentVolumeClaim:
-            claimName: {{ include "vllm.fullname" . }}-cache
-        {{- else }}
+            claimName: {{ include "vllm.fullname" . }}-cache-{{ .Values.persistence.nameSuffix }}
+        {{- end }}
+        {{- if .Values.persistence.hostPath.enabled }}
+        - name: models
+          hostPath:
+            path: {{ .Values.persistence.hostPath.path }}/models
+            type: {{ .Values.persistence.hostPath.type }}
+        - name: vllm-cache
+          hostPath:
+            path: {{ .Values.persistence.hostPath.path }}/cache
+            type: {{ .Values.persistence.hostPath.type }}
+        {{- end }}
+        {{- if and (not .Values.persistence.enabled) (not .Values.persistence.hostPath.enabled) }}
         - name: models
           emptyDir: {}
         {{- end }}
@@ -233,6 +244,10 @@ spec:
               mountPath: /root/.cache/vllm
               subPath: cache
           {{- end }}
+          {{- if .Values.persistence.hostPath.enabled }}
+            - name: vllm-cache
+              mountPath: /root/.cache/vllm
+          {{- end }}
           {{- if eq .Values.model.sourceRegistry "gcs" }}
             - name: gcs-credentials-model
               mountPath: /etc/gcs-credentials
@@ -287,6 +302,8 @@ spec:
                  SOURCE_S3_SECRET_ACCESS_KEY="${CACHE_AWS_SECRET_ACCESS_KEY}" \
                  SOURCE_S3_REGION="${CACHE_AWS_REGION}" \
                  SOURCE_S3_ENDPOINT="${CACHE_AWS_ENDPOINT_URL}" \
+              {{- else if eq .Values.model.cache.bucketType "azure" }}
+                 SOURCE_AZURE_STORAGE_ACCOUNT="${CACHE_AZURE_STORAGE_ACCOUNT}" \
               {{- end }}
                  SOURCE_REMOTE_DIRS="{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}/.copy.manifest" \
                  DESTINATION_LOCAL_DIR="/tmp/cache-check" \
@@ -302,6 +319,8 @@ spec:
                 export SOURCE_S3_SECRET_ACCESS_KEY="${CACHE_AWS_SECRET_ACCESS_KEY}"
                 export SOURCE_S3_REGION="${CACHE_AWS_REGION}"
                 export SOURCE_S3_ENDPOINT="${CACHE_AWS_ENDPOINT_URL}"
+                {{- else if eq .Values.model.cache.bucketType "azure" }}
+                export SOURCE_AZURE_STORAGE_ACCOUNT="${CACHE_AZURE_STORAGE_ACCOUNT}"
                 {{- end }}
                 export SOURCE_REMOTE_DIRS="{{ .Values.model.cache.bucket }}/{{ include "model.dirName" . }}"
               else

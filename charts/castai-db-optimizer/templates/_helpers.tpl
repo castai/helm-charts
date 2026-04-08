@@ -29,6 +29,10 @@ Create chart name and version as used by the chart label.
 {{-  default (include "defaultPgdogVersion" .) .Values.pgdogImage.tag }}
 {{- end }}
 
+{{- define "proxySqlImage" -}}
+{{-  default (include "defaultProxySqlVersion" .) .Values.proxySqlImage.tag }}
+{{- end }}
+
 {{/*
 Helpers for customizing proxy TLS settings.
 */}}
@@ -55,6 +59,8 @@ Helper for calculating terminationGracePeriodSeconds
   {{- $grace := add (include "proxy.draining.sidecarTerminationDelay" .) 15 | int -}}
   {{- if and .Values.pgdog .Values.pgdog.enabled -}}
     {{- add $grace (div .Values.pgdog.config.shutdown_timeout 1000) -}}
+  {{- else if and .Values.proxySql .Values.proxySql.enabled -}}
+    {{- add $grace 30 -}}
   {{- else -}}
     {{- $grace -}}
   {{- end -}}
@@ -113,17 +119,6 @@ app.kubernetes.io/name: {{ include "name" . }}
     {{- end }}
   {{- else }}
     {{- /* Null or other non-map value, render default */ -}}
-workloads.cast.ai/configuration: |
-  vertical:
-    memory:
-      optimization: off
-    containers:
-      query-processor:
-        cpu:
-          min: {{ .Values.resources.queryProcessor.cpu }}
-      proxy:
-        cpu:
-          min: {{ .Values.resources.proxy.cpu }}
   {{- end }}
 {{- else }}
   {{- /* Not defined, render default */ -}}

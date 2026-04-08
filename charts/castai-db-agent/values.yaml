@@ -1,5 +1,7 @@
 # -- Token to be used for authorizing access to the CAST AI API.
 apiKey: ""
+# -- URL to the CAST AI API endpoint.
+apiURL: ""
 image:
   repository: us-docker.pkg.dev/castai-hub/library/db-agent
   pullPolicy: IfNotPresent
@@ -18,6 +20,8 @@ database:
   credentialsSecretRef: ""
   # -- Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details.
   useIAMAuth: false
+  # -- Database protocol to use. Supported values: postgres, mysql.
+  protocol: postgres
 # -- URL to the CAST AI API gRPC endpoint.
 gRPCEndpoint: ""
 collectors:

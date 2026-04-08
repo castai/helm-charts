@@ -164,8 +164,8 @@ spec:
                                   and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
                                   triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
 
-                                  This is an alpha field and requires enabling the HPAConfigurableTolerance
-                                  feature gate.
+                                  This is an beta field and requires the HPAConfigurableTolerance feature
+                                  gate to be enabled.
                                 pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                                 x-kubernetes-int-or-string: true
                             type: object
@@ -239,8 +239,8 @@ spec:
                                   and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
                                   triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
 
-                                  This is an alpha field and requires enabling the HPAConfigurableTolerance
-                                  feature gate.
+                                  This is an beta field and requires the HPAConfigurableTolerance feature
+                                  gate to be enabled.
                                 pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                                 x-kubernetes-int-or-string: true
                             type: object
@@ -762,6 +762,85 @@ spec:
                     default: false
                     type: boolean
                 type: object
+              limitsPolicy:
+                description: LimitsPolicy defines per-resource limit handling strategies.
+                properties:
+                  cpu:
+                    description: CPU defines how the autoscaler handles CPU limits.
+                    properties:
+                      multiplier:
+                        anyOf:
+                        - type: integer
+                        - type: string
+                        description: |-
+                          Multiplier is the factor applied to the recommended request to compute the limit.
+                          Required when Type is multiplierLimits. E.g. "1500m" for 1.5x. Must be >= 1.
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
+                        x-kubernetes-validations:
+                        - message: must be greater than or equal to 1
+                          rule: quantity(self).compareTo(quantity('1')) >= 0
+                      onlyIfOriginalExist:
+                        description: OnlyIfOriginalExist skips setting a limit when
+                          the container has no current limit.
+                        type: boolean
+                      onlyIfOriginalLower:
+                        description: OnlyIfOriginalLower keeps the existing limit
+                          when it is already higher than the computed one.
+                        type: boolean
+                      type:
+                        description: Type is the limit policy strategy.
+                        enum:
+                        - keepLimits
+                        - multiplierLimits
+                        - noLimits
+                        - maintainRatio
+                        type: string
+                    required:
+                    - type
+                    type: object
+                    x-kubernetes-validations:
+                    - message: multiplier is required when type is multiplierLimits
+                      rule: self.type != 'multiplierLimits' || has(self.multiplier)
+                  memory:
+                    description: Memory defines how the autoscaler handles memory
+                      limits.
+                    properties:
+                      multiplier:
+                        anyOf:
+                        - type: integer
+                        - type: string
+                        description: |-
+                          Multiplier is the factor applied to the recommended request to compute the limit.
+                          Required when Type is multiplierLimits. E.g. "1500m" for 1.5x. Must be >= 1.
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
+                        x-kubernetes-validations:
+                        - message: must be greater than or equal to 1
+                          rule: quantity(self).compareTo(quantity('1')) >= 0
+                      onlyIfOriginalExist:
+                        description: OnlyIfOriginalExist skips setting a limit when
+                          the container has no current limit.
+                        type: boolean
+                      onlyIfOriginalLower:
+                        description: OnlyIfOriginalLower keeps the existing limit
+                          when it is already higher than the computed one.
+                        type: boolean
+                      type:
+                        description: Type is the limit policy strategy.
+                        enum:
+                        - keepLimits
+                        - multiplierLimits
+                        - noLimits
+                        - maintainRatio
+                        type: string
+                    required:
+                    - type
+                    type: object
+                    x-kubernetes-validations:
+                    - message: multiplier is required when type is multiplierLimits
+                      rule: self.type != 'multiplierLimits' || has(self.multiplier)
+                type: object
               postStartup:
                 description: Defines workload settings during post-startup period.
                 properties:
@@ -839,6 +918,75 @@ spec:
                             x-kubernetes-int-or-string: true
                           description: ResourceList is a set of (resource name, quantity)
                             pairs.
+                          type: object
+                        resourceStrategy:
+                          description: |-
+                            ResourceStrategy resolves requests dynamically at pod admission time.
+                            If the strategy cannot be resolved (e.g. node allocatable is unavailable or the configuration is invalid),
+                            the handler falls back to the Requests and Limits fields.
+                          properties:
+                            nodeAllocatablePercentage:
+                              description: NodeAllocatablePercentage configures node-proportional
+                                resource scaling using fixed percentages.
+                              properties:
+                                limits:
+                                  description: Limits configures ratios applied to
+                                    resolved requests to produce container limits.
+                                    Omit to leave limits unset.
+                                  properties:
+                                    cpuRatio:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: CPURatio multiplies the resolved
+                                        CPU request to produce the CPU limit. Omit
+                                        to leave limits unset.
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    memoryRatio:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: MemoryRatio multiplies the resolved
+                                        memory request to produce the memory limit.
+                                        Omit to leave limits unset.
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  type: object
+                                requests:
+                                  description: Requests configures what percentage
+                                    of node allocatable to use for container requests.
+                                  properties:
+                                    cpuPercent:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: CPUPercent percentage of node allocatable
+                                        CPU. Range (0, 100].
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    memoryPercent:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: MemoryPercent percentage of node
+                                        allocatable memory. Range (0, 100].
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  required:
+                                  - cpuPercent
+                                  - memoryPercent
+                                  type: object
+                              required:
+                              - requests
+                              type: object
+                            type:
+                              description: Type identifies which strategy is configured.
+                              enum:
+                              - NodeAllocatablePercentage
+                              type: string
+                          required:
+                          - type
                           type: object
                       type: object
                     type: array
@@ -923,6 +1071,75 @@ spec:
                       description: ResourceList is a set of (resource name, quantity)
                         pairs.
                       type: object
+                    resourceStrategy:
+                      description: |-
+                        ResourceStrategy resolves requests dynamically at pod admission time.
+                        If the strategy cannot be resolved (e.g. node allocatable is unavailable or the configuration is invalid),
+                        the handler falls back to the Requests and Limits fields.
+                      properties:
+                        nodeAllocatablePercentage:
+                          description: NodeAllocatablePercentage configures node-proportional
+                            resource scaling using fixed percentages.
+                          properties:
+                            limits:
+                              description: Limits configures ratios applied to resolved
+                                requests to produce container limits. Omit to leave
+                                limits unset.
+                              properties:
+                                cpuRatio:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: CPURatio multiplies the resolved CPU
+                                    request to produce the CPU limit. Omit to leave
+                                    limits unset.
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                memoryRatio:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: MemoryRatio multiplies the resolved
+                                    memory request to produce the memory limit. Omit
+                                    to leave limits unset.
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                              type: object
+                            requests:
+                              description: Requests configures what percentage of
+                                node allocatable to use for container requests.
+                              properties:
+                                cpuPercent:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: CPUPercent percentage of node allocatable
+                                    CPU. Range (0, 100].
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                memoryPercent:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: MemoryPercent percentage of node allocatable
+                                    memory. Range (0, 100].
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                              required:
+                              - cpuPercent
+                              - memoryPercent
+                              type: object
+                          required:
+                          - requests
+                          type: object
+                        type:
+                          description: Type identifies which strategy is configured.
+                          enum:
+                          - NodeAllocatablePercentage
+                          type: string
+                      required:
+                      - type
+                      type: object
                   type: object
                 type: array
               replicas:
@@ -950,6 +1167,29 @@ spec:
                     type: string
                 required:
                 - type
+                type: object
+              runtimeSpec:
+                additionalProperties:
+                  description: ContainerRuntimeSpec describes the runtime configuration
+                    for a single container.
+                  properties:
+                    autoInstrument:
+                      description: |-
+                        AutoInstrument controls whether the runtime should be automatically instrumented
+                        (e.g. JMX exporter injection for JVM containers).
+                      type: boolean
+                    runtime:
+                      description: Runtime identifies the container runtime (e.g.
+                        jvm).
+                      enum:
+                      - jvm
+                      type: string
+                  required:
+                  - runtime
+                  type: object
+                description: |-
+                  RuntimeSpec defines per-container runtime configuration for auto-instrumentation.
+                  Key is the container name.
                 type: object
               startup:
                 description: Defines workload settings during startup period.

@@ -68,6 +68,10 @@ spec:
           - name: SAFEGUARD_WORKLOAD_WHITELISTING_ENABLED
             value: {{ quote .Values.workloadWhitelistingEnabled }}
           {{- end}}
+          {{- range $name, $value := .Values.additionalEnv }}
+          - name: "{{ $name }}"
+            value: "{{ $value }}"
+          {{- end }}
           envFrom:
             {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
             - secretRef:

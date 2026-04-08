@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -9,10 +9,10 @@ CAST AI DB agent deployment.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API. |
+| apiURL | string | `""` | URL to the CAST AI API endpoint. |
 | cacheGroupID | string | `""` |  |
 | cloudSqlProxy.autoIamAuthn | bool | `true` | Have the proxy connect with Automatic IAM authentication |
 | cloudSqlProxy.enabled | bool | `false` | Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections |
-| cloudSqlProxy.instanceConnectionName | string | `""` | GCP Cloud SQL instance connection name (e.g., project:region:instance) |
 | cloudSqlProxy.port | int | `5432` | Port on which Cloud SQL Proxy will listen |
 | cloudSqlProxy.privateIp | bool | `false` | Have the proxy connect over private IP if connecting from a VPC-native GKE cluster |
 | cloudSqlProxyImage.pullPolicy | string | `"IfNotPresent"` |  |
@@ -27,6 +27,7 @@ CAST AI DB agent deployment.
 | database.host | string | `""` |  |
 | database.password | string | `""` | Password for database authentication (not required when useIAMAuth is true) |
 | database.port | int | `5432` |  |
+| database.protocol | string | `"postgres"` | Database protocol to use. Supported values: postgres, mysql. |
 | database.useIAMAuth | bool | `false` | Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details. |
 | database.username | string | `""` | Username for database authentication. For IAM auth, use the format: "service-account-name@project-id.iam" |
 | gRPCEndpoint | string | `""` | URL to the CAST AI API gRPC endpoint. |

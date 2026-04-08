@@ -81,10 +81,8 @@ priorityClass:
 tolerations:
   - key: scheduling.cast.ai/spot
     operator: Exists
-  - effect: NoSchedule
-    key: provisioning.cast.ai/temporary
-    operator: Equal
-    value: "resuming"
+  - key: CriticalAddonsOnly
+    operator: Exists
 
 webhook:
   failurePolicy: "Ignore"
@@ -129,6 +127,18 @@ clusterAutoscaler:
     scan-interval: "10s"
     # new-pod-scale-up-delay -- Delay before considering a new pod for scale-up. Uncomment to enable.
     # new-pod-scale-up-delay: "60s"
+
+# jmxExporter -- Configuration for auto-instrumenting JVM pods with the JMX Prometheus Java agent.
+# When enabled, the mutating webhook injects an init container that copies the agent jar into a
+# shared emptyDir volume, sets JAVA_TOOL_OPTIONS on every app container, and exposes port 9404.
+jmxExporter:
+  # enabled -- Global feature flag. When false the webhook never attempts JMX injection.
+  enabled: false
+  initImage:
+    # repository -- Init container image that contains jmx_prometheus_javaagent.jar.
+    repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+    # tag -- Image tag for the init container. Bundles jmx_prometheus_javaagent.jar.
+    tag: 1.5.0
 
 # additionalEnv -- Used to set any additional environment variables.
 additionalEnv: {}
@@ -295,5 +305,23 @@ gpu:
   enabled: false
 
 watchListClient: true
+
+# preDeleteHook -- Configuration for the Helm pre-delete hook that strips finalizers
+# from all Recommendation CRs before the agent is uninstalled.
+#
+# How it works:
+#   1. When `helm uninstall` is run, Helm executes this Job first.
+#   2. The Job strips finalizers from all Recommendation CRs cluster-wide.
+#   3. Helm then deletes the CRD, which cascades to all CR instances.
+#   4. Workload resource mutations are NOT reverted — pods keep their current resources.
+#
+# Note: this only applies to clean `helm uninstall`. Forceful removal of the
+# agent (e.g. deleting the Deployment directly) bypasses this hook entirely.
+preDeleteHook:
+  enabled: true
+  # backoffLimit -- Number of retries before marking the Job as failed.
+  backoffLimit: 3
+  # activeDeadlineSeconds -- Maximum time (in seconds) to wait for cleanup to finish.
+  activeDeadlineSeconds: 300
 
 fullnameOverride: castai-workload-autoscaler

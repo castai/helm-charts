@@ -1,0 +1,129 @@
+{{- if .Values.preDeleteHook.enabled }}
+---
+# ServiceAccount used exclusively by the pre-delete hook Job.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}-pre-delete
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    {{- with .Values.commonAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+---
+# ClusterRole granting the hook permission to patch finalizers and delete
+# Recommendation CRs across all namespaces.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}-pre-delete
+  labels:
+    {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    {{- with .Values.commonAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+rules:
+  - apiGroups:
+      - autoscaling.cast.ai
+    resources:
+      - recommendations
+    verbs:
+      - get
+      - list
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}-pre-delete
+  labels:
+    {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    {{- with .Values.commonAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "workload-autoscaler.fullname" . }}-pre-delete
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "workload-autoscaler.fullname" . }}-pre-delete
+    namespace: {{ .Release.Namespace }}
+---
+# Job that strips finalizers from all Recommendation CRs and deletes them without
+# reverting workload resource mutations. Runs before the agent Deployment is torn down.
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "workload-autoscaler.fullname" . }}-pre-delete
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "workload-autoscaler.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+    {{- with .Values.commonAnnotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  backoffLimit: {{ .Values.preDeleteHook.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.preDeleteHook.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        {{- include "workload-autoscaler.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "workload-autoscaler.fullname" . }}-pre-delete
+      restartPolicy: OnFailure
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: pre-delete
+          image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          envFrom:
+            {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+            - secretRef:
+                {{- if .Values.castai.apiKey }}
+                name: workload-autoscaler
+                {{- else }}
+                name: {{ .Values.castai.apiKeySecretRef }}
+                {{- end }}
+            {{- end }}
+            - configMapRef:
+                {{- if .Values.castai.configMapRef }}
+                name: {{ .Values.castai.configMapRef }}
+                {{- else }}
+                name: workload-autoscaler
+                {{- end }}
+            {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          command:
+            - castai-workload-autoscaler
+            - cleanup
+{{- end }}

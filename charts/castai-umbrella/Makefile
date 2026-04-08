@@ -94,6 +94,10 @@ update-autoscaler: ## Bump autoscaler subchart version and update umbrella deps.
 update-autoscaler-anywhere: ## Bump autoscaler-anywhere subchart version and update umbrella deps.
 	$(call UPDATE_SUBCHART,autoscaler-anywhere)
 
+.PHONY: update-autoscaler-openshift
+update-autoscaler-openshift: ## Bump autoscaler-openshift subchart version and update umbrella deps.
+	$(call UPDATE_SUBCHART,autoscaler-openshift)
+
 .PHONY: update-umbrella
 update-umbrella: ## Bump umbrella chart version and update its dependencies (no subchart bumps).
 	@echo "==> Bumping umbrella chart minor version..."

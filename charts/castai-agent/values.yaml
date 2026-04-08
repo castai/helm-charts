@@ -194,6 +194,10 @@ topologySpreadConstraints:
 metadataStore:
   # metadataStore.enabled -- specifies whether agent should store metadata in a config map
   enabled: true
+  # metadataStore.createConfigMap -- specifies whether Helm should create the metadata ConfigMap.
+  # When false (default), the agent creates it at runtime. Set to true when installing via the
+  # umbrella chart so the ConfigMap is available before other sub-charts start.
+  createConfigMap: false
   # metadataStore.configMapName -- name of config map to store metadata
   configMapName: castai-agent-metadata
   # metadataStore.configMapName -- namespace of config map to store metadata
