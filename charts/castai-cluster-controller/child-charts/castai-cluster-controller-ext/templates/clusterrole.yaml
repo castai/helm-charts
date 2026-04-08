@@ -21,17 +21,4 @@ rules:
       - list
       - delete
       - watch
-  # ------------------------------------------------
-  # EvictorConfig: reconcile CR on snapshot sync
-  # ------------------------------------------------
-  - apiGroups:
-      - autoscaling.cast.ai
-    resources:
-      - evictorconfigs
-    verbs:
-      - get
-      - list
-      - watch
-      - patch
-      - update
  {{- end }}
