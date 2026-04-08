@@ -288,6 +288,9 @@ prometheus:
 
 clusterDomain: cluster.local
 
+# additionalEnv -- Used to set any additional environment variables.
+additionalEnv: {}
+
 # -- Used to set additional environment variables for the exporter container via configMaps or secrets.
 envFrom: []
 
