@@ -20,7 +20,7 @@ CAST AI hosted model deployment chart for vLLM.
 | env | list | `[]` | Additional environment variables to set in the vLLM container |
 | extraArgs | list | `[]` | Extra arbitrary arguments to pass to vLLM |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
-| image.tag | string | `"v0.11.2"` |  |
+| image.tag | string | `"v0.18.0"` |  |
 | kvCacheDtype | string | `"auto"` |  |
 | ldLibraryPath | string | `"/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"` | LD_LIBRARY_PATH environment variable for vLLM container. Set to null or empty string to disable. |
 | livenessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}` | Liveness probe configuration |
@@ -106,11 +106,11 @@ CAST AI hosted model deployment chart for vLLM.
 | readinessProbe.timeoutSeconds | int | `1` | Number of seconds after which the probe times out |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |
+| runner | string | `nil` |  |
 | service.port | int | `8000` |  |
 | service.type | string | `"ClusterIP"` |  |
 | startupProbe | object | `{"enabled":true,"failureThreshold":600,"httpGet":{"path":"/health"},"initialDelaySeconds":20,"periodSeconds":6,"successThreshold":1,"timeoutSeconds":1}` | Startup probe configuration |
 | startupProbe.enabled | bool | `true` | Enable or disable startup probe |
 | startupProbe.successThreshold | int | `1` | Minimum consecutive successes for the probe to be considered successful after having failed (must be 1 for startup probe) |
 | startupProbe.timeoutSeconds | int | `1` | Number of seconds after which the probe times out |
-| task | string | `nil` |  |
 | useRunAiStreamer | bool | `false` |  |
