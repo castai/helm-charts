@@ -10,33 +10,32 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation
 spec:
   managementMode: {{ .Values.managedByCASTAI | ternary "castai" "self-managed" }}
-  system:
-    enabled: true
+  enabled: true
   config:
-    dryRun: {{ .Values.dryRun }}
     aggressiveMode: {{ .Values.aggressiveMode }}
-    scopedMode: {{ .Values.scopedMode }}
-    targetAllNodes: false
-    softTainting: {{ .Values.softTainting.enabled }}
-    emitNodeRelatedPodEvents: false
+    arm64Supported: true
     cleanupKarpenterNodes: {{ .Values.karpenterNodeCleanup.enabled }}
     cycleInterval: {{ .Values.cycleInterval | quote }}
-    nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
-    drainTimeout: "10m"
     drainRollbackTimeout: "1m"
-    podEvictionFailureBackOff: "5s"
-    windows: false
-    ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
-    forceDisableLiveMigration: {{ not .Values.liveMigration.enabled }}
-    forceDisableWOOP: {{ not .Values.woop.enabled }}
-    forceDisablePodMutations: {{ not .Values.podMutations.enabled }}
+    drainTimeout: "10m"
+    dryRun: {{ .Values.dryRun }}
+    emitNodeRelatedPodEvents: false
     forceDisableKarpenterMode: {{ not .Values.karpenterMode.enabled }}
+    forceDisableLiveMigration: {{ not .Values.liveMigration.enabled }}
+    forceDisablePodMutations: {{ not .Values.podMutations.enabled }}
+    forceDisableWOOP: {{ not .Values.woop.enabled }}
+    ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
     maxTargetNodesPerCycle: {{ .Values.maxNodesToEvictPerCycle }}
     minTargetNodesPerCycle: 5
-    targetNodePercentage: 10
+    nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
+    podEvictionFailureBackOff: "5s"
     pricingAwarenessEnabled: false
     pricingModel:
-      spotDiscount: 0.5
-      baseCPUCost: 7.0
-      baseMemCost: 1.0
-    arm64Supported: true
+      baseCPUCost: "7.0"
+      baseMemCost: "1.0"
+      spotDiscount: "0.5"
+    scopedMode: {{ .Values.scopedMode }}
+    softTainting: {{ .Values.softTainting.enabled }}
+    targetAllNodes: false
+    targetNodePercentage: 10
+    windows: false

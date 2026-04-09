@@ -36,14 +36,13 @@ tests:
           path: spec.managementMode
           value: self-managed
 
-  # ── system ───────────────────────────────────────────────────────────────────
+  # ── enabled ──────────────────────────────────────────────────────────────────
 
-  - it: system.enabled is true by default
+  - it: enabled is true by default
     asserts:
       - equal:
-          path: spec.system.enabled
+          path: spec.enabled
           value: true
-
 
   # ── config: basic fields ─────────────────────────────────────────────────────
 
@@ -99,13 +98,13 @@ tests:
           value: false
       - equal:
           path: spec.config.pricingModel.spotDiscount
-          value: 0.5
+          value: "0.5"
       - equal:
           path: spec.config.pricingModel.baseCPUCost
-          value: 7
+          value: "7.0"
       - equal:
           path: spec.config.pricingModel.baseMemCost
-          value: 1
+          value: "1.0"
       - equal:
           path: spec.config.softTainting
           value: false
