@@ -1,6 +1,6 @@
 # kent
 
-![Version: 0.10.0](https://img.shields.io/badge/Version-0.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.10.1](https://img.shields.io/badge/Version-0.10.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Kent profile.
 
@@ -13,7 +13,7 @@ Wrapper chart for CAST AI Kent profile.
 | https://castai.github.io/helm-charts | castai-evictor | 0.35.17 |
 | https://castai.github.io/helm-charts | castai-kentroller | 0.1.113 |
 | https://castai.github.io/helm-charts | castai-live | 0.82.1 |
-| https://castai.github.io/helm-charts | castai-pod-mutator | 0.7.0 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.8.0 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.32.0 |
 | https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.202 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
@@ -53,7 +53,7 @@ Wrapper chart for CAST AI Kent profile.
 | castai-pod-mutator.dependencyCheck.enabled | bool | `false` |  |
 | castai-pod-mutator.enabled | bool | `true` |  |
 | castai-pod-mutator.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| castai-spot-handler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-spot-handler.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-spot-handler.castai.provider | string | `"eks"` |  |
