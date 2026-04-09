@@ -32,6 +32,10 @@ dependencies:
     version: "0.35.17"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-evictor.enabled
+  - name: castai-spot-handler
+    version: "0.32.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-spot-handler.enabled
   - name: metrics-server
     version: "3.13.0"
     repository: "https://kubernetes-sigs.github.io/metrics-server/"

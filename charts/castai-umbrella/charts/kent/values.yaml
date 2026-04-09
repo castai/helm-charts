@@ -56,6 +56,14 @@ castai-pod-mutator:
     - configMapRef:
         name: castai-agent-metadata
 
+castai-spot-handler:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+
 castai-evictor:
   enabled: true
   replicaCount: 0
