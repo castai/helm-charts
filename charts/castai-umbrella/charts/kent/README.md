@@ -56,6 +56,7 @@ Wrapper chart for CAST AI Kent profile.
 | castai-spot-handler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
+| castai-spot-handler.castai.provider | string | `"eks"` |  |
 | castai-spot-handler.enabled | bool | `true` |  |
 | castai-workload-autoscaler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-workload-autoscaler.castai.configMapRef | string | `"castai-agent-metadata"` |  |
