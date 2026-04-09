@@ -1,0 +1,202 @@
+suite: EvictorConfig CR rendering
+templates:
+  - evictorconfig.yaml
+
+tests:
+  # ── Metadata ────────────────────────────────────────────────────────────────
+
+  - it: has correct apiVersion and kind
+    asserts:
+      - equal:
+          path: apiVersion
+          value: autoscaling.cast.ai/v1alpha1
+      - equal:
+          path: kind
+          value: EvictorConfig
+
+  - it: name is always evictor-config (singleton)
+    asserts:
+      - equal:
+          path: metadata.name
+          value: evictor-config
+
+  # ── managementMode ───────────────────────────────────────────────────────────
+
+  - it: managementMode is castai when managedByCASTAI is true (default)
+    asserts:
+      - equal:
+          path: spec.managementMode
+          value: castai
+
+  - it: managementMode is self-managed when managedByCASTAI is false
+    set:
+      managedByCASTAI: false
+    asserts:
+      - equal:
+          path: spec.managementMode
+          value: self-managed
+
+  # ── enabled ──────────────────────────────────────────────────────────────────
+
+  - it: enabled is true by default
+    asserts:
+      - equal:
+          path: spec.enabled
+          value: true
+
+  # ── config: basic fields ─────────────────────────────────────────────────────
+
+  - it: renders default config values
+    asserts:
+      - equal:
+          path: spec.config.dryRun
+          value: false
+      - equal:
+          path: spec.config.aggressiveMode
+          value: false
+      - equal:
+          path: spec.config.scopedMode
+          value: false
+      - equal:
+          path: spec.config.targetAllNodes
+          value: false
+      - equal:
+          path: spec.config.emitNodeRelatedPodEvents
+          value: false
+      - equal:
+          path: spec.config.windows
+          value: false
+      - equal:
+          path: spec.config.arm64Supported
+          value: true
+      - equal:
+          path: spec.config.cycleInterval
+          value: "1m"
+      - equal:
+          path: spec.config.nodeGracePeriodMinutes
+          value: 5
+      - equal:
+          path: spec.config.drainTimeout
+          value: "10m"
+      - equal:
+          path: spec.config.drainRollbackTimeout
+          value: "1m"
+      - equal:
+          path: spec.config.podEvictionFailureBackOff
+          value: "5s"
+      - equal:
+          path: spec.config.maxTargetNodesPerCycle
+          value: 20
+      - equal:
+          path: spec.config.minTargetNodesPerCycle
+          value: 5
+      - equal:
+          path: spec.config.targetNodePercentage
+          value: 10
+      - equal:
+          path: spec.config.pricingAwarenessEnabled
+          value: false
+      - equal:
+          path: spec.config.pricingModel.spotDiscount
+          value: "0.5"
+      - equal:
+          path: spec.config.pricingModel.baseCPUCost
+          value: "7.0"
+      - equal:
+          path: spec.config.pricingModel.baseMemCost
+          value: "1.0"
+      - equal:
+          path: spec.config.softTainting
+          value: false
+      - equal:
+          path: spec.config.cleanupKarpenterNodes
+          value: false
+      - equal:
+          path: spec.config.ignorePodDisruptionBudgets
+          value: false
+
+  - it: reflects overridden config values
+    set:
+      dryRun: true
+      aggressiveMode: true
+      scopedMode: true
+      cycleInterval: 2m
+      nodeGracePeriodMinutes: 10
+      maxNodesToEvictPerCycle: 50
+      softTainting:
+        enabled: true
+      karpenterNodeCleanup:
+        enabled: true
+      ignorePodDisruptionBudgets: true
+    asserts:
+      - equal:
+          path: spec.config.dryRun
+          value: true
+      - equal:
+          path: spec.config.aggressiveMode
+          value: true
+      - equal:
+          path: spec.config.scopedMode
+          value: true
+      - equal:
+          path: spec.config.cycleInterval
+          value: "2m"
+      - equal:
+          path: spec.config.nodeGracePeriodMinutes
+          value: 10
+      - equal:
+          path: spec.config.maxTargetNodesPerCycle
+          value: 50
+      - equal:
+          path: spec.config.softTainting
+          value: true
+      - equal:
+          path: spec.config.cleanupKarpenterNodes
+          value: true
+      - equal:
+          path: spec.config.ignorePodDisruptionBudgets
+          value: true
+
+  # ── forceDisable: inverted from *.enabled ────────────────────────────────────
+
+  - it: forceDisable fields are false when all legacy enabled flags are true (default)
+    asserts:
+      - equal:
+          path: spec.config.forceDisableLiveMigration
+          value: false
+      - equal:
+          path: spec.config.forceDisableWOOP
+          value: false
+      - equal:
+          path: spec.config.forceDisablePodMutations
+          value: false
+
+  - it: karpenterMode forceDisable is true when enabled is false (default)
+    asserts:
+      - equal:
+          path: spec.config.forceDisableKarpenterMode
+          value: true
+
+  - it: forceDisable is true when enabled is set to false
+    set:
+      liveMigration:
+        enabled: false
+      woop:
+        enabled: false
+      podMutations:
+        enabled: false
+      karpenterMode:
+        enabled: true
+    asserts:
+      - equal:
+          path: spec.config.forceDisableLiveMigration
+          value: true
+      - equal:
+          path: spec.config.forceDisableWOOP
+          value: true
+      - equal:
+          path: spec.config.forceDisablePodMutations
+          value: true
+      - equal:
+          path: spec.config.forceDisableKarpenterMode
+          value: false

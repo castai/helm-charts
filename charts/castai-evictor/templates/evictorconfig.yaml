@@ -1,0 +1,41 @@
+apiVersion: autoscaling.cast.ai/v1alpha1
+kind: EvictorConfig
+metadata:
+  name: evictor-config
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  managementMode: {{ .Values.managedByCASTAI | ternary "castai" "self-managed" }}
+  enabled: true
+  config:
+    aggressiveMode: {{ .Values.aggressiveMode }}
+    arm64Supported: true
+    cleanupKarpenterNodes: {{ .Values.karpenterNodeCleanup.enabled }}
+    cycleInterval: {{ .Values.cycleInterval | quote }}
+    drainRollbackTimeout: "1m"
+    drainTimeout: "10m"
+    dryRun: {{ .Values.dryRun }}
+    emitNodeRelatedPodEvents: false
+    forceDisableKarpenterMode: {{ not .Values.karpenterMode.enabled }}
+    forceDisableLiveMigration: {{ not .Values.liveMigration.enabled }}
+    forceDisablePodMutations: {{ not .Values.podMutations.enabled }}
+    forceDisableWOOP: {{ not .Values.woop.enabled }}
+    ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
+    maxTargetNodesPerCycle: {{ .Values.maxNodesToEvictPerCycle }}
+    minTargetNodesPerCycle: 5
+    nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
+    podEvictionFailureBackOff: "5s"
+    pricingAwarenessEnabled: false
+    pricingModel:
+      baseCPUCost: "7.0"
+      baseMemCost: "1.0"
+      spotDiscount: "0.5"
+    scopedMode: {{ .Values.scopedMode }}
+    softTainting: {{ .Values.softTainting.enabled }}
+    targetAllNodes: false
+    targetNodePercentage: 10
+    windows: false
