@@ -133,7 +133,7 @@ clusterAutoscaler:
 # shared emptyDir volume, sets JAVA_TOOL_OPTIONS on every app container, and exposes port 9404.
 jmxExporter:
   # enabled -- Global feature flag. When false the webhook never attempts JMX injection.
-  enabled: false
+  enabled: true
   initImage:
     # repository -- Init container image that contains jmx_prometheus_javaagent.jar.
     repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
