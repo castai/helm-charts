@@ -58,9 +58,9 @@ castai-pod-mutator:
 
 castai-spot-handler:
   enabled: true
+  apiKeySecretRef: castai-credentials
   castai:
     provider: eks
-    apiKeySecretRef: castai-credentials
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID
