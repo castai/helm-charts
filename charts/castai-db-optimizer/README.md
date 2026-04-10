@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.73.0](https://img.shields.io/badge/Version-0.73.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.74.0](https://img.shields.io/badge/Version-0.74.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -90,6 +90,7 @@ CAST AI database cache deployment.
 | proxyImage.tag | string | `""` |  |
 | proxySql.adminPassword | string | `"admin"` | ProxySQL admin interface password. Required when user/password are set. |
 | proxySql.adminUser | string | `"admin"` | ProxySQL admin interface username. Stored in the proxysql-users secret. |
+| proxySql.basePort | int | `6033` | Starting port from which ProxySQL internal listening ports are sequentially assigned per endpoint. These ports are pod-internal (Envoy → ProxySQL) and must not conflict with endpoint.port values. |
 | proxySql.config.auto_increment_delay_multiplex | int | `5` | Delay multiplexing for N queries after auto-increment INSERT |
 | proxySql.config.connect_timeout_server | int | `5000` | Backend connection timeout in milliseconds |
 | proxySql.config.default_query_timeout | int | `36000000` | Default query timeout in milliseconds |

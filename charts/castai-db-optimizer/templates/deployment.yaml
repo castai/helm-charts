@@ -1,5 +1,4 @@
 {{- $pgDogPort := 6432}}
-{{- $proxySqlPort := 6033}}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -296,10 +295,6 @@ spec:
             - name: PGDOG_ADMIN_URI
               value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
             {{- end }}
-            {{- if and .Values.proxySql .Values.proxySql.enabled }}
-            - name: PROXY_SQL_ADMIN_URI
-              value: mysql://$(PROXY_SQL_ADMIN_USERNAME):$(PROXY_SQL_ADMIN_PASSWORD)@tcp(127.0.0.1:6032)/
-            {{- end }}
 
           {{- if .Values.proxy.draining.enabled }}
           lifecycle:
@@ -529,9 +524,11 @@ spec:
                   - until ! curl -s localhost:9901/ready >/dev/null 2>&1; do sleep 1; done
           {{- end }}
           ports:
-            - name: mysql
-              containerPort: 6033
+            {{- range $index, $endpoint := .Values.endpoints }}
+            - name: mysql-{{ $index }}
+              containerPort: {{ add $.Values.proxySql.basePort $index }}
               protocol: TCP
+            {{- end }}
             - name: admin
               containerPort: 6032
               protocol: TCP
@@ -569,7 +566,7 @@ spec:
                   key: PROXY_SQL_ADMIN_PASSWORD
           readinessProbe:
             tcpSocket:
-              port: {{ $proxySqlPort }}
+              port: {{ .Values.proxySql.basePort }}
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5
