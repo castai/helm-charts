@@ -232,6 +232,9 @@ pgdog:
 proxySql:
   # -- Enable ProxySQL pooler sidecar (MySQL only)
   enabled: false
+  # -- Starting port from which ProxySQL internal listening ports are sequentially assigned per endpoint.
+  # These ports are pod-internal (Envoy → ProxySQL) and must not conflict with endpoint.port values.
+  basePort: 6033
   # -- ProxySQL upstream DB user (plain string). Mutually exclusive with usersSecretRef
   user: ""
   # -- ProxySQL upstream DB password (plain string). Mutually exclusive with usersSecretRef
