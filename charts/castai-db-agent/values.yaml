@@ -22,6 +22,8 @@ database:
   useIAMAuth: false
   # -- Database protocol to use. Supported values: postgres, mysql.
   protocol: postgres
+  # -- Database name to use for connecting to database instance for auto-discovering logical databases. This is only required for Postgres
+  autoDiscoveryDatabase: "postgres"
 # -- URL to the CAST AI API gRPC endpoint.
 gRPCEndpoint: ""
 collectors:

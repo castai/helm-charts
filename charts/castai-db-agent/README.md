@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.17.1](https://img.shields.io/badge/Version-0.17.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -23,6 +23,7 @@ CAST AI DB agent deployment.
 | collectors.indexes.runsEvery | string | `"15m"` | Frequency in which existing indexes are collected |
 | collectors.metadata.runsEvery | string | `"15m"` | Frequency in which table metadata is collected |
 | collectors.queries.runsEvery | string | `"15m"` | Frequency in which query statistics are collected |
+| database.autoDiscoveryDatabase | string | `"postgres"` | Database name to use for connecting to database instance for auto-discovering logical databases. This is only required for Postgres |
 | database.credentialsSecretRef | string | `""` | Name of secret with database credentials (username and password). Not required when using useIAMAuth with inline username. |
 | database.host | string | `""` |  |
 | database.password | string | `""` | Password for database authentication (not required when useIAMAuth is true) |
