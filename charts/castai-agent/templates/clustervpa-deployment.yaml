@@ -44,8 +44,8 @@ spec:
       tolerations:
         - operator: Exists
           key: CriticalAddonsOnly
-      {{- with .Values.tolerations }}
-        {{- toYaml . | nindent 8 }}
+      {{- with (include "castai-agent.tolerations" . | trim) }}
+        {{- . | nindent 8 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
