@@ -251,7 +251,7 @@ spec:
       affinity:
       {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with (include "workload-autoscaler.tolerations" . | trim) }}
       tolerations:
-      {{- toYaml . | nindent 8 }}
-{{- end }}
+      {{- . | nindent 8 }}
+      {{- end }}

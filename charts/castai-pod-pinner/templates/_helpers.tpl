@@ -139,3 +139,17 @@ Service account annotations. It's a merge between common annotations and service
 {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+Resolve tolerations: use .Values.tolerations when non-empty, fall back to .Values.global.tolerations.
+*/}}
+{{- define "pod-pinner.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $local := .Values.tolerations | default list -}}
+{{- $globalTolerations := dig "tolerations" list $global -}}
+{{- if $local -}}
+{{- toYaml $local -}}
+{{- else if $globalTolerations -}}
+{{- toYaml $globalTolerations -}}
+{{- end -}}
+{{- end -}}

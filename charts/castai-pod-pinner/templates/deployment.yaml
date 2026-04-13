@@ -180,8 +180,8 @@ spec:
           effect: "NoSchedule"
         - key: CriticalAddonsOnly
           operator: "Exists"
-      {{- with .Values.tolerations }}
-        {{- toYaml . | nindent 8 }}
+      {{- with (include "pod-pinner.tolerations" . | trim) }}
+        {{- . | nindent 8 }}
       {{- end }}
       volumes:
         - name: certs

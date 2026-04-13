@@ -190,3 +190,17 @@ Keys are used as-is (same format as cluster-autoscaler CLI flags).
 {{- end -}}
 {{- join "," $args -}}
 {{- end -}}
+
+{{/*
+Resolve tolerations: use .Values.tolerations when non-empty, fall back to .Values.global.tolerations.
+*/}}
+{{- define "workload-autoscaler.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $local := .Values.tolerations | default list -}}
+{{- $globalTolerations := dig "tolerations" list $global -}}
+{{- if $local -}}
+{{- toYaml $local -}}
+{{- else if $globalTolerations -}}
+{{- toYaml $globalTolerations -}}
+{{- end -}}
+{{- end -}}
