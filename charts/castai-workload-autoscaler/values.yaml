@@ -108,7 +108,7 @@ telemetryDebug:
 # Existing flags set by the customer are never overridden.
 clusterAutoscaler:
   # enabled -- Enable cluster-autoscaler arg injection
-  enabled: false
+  enabled: true
   # args -- Map of cluster-autoscaler CLI flags to inject.
   # Keys use the same format as cluster-autoscaler flags (without the -- prefix).
   # Any flag already present on the CA container is skipped (no overrides, no duplicates).

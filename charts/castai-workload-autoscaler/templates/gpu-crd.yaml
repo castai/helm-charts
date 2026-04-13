@@ -313,6 +313,9 @@ spec:
                 type: array
             type: object
         type: object
+    selectableFields:
+    - jsonPath: .spec.targetRef.kind
+    - jsonPath: .spec.targetRef.name
     served: true
     storage: true
     subresources:
