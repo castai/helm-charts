@@ -2331,6 +2331,33 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-04-13T11:55:57.97982847Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 298214a85f12e8d7883a5644c20b13a8cf2cec7e487339ef1b97ff8facfc1bd4
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.22.29/castai-0.22.29.tgz
+    version: 0.22.29
+  - apiVersion: v2
     created: "2026-04-13T10:14:29.629194727Z"
     dependencies:
     - condition: kent.enabled
@@ -16008,6 +16035,23 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-db-optimizer-0.1.0/castai-db-optimizer-0.1.0.tgz
     version: 0.1.0
   castai-evictor:
+  - annotations:
+      release-date: 2026-04-13T11:13:03
+    apiVersion: v2
+    appVersion: 4f09ed90346d6cb00423e6093083699627ae57d1
+    created: "2026-04-13T11:55:58.098121346Z"
+    dependencies:
+    - condition: castai-evictor-ext.enabled
+      name: castai-evictor-ext
+      repository: file://child-charts/castai-evictor-ext
+      version: 0.5.0
+    description: Cluster utilization defragmentation tool
+    digest: 4405dc32a6d83fe18feda7f00ab4dbe627838486260064baf8304f6404ec777c
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.35.23/castai-evictor-0.35.23.tgz
+    version: 0.35.23
   - annotations:
       release-date: 2026-04-13T10:36:28
     apiVersion: v2
@@ -49261,4 +49305,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-04-13T11:49:33.088390559Z"
+generated: "2026-04-13T11:55:58.102933439Z"
