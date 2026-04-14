@@ -51,6 +51,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Resolve tolerations: merge .Values.tolerations with .Values.global.tolerations.
+*/}}
+{{- define "exporter.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $tolerations := concat (.Values.tolerations | default list) (dig "tolerations" list $global) -}}
+{{- if $tolerations -}}
+{{- toYaml $tolerations -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "exporter.serviceAccountName" -}}
