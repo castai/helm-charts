@@ -83,6 +83,17 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{/*
+Resolve tolerations: prefer .Values.tolerations (if non-empty), fall back to .Values.global.tolerations.
+*/}}
+{{- define "cluster-controller.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $tolerations := .Values.tolerations | default (dig "tolerations" list $global) -}}
+{{- if $tolerations -}}
+{{- toYaml $tolerations -}}
+{{- end -}}
+{{- end }}
+
 {{- define "cluster-controller.workloadAutoscalingEnabled" -}}
   {{- $workloadAutoscalingEnabled := true -}}
   {{- if .Values.workloadAutoscaling -}}
