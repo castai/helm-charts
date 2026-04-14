@@ -1,6 +1,6 @@
 # castai-pod-pinner
 
-![Version: 1.12.0](https://img.shields.io/badge/Version-1.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.9.5](https://img.shields.io/badge/AppVersion-v1.9.5-informational?style=flat-square)
+![Version: 1.12.1](https://img.shields.io/badge/Version-1.12.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.9.5](https://img.shields.io/badge/AppVersion-v1.9.5-informational?style=flat-square)
 
 CAST AI Pod Pinning deployment chart.
 
@@ -23,10 +23,10 @@ CAST AI Pod Pinning deployment chart.
 | castai.clusterID | string | `""` | The CAST AI cluster ID. |
 | castai.grpcURL | string | `"grpc.cast.ai:443"` | The CAST AI gRPC URL. |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-pinner container via configMaps or secrets. |
-| global | object | `{"commonAnnotations":{},"commonLabels":{},"fullnameOverride":"","nameOverride":"","serviceAccount":{"annotations":{},"create":true,"name":""}}` | Values to apply for the parent and child chart resources. |
+| global | object | `{"commonAnnotations":{},"commonLabels":{},"fullnameOverride":"castai-pod-pinner","nameOverride":"","serviceAccount":{"annotations":{},"create":true,"name":""}}` | Values to apply for the parent and child chart resources. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | global.commonLabels | object | `{}` | Labels to add to all resources. |
-| global.fullnameOverride | string | `""` | Override the fullname of resources. |
+| global.fullnameOverride | string | `"castai-pod-pinner"` | Override the fullname of resources. |
 | global.nameOverride | string | `""` | Override the name of the chart. |
 | global.serviceAccount | object | `{"annotations":{},"create":true,"name":""}` | Service account to use for the pod-pinner. |
 | global.serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
