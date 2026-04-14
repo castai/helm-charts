@@ -242,16 +242,8 @@ spec:
             {{- if and .Values.proxySql .Values.proxySql.enabled }}
             - name: POOLING_METRICS_PORT
               value: "6070"
-            - name: PROXY_SQL_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ if .Values.proxySql.usersSecretRef }}{{ .Values.proxySql.usersSecretRef }}{{ else }}{{ include "name" . }}-proxysql-users{{ end }}
-                  key: PROXY_SQL_ADMIN_USERNAME
-            - name: PROXY_SQL_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ if .Values.proxySql.usersSecretRef }}{{ .Values.proxySql.usersSecretRef }}{{ else }}{{ include "name" . }}-proxysql-users{{ end }}
-                  key: PROXY_SQL_ADMIN_PASSWORD
+            - name: POOLING_ENABLED
+              value: "true"
             {{- end }}
             {{- if .Values.organizationID }}
             - name: ORGANIZATION_ID
@@ -272,6 +264,10 @@ spec:
             - name: PROTOCOL
               value: {{ .Values.protocol }}
             {{- if and .Values.pgdog .Values.pgdog.enabled }}
+            - name: POOLING_ENABLED
+              value: "true"
+            - name: POOLING_METRICS_PORT
+              value: "9090"
             - name: PGDOG_CONFIG_TEMPLATE
               valueFrom:
                 configMapKeyRef:
