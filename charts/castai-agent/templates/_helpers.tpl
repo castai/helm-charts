@@ -84,3 +84,14 @@ Resolve provider: prefer .Values.provider, fall back to .Values.global.castai.pr
 {{- $global := .Values.global | default dict -}}
 {{- .Values.provider | default (dig "castai" "provider" "" $global) -}}
 {{- end }}
+
+{{/*
+Resolve tolerations: prefer .Values.tolerations (if non-empty), fall back to .Values.global.tolerations.
+*/}}
+{{- define "castai-agent.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $tolerations := .Values.tolerations | default (dig "tolerations" list $global) -}}
+{{- if $tolerations -}}
+{{- toYaml $tolerations -}}
+{{- end -}}
+{{- end }}
