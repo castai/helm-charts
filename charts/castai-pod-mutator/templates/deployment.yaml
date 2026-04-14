@@ -183,7 +183,7 @@ spec:
        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with (include "pod-mutator.tolerations" . | trim) }}
       tolerations:
-      {{- toYaml . | nindent 8 }}
+      {{- . | nindent 8 }}
       {{- end }}

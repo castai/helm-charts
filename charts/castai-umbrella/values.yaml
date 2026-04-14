@@ -8,6 +8,7 @@ global:
     grpcURL: "grpc.cast.ai:443"
     # provider -- Kubernetes service provider: eks, aks, gke, kops, anywhere.
     provider: ""
+  tolerations: []
 
 kent:
   enabled: false
