@@ -2,7 +2,7 @@ apiVersion: v2
 name: kent
 description: Wrapper chart for CAST AI Kent profile.
 type: application
-version: 0.10.1
+version: 0.11.0
 dependencies:
   - name: castai-agent
     version: "0.151.0"
@@ -21,17 +21,13 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
   - name: castai-live
-    version: "0.82.1"
+    version: "0.83.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
   - name: castai-pod-mutator
     version: "0.9.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-mutator.enabled
-  - name: castai-evictor
-    version: "0.35.25"
-    repository: "https://castai.github.io/helm-charts"
-    condition: castai-evictor.enabled
   - name: castai-spot-handler
     version: "0.32.0"
     repository: "https://castai.github.io/helm-charts"

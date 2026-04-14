@@ -19,7 +19,7 @@ This chart bundles three independent product profiles. Enable exactly one per in
 |--------|-----------|----------------|-----------|
 | **autoscaler** | `tags.<mode>=true` | Managed cloud (EKS, AKS, GKE) | Mode-dependent — see [Autoscaler](#autoscaler) |
 | **autoscaler-anywhere** | `tags.autoscaler-anywhere=true` | Non-managed (bare metal, on-prem, edge) | castai-agent, castai-cluster-controller, castai-workload-autoscaler, castai-workload-autoscaler-exporter, castai-evictor, castai-pod-mutator |
-| **kent** | `kent.enabled=true` | EKS only | castai-agent, castai-cluster-controller, castai-kentroller, castai-workload-autoscaler, castai-live, castai-pod-mutator, castai-evictor |
+| **kent** | `kent.enabled=true` | EKS only | castai-agent, castai-cluster-controller, castai-kentroller, castai-workload-autoscaler, castai-live, castai-pod-mutator |
 
 ---
 
