@@ -75,6 +75,17 @@ Create the name of the gpu-metrics-exporter config map
 {{- printf "%s-%s" .Release.Name "gpu-metrics-exporter" | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
+{{/*
+Resolve tolerations: merge .Values.gpuMetricsExporter.tolerations with .Values.global.tolerations.
+*/}}
+{{- define "gpu-metrics-exporter.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $tolerations := concat (.Values.gpuMetricsExporter.tolerations | default list) (dig "tolerations" list $global) -}}
+{{- if $tolerations -}}
+{{- toYaml $tolerations -}}
+{{- end -}}
+{{- end }}
+
 {{- define "gpu-metrics-exporter.apiURL" -}}
 {{- coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiUrl -}}
 {{- end }}

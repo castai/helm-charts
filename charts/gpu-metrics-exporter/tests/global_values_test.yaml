@@ -49,3 +49,20 @@ tests:
             name: "nvidia-install-dir-host"
             hostPath:
               path: /home/kubernetes/bin/nvidia
+
+  - it: DaemonSet appends global.tolerations to local tolerations
+    template: daemonset.yaml
+    set:
+      global.tolerations:
+        - effect: NoSchedule
+          key: global-taint
+          operator: Equal
+          value: "true"
+    asserts:
+      - contains:
+          path: spec.template.spec.tolerations
+          content:
+            effect: NoSchedule
+            key: global-taint
+            operator: Equal
+            value: "true"

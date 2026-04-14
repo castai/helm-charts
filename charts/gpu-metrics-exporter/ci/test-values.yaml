@@ -1,0 +1,12 @@
+provider: gke
+
+castai:
+  apiKey: "test"
+  clusterId: "test"
+
+global:
+  tolerations:
+    - effect: NoSchedule
+      key: global-taint
+      operator: Equal
+      value: "true"

@@ -63,9 +63,9 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- end }}
-      {{- with .Values.gpuMetricsExporter.tolerations }}
+      {{- with include "gpu-metrics-exporter.tolerations" . }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       containers:
         - name: castai-gpu-metrics-exporter
