@@ -1,3 +1,10 @@
+global:
+  tolerations:
+    - effect: NoSchedule
+      key: global-taint
+      operator: Equal
+      value: "true"
+
 test:
   clusterID: "test"
   apiKey: "test"
