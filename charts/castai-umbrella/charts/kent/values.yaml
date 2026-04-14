@@ -65,19 +65,6 @@ castai-spot-handler:
       name: castai-agent-metadata
       key: CLUSTER_ID
 
-castai-evictor:
-  enabled: true
-  replicaCount: 0
-  karpenterMode:
-    enabled: true
-  aggressiveMode: true
-  overrideEnvFrom: true
-  envFrom:
-    - secretRef:
-        name: castai-credentials
-    - configMapRef:
-        name: castai-agent-metadata
-
 # Disabled by default — most clusters already provide the metrics.k8s.io API.
 metrics-server:
   enabled: false
