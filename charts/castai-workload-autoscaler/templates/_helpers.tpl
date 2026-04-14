@@ -71,6 +71,17 @@ Common Annotations
 {{- end }}
 {{- end }}
 
+{{/*
+Resolve tolerations: merge .Values.tolerations with .Values.global.tolerations.
+*/}}
+{{- define "workload-autoscaler.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $tolerations := concat (.Values.tolerations | default list) (dig "tolerations" list $global) -}}
+{{- if $tolerations -}}
+{{- toYaml $tolerations -}}
+{{- end -}}
+{{- end }}
+
 {{- define "workload-autoscaler.webhookName" -}}
 {{ include "workload-autoscaler.fullname" . }}
 {{- end }}
