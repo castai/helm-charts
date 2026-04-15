@@ -78,13 +78,12 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Resolve tolerations: merge .Values.tolerations with .Values.global.tolerations.
+Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
 */}}
 {{- define "spot-handler.tolerations" -}}
 {{- $global := .Values.global | default dict -}}
-{{- $tolerations := concat (.Values.tolerations | default list) (dig "tolerations" list $global) -}}
-{{- if $tolerations -}}
-{{- toYaml $tolerations -}}
+{{- with concat ($global.tolerations | default list) (.Values.tolerations | default list) -}}
+{{ toYaml . }}
 {{- end -}}
 {{- end }}
 
