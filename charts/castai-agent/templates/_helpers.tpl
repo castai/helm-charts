@@ -86,12 +86,11 @@ Resolve provider: prefer .Values.provider, fall back to .Values.global.castai.pr
 {{- end }}
 
 {{/*
-Resolve tolerations: prefer .Values.tolerations (if non-empty), fall back to .Values.global.tolerations.
+Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
 */}}
 {{- define "castai-agent.tolerations" -}}
 {{- $global := .Values.global | default dict -}}
-{{- $tolerations := .Values.tolerations | default (dig "tolerations" list $global) -}}
-{{- if $tolerations -}}
-{{- toYaml $tolerations -}}
+{{- with concat ($global.tolerations | default list) (.Values.tolerations | default list) -}}
+{{ toYaml . }}
 {{- end -}}
 {{- end }}
