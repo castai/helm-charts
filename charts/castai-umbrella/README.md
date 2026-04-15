@@ -274,6 +274,7 @@ helm upgrade castai castai-helm/castai \
 | global.castai.apiURL | string | `"https://api.cast.ai"` |  |
 | global.castai.grpcURL | string | `"grpc.cast.ai:443"` |  |
 | global.castai.provider | string | `""` |  |
+| global.tolerations | list | `[]` |  |
 | kent.enabled | bool | `false` |  |
 | kent.preflight.enabled | bool | `true` |  |
 | tags | object | `{"autoscaler-anywhere":false,"autoscaler-openshift":false,"full":false,"node-autoscaler":false,"readonly":false,"workload-autoscaler":false}` | Profile mode selection (mutually exclusive — pick one). Component overrides are stable across all mode upgrades with --reuse-values:   --set autoscaler.castai-kvisor.enabled=false |
