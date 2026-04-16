@@ -134,8 +134,6 @@ spec:
               sed \
                 -e "s|\${PROXY_SQL_USERNAME}|$PROXY_SQL_USERNAME|g" \
                 -e "s|\${PROXY_SQL_PASSWORD}|$PROXY_SQL_PASSWORD|g" \
-                -e "s|\${PROXY_SQL_ADMIN_USERNAME}|$PROXY_SQL_ADMIN_USERNAME|g" \
-                -e "s|\${PROXY_SQL_ADMIN_PASSWORD}|$PROXY_SQL_ADMIN_PASSWORD|g" \
                 /etc/proxysql-template/proxysql.cnf > /etc/proxysql/proxysql.cnf
           env:
             {{- $proxySqlSecretName := ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
@@ -149,16 +147,6 @@ spec:
                 secretKeyRef:
                   name: {{ $proxySqlSecretName }}
                   key: PROXY_SQL_PASSWORD
-            - name: PROXY_SQL_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_ADMIN_USERNAME
-            - name: PROXY_SQL_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_ADMIN_PASSWORD
           volumeMounts:
             - name: proxysql-config-template
               mountPath: /etc/proxysql-template
@@ -550,16 +538,6 @@ spec:
                 secretKeyRef:
                   name: {{ $proxySqlSecretName }}
                   key: PROXY_SQL_PASSWORD
-            - name: PROXY_SQL_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_ADMIN_USERNAME
-            - name: PROXY_SQL_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_ADMIN_PASSWORD
           readinessProbe:
             tcpSocket:
               port: {{ .Values.proxySql.basePort }}

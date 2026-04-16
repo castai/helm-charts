@@ -28,7 +28,7 @@ data:
 
     admin_variables=
     {
-        admin_credentials="${PROXY_SQL_ADMIN_USERNAME}:${PROXY_SQL_ADMIN_PASSWORD}"
+        admin_credentials="proxysql-admin:proxysql-admin"
         mysql_ifaces="127.0.0.1:6032"
         restapi_enabled=true
         restapi_port=6070
