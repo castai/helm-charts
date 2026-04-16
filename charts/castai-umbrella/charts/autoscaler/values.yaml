@@ -100,9 +100,9 @@ castai-live:
   castai-aws-vpc-cni:
     enabled: false
   daemon:
-    labelNodeSubnet: true
+    labelNodeSubnet: false
   controller:
-    replicaCount: 0
+    replicaCount: 2
 
 castai-workload-autoscaler:
   fullnameOverride: castai-workload-autoscaler

@@ -43,8 +43,8 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | castai-live.castai-aws-vpc-cni.enabled | bool | `false` |  |
 | castai-live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
-| castai-live.controller.replicaCount | int | `0` |  |
-| castai-live.daemon.labelNodeSubnet | bool | `true` |  |
+| castai-live.controller.replicaCount | int | `2` |  |
+| castai-live.daemon.labelNodeSubnet | bool | `false` |  |
 | castai-pod-mutator.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-pod-mutator.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | castai-pod-mutator.dependencyCheck.enabled | bool | `false` |  |
