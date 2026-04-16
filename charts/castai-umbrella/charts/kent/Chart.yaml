@@ -17,7 +17,7 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kentroller.enabled
   - name: castai-workload-autoscaler
-    version: "1.0.0"
+    version: "1.0.1"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
   - name: castai-live
