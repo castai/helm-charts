@@ -8,13 +8,14 @@ Wrapper chart for CAST AI Kent profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.151.0 |
-| https://castai.github.io/helm-charts | castai-cluster-controller | 0.91.1 |
-| https://castai.github.io/helm-charts | castai-kentroller | 0.1.114 |
+| https://castai.github.io/helm-charts | castai-agent | 0.152.0 |
+| https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.0 |
+| https://castai.github.io/helm-charts | castai-kentroller | 0.1.117 |
+| https://castai.github.io/helm-charts | castai-kvisor | 1.0.150 |
 | https://castai.github.io/helm-charts | castai-live | 0.83.0 |
-| https://castai.github.io/helm-charts | castai-pod-mutator | 0.9.0 |
-| https://castai.github.io/helm-charts | castai-spot-handler | 0.32.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.204 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.10.0 |
+| https://castai.github.io/helm-charts | castai-spot-handler | 0.33.0 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.0 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
 
 ## Values
@@ -34,6 +35,14 @@ Wrapper chart for CAST AI Kent profile.
 | castai-kentroller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-kentroller.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-kentroller.enabled | bool | `true` |  |
+| castai-kvisor.agent.enabled | bool | `false` |  |
+| castai-kvisor.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-kvisor.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
+| castai-kvisor.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
+| castai-kvisor.controller.enabled | bool | `true` |  |
+| castai-kvisor.controller.extraArgs.cluster-proxy-enabled | string | `"true"` |  |
+| castai-kvisor.controller.extraArgs.log-level | string | `"info"` |  |
+| castai-kvisor.enabled | bool | `true` |  |
 | castai-live.castai-aws-vpc-cni.enabled | bool | `true` |  |
 | castai-live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
