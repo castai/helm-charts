@@ -95,16 +95,19 @@ spec:
                   cycleInterval:
                     description: CycleInterval is the time between consecutive evictor
                       cycles (e.g. "1m").
+                    pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|μs|ms|s|m|h))+$
                     type: string
                   drainRollbackTimeout:
                     description: |-
                       DrainRollbackTimeout is how long the evictor waits before rolling back a cordon
                       when a drain attempt fails (e.g. "1m").
+                    pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|μs|ms|s|m|h))+$
                     type: string
                   drainTimeout:
                     description: |-
                       DrainTimeout is the maximum time the evictor waits for a node to fully drain
                       before giving up (e.g. "10m").
+                    pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|μs|ms|s|m|h))+$
                     type: string
                   dryRun:
                     description: |-
@@ -161,6 +164,7 @@ spec:
                     description: |-
                       PodEvictionFailureBackOff is the wait time before retrying after a pod eviction
                       request fails (e.g. "5s").
+                    pattern: ^([0-9]+(\.[0-9]+)?(ns|us|µs|μs|ms|s|m|h))+$
                     type: string
                   pricingAwarenessEnabled:
                     description: |-
@@ -398,7 +402,8 @@ spec:
                   type: object
                   x-kubernetes-validations:
                   - message: exactly one of podSelector or nodeSelector must be set
-                    rule: has(self.podSelector) != has(self.nodeSelector)
+                    rule: (has(self.podSelector) && !has(self.nodeSelector)) || (!has(self.podSelector)
+                      && has(self.nodeSelector))
                 type: array
               managementMode:
                 description: |-
