@@ -88,6 +88,16 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
+*/}}
+{{- define "pod-mutator.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- with concat ($global.tolerations | default list) (.Values.tolerations | default list) -}}
+{{ toYaml . }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Common Annotations
 */}}
 {{- define "pod-mutator.annotations" -}}

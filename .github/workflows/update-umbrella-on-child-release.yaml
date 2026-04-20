@@ -40,7 +40,7 @@ jobs:
         if: steps.parse.outputs.skip != 'true'
         uses: lewagon/wait-on-check-action@v1.3.4
         with:
-          ref: main
+          ref: ${{ github.event.release.tag_name }}
           check-name: release
           repo-token: ${{ secrets.PAT_CICD }}
           wait-interval: 30

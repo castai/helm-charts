@@ -78,6 +78,16 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
+*/}}
+{{- define "spot-handler.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- with concat ($global.tolerations | default list) (.Values.tolerations | default list) -}}
+{{ toYaml . }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Resolve cloud provider: prefer .Values.castai.provider, fall back to .Values.global.castai.provider.
 Accepts both cloud names (aws, azure, gcp) and k8s names (eks, aks, gke).
 */}}

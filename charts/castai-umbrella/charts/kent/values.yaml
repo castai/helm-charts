@@ -56,19 +56,31 @@ castai-pod-mutator:
     - configMapRef:
         name: castai-agent-metadata
 
-castai-evictor:
+castai-spot-handler:
   enabled: true
-  replicaCount: 0
-  karpenterMode:
-    enabled: true
-  aggressiveMode: true
-  overrideEnvFrom: true
-  envFrom:
-    - secretRef:
-        name: castai-credentials
-    - configMapRef:
-        name: castai-agent-metadata
+  apiKeySecretRef: castai-credentials
+  castai:
+    provider: eks
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
 
 # Disabled by default — most clusters already provide the metrics.k8s.io API.
 metrics-server:
   enabled: false
+
+# castai-kvisor with just cluster proxy for OpsPilot debugging
+castai-kvisor:
+  enabled: true
+  castai:
+    apiKeySecretRef: castai-credentials
+    clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+  agent:
+    enabled: false
+  controller:
+    enabled: true
+    extraArgs:
+      log-level: info
+      cluster-proxy-enabled: "true"

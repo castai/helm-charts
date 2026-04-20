@@ -19,7 +19,7 @@ This chart bundles three independent product profiles. Enable exactly one per in
 |--------|-----------|----------------|-----------|
 | **autoscaler** | `tags.<mode>=true` | Managed cloud (EKS, AKS, GKE) | Mode-dependent — see [Autoscaler](#autoscaler) |
 | **autoscaler-anywhere** | `tags.autoscaler-anywhere=true` | Non-managed (bare metal, on-prem, edge) | castai-agent, castai-cluster-controller, castai-workload-autoscaler, castai-workload-autoscaler-exporter, castai-evictor, castai-pod-mutator |
-| **kent** | `kent.enabled=true` | EKS only | castai-agent, castai-cluster-controller, castai-kentroller, castai-workload-autoscaler, castai-live, castai-pod-mutator, castai-evictor |
+| **kent** | `kent.enabled=true` | EKS only | castai-agent, castai-cluster-controller, castai-kentroller, castai-workload-autoscaler, castai-live, castai-pod-mutator |
 
 ---
 
@@ -274,6 +274,7 @@ helm upgrade castai castai-helm/castai \
 | global.castai.apiURL | string | `"https://api.cast.ai"` |  |
 | global.castai.grpcURL | string | `"grpc.cast.ai:443"` |  |
 | global.castai.provider | string | `""` |  |
+| global.tolerations | list | `[]` |  |
 | kent.enabled | bool | `false` |  |
 | kent.preflight.enabled | bool | `true` |  |
 | tags | object | `{"autoscaler-anywhere":false,"autoscaler-openshift":false,"full":false,"node-autoscaler":false,"readonly":false,"workload-autoscaler":false}` | Profile mode selection (mutually exclusive — pick one). Component overrides are stable across all mode upgrades with --reuse-values:   --set autoscaler.castai-kvisor.enabled=false |

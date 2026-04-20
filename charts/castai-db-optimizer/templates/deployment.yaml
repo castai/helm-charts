@@ -1,5 +1,4 @@
 {{- $pgDogPort := 6432}}
-{{- $proxySqlPort := 6033}}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -135,8 +134,6 @@ spec:
               sed \
                 -e "s|\${PROXY_SQL_USERNAME}|$PROXY_SQL_USERNAME|g" \
                 -e "s|\${PROXY_SQL_PASSWORD}|$PROXY_SQL_PASSWORD|g" \
-                -e "s|\${PROXY_SQL_ADMIN_USERNAME}|$PROXY_SQL_ADMIN_USERNAME|g" \
-                -e "s|\${PROXY_SQL_ADMIN_PASSWORD}|$PROXY_SQL_ADMIN_PASSWORD|g" \
                 /etc/proxysql-template/proxysql.cnf > /etc/proxysql/proxysql.cnf
           env:
             {{- $proxySqlSecretName := ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
@@ -150,16 +147,6 @@ spec:
                 secretKeyRef:
                   name: {{ $proxySqlSecretName }}
                   key: PROXY_SQL_PASSWORD
-            - name: PROXY_SQL_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_ADMIN_USERNAME
-            - name: PROXY_SQL_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_ADMIN_PASSWORD
           volumeMounts:
             - name: proxysql-config-template
               mountPath: /etc/proxysql-template
@@ -243,16 +230,8 @@ spec:
             {{- if and .Values.proxySql .Values.proxySql.enabled }}
             - name: POOLING_METRICS_PORT
               value: "6070"
-            - name: PROXY_SQL_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ if .Values.proxySql.usersSecretRef }}{{ .Values.proxySql.usersSecretRef }}{{ else }}{{ include "name" . }}-proxysql-users{{ end }}
-                  key: PROXY_SQL_ADMIN_USERNAME
-            - name: PROXY_SQL_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ if .Values.proxySql.usersSecretRef }}{{ .Values.proxySql.usersSecretRef }}{{ else }}{{ include "name" . }}-proxysql-users{{ end }}
-                  key: PROXY_SQL_ADMIN_PASSWORD
+            - name: POOLING_ENABLED
+              value: "true"
             {{- end }}
             {{- if .Values.organizationID }}
             - name: ORGANIZATION_ID
@@ -273,6 +252,10 @@ spec:
             - name: PROTOCOL
               value: {{ .Values.protocol }}
             {{- if and .Values.pgdog .Values.pgdog.enabled }}
+            - name: POOLING_ENABLED
+              value: "true"
+            - name: POOLING_METRICS_PORT
+              value: "9090"
             - name: PGDOG_CONFIG_TEMPLATE
               valueFrom:
                 configMapKeyRef:
@@ -295,10 +278,6 @@ spec:
             {{- end }}
             - name: PGDOG_ADMIN_URI
               value: postgresql://admin:admin@localhost:{{ $pgDogPort }}/admin
-            {{- end }}
-            {{- if and .Values.proxySql .Values.proxySql.enabled }}
-            - name: PROXY_SQL_ADMIN_URI
-              value: mysql://$(PROXY_SQL_ADMIN_USERNAME):$(PROXY_SQL_ADMIN_PASSWORD)@tcp(127.0.0.1:6032)/
             {{- end }}
 
           {{- if .Values.proxy.draining.enabled }}
@@ -529,9 +508,11 @@ spec:
                   - until ! curl -s localhost:9901/ready >/dev/null 2>&1; do sleep 1; done
           {{- end }}
           ports:
-            - name: mysql
-              containerPort: 6033
+            {{- range $index, $endpoint := .Values.endpoints }}
+            - name: mysql-{{ $index }}
+              containerPort: {{ add $.Values.proxySql.basePort $index }}
               protocol: TCP
+            {{- end }}
             - name: admin
               containerPort: 6032
               protocol: TCP
@@ -557,19 +538,9 @@ spec:
                 secretKeyRef:
                   name: {{ $proxySqlSecretName }}
                   key: PROXY_SQL_PASSWORD
-            - name: PROXY_SQL_ADMIN_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_ADMIN_USERNAME
-            - name: PROXY_SQL_ADMIN_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_ADMIN_PASSWORD
           readinessProbe:
             tcpSocket:
-              port: {{ $proxySqlPort }}
+              port: {{ .Values.proxySql.basePort }}
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5

@@ -78,6 +78,16 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
+*/}}
+{{- define "evictor.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- with concat ($global.tolerations | default list) (.Values.tolerations | default list) -}}
+{{ toYaml . }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Pass the customConfig to the configMap
 */}}
 {{- define "evictor.configMap.customConfig" -}}

@@ -232,18 +232,16 @@ pgdog:
 proxySql:
   # -- Enable ProxySQL pooler sidecar (MySQL only)
   enabled: false
+  # -- Starting port from which ProxySQL internal listening ports are sequentially assigned per endpoint.
+  # These ports are pod-internal (Envoy → ProxySQL) and must not conflict with endpoint.port values.
+  basePort: 6033
   # -- ProxySQL upstream DB user (plain string). Mutually exclusive with usersSecretRef
   user: ""
   # -- ProxySQL upstream DB password (plain string). Mutually exclusive with usersSecretRef
   password: ""
   # -- Reference to existing secret containing username and password. Mutually exclusive with user/password.
-  # The secret must contain keys "PROXY_SQL_USERNAME", "PROXY_SQL_PASSWORD",
-  # "PROXY_SQL_ADMIN_USERNAME", and "PROXY_SQL_ADMIN_PASSWORD".
+  # The secret must contain keys "PROXY_SQL_USERNAME" and "PROXY_SQL_PASSWORD".
   usersSecretRef: ""
-  # -- ProxySQL admin interface username. Stored in the proxysql-users secret.
-  adminUser: "admin"
-  # -- ProxySQL admin interface password. Required when user/password are set.
-  adminPassword: "admin"
   resources:
     cpu: "500m"
     memory: "256Mi"
@@ -255,7 +253,7 @@ proxySql:
     # -- Maximum connections per backend server
     max_backend_connections: 100
     # -- Percentage of free connections to keep in pool
-    free_connections_pct: 10
+    free_connections_pct: 5
     # -- Enable connection multiplexing
     multiplexing: true
     # -- Backend connection timeout in milliseconds
