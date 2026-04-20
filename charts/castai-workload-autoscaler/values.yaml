@@ -108,7 +108,7 @@ telemetryDebug:
 # Existing flags set by the customer are never overridden.
 clusterAutoscaler:
   # enabled -- Enable cluster-autoscaler arg injection
-  enabled: false
+  enabled: true
   # args -- Map of cluster-autoscaler CLI flags to inject.
   # Keys use the same format as cluster-autoscaler flags (without the -- prefix).
   # Any flag already present on the CA container is skipped (no overrides, no duplicates).
@@ -133,7 +133,7 @@ clusterAutoscaler:
 # shared emptyDir volume, sets JAVA_TOOL_OPTIONS on every app container, and exposes port 9404.
 jmxExporter:
   # enabled -- Global feature flag. When false the webhook never attempts JMX injection.
-  enabled: false
+  enabled: true
   initImage:
     # repository -- Init container image that contains jmx_prometheus_javaagent.jar.
     repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init

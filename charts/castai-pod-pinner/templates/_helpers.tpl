@@ -127,6 +127,16 @@ This template is used in the child chart, so ensure that it is constructed using
 {{- end }}
 
 {{/*
+Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
+*/}}
+{{- define "pod-pinner.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- with concat ($global.tolerations | default list) (.Values.tolerations | default list) -}}
+{{ toYaml . }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Service account annotations. It's a merge between common annotations and service account annotations.
 */}}
 {{- define "pod-pinner.serviceAccountAnnotations" -}}

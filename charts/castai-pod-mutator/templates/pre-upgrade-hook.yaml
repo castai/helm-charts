@@ -62,9 +62,9 @@ spec:
           {{- with .Values.affinity.nodeAffinity }}
           {{- toYaml . | nindent 10 }}
           {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with include "pod-mutator.tolerations" . }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
 ---
 apiVersion: v1

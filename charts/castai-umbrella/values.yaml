@@ -8,6 +8,8 @@ global:
     grpcURL: "grpc.cast.ai:443"
     # provider -- Kubernetes service provider: eks, aks, gke, kops, anywhere.
     provider: ""
+  # tolerations -- Global tolerations applied to all sub-chart pods (can be overridden per sub-chart).
+  tolerations: []
 
 kent:
   enabled: false

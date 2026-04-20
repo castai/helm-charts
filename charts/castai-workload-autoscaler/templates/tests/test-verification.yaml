@@ -59,8 +59,8 @@ spec:
       nodeAffinity:
         {{- toYaml . | nindent 8 }}
     {{- end }}
-    {{- with .Values.tolerations }}
+    {{- with include "workload-autoscaler.tolerations" . }}
     tolerations:
-    {{- toYaml . | nindent 6 }}
+    {{- . | nindent 6 }}
     {{- end }}
 {{- end }}

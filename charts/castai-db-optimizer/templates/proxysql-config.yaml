@@ -28,7 +28,7 @@ data:
 
     admin_variables=
     {
-        admin_credentials="${PROXY_SQL_ADMIN_USERNAME}:${PROXY_SQL_ADMIN_PASSWORD}"
+        admin_credentials="proxysql-admin:proxysql-admin"
         mysql_ifaces="127.0.0.1:6032"
         restapi_enabled=true
         restapi_port=6070
@@ -41,7 +41,7 @@ data:
         stacksize={{ $mergedConfig.stacksize | int64 }}
         have_compress={{ $mergedConfig.have_compress }}
         free_connections_pct={{ $mergedConfig.free_connections_pct | int64 }}
-        interfaces="0.0.0.0:6033"
+        interfaces="{{ range $index, $endpoint := .Values.endpoints }}{{ if gt $index 0 }};{{ end }}0.0.0.0:{{ add $.Values.proxySql.basePort $index }}{{ end }}"
         default_query_timeout={{ $mergedConfig.default_query_timeout | int64 }}
         connect_timeout_server={{ $mergedConfig.connect_timeout_server | int64 }}
         auto_increment_delay_multiplex={{ $mergedConfig.auto_increment_delay_multiplex | int64 }}
@@ -51,19 +51,21 @@ data:
     mysql_servers=
     (
     {{- if and $.Values.cloudSqlProxy $.Values.cloudSqlProxy.enabled }}
+    {{- range $index, $endpoint := .Values.endpoints }}
       {
         address="127.0.0.1"
-        port={{ $.Values.cloudSqlProxy.basePort | int64 }}
-        hostgroup=0
+        port={{ add $.Values.cloudSqlProxy.basePort $index | int64 }}
+        hostgroup={{ $index }}
         max_connections={{ $mergedConfig.max_backend_connections | int64 }}
         use_ssl=0
-      }
+      }{{ if lt $index (sub (len $.Values.endpoints) 1) }},{{ end }}
+    {{- end }}
     {{- else }}
     {{- range $index, $endpoint := .Values.endpoints }}
       {
         address="{{ required "endpoint hostname must be provided" $endpoint.hostname }}"
         port={{ required "endpoint targetPort is required" $endpoint.targetPort | int64 }}
-        hostgroup=0
+        hostgroup={{ $index }}
         max_connections={{ $mergedConfig.max_backend_connections | int64 }}
         use_ssl=1
       }{{ if lt $index (sub (len $.Values.endpoints) 1) }},{{ end }}
@@ -73,14 +75,16 @@ data:
 
     mysql_query_rules=
     (
+    {{- range $index, $endpoint := .Values.endpoints }}
       {
-        rule_id=1
+        rule_id={{ add $index 1 }}
         active=1
-        match_pattern=".*"
-        destination_hostgroup=0
+        proxy_port={{ add $.Values.proxySql.basePort $index }}
+        destination_hostgroup={{ $index }}
         apply=1
         multiplex={{ if $mergedConfig.multiplexing }}2{{ else }}0{{ end }}
-      }
+      }{{ if lt $index (sub (len $.Values.endpoints) 1) }},{{ end }}
+    {{- end }}
     )
 
     mysql_users=
