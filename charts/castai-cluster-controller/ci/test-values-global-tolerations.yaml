@@ -1,0 +1,9 @@
+global:
+  tolerations:
+    - effect: NoSchedule
+      key: global-taint
+      operator: Equal
+      value: "true"
+castai:
+  apiKey: "test"
+  clusterID: "test"

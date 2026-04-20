@@ -180,6 +180,16 @@ Autopilot requires minimum 500m CPU when using pod anti-affinity
 {{- end -}}
 
 {{/*
+Merge global and chart-level tolerations.
+*/}}
+{{- define "workload-autoscaler.tolerations" -}}
+{{- $global := .Values.global | default dict -}}
+{{- with concat ($global.tolerations | default list) (.Values.tolerations | default list) -}}
+{{ toYaml . }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Build comma-separated --flag=value args from clusterAutoscaler.args map.
 Keys are used as-is (same format as cluster-autoscaler CLI flags).
 */}}

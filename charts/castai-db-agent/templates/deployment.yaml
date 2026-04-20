@@ -54,6 +54,8 @@ spec:
               value: "{{ .Values.database.useIAMAuth }}"
             - name: DATABASE_PROTOCOL
               value: "{{ .Values.database.protocol }}"
+            - name: DATABASE_AUTO_DISCOVERY_DATABASE
+              value: "{{ .Values.database.autoDiscoveryDatabase }}"
             - name: INDEX_ADVISOR_CLIENT_GRPC_ENDPOINT
               value: "{{ required "gRPC endpoint must be provided" .Values.gRPCEndpoint }}"
             - name: COLLECTORS_INDEXES_RUNS_EVERY

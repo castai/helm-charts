@@ -1,6 +1,6 @@
 # kent
 
-![Version: 0.10.0](https://img.shields.io/badge/Version-0.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.11.0](https://img.shields.io/badge/Version-0.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Kent profile.
 
@@ -8,14 +8,14 @@ Wrapper chart for CAST AI Kent profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.151.0 |
-| https://castai.github.io/helm-charts | castai-cluster-controller | 0.91.1 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.17 |
-| https://castai.github.io/helm-charts | castai-kentroller | 0.1.113 |
-| https://castai.github.io/helm-charts | castai-live | 0.82.1 |
-| https://castai.github.io/helm-charts | castai-pod-mutator | 0.7.0 |
-| https://castai.github.io/helm-charts | castai-spot-handler | 0.32.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 0.1.202 |
+| https://castai.github.io/helm-charts | castai-agent | 0.152.0 |
+| https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.0 |
+| https://castai.github.io/helm-charts | castai-kentroller | 0.1.117 |
+| https://castai.github.io/helm-charts | castai-kvisor | 1.0.150 |
+| https://castai.github.io/helm-charts | castai-live | 0.83.0 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.10.0 |
+| https://castai.github.io/helm-charts | castai-spot-handler | 0.33.0 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.0 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
 
 ## Values
@@ -32,16 +32,17 @@ Wrapper chart for CAST AI Kent profile.
 | castai-cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-cluster-controller.enabled | bool | `true` |  |
 | castai-cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| castai-evictor.aggressiveMode | bool | `true` |  |
-| castai-evictor.enabled | bool | `true` |  |
-| castai-evictor.envFrom[0].secretRef.name | string | `"castai-credentials"` |  |
-| castai-evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| castai-evictor.karpenterMode.enabled | bool | `true` |  |
-| castai-evictor.overrideEnvFrom | bool | `true` |  |
-| castai-evictor.replicaCount | int | `0` |  |
 | castai-kentroller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-kentroller.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-kentroller.enabled | bool | `true` |  |
+| castai-kvisor.agent.enabled | bool | `false` |  |
+| castai-kvisor.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-kvisor.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
+| castai-kvisor.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
+| castai-kvisor.controller.enabled | bool | `true` |  |
+| castai-kvisor.controller.extraArgs.cluster-proxy-enabled | string | `"true"` |  |
+| castai-kvisor.controller.extraArgs.log-level | string | `"info"` |  |
+| castai-kvisor.enabled | bool | `true` |  |
 | castai-live.castai-aws-vpc-cni.enabled | bool | `true` |  |
 | castai-live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
@@ -53,7 +54,7 @@ Wrapper chart for CAST AI Kent profile.
 | castai-pod-mutator.dependencyCheck.enabled | bool | `false` |  |
 | castai-pod-mutator.enabled | bool | `true` |  |
 | castai-pod-mutator.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| castai-spot-handler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-spot-handler.apiKeySecretRef | string | `"castai-credentials"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-spot-handler.castai.provider | string | `"eks"` |  |

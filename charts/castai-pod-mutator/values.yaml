@@ -54,8 +54,6 @@ priorityClass:
   name: system-cluster-critical
 
 tolerations:
-  - key: scheduling.cast.ai/spot
-    operator: Exists
   - key: CriticalAddonsOnly
     operator: Exists
 

@@ -925,6 +925,50 @@ spec:
                             If the strategy cannot be resolved (e.g. node allocatable is unavailable or the configuration is invalid),
                             the handler falls back to the Requests and Limits fields.
                           properties:
+                            constraints:
+                              description: |-
+                                Constraints define optional min/max bounds for dynamically resolved requests.
+                                When present, resolved requests are clamped to [min, max].
+                              properties:
+                                cpu:
+                                  description: ResourceMinMax defines optional min/max
+                                    bounds for a single resource.
+                                  properties:
+                                    max:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: Max is the upper bound for requests.
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    min:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: Min is the lower bound for requests.
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  type: object
+                                memory:
+                                  description: ResourceMinMax defines optional min/max
+                                    bounds for a single resource.
+                                  properties:
+                                    max:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: Max is the upper bound for requests.
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                    min:
+                                      anyOf:
+                                      - type: integer
+                                      - type: string
+                                      description: Min is the lower bound for requests.
+                                      pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                      x-kubernetes-int-or-string: true
+                                  type: object
+                              type: object
                             nodeAllocatablePercentage:
                               description: NodeAllocatablePercentage configures node-proportional
                                 resource scaling using fixed percentages.
@@ -1077,6 +1121,50 @@ spec:
                         If the strategy cannot be resolved (e.g. node allocatable is unavailable or the configuration is invalid),
                         the handler falls back to the Requests and Limits fields.
                       properties:
+                        constraints:
+                          description: |-
+                            Constraints define optional min/max bounds for dynamically resolved requests.
+                            When present, resolved requests are clamped to [min, max].
+                          properties:
+                            cpu:
+                              description: ResourceMinMax defines optional min/max
+                                bounds for a single resource.
+                              properties:
+                                max:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: Max is the upper bound for requests.
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                min:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: Min is the lower bound for requests.
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                              type: object
+                            memory:
+                              description: ResourceMinMax defines optional min/max
+                                bounds for a single resource.
+                              properties:
+                                max:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: Max is the upper bound for requests.
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                                min:
+                                  anyOf:
+                                  - type: integer
+                                  - type: string
+                                  description: Min is the lower bound for requests.
+                                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                  x-kubernetes-int-or-string: true
+                              type: object
+                          type: object
                         nodeAllocatablePercentage:
                           description: NodeAllocatablePercentage configures node-proportional
                             resource scaling using fixed percentages.

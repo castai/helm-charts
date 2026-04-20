@@ -28,5 +28,10 @@ global:
     create: true
     annotations:
       foo2: bar2
+  tolerations:
+    - effect: NoSchedule
+      key: global-taint
+      operator: Equal
+      value: "true"
 dependencyCheck:
   enabled: false
