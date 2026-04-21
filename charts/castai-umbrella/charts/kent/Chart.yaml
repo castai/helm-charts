@@ -21,7 +21,7 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
   - name: castai-live
-    version: "0.87.0"
+    version: "0.88.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
   - name: castai-pod-mutator
