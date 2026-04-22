@@ -37,6 +37,6 @@ dependencies:
     repository: "https://kubernetes-sigs.github.io/metrics-server/"
     condition: metrics-server.enabled
   - name: castai-kvisor
-    version: "1.0.153"
+    version: "1.0.154"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
