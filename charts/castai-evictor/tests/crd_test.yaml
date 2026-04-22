@@ -1,0 +1,303 @@
+suite: EvictorConfig CRD schema
+templates:
+  - crd.yaml
+
+tests:
+  # ── Identity ─────────────────────────────────────────────────────────────────
+
+  - it: CRD has correct group and kind
+    asserts:
+      - equal:
+          path: spec.group
+          value: autoscaling.cast.ai
+      - equal:
+          path: spec.names.kind
+          value: EvictorConfig
+      - equal:
+          path: spec.names.plural
+          value: evictorconfigs
+      - equal:
+          path: spec.scope
+          value: Cluster
+
+  - it: served version is v1alpha1 with storage true
+    asserts:
+      - equal:
+          path: spec.versions[0].name
+          value: v1alpha1
+      - equal:
+          path: spec.versions[0].served
+          value: true
+      - equal:
+          path: spec.versions[0].storage
+          value: true
+
+  - it: status subresource is enabled
+    asserts:
+      - isNotNull:
+          path: spec.versions[0].subresources.status
+
+  # ── Helm lifecycle annotations ───────────────────────────────────────────────
+
+  - it: CRD has resource-policy keep so helm uninstall does not delete it
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/resource-policy"]
+          value: keep
+
+  - it: CRD is applied as a pre-install pre-upgrade hook so it exists before the CR post-install hook
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: pre-install,pre-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-weight"]
+          value: "-10"
+      - equal:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+          value: before-hook-creation
+
+  # ── Top-level required fields ────────────────────────────────────────────────
+
+  - it: spec requires config enabled and managementMode
+    asserts:
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.required
+          content: config
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.required
+          content: enabled
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.required
+          content: managementMode
+
+  - it: enabled is a top-level boolean kill-switch
+    asserts:
+      - equal:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.enabled.type
+          value: boolean
+
+  - it: managementMode is an enum of castai and self-managed
+    asserts:
+      - equal:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.managementMode.type
+          value: string
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.managementMode.enum
+          content: castai
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.managementMode.enum
+          content: self-managed
+
+  # ── config required fields ───────────────────────────────────────────────────
+
+  - it: config contains all required operational fields
+    asserts:
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: dryRun
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: aggressiveMode
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: scopedMode
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: cycleInterval
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: nodeGracePeriodMinutes
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: ignorePodDisruptionBudgets
+
+  - it: config contains all required forceDisable fields
+    asserts:
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: forceDisableLiveMigration
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: forceDisableWOOP
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: forceDisablePodMutations
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: forceDisableKarpenterMode
+
+  - it: config contains all required node targeting fields
+    asserts:
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: maxTargetNodesPerCycle
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: minTargetNodesPerCycle
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: targetNodePercentage
+
+  - it: config contains all required previously-static fields
+    asserts:
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: targetAllNodes
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: softTainting
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: emitNodeRelatedPodEvents
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: cleanupKarpenterNodes
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: drainTimeout
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: drainRollbackTimeout
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: podEvictionFailureBackOff
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: windows
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: pricingAwarenessEnabled
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: pricingModel
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
+          content: arm64Supported
+
+  # ── pricingModel sub-fields ──────────────────────────────────────────────────
+
+  - it: pricingModel requires spotDiscount baseCPUCost and baseMemCost
+    asserts:
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.properties.pricingModel.required
+          content: spotDiscount
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.properties.pricingModel.required
+          content: baseCPUCost
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.properties.pricingModel.required
+          content: baseMemCost
+
+  - it: pricingModel fields are int-or-string type
+    asserts:
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.properties.pricingModel.properties.spotDiscount["x-kubernetes-int-or-string"]
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.properties.pricingModel.properties.baseCPUCost["x-kubernetes-int-or-string"]
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.properties.pricingModel.properties.baseMemCost["x-kubernetes-int-or-string"]
+
+  # ── evictionRules schema structure ──────────────────────────────────────────
+  # Note: CEL validation (has(podSelector) != has(nodeSelector)) is enforced by
+  # the Kubernetes API server, not testable via helm-unittest. These tests verify
+  # the schema shape is correctly defined so the server can enforce it.
+
+  - it: evictionRules is an array type
+    asserts:
+      - equal:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.type
+          value: array
+
+  - it: evictionRules entry has podSelector nodeSelector and settings properties
+    asserts:
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.nodeSelector
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.settings
+
+  - it: evictionRules entry has CEL XOR validation rule on podSelector and nodeSelector
+    asserts:
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items["x-kubernetes-validations"]
+          content:
+            rule: "has(self.podSelector) != has(self.nodeSelector)"
+            message: "exactly one of podSelector or nodeSelector must be set"
+
+  - it: podSelector supports namespace kind replicasMin and labelSelector
+    asserts:
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector.properties.namespace
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector.properties.kind
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector.properties.replicasMin
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector.properties.labelSelector
+
+  - it: nodeSelector supports labelSelector
+    asserts:
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.nodeSelector.properties.labelSelector
+
+  - it: settings supports removalDisabled disposable and aggressive
+    asserts:
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.settings.properties.removalDisabled
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.settings.properties.disposable
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.settings.properties.aggressive
+
+  - it: labelSelector supports matchLabels and matchExpressions
+    asserts:
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector.properties.labelSelector.properties.matchLabels
+      - isNotNull:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector.properties.labelSelector.properties.matchExpressions
+
+  - it: matchExpression requires key and operator
+    asserts:
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector.properties.labelSelector.properties.matchExpressions.items.required
+          content: key
+      - contains:
+          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items.properties.podSelector.properties.labelSelector.properties.matchExpressions.items.required
+          content: operator
+
+  # ── additionalPrinterColumns ─────────────────────────────────────────────────
+
+  - it: printer columns include Enabled DryRun ScopedMode CycleInterval ManagementMode and Age
+    asserts:
+      - contains:
+          path: spec.versions[0].additionalPrinterColumns
+          content:
+            jsonPath: .spec.enabled
+            name: Enabled
+            type: boolean
+      - contains:
+          path: spec.versions[0].additionalPrinterColumns
+          content:
+            jsonPath: .spec.config.dryRun
+            name: DryRun
+            type: boolean
+      - contains:
+          path: spec.versions[0].additionalPrinterColumns
+          content:
+            jsonPath: .spec.config.scopedMode
+            name: ScopedMode
+            type: boolean
+      - contains:
+          path: spec.versions[0].additionalPrinterColumns
+          content:
+            jsonPath: .spec.config.cycleInterval
+            name: CycleInterval
+            type: string
+      - contains:
+          path: spec.versions[0].additionalPrinterColumns
+          content:
+            jsonPath: .spec.managementMode
+            name: ManagementMode
+            type: string
