@@ -232,16 +232,19 @@ affinity:
               operator: NotIn
               values:
                 - windows
-  podAntiAffinity:
-    # Require placing pods on different nodes.
-    requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-            - key: app.kubernetes.io/name
-              operator: In
-              values:
-                - castai-workload-autoscaler
-        topologyKey: kubernetes.io/hostname
+
+# Topology spread constraints -- spread replicas across hosts without triggering the
+# GKE Autopilot 500m CPU floor that podAntiAffinity imposes. With ScheduleAnyway, both
+# replicas can still co-schedule on a single-node cluster (leader election keeps only
+# one active at a time).
+# Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/topology-spread-constraints/
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-workload-autoscaler
 
 ## Probes for controller and webhook containers
 ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/

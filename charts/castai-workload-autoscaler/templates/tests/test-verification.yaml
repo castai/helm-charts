@@ -17,7 +17,7 @@ spec:
           image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           command:
-          - "castai-workload-autoscaler"
+          - "/usr/local/bin/workload-autoscaler"
           - "verification"
           env:
           - name: NAMESPACE

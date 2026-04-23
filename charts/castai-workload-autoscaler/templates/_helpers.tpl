@@ -36,8 +36,9 @@ Common labels
 {{- define "workload-autoscaler.labels" -}}
 helm.sh/chart: {{ include "workload-autoscaler.chart" . }}
 {{ include "workload-autoscaler.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- $appVersion := .Values.appVersion | default .Chart.AppVersion }}
+{{- if $appVersion }}
+app.kubernetes.io/version: {{ $appVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
@@ -47,7 +48,7 @@ Test labels
 */}}
 {{- define "workload-autoscaler.testLabels" -}}
 {{- $labels := include "workload-autoscaler.labels" . | fromYaml -}}
-# Override name to avoid podAntiAffinity
+{{- /* Override name so test pods are excluded from topologySpreadConstraints/affinity selectors */ -}}
 {{- $labels = merge (dict "app.kubernetes.io/name" "castai-workload-autoscaler-test") $labels -}}
 {{- toYaml $labels -}}
 {{- end }}
@@ -128,14 +129,15 @@ true
 {{- end -}}
 
 {{/*
-Enforce minimum CPU value for Autopilot
+Enforce minimum CPU value for Autopilot when podAntiAffinity is in use.
 Takes a CPU value string and returns it unchanged or 500m minimum if on Autopilot
 Usage: include "workload-autoscaler.enforceCPUMinimum" (dict "cpu" .Values.resources.requests.cpu "context" .)
 */}}
 {{- define "workload-autoscaler.enforceCPUMinimum" -}}
 {{- $isAutopilot := eq (include "workload-autoscaler.isAutopilot" .context) "true" -}}
+{{- $hasPodAntiAffinity := and .context.Values.affinity (hasKey .context.Values.affinity "podAntiAffinity") -}}
 {{- $cpuValue := .cpu | toString -}}
-{{- if $isAutopilot -}}
+{{- if and $isAutopilot $hasPodAntiAffinity -}}
   {{- /* On Autopilot, enforce minimum 500m CPU */ -}}
   {{- $cpuMillicores := 0 -}}
   {{- if hasSuffix "m" $cpuValue -}}
