@@ -36,8 +36,9 @@ Common labels
 {{- define "exporter.labels" -}}
 helm.sh/chart: {{ include "exporter.chart" . }}
 {{ include "exporter.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- $appVersion := .Values.appVersion | default .Chart.AppVersion }}
+{{- if $appVersion }}
+app.kubernetes.io/version: {{ $appVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}

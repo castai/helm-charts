@@ -33,7 +33,7 @@ spec:
           image: "{{ required "exporter.image.repository must be provided" .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.exporter.image.pullPolicy | default "IfNotPresent" }}
           command:
-            - "castai-workload-autoscaler"
+            - "/usr/local/bin/workload-autoscaler"
             - "exporter"
           ports:
             - containerPort: 8080
