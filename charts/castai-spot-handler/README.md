@@ -6,7 +6,9 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalEnv.LOG_LEVEL | string | `"5"` |  |
+| additionalEnv.LOG_EXPORTER_ENABLED | string | `"true"` |  |
+| additionalEnv.LOG_EXPORTER_LOG_LEVEL | string | `"info"` |  |
+| additionalEnv.LOG_LEVEL | string | `"debug"` |  |
 | additionalEnv.POLL_INTERVAL_SECONDS | string | `"3"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"eks.amazonaws.com/capacityType"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"In"` |  |
