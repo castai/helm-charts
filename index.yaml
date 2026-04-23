@@ -33110,21 +33110,6 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-kentroller-0.0.1-test-2337327050/castai-kentroller-0.0.1-test-2337327050.tgz
     version: 0.0.1-test-2337327050
-  - apiVersion: v2
-    appVersion: 0.0.0-kent-328-kentroller-e2e-qa-gate-rc.2473681165
-    created: "2026-04-23T07:24:33.302603034Z"
-    dependencies:
-    - condition: crds.enabled
-      name: castai-kentroller-crds
-      repository: file://dependencies/crds
-      version: 0.0.1
-    description: A Helm chart for Kubernetes
-    digest: ce8401facf668476dd075aaa657b57ef980bb1977029827d68ec277564e1a222
-    name: castai-kentroller
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-kentroller-0.0.0-kent-328-kentroller-e2e-qa-gate-rc.2473681165/castai-kentroller-0.0.0-kent-328-kentroller-e2e-qa-gate-rc.2473681165.tgz
-    version: 0.0.0-kent-328-kentroller-e2e-qa-gate-rc.2473681165
   castai-kvisor:
   - apiVersion: v2
     appVersion: v1.55.24
