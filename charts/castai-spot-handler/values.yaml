@@ -54,8 +54,10 @@ castai:
 podAnnotations: {}
 podLabels: {}
 additionalEnv:
-  LOG_LEVEL: "5"
+  LOG_LEVEL: "debug"
   POLL_INTERVAL_SECONDS: "3"
+  LOG_EXPORTER_ENABLED: "true"
+  LOG_EXPORTER_LOG_LEVEL: "info"
 
 # useHostNetwork -- Host network is used to access instance metadata endpoints which are not always available from pod network.
 useHostNetwork: true
