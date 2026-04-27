@@ -54,7 +54,16 @@ rules:
       - pods
     verbs:
       - patch
-      - update 
+      - update
+  # ---
+  # Eviction API — required for the enforcement eviction loop
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - pods/eviction
+    verbs:
+      - create
   # ---
   # Read only permissions to view pods/deployments/rollouts
   # ---

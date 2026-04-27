@@ -1,3 +1,9 @@
+{{- if and .Values.enforcer.enabled (not .Values.leaderElection.enabled) }}
+{{- fail "enforcer.enabled=true requires leaderElection.enabled=true to avoid duplicate evictions across replicas" }}
+{{- end }}
+{{- if and .Values.enforcer.enabled (le (int .Values.enforcer.maxEvictionsPerMinute) 0) }}
+{{- fail "enforcer.maxEvictionsPerMinute must be greater than 0" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -72,6 +78,16 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: LEADER_ELECTION_ENABLED
+              value: {{ .Values.leaderElection.enabled | quote }}
+            - name: LEADER_ELECTION_LEASE_NAME
+              value: {{ .Values.leaderElection.leaseName | quote }}
+            - name: ENFORCER_ENABLED
+              value: {{ .Values.enforcer.enabled | quote }}
+            - name: ENFORCER_SCAN_INTERVAL
+              value: {{ .Values.enforcer.scanInterval | quote }}
+            - name: ENFORCER_MAX_EVICTIONS_PER_MINUTE
+              value: {{ .Values.enforcer.maxEvictionsPerMinute | quote }}
             - name: WEBHOOK_NAME
               value: {{ include "pod-mutator.webhookName" . }}
             - name: SERVICE_NAME

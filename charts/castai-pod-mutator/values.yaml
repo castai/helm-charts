@@ -103,6 +103,21 @@ resources:
   limits:
     memory: 512Mi
 
+# leaderElection -- Controls controller-runtime leader election.
+# Required when `enforcer.enabled` is true
+leaderElection:
+  enabled: false
+  leaseName: "castai-pod-mutator-leader-election"
+
+enforcer:
+  # enabled -- Enable the mismatch detection and eviction enforcement loop.
+  # Requires leaderElection.enabled=true when replicas > 1.
+  enabled: false
+  # scanInterval -- How often the Detector scans all ReplicaSets for mutation drift.
+  scanInterval: "10s"
+  # maxEvictionsPerMinute -- Global rate limit for pod evictions across all workloads.
+  maxEvictionsPerMinute: 60
+
 hostNetwork: false
 # dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
 dnsPolicy: ""
