@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.10.1](https://img.shields.io/badge/Version-0.10.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.2.9](https://img.shields.io/badge/AppVersion-v0.2.9-informational?style=flat-square)
+![Version: 0.11.0](https://img.shields.io/badge/Version-0.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.3.0](https://img.shields.io/badge/AppVersion-v0.3.0-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -29,6 +29,9 @@ CAST AI Pod Mutator.
 | dependencyCheck.enabled | bool | `true` | Enable or disable dependency check preinstall hook |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true |
 | enableTopologySpreadConstraints | bool | `false` |  |
+| enforcer.enabled | bool | `false` |  |
+| enforcer.maxEvictionsPerMinute | int | `60` |  |
+| enforcer.scanInterval | string | `"10s"` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-mutator container via configMaps or secrets. |
 | fullnameOverride | string | `"castai-pod-mutator"` |  |
 | global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Values to apply for the parent and child chart resources. |
@@ -39,6 +42,8 @@ CAST AI Pod Mutator.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/pod-mutator"` |  |
 | image.tag | string | `""` |  |
+| leaderElection.enabled | bool | `false` |  |
+| leaderElection.leaseName | string | `"castai-pod-mutator-leader-election"` |  |
 | mutator.processingDelay | string | `"30s"` |  |
 | nameOverride | string | `""` |  |
 | openshift.scc.enabled | bool | `true` |  |
