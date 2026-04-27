@@ -103,10 +103,10 @@ resources:
   limits:
     memory: 512Mi
 
-# leaderElection -- Controls controller-runtime leader election.
-# Required when `enforcer.enabled` is true
 leaderElection:
+  # enabled -- Enable controller-runtime leader election. Required when `enforcer.enabled` is true.
   enabled: false
+  # leaseName -- Name of the Lease resource used for leader election.
   leaseName: "castai-pod-mutator-leader-election"
 
 enforcer:

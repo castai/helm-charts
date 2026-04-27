@@ -42,7 +42,8 @@ CAST AI Pod Mutator.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/pod-mutator"` |  |
 | image.tag | string | `""` |  |
-| leaderElection | object | `{"enabled":false,"leaseName":"castai-pod-mutator-leader-election"}` | Controls controller-runtime leader election. Required when `enforcer.enabled` is true |
+| leaderElection.enabled | bool | `false` |  |
+| leaderElection.leaseName | string | `"castai-pod-mutator-leader-election"` |  |
 | mutator.processingDelay | string | `"30s"` |  |
 | nameOverride | string | `""` |  |
 | openshift.scc.enabled | bool | `true` |  |
