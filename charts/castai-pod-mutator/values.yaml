@@ -111,7 +111,7 @@ leaderElection:
 
 enforcer:
   # enabled -- Enable the mismatch detection and eviction enforcement loop.
-  # Requires leaderElection.enabled=true when replicas > 1.
+  # Requires leaderElection.enabled=true.
   enabled: false
   # scanInterval -- How often the Detector scans all ReplicaSets for mutation drift.
   scanInterval: "10s"
