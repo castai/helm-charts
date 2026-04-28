@@ -633,6 +633,15 @@ spec:
                   - operations
                   type: object
                 type: array
+              podEviction:
+                description: PodEviction defines whether pods should be evicted when
+                  they no longer match the mutation.
+                properties:
+                  enabled:
+                    description: Enabled controls whether non-conforming pods are
+                      eligible for eviction.
+                    type: boolean
+                type: object
               restartPolicy:
                 description: RestartPolicy defines the policy for restarting the pod
                 enum:
