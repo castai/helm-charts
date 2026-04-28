@@ -164,7 +164,6 @@ data:
                           address: {{ required "endpoint hostname must be provided" $endpoint.hostname }} # upstream database host
                           port_value: {{ required "endpoint targetPort is required" $endpoint.targetPort }} # upstream database port
                           {{- end }}
-          {{- if not (and $.Values.proxySql $.Values.proxySql.enabled) }}
           transport_socket:
             name: envoy.transport_sockets.start_tls
             typed_config:
@@ -174,7 +173,6 @@ data:
                 common_tls_context:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
-          {{- end }}
         {{- end }}
 
         - name: query_processor_service
