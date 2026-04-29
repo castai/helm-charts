@@ -46,6 +46,9 @@ data:
         connect_timeout_server={{ $mergedConfig.connect_timeout_server | int64 }}
         auto_increment_delay_multiplex={{ $mergedConfig.auto_increment_delay_multiplex | int64 }}
         monitor_enabled=false
+        have_ssl=true
+        ssl_cert="/etc/proxysql/proxysql.crt"
+        ssl_key="/etc/proxysql/proxysql.key"
     }
 
     mysql_servers=
