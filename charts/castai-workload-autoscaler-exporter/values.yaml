@@ -207,6 +207,23 @@ prometheus:
     # Specifies whether Roles/RoleBindings should be created for the service account
     rbac: true
   replicaCount: 1
+  # Pod security context for the Prometheus pod.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  podSecurityContext:
+    runAsNonRoot: true
+    runAsUser: 65534
+    runAsGroup: 65534
+    fsGroup: 65534
+    seccompProfile:
+      type: RuntimeDefault
+  # Container security context for the Prometheus container.
+  # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
   image:
     repository: us-docker.pkg.dev/castai-hub/library/prom/prometheus
     tag: v3.2.1

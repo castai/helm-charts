@@ -27,6 +27,10 @@ spec:
       imagePullSecrets:
       {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.prometheus.podSecurityContext }}
+      securityContext:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: prometheus
           image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
@@ -34,13 +38,20 @@ spec:
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.retention.time={{ .Values.prometheus.storage.retention }}"
+            - "--storage.tsdb.path=/prometheus/data"
           ports:
             - containerPort: 9090
           resources:
             {{- toYaml .Values.prometheus.resources | nindent 12 }}
+          {{- with .Values.prometheus.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config-volume
               mountPath: /etc/prometheus
+            - name: prometheus-data
+              mountPath: /prometheus/data
           readinessProbe:
             httpGet:
               path: /-/healthy
@@ -59,6 +70,8 @@ spec:
         - name: config-volume
           configMap:
             name: {{ include "exporter.fullname" . }}-prometheus-config
+        - name: prometheus-data
+          emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
       {{- toYaml . | nindent 8 }}
