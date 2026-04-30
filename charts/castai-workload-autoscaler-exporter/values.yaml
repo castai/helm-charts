@@ -226,7 +226,7 @@ prometheus:
         - ALL
   image:
     repository: us-docker.pkg.dev/castai-hub/library/prom/prometheus
-    tag: v3.2.1
+    tag: v3.11.3
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
