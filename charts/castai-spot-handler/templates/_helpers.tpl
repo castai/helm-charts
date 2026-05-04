@@ -88,6 +88,18 @@ Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
 {{- end }}
 
 {{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "spot-handler.imageRepository" -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) .Values.image.repository -}}
+{{- else -}}
+{{- .Values.image.repository -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Resolve cloud provider: prefer .Values.castai.provider, fall back to .Values.global.castai.provider.
 Accepts both cloud names (aws, azure, gcp) and k8s names (eks, aks, gke).
 */}}
