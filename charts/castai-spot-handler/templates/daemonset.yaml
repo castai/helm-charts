@@ -92,6 +92,8 @@ spec:
               value: {{ include "spot-handler.provider" . | quote }}
             - name: PHASE2_PERMISSIONS
               value: {{ .Values.phase2Permissions | quote }}
+            - name: DELETE_PODS_PERMISSIONS
+              value: {{ .Values.deletePodPermissions | quote }}
             {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
