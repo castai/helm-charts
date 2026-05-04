@@ -10,6 +10,9 @@ global:
     provider: ""
   # tolerations -- Global tolerations applied to all sub-chart pods (can be overridden per sub-chart).
   tolerations: []
+  # registry -- Container registry prefix for all sub-chart images (e.g. "my-registry.example.com").
+  # When set, it is prepended to all image repositories in sub-charts that support it.
+  registry: ""
 
 kent:
   enabled: false
