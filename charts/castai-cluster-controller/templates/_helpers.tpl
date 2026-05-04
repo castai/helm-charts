@@ -93,6 +93,18 @@ Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
 {{- end -}}
 {{- end }}
 
+{{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "cluster-controller.imageRepository" -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) .Values.image.repository -}}
+{{- else -}}
+{{- .Values.image.repository -}}
+{{- end -}}
+{{- end }}
+
 {{- define "cluster-controller.workloadAutoscalingEnabled" -}}
   {{- $workloadAutoscalingEnabled := true -}}
   {{- if .Values.workloadAutoscaling -}}

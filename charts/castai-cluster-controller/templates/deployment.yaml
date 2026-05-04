@@ -110,7 +110,7 @@ spec:
       {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: cluster-controller
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "cluster-controller.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           volumeMounts:
             - name: shared-metadata
@@ -231,7 +231,7 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 5
         - name: monitor
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "cluster-controller.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
             - castai-cluster-controller
