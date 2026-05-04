@@ -1,4 +1,4 @@
-{{- define "defaultProxyVersion" -}}v4.83.0{{- end -}}
+{{- define "defaultProxyVersion" -}}v4.84.1{{- end -}}
 {{- define "defaultQueryProcessorVersion" -}}v0.45.0{{- end -}}
 {{- define "defaultCloudSqlProxyVersion" -}}2.18.2{{- end -}}
 {{- define "defaultPgdogVersion" -}}v0.1.30{{- end -}}
