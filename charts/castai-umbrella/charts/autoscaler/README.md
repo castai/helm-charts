@@ -10,14 +10,14 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.153.2 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.0 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.31 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.37 |
 | https://castai.github.io/helm-charts | castai-kvisor | 1.0.155 |
-| https://castai.github.io/helm-charts | castai-live | 0.90.0 |
-| https://castai.github.io/helm-charts | castai-pod-mutator | 0.11.0 |
-| https://castai.github.io/helm-charts | castai-pod-pinner | 1.12.1 |
-| https://castai.github.io/helm-charts | castai-spot-handler | 0.34.1 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.8 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.0.8 |
+| https://castai.github.io/helm-charts | castai-live | 0.91.0 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.13.0 |
+| https://castai.github.io/helm-charts | castai-pod-pinner | 1.12.3 |
+| https://castai.github.io/helm-charts | castai-spot-handler | 0.34.2 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.10 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.0.10 |
 | https://castai.github.io/helm-charts | gpu-metrics-exporter | 0.1.29 |
 
 ## Values
