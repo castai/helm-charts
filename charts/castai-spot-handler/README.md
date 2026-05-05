@@ -82,6 +82,7 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/spot-handler"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | object | `{}` | what secret should be used for pulling the image |
+| interruption.podDeletionEnabled | bool | `false` | Enable pod deletion on interrupted nodes to speed up eviction via SIGTERM. |
 | nodeSelector | object | `{}` |  |
 | phase2Permissions | bool | `true` |  |
 | podAnnotations | object | `{}` |  |
