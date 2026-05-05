@@ -1,0 +1,145 @@
+name: Bump castai-cluster-agent image in kubecast
+
+# Fires when a component chart is released in this repo.
+# Reads the new appVersion (= image tag) from the released chart and opens
+# a GitLab MR in castai/kubecast bumping that component's image.tag in
+# castai-cluster-agent/chart/values.yaml.
+on:
+  release:
+    types:
+      - published
+
+# Map from chart name to the key used in castai-cluster-agent values.yaml.
+# Charts not in this map are ignored.
+env:
+  COMPONENT_MAP: |
+    castai-agent=castai-agent
+    castai-cluster-controller=castai-cluster-controller
+    castai-spot-handler=castai-spot-handler
+    castai-kvisor=castai-kvisor
+    castai-evictor=castai-evictor
+    castai-pod-mutator=castai-pod-mutator
+    castai-pod-pinner=castai-pod-pinner
+    castai-workload-autoscaler=castai-workload-autoscaler
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse release tag
+        id: parse
+        run: |
+          TAG="${{ github.event.release.tag_name }}"
+          # Tags are in the format: <chart-name>-<x.y.z>, e.g. castai-agent-0.115.0
+          VERSION=$(echo "$TAG" | grep -oP '\d+\.\d+\.\d+$' || true)
+          if [ -z "$VERSION" ]; then
+            echo "Tag '${TAG}' does not match <chart-name>-x.y.z — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          CHART_NAME="${TAG%-${VERSION}}"
+          echo "chart_name=${CHART_NAME}" >> $GITHUB_OUTPUT
+          echo "chart_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Check if chart is tracked in castai-cluster-agent
+        id: check
+        if: steps.parse.outputs.skip != 'true'
+        run: |
+          CHART_NAME="${{ steps.parse.outputs.chart_name }}"
+          COMPONENT=$(echo "$COMPONENT_MAP" | grep "^${CHART_NAME}=" | cut -d= -f2 || true)
+          if [ -z "$COMPONENT" ]; then
+            echo "Chart '${CHART_NAME}' is not tracked in castai-cluster-agent — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Checkout helm-charts to read appVersion
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 1
+
+      - name: Read image tag from appVersion
+        id: image
+        if: steps.check.outputs.skip != 'true'
+        run: |
+          CHART_NAME="${{ steps.parse.outputs.chart_name }}"
+          APP_VERSION=$(grep '^appVersion:' "charts/${CHART_NAME}/Chart.yaml" | awk '{print $2}' | tr -d '"')
+          if [ -z "$APP_VERSION" ]; then
+            echo "No appVersion found in charts/${CHART_NAME}/Chart.yaml — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "image_tag=${APP_VERSION}" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Install yq
+        if: steps.image.outputs.skip != 'true'
+        uses: mikefarah/yq@v4.44.3
+
+      - name: Clone kubecast
+        if: steps.image.outputs.skip != 'true'
+        run: |
+          git clone https://oauth2:${{ secrets.KUBECAST_GITLAB_TOKEN }}@gitlab.com/castai/kubecast.git kubecast
+          cd kubecast
+          git config user.email "ci@cast.ai"
+          git config user.name "GitHub Actions"
+
+      - name: Bump image tag and chart version
+        id: bump
+        if: steps.image.outputs.skip != 'true'
+        run: |
+          COMPONENT="${{ steps.check.outputs.component }}"
+          IMAGE_TAG="${{ steps.image.outputs.image_tag }}"
+          VALUES=kubecast/castai-cluster-agent/chart/values.yaml
+          CHART_YAML=kubecast/castai-cluster-agent/chart/Chart.yaml
+
+          CURRENT_TAG=$(yq e ".\"${COMPONENT}\".image.tag" "$VALUES")
+          if [ "$CURRENT_TAG" = "$IMAGE_TAG" ]; then
+            echo "Image tag is already ${IMAGE_TAG} — nothing to do."
+            echo "changed=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          yq e -i ".\"${COMPONENT}\".image.tag = \"${IMAGE_TAG}\"" "$VALUES"
+
+          CURRENT_VERSION=$(yq e '.version' "$CHART_YAML")
+          NEW_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{printf "%d.%d.%d", $1, $2, $3+1}')
+          yq e -i ".version = \"${NEW_VERSION}\"" "$CHART_YAML"
+
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "old_tag=${CURRENT_TAG}" >> $GITHUB_OUTPUT
+          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Push branch and open GitLab MR
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          COMPONENT: ${{ steps.check.outputs.component }}
+          IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
+          OLD_TAG: ${{ steps.bump.outputs.old_tag }}
+          NEW_VERSION: ${{ steps.bump.outputs.new_version }}
+          GITLAB_TOKEN: ${{ secrets.KUBECAST_GITLAB_TOKEN }}
+        run: |
+          BRANCH="bump/castai-cluster-agent-${COMPONENT}-${IMAGE_TAG}"
+
+          cd kubecast
+          git checkout -b "$BRANCH"
+          git add castai-cluster-agent/chart/values.yaml castai-cluster-agent/chart/Chart.yaml
+          git commit -m "Bump ${COMPONENT} image to ${IMAGE_TAG}"
+          git push https://oauth2:${GITLAB_TOKEN}@gitlab.com/castai/kubecast.git HEAD:"$BRANCH"
+
+          curl -sf --fail-with-body \
+            -X POST \
+            -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://gitlab.com/api/v4/projects/castai%2Fkubecast/merge_requests" \
+            -d "{
+              \"source_branch\": \"${BRANCH}\",
+              \"target_branch\": \"master\",
+              \"title\": \"[castai-cluster-agent] Bump ${COMPONENT} to ${IMAGE_TAG}\",
+              \"description\": \"Automated image bump triggered by [helm-charts release ${{ github.event.release.tag_name }}](${{ github.event.release.html_url }}).\n\n| | |\n|---|---|\n| **Component** | \`${COMPONENT}\` |\n| **Old tag** | \`${OLD_TAG}\` |\n| **New tag** | \`${IMAGE_TAG}\` |\n| **Chart version** | \`${NEW_VERSION}\` |\"
+            }"
