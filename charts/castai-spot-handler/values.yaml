@@ -70,8 +70,9 @@ updateStrategy: {}
 # Phase 2 (true): Include permissions for tainting nodes
 phase2Permissions: true
 
-# deletePodPermissions enable pod deletion capabilities
-deletePodPermissions: false
+interruption:
+  # interruption.podDeletionEnabled -- Enable pod deletion on interrupted nodes to speed up eviction via SIGTERM.
+  podDeletionEnabled: false
 
 resources:
   requests:
