@@ -37,6 +37,8 @@ Cluster utilization defragmentation tool
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
 | extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-evictor"` |  |
+| global | object | `{"registry":""}` | Global values propagated from parent charts. |
+| global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
 | ignorePodDisruptionBudgets | bool | `false` | Specifies whether the Evictor should ignore Pod Disruption Budgets (PDBs). If true, evictor will attempt to evict pods even if it would violate a PDB. Use with caution as this may disrupt application availability guarantees. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |

@@ -10,6 +10,12 @@ commonLabels: {}
 # annotations - Annotations to add to all resources.
 commonAnnotations: {}
 
+# global -- Global values propagated from parent charts.
+global:
+  # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
+  # When set, it is prepended to all image repositories.
+  registry: ""
+
 # dryRyn -- Specifies whether the Evictor should run in dryRun mode (Read-Only).
 # if true, evictor will just log action(s) it would perform
 # instead of actually performing them.
