@@ -15,7 +15,7 @@ dependencies:
       - workload-autoscaler
       - full
   - name: castai-spot-handler
-    version: "0.34.2"
+    version: "0.34.3"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-spot-handler.enabled
     tags:
@@ -24,7 +24,7 @@ dependencies:
       - workload-autoscaler
       - full
   - name: castai-kvisor
-    version: "1.0.155"
+    version: "1.0.157"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
     tags:
@@ -43,7 +43,7 @@ dependencies:
       - full
   # ── node-autoscaler + workload-autoscaler + full ──────────────────────────────
   - name: castai-cluster-controller
-    version: "0.92.0"
+    version: "0.92.1"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
     tags:
@@ -51,7 +51,7 @@ dependencies:
       - workload-autoscaler
       - full
   - name: castai-evictor
-    version: "0.35.37"
+    version: "0.35.38"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-evictor.enabled
     tags:

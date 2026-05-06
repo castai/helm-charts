@@ -37,9 +37,10 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts |
 | extraVolumes | list | `[]` | Used to set additional volumes |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
-| global | object | `{"commonAnnotations":{},"commonLabels":{}}` | Global values that are propagated to child charts. |
+| global | object | `{"commonAnnotations":{},"commonLabels":{},"registry":""}` | Global values that are propagated to child charts. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources (including child charts). |
 | global.commonLabels | object | `{}` | Labels to add to all resources (including child charts). |
+| global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/cluster-controller"` |  |

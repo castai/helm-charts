@@ -8,6 +8,9 @@ global:
   commonLabels: {}
   # global.commonAnnotations -- Annotations to add to all resources (including child charts).
   commonAnnotations: {}
+  # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
+  # When set, it is prepended to all image repositories.
+  registry: ""
 
 # replicas -- Number of replicas for castai-cluster-controller deployment.
 replicas: 2

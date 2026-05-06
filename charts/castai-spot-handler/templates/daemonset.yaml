@@ -51,7 +51,7 @@ spec:
       {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
         - name: spot-handler
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "spot-handler.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           env:
             - name: NODE_NAME
               valueFrom:
@@ -92,6 +92,8 @@ spec:
               value: {{ include "spot-handler.provider" . | quote }}
             - name: PHASE2_PERMISSIONS
               value: {{ .Values.phase2Permissions | quote }}
+            - name: INTERRUPTION_POD_DELETION_ENABLED
+              value: {{ .Values.interruption.podDeletionEnabled | quote }}
             {{- range $k, $v := .Values.additionalEnv }}
             - name: {{ $k }}
               value: "{{ $v }}"
