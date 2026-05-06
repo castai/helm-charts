@@ -128,6 +128,9 @@ global:
   commonLabels: {}
   # -- Annotations to add to all resources.
   commonAnnotations: {}
+  # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
+  # When set, it is prepended to all image repositories.
+  registry: ""
 
 mutator:
   # processingDelay -- Delay in seconds before the pod-mutator processes the pod. Default is 30s

@@ -98,6 +98,19 @@ Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
 {{- end }}
 
 {{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "pod-mutator.imageRepository" -}}
+{{- $repository := required "image.repository must be provided" .Values.image.repository -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) $repository -}}
+{{- else -}}
+{{- $repository -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Common Annotations
 */}}
 {{- define "pod-mutator.annotations" -}}

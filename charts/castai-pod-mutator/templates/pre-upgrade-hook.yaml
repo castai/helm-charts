@@ -43,7 +43,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "pod-mutator.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           command: ["castai-pod-mutator", "dependency-check"]
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           env:
