@@ -33,7 +33,7 @@ spec:
       {{- end }}
       containers:
         - name: prometheus
-          image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
+          image: "{{ include "exporter.prometheus.imageRepository" . }}:{{ .Values.prometheus.image.tag }}"
           imagePullPolicy: {{ .Values.prometheus.image.pullPolicy }}
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"

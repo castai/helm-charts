@@ -1,4 +1,25 @@
 {{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "exporter.imageRepository" -}}
+{{- $repository := required "image.repository must be provided" (index . 0) -}}
+{{- $registry := ((index . 1).Values.global | default dict).registry | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) $repository -}}
+{{- else -}}
+{{- $repository -}}
+{{- end -}}
+{{- end }}
+
+{{- define "exporter.exporter.imageRepository" -}}
+{{- include "exporter.imageRepository" (list .Values.exporter.image.repository .) -}}
+{{- end }}
+
+{{- define "exporter.prometheus.imageRepository" -}}
+{{- include "exporter.imageRepository" (list .Values.prometheus.image.repository .) -}}
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "exporter.name" -}}

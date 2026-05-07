@@ -1,3 +1,9 @@
+global:
+  # registry -- Optional private registry prefix applied to all image repositories.
+  # When set, images are resolved as "<registry>/<original-repository>".
+  # Example: registry: "my-registry.example.com"
+  registry: ""
+
 castai:
   # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
   # apiKey and apiKeySecretRef are mutually exclusive

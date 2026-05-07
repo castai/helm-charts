@@ -30,7 +30,7 @@ spec:
       {{- end }}
       containers:
         - name: exporter
-          image: "{{ required "exporter.image.repository must be provided" .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "exporter.exporter.imageRepository" . }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.exporter.image.pullPolicy | default "IfNotPresent" }}
           command:
             - "/usr/local/bin/workload-autoscaler"
