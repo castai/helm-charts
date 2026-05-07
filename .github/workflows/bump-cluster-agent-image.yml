@@ -66,11 +66,17 @@ jobs:
           echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
           echo "skip=false" >> $GITHUB_OUTPUT
 
+      - name: Install yq
+        if: steps.check.outputs.skip != 'true'
+        uses: mikefarah/yq@v4.44.3
+
       - name: Checkout helm-charts to read appVersion
         if: steps.check.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
-          ref: main
+          # Check out the exact release commit, not main, so appVersion
+          # matches what was actually released.
+          ref: ${{ github.event.release.tag_name }}
           fetch-depth: 1
 
       - name: Read image tag from appVersion
@@ -85,18 +91,14 @@ jobs:
             echo "skip=true" >> $GITHUB_OUTPUT
             exit 0
           fi
-          APP_VERSION=$(grep '^appVersion:' "$CHART_FILE" | awk '{print $2}' | tr -d '"')
-          if [ -z "$APP_VERSION" ]; then
+          APP_VERSION=$(yq e '.appVersion' "$CHART_FILE")
+          if [ -z "$APP_VERSION" ] || [ "$APP_VERSION" = "null" ]; then
             echo "No appVersion found in ${CHART_FILE} — skipping."
             echo "skip=true" >> $GITHUB_OUTPUT
             exit 0
           fi
           echo "image_tag=${APP_VERSION}" >> $GITHUB_OUTPUT
           echo "skip=false" >> $GITHUB_OUTPUT
-
-      - name: Install yq
-        if: steps.image.outputs.skip != 'true'
-        uses: mikefarah/yq@v4.44.3
 
       - name: Clone kubecast
         if: steps.image.outputs.skip != 'true'
@@ -151,13 +153,17 @@ jobs:
           BRANCH="bump/castai-cluster-agent-${COMPONENT}-${IMAGE_TAG}"
 
           cd kubecast
+
+          # If the branch already exists (e.g. workflow re-triggered), skip push and MR creation.
+          if git fetch origin "$BRANCH" 2>/dev/null; then
+            echo "Branch '${BRANCH}' already exists — skipping."
+            exit 0
+          fi
+
           git checkout -b "$BRANCH"
           git add castai-cluster-agent/chart/values.yaml castai-cluster-agent/chart/Chart.yaml
           git commit -m "Bump ${COMPONENT} image to ${IMAGE_TAG}"
           git push origin HEAD:"$BRANCH"
-
-          # Build MR description without interpolating secrets into the JSON string.
-          MR_DESCRIPTION="Automated image bump triggered by [helm-charts release ${RELEASE_TAG}](${RELEASE_URL}).\n\n| | |\n|---|---|\n| **Component** | \`${COMPONENT}\` |\n| **Old tag** | \`${OLD_TAG}\` |\n| **New tag** | \`${IMAGE_TAG}\` |\n| **Chart version** | \`${NEW_VERSION}\` |"
 
           curl -sf --fail-with-body \
             -X POST \
@@ -167,5 +173,5 @@ jobs:
             -d "$(jq -n \
               --arg source "$BRANCH" \
               --arg title "[castai-cluster-agent] Bump ${COMPONENT} to ${IMAGE_TAG}" \
-              --arg desc "$MR_DESCRIPTION" \
+              --arg desc "Automated image bump triggered by [helm-charts release ${RELEASE_TAG}](${RELEASE_URL}).\n\n| | |\n|---|---|\n| **Component** | \`${COMPONENT}\` |\n| **Old tag** | \`${OLD_TAG}\` |\n| **New tag** | \`${IMAGE_TAG}\` |\n| **Chart version** | \`${NEW_VERSION}\` |" \
               '{source_branch: $source, target_branch: "master", title: $title, description: $desc}')"
