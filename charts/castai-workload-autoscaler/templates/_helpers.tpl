@@ -1,4 +1,17 @@
 {{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "workload-autoscaler.imageRepository" -}}
+{{- $repository := required "image.repository must be provided" .Values.image.repository -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) $repository -}}
+{{- else -}}
+{{- $repository -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "workload-autoscaler.name" -}}

@@ -99,7 +99,7 @@ spec:
       {{- end }}
       containers:
         - name: pre-delete
-          image: "{{ required "image.repository must be provided" .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "workload-autoscaler.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           {{- with .Values.containerSecurityContext }}
           securityContext:
