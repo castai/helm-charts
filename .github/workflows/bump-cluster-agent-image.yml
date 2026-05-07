@@ -1,0 +1,177 @@
+name: Bump castai-cluster-agent image in kubecast
+
+# Fires when a component chart is released in this repo.
+# Reads the new appVersion (= image tag) from the released chart and opens
+# a GitLab MR in castai/kubecast bumping that component's image.tag in
+# castai-cluster-agent/chart/values.yaml.
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse release tag
+        id: parse
+        # Pass the tag via env to avoid shell injection from ${{ }} interpolation.
+        env:
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION=$(echo "$TAG" | grep -oP '\d+\.\d+\.\d+$' || true)
+          if [ -z "$VERSION" ]; then
+            echo "Tag '${TAG}' does not match <chart-name>-x.y.z — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          CHART_NAME="${TAG%-${VERSION}}"
+
+          # Validate chart name: only lowercase letters, digits, hyphens.
+          # Guards against path traversal (e.g. ../../../etc/passwd) and injection.
+          if ! echo "$CHART_NAME" | grep -qP '^[a-z0-9-]+$'; then
+            echo "Chart name '${CHART_NAME}' contains unexpected characters — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "chart_name=${CHART_NAME}" >> $GITHUB_OUTPUT
+          echo "chart_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Check if chart is tracked in castai-cluster-agent
+        id: check
+        if: steps.parse.outputs.skip != 'true'
+        env:
+          CHART_NAME: ${{ steps.parse.outputs.chart_name }}
+        run: |
+          # Explicit allowlist — only these charts trigger a kubecast MR.
+          declare -A COMPONENT_MAP=(
+            [castai-agent]=castai-agent
+            [castai-cluster-controller]=castai-cluster-controller
+            [castai-spot-handler]=castai-spot-handler
+            [castai-kvisor]=castai-kvisor
+            [castai-evictor]=castai-evictor
+            [castai-pod-mutator]=castai-pod-mutator
+            [castai-pod-pinner]=castai-pod-pinner
+            [castai-workload-autoscaler]=castai-workload-autoscaler
+          )
+
+          COMPONENT="${COMPONENT_MAP[$CHART_NAME]:-}"
+          if [ -z "$COMPONENT" ]; then
+            echo "Chart '${CHART_NAME}' is not tracked in castai-cluster-agent — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "component=${COMPONENT}" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Install yq
+        if: steps.check.outputs.skip != 'true'
+        uses: mikefarah/yq@v4.44.3
+
+      - name: Checkout helm-charts to read appVersion
+        if: steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          # Check out the exact release commit, not main, so appVersion
+          # matches what was actually released.
+          ref: ${{ github.event.release.tag_name }}
+          fetch-depth: 1
+
+      - name: Read image tag from appVersion
+        id: image
+        if: steps.check.outputs.skip != 'true'
+        env:
+          CHART_NAME: ${{ steps.parse.outputs.chart_name }}
+        run: |
+          CHART_FILE="charts/${CHART_NAME}/Chart.yaml"
+          if [ ! -f "$CHART_FILE" ]; then
+            echo "Chart file '${CHART_FILE}' not found — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          APP_VERSION=$(yq e '.appVersion' "$CHART_FILE")
+          if [ -z "$APP_VERSION" ] || [ "$APP_VERSION" = "null" ]; then
+            echo "No appVersion found in ${CHART_FILE} — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "image_tag=${APP_VERSION}" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Clone kubecast
+        if: steps.image.outputs.skip != 'true'
+        env:
+          GITLAB_TOKEN: ${{ secrets.KUBECAST_GITLAB_TOKEN }}
+        run: |
+          git clone https://gitlab.com/castai/kubecast.git kubecast
+          cd kubecast
+          git config user.email "ci@cast.ai"
+          git config user.name "GitHub Actions"
+          git config --local credential.helper \
+            '!f() { echo "username=oauth2"; echo "password='"${GITLAB_TOKEN}"'"; }; f'
+
+      - name: Bump image tag and chart version
+        id: bump
+        if: steps.image.outputs.skip != 'true'
+        env:
+          COMPONENT: ${{ steps.check.outputs.component }}
+          IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
+        run: |
+          VALUES=kubecast/castai-cluster-agent/chart/values.yaml
+          CHART_YAML=kubecast/castai-cluster-agent/chart/Chart.yaml
+
+          CURRENT_TAG=$(yq e ".\"${COMPONENT}\".image.tag" "$VALUES")
+          if [ "$CURRENT_TAG" = "$IMAGE_TAG" ]; then
+            echo "Image tag is already ${IMAGE_TAG} — nothing to do."
+            echo "changed=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          yq e -i ".\"${COMPONENT}\".image.tag = \"${IMAGE_TAG}\"" "$VALUES"
+
+          CURRENT_VERSION=$(yq e '.version' "$CHART_YAML")
+          NEW_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{printf "%d.%d.%d", $1, $2, $3+1}')
+          yq e -i ".version = \"${NEW_VERSION}\"" "$CHART_YAML"
+
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "old_tag=${CURRENT_TAG}" >> $GITHUB_OUTPUT
+          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Push branch and open GitLab MR
+        if: steps.bump.outputs.changed == 'true'
+        env:
+          COMPONENT: ${{ steps.check.outputs.component }}
+          IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
+          OLD_TAG: ${{ steps.bump.outputs.old_tag }}
+          NEW_VERSION: ${{ steps.bump.outputs.new_version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          GITLAB_TOKEN: ${{ secrets.KUBECAST_GITLAB_TOKEN }}
+        run: |
+          BRANCH="bump/castai-cluster-agent-${COMPONENT}-${IMAGE_TAG}"
+
+          cd kubecast
+
+          # If the branch already exists (e.g. workflow re-triggered), skip push and MR creation.
+          if git fetch origin "$BRANCH" 2>/dev/null; then
+            echo "Branch '${BRANCH}' already exists — skipping."
+            exit 0
+          fi
+
+          git checkout -b "$BRANCH"
+          git add castai-cluster-agent/chart/values.yaml castai-cluster-agent/chart/Chart.yaml
+          git commit -m "Bump ${COMPONENT} image to ${IMAGE_TAG}"
+          git push origin HEAD:"$BRANCH"
+
+          curl -sf --fail-with-body \
+            -X POST \
+            -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://gitlab.com/api/v4/projects/castai%2Fkubecast/merge_requests" \
+            -d "$(jq -n \
+              --arg source "$BRANCH" \
+              --arg title "[castai-cluster-agent] Bump ${COMPONENT} to ${IMAGE_TAG}" \
+              --arg desc "Automated image bump triggered by [helm-charts release ${RELEASE_TAG}](${RELEASE_URL}).\n\n| | |\n|---|---|\n| **Component** | \`${COMPONENT}\` |\n| **Old tag** | \`${OLD_TAG}\` |\n| **New tag** | \`${IMAGE_TAG}\` |\n| **Chart version** | \`${NEW_VERSION}\` |" \
+              '{source_branch: $source, target_branch: "master", title: $title, description: $desc}')"
