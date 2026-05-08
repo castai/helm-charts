@@ -26,7 +26,7 @@ CAST AI DB agent deployment.
 | database.autoDiscoveryDatabase | string | `"postgres"` | Database name to use for connecting to database instance for auto-discovering logical databases. This is only required for Postgres |
 | database.credentialsSecretRef | string | `""` | Name of secret with database credentials (username and password). Not required when using useCloudSQLIAMAuth or useRDSIAMAuth with inline username. |
 | database.host | string | `""` |  |
-| database.password | string | `""` | Password for database authentication (not required when useCloudSQLIAMAuth is true) |
+| database.password | string | `""` | Password for database authentication (not required when useCloudSQLIAMAuth or useRDSIAMAuth is true) |
 | database.port | int | `5432` |  |
 | database.protocol | string | `"postgres"` | Database protocol to use. Supported values: postgres, mysql. |
 | database.useCloudSQLIAMAuth | bool | `false` | Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details. |

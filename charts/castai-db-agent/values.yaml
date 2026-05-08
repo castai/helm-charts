@@ -14,7 +14,7 @@ database:
   port: 5432
   # -- Username for database authentication. For IAM auth, use the format: "service-account-name@project-id.iam"
   username: ""
-  # -- Password for database authentication (not required when useCloudSQLIAMAuth is true)
+  # -- Password for database authentication (not required when useCloudSQLIAMAuth or useRDSIAMAuth is true)
   password: ""
   # -- Name of secret with database credentials (username and password). Not required when using useCloudSQLIAMAuth or useRDSIAMAuth with inline username.
   credentialsSecretRef: ""
