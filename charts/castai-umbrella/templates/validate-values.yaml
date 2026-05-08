@@ -1,29 +1,51 @@
 {{/* ── Collect enabled tags ─────────────────────────────────────────────────── */}}
-{{- $enabledTags := list }}
-{{- range $tag := list "readonly" "node-autoscaler" "workload-autoscaler" "full" "autoscaler-anywhere" "autoscaler-openshift" }}
+{{- $modeTags := list "readonly" "node-autoscaler" "workload-autoscaler" "full" "autoscaler-anywhere" "autoscaler-openshift" }}
+{{- $enabledModeTags := list }}
+{{- range $tag := $modeTags }}
 {{- if index $.Values.tags $tag }}
-{{- $enabledTags = append $enabledTags $tag }}
+{{- $enabledModeTags = append $enabledModeTags $tag }}
 {{- end }}
 {{- end }}
+{{- $clusterAgentEnabled := index $.Values.tags "castai-cluster-agent" | default false }}
 
 {{/* ── Mutual exclusivity ───────────────────────────────────────────────────── */}}
-{{- if gt (len $enabledTags) 1 }}
-{{ fail (printf "only one mode tag may be enabled at a time; got: %s" (join ", " $enabledTags)) }}
+{{- if gt (len $enabledModeTags) 1 }}
+{{ fail (printf "only one mode tag may be enabled at a time; got: %s" (join ", " $enabledModeTags)) }}
 {{- end }}
 
-{{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
-{{- if $enabledTags }}
+{{/* ── castai-cluster-agent is mutually exclusive with all other mode tags ─── */}}
+{{- if and $clusterAgentEnabled (gt (len $enabledModeTags) 0) }}
+{{ fail (printf "tags.castai-cluster-agent is mutually exclusive with mode tags; disable: %s" (join ", " $enabledModeTags)) }}
+{{- end }}
+
+{{/* ── Collect all enabled tags for required-value checks ─────────────────── */}}
+{{- $enabledTags := $enabledModeTags }}
+{{- if $clusterAgentEnabled }}
+{{- $enabledTags = append $enabledTags "castai-cluster-agent" }}
+{{- end }}
+
+{{/* ── Required values when a mode tag (autoscaler sub-chart) is set ─────── */}}
+{{- if $enabledModeTags }}
 {{- if and (not .Values.global.castai.apiKey) (not .Values.global.castai.apiKeySecretRef) }}
 {{ fail "Either global.castai.apiKey or global.castai.apiKeySecretRef is required when enabling a mode tag" }}
 {{- end }}
 {{- if and .Values.global.castai.apiKey .Values.global.castai.apiKeySecretRef }}
 {{ fail "global.castai.apiKey and global.castai.apiKeySecretRef are mutually exclusive" }}
 {{- end }}
-{{- $modeTag := index $enabledTags 0 }}
-{{- if and (ne $modeTag "autoscaler-anywhere") (ne $modeTag "autoscaler-openshift") }}
+{{- $activeTag := index $enabledModeTags 0 }}
+{{- if and (ne $activeTag "autoscaler-anywhere") (ne $activeTag "autoscaler-openshift") }}
 {{- if not .Values.global.castai.provider }}
 {{ fail "global.castai.provider is required when enabling a mode tag (eks, aks, gke, kops)" }}
 {{- end }}
+{{- end }}
+{{- end }}
+
+{{/* ── castai-cluster-agent uses its own global schema; validate it has api key ─ */}}
+{{- if $clusterAgentEnabled }}
+{{- $caGlobal := index .Values "castai-cluster-agent" | default dict }}
+{{- $caGlobal = $caGlobal.global | default dict }}
+{{- if and (not $caGlobal.apiKey) (not $caGlobal.apiKeySecretRef) }}
+{{ fail "Either castai-cluster-agent.global.apiKey or castai-cluster-agent.global.apiKeySecretRef is required when enabling tags.castai-cluster-agent" }}
 {{- end }}
 {{- end }}
 

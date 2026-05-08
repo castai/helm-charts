@@ -20,8 +20,14 @@ kent:
     enabled: true
 
 # tags -- Profile mode selection (mutually exclusive — pick one).
-# Component overrides are stable across all mode upgrades with --reuse-values:
+# When castai-cluster-agent is true, all other mode tags must be false (and vice versa).
+# Mode tags (readonly, node-autoscaler, workload-autoscaler, full) are passed through to
+# the castai-cluster-agent sub-chart and control which components are enabled within it.
+#
+# Component overrides with autoscaler sub-chart:
 #   --set autoscaler.castai-kvisor.enabled=false
+# Component overrides with castai-cluster-agent sub-chart:
+#   --set castai-cluster-agent.castai-kvisor.enabled=false
 tags:
   autoscaler-anywhere: false
   autoscaler-openshift: false
@@ -29,8 +35,36 @@ tags:
   node-autoscaler: false
   workload-autoscaler: false
   full: false
+  # castai-cluster-agent -- Enable the unified cluster-agent chart.
+  # Mutually exclusive with all other mode tags.
+  castai-cluster-agent: false
 
 autoscaler: {}
+
+# castai-cluster-agent -- Values for the unified cluster-agent sub-chart.
+# Enable with: --set tags.castai-cluster-agent=true
+# Also set a mode tag to select which components to deploy:
+#   --set tags.readonly=true (or node-autoscaler, workload-autoscaler, full)
+#
+# The unified chart uses a flat global.* schema. Map umbrella globals explicitly:
+#   --set castai-cluster-agent.global.apiKey=<KEY>     (or apiKeySecretRef)
+#   --set castai-cluster-agent.global.provider=<PROVIDER>
+#   --set castai-cluster-agent.global.apiURL=https://api.cast.ai
+#   --set castai-cluster-agent.global.grpcURL=grpc.cast.ai:443
+#
+# Mode tags are forwarded via castai-cluster-agent.tags.* — set them at the
+# root (tags.<mode>=true) and they are applied inside the unified chart via:
+#   --set castai-cluster-agent.tags.<mode>=true
+#
+# Component overrides (stable with --reuse-values):
+#   --set castai-cluster-agent.castai-kvisor.enabled=false
+castai-cluster-agent:
+  global:
+    apiURL: "https://api.cast.ai"
+    grpcURL: "grpc.cast.ai:443"
+    apiKey: ""
+    apiKeySecretRef: ""
+    provider: ""
 
 # extraObjects -- List of extra Kubernetes objects to render with the chart.
 # Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella.

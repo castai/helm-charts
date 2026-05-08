@@ -32,6 +32,28 @@ dependencies:
   #     --set global.castai.apiKey=<KEY> \
   #     --set global.castai.provider=<eks|aks|gke> \
   #     --set tags.<mode>=true
+  #
+  # Mutually exclusive with castai-cluster-agent tag.
   - name: autoscaler
     version: "*"
     repository: "file://charts/autoscaler"
+  # ── Unified cluster-agent sub-chart ───────────────────────────────────────────
+  # Mutually exclusive with all autoscaler mode tags (readonly, node-autoscaler,
+  # workload-autoscaler, full, autoscaler-anywhere, autoscaler-openshift).
+  #
+  # Mode selection inside the unified chart is controlled via the same root tags
+  # (readonly, node-autoscaler, workload-autoscaler, full) forwarded through
+  # castai-cluster-agent.tags.<mode>=true in values.yaml.
+  #
+  # Component overrides use the castai-cluster-agent.* prefix:
+  #   --set castai-cluster-agent.castai-kvisor.enabled=false
+  #
+  # NOTE: castai-cluster-agent uses a flat global.* schema (global.apiKey,
+  # global.provider, …). Map umbrella globals explicitly:
+  #   --set castai-cluster-agent.global.apiKey=<KEY>
+  #   --set castai-cluster-agent.global.provider=<PROVIDER>
+  - name: castai-cluster-agent
+    version: "0.2.2"
+    repository: "https://castai.github.io/helm-charts"
+    tags:
+      - castai-cluster-agent
