@@ -141,6 +141,30 @@ spec:
               value: "true"
             - name: JMX_EXPORTER_INIT_IMAGE
               value: "{{ .Values.jmxExporter.initImage.repository }}:{{ .Values.jmxExporter.initImage.tag }}"
+            {{- with .Values.jmxExporter.imagePullSecrets }}
+            - name: JMX_EXPORTER_IMAGE_PULL_SECRETS
+              value: "{{- range $i, $s := . }}{{ if $i }},{{ end }}{{ $s.name }}{{- end }}"
+            {{- end }}
+            {{- with .Values.jmxExporter.resources.requests }}
+            {{- if .cpu }}
+            - name: JMX_EXPORTER_REQUESTS_CPU
+              value: "{{ .cpu }}"
+            {{- end }}
+            {{- if .memory }}
+            - name: JMX_EXPORTER_REQUESTS_MEMORY
+              value: "{{ .memory }}"
+            {{- end }}
+            {{- end }}
+            {{- with .Values.jmxExporter.resources.limits }}
+            {{- if .cpu }}
+            - name: JMX_EXPORTER_LIMITS_CPU
+              value: "{{ .cpu }}"
+            {{- end }}
+            {{- if .memory }}
+            - name: JMX_EXPORTER_LIMITS_MEMORY
+              value: "{{ .memory }}"
+            {{- end }}
+            {{- end }}
             {{- end }}
             - name: WEBHOOK_PORT
               value: {{ quote .Values.webhook.port }}

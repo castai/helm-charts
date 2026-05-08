@@ -136,7 +136,7 @@ clusterAutoscaler:
 
 # jmxExporter -- Configuration for auto-instrumenting JVM pods with the JMX Prometheus Java agent.
 # When enabled, the mutating webhook injects an init container that copies the agent jar into a
-# shared emptyDir volume, sets JAVA_TOOL_OPTIONS on every app container, and exposes port 9404.
+# shared emptyDir volume, sets JDK_JAVA_OPTIONS on every app container, and exposes port 9404.
 jmxExporter:
   # enabled -- Global feature flag. When false the webhook never attempts JMX injection.
   enabled: true
@@ -145,6 +145,23 @@ jmxExporter:
     repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
     # tag -- Image tag for the init container. Bundles jmx_prometheus_javaagent.jar.
     tag: 1.5.0-alp
+  # imagePullSecrets -- secret names appended to each injected pod's imagePullSecrets.
+  # Use when the init image is mirrored to a private registry requiring authentication.
+  # Existing pull secrets on the pod are preserved; matching names are deduped.
+  imagePullSecrets: []
+  # - name: my-private-registry
+  #
+  # resources -- requests/limits applied to the injected castai-jmx-exporter-init container.
+  # Required in clusters with ResourceQuotas that mandate CPU/memory on every container.
+  # Any field left empty is omitted on the container (e.g., set requests only, no limits).
+  resources: {}
+  # resources:
+  #   requests:
+  #     cpu: 10m
+  #     memory: 16Mi
+  #   limits:
+  #     cpu: 100m
+  #     memory: 64Mi
 
 # additionalEnv -- Used to set any additional environment variables.
 additionalEnv: {}

@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.17.4](https://img.shields.io/badge/Version-0.17.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.18.0](https://img.shields.io/badge/Version-0.18.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -24,12 +24,13 @@ CAST AI DB agent deployment.
 | collectors.metadata.runsEvery | string | `"15m"` | Frequency in which table metadata is collected |
 | collectors.queries.runsEvery | string | `"15m"` | Frequency in which query statistics are collected |
 | database.autoDiscoveryDatabase | string | `"postgres"` | Database name to use for connecting to database instance for auto-discovering logical databases. This is only required for Postgres |
-| database.credentialsSecretRef | string | `""` | Name of secret with database credentials (username and password). Not required when using useIAMAuth with inline username. |
+| database.credentialsSecretRef | string | `""` | Name of secret with database credentials (username and password). Not required when using useCloudSQLIAMAuth or useRDSIAMAuth with inline username. |
 | database.host | string | `""` |  |
-| database.password | string | `""` | Password for database authentication (not required when useIAMAuth is true) |
+| database.password | string | `""` | Password for database authentication (not required when useCloudSQLIAMAuth or useRDSIAMAuth is true) |
 | database.port | int | `5432` |  |
 | database.protocol | string | `"postgres"` | Database protocol to use. Supported values: postgres, mysql. |
-| database.useIAMAuth | bool | `false` | Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details. |
+| database.useCloudSQLIAMAuth | bool | `false` | Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details. |
+| database.useRDSIAMAuth | bool | `false` | Enable IAM authentication for database connection (AWS RDS IAM). Requires IAM role with rds-db:connect permission. |
 | database.username | string | `""` | Username for database authentication. For IAM auth, use the format: "service-account-name@project-id.iam" |
 | gRPCEndpoint | string | `""` | URL to the CAST AI API gRPC endpoint. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |

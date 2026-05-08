@@ -50,8 +50,10 @@ spec:
             - name: DATABASE_SSL_MODE
               value: "disable"
               {{- end }}
-            - name: DATABASE_USE_IAM_AUTH
-              value: "{{ .Values.database.useIAMAuth }}"
+            - name: DATABASE_USE_CLOUD_SQL_IAM_AUTH
+              value: "{{ .Values.database.useCloudSQLIAMAuth }}"
+            - name: DATABASE_USE_RDS_IAM_AUTH
+              value: "{{ .Values.database.useRDSIAMAuth }}"
             - name: DATABASE_PROTOCOL
               value: "{{ .Values.database.protocol }}"
             - name: DATABASE_AUTO_DISCOVERY_DATABASE
