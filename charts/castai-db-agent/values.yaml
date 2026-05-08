@@ -14,12 +14,14 @@ database:
   port: 5432
   # -- Username for database authentication. For IAM auth, use the format: "service-account-name@project-id.iam"
   username: ""
-  # -- Password for database authentication (not required when useIAMAuth is true)
+  # -- Password for database authentication (not required when useCloudSQLIAMAuth is true)
   password: ""
-  # -- Name of secret with database credentials (username and password). Not required when using useIAMAuth with inline username.
+  # -- Name of secret with database credentials (username and password). Not required when using useCloudSQLIAMAuth or useRDSIAMAuth with inline username.
   credentialsSecretRef: ""
   # -- Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details.
-  useIAMAuth: false
+  useCloudSQLIAMAuth: false
+  # -- Enable IAM authentication for database connection (AWS RDS IAM). Requires IAM role with rds-db:connect permission.
+  useRDSIAMAuth: false
   # -- Database protocol to use. Supported values: postgres, mysql.
   protocol: postgres
   # -- Database name to use for connecting to database instance for auto-discovering logical databases. This is only required for Postgres
