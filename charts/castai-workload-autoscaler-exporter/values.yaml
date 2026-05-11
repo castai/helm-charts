@@ -205,6 +205,13 @@ exporter:
     # default value.
     # sidecarNamePatterns:
       # - "foo"
+
+    nodeMetrics:
+      # Mode defines the connection mode: kubelet, api-server.
+      # - kubelet: Direct kubelet access on node port 10250 (may be blocked by firewall)
+      # - api-server: API Server proxy (works through firewall)
+      mode: api-server
+
 prometheus:
   enabled: true
   serviceAccount:

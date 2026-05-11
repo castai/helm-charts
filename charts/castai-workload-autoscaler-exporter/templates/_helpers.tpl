@@ -92,3 +92,15 @@ Create the name of the service account to use
 {{- default "default" .Values.exporter.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Resolve the node metrics mode, handling both defined and undefined cases.
+Returns: "api-server" (default) or "kubelet"
+*/}}
+{{- define "exporter.nodeMetricsMode" -}}
+{{- if .Values.exporter.config.nodeMetrics.mode }}
+{{- .Values.exporter.config.nodeMetrics.mode }}
+{{- else }}
+api-server
+{{- end }}
+{{- end }}
