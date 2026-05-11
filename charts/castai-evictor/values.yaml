@@ -214,7 +214,7 @@ apiKeySecretRef: ""
 clusterVPA:
   repository: "registry.k8s.io/cpa/cpvpa"
   enabled: true
-  version: v0.8.4
+  version: v0.8.10
   pollPeriodSeconds: 300
   resources: {}
   # configOverride -- Override the default ClusterVPA calculation configuration.
