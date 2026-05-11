@@ -6,14 +6,6 @@ metadata:
   labels:
   {{- include "exporter.labels" . | nindent 4 }}
 rules:
-  {{- if ne (include "exporter.nodeMetricsMode" .) "kubelet" }}
-  - apiGroups:
-      - ""
-    resources:
-      - nodes/proxy
-    verbs:
-      - get
-  {{- end }}
   - apiGroups:
       - ""
     resources:
