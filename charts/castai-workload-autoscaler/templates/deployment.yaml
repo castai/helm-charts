@@ -108,6 +108,10 @@ spec:
             - name: RQ_UPSCALING_HEADROOM_PERCENT
               value: {{ quote .Values.resourceQuotaAwareScaling.headroomPercent }}
             {{- end}}
+            {{- if .Values.gpu.enabled }}
+            - name: GPU_SCALING_ENABLED
+              value: {{ quote .Values.gpu.enabled }}
+            {{- end}}
             {{- if .Values.evictionRateLimitingEnabled}}
             - name: EVICTION_RATE_LIMITING_ENABLED
               value: {{ quote .Values.evictionRateLimitingEnabled }}

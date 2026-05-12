@@ -51,7 +51,7 @@ dependencies:
       - workload-autoscaler
       - full
   - name: castai-evictor
-    version: "0.35.43"
+    version: "0.35.47"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-evictor.enabled
     tags:
@@ -75,7 +75,7 @@ dependencies:
       - node-autoscaler
       - full
   - name: castai-live
-    version: "0.91.0"
+    version: "0.92.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
     tags:
@@ -83,14 +83,14 @@ dependencies:
       - full
   # ── workload-autoscaler + full ────────────────────────────────────────────────
   - name: castai-workload-autoscaler
-    version: "1.0.12"
+    version: "1.0.14"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
     tags:
       - workload-autoscaler
       - full
   - name: castai-workload-autoscaler-exporter
-    version: "1.0.12"
+    version: "1.0.14"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler-exporter.enabled
     tags:
