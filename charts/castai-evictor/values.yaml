@@ -15,6 +15,9 @@ global:
   # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
   # When set, it is prepended to all image repositories.
   registry: ""
+  # global.apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
+  # Takes effect when apiKeySecretRef is not set locally.
+  apiKeySecretRef: ""
 
 # dryRyn -- Specifies whether the Evictor should run in dryRun mode (Read-Only).
 # if true, evictor will just log action(s) it would perform
