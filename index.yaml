@@ -2351,6 +2351,33 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-05-12T10:00:48.58419243Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 85eeed77e54b3aa8a57aa7160564cc463d777cf94b0fba8591f5194e6ca67d70
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.34.31/castai-0.34.31.tgz
+    version: 0.34.31
+  - apiVersion: v2
     created: "2026-05-11T18:24:29.904602915Z"
     dependencies:
     - condition: kent.enabled
@@ -55668,4 +55695,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-05-12T09:58:25.909917378Z"
+generated: "2026-05-12T10:00:48.591282652Z"
