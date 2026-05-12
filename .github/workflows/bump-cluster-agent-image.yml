@@ -105,12 +105,10 @@ jobs:
         env:
           GITLAB_TOKEN: ${{ secrets.KUBECAST_GITLAB_TOKEN }}
         run: |
-          git clone https://gitlab.com/castai/kubecast.git kubecast
+          git clone "https://oauth2:${GITLAB_TOKEN}@gitlab.com/castai/kubecast.git" kubecast
           cd kubecast
           git config user.email "ci@cast.ai"
           git config user.name "GitHub Actions"
-          git config --local credential.helper \
-            '!f() { echo "username=oauth2"; echo "password='"${GITLAB_TOKEN}"'"; }; f'
 
       - name: Bump image tag and chart version
         id: bump
