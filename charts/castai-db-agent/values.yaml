@@ -56,3 +56,13 @@ cloudSqlProxyImage:
   repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
+
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: false
+  # -- Annotations to add to the service account (e.g. for AWS IRSA: eks.amazonaws.com/role-arn: <ARN>)
+  annotations: {}
+  # -- The name of the service account to use.
+  # If not set and create is true, the chart name is used.
+  # If not set and create is false, "default" is used.
+  name: ""

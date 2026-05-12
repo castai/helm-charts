@@ -32,3 +32,11 @@ helm.sh/chart: {{ include "chart" . }}
 {{- define "cloudSqlProxyImage" -}}
 {{-  default (include "defaultCloudSqlProxyVersion" .) .Values.cloudSqlProxyImage.tag }}
 {{- end }}
+
+{{- define "castai-db-agent.serviceAccountName" -}}
+{{- if .Values.serviceAccount.create }}
+{{- default (include "name" .) .Values.serviceAccount.name }}
+{{- else }}
+{{- default "default" .Values.serviceAccount.name }}
+{{- end }}
+{{- end }}
