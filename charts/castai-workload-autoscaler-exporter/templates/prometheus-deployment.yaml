@@ -22,6 +22,9 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/prometheus-config.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
       serviceAccountName: {{ template "exporter.serviceAccountName" . }}-prometheus
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:

@@ -36,6 +36,11 @@ castai:
 # workloadWhitelistingEnabled-- Enable whitelisting mode for workload autoscaler exporter. When set to true, only metrics of workloads explicitly labeled as whitelisted will be exported.
 workloadWhitelistingEnabled: false
 
+# priorityClass -- K8s priority class for the exporter pods. When enabled, reduces the chance of kubelet preemption.
+priorityClass:
+  enabled: false
+  name: system-cluster-critical
+
 # Pod security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
 podSecurityContext:
@@ -205,6 +210,13 @@ exporter:
     # default value.
     # sidecarNamePatterns:
       # - "foo"
+
+    nodeMetrics:
+      # Mode defines the connection mode: kubelet, api-server.
+      # - kubelet: Direct kubelet access on node port 10250 (may be blocked by firewall)
+      # - api-server: API Server proxy (works through firewall)
+      mode: api-server
+
 prometheus:
   enabled: true
   serviceAccount:

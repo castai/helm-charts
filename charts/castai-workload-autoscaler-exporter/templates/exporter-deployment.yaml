@@ -19,6 +19,9 @@ spec:
         app.kubernetes.io/name: {{ include "exporter.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
       serviceAccountName: {{ template "exporter.serviceAccountName" . }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -46,6 +49,8 @@ spec:
             value: {{ quote (coalesce .Values.exporter.config.metric_limit .Values.exporter.config.metricLimit) }}
           - name: METRICS_CLIENT_INSECURE
             value: {{ quote .Values.exporter.config.metricsClientInsecure }}
+          - name: NODE_METRICS_MODE
+            value: {{ quote .Values.exporter.config.nodeMetrics.mode }}
           - name: METRICS_PORT
             value: {{ quote .Values.exporter.metrics.port }}
           - name: HEALTH_PROBE_PORT
