@@ -14,6 +14,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
+      serviceAccountName: {{ include "castai-db-agent.serviceAccountName" . }}
       containers:
         - name: db-agent
           image: "{{.Values.image.repository}}:{{ include "dbAgentImage" . }}"
