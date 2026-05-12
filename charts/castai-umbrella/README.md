@@ -314,7 +314,6 @@ helm upgrade castai castai-helm/castai \
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | autoscaler | object | `{}` |  |
-| castai-cluster-agent | object | `{"global":{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","grpcURL":"grpc.cast.ai:443","provider":""}}` | Values for the unified cluster-agent sub-chart. Enable with: --set tags.castai-cluster-agent=true Also set a mode tag to select which components to deploy:   --set castai-cluster-agent.tags.readonly=true   (or node-autoscaler, workload-autoscaler, full)  The unified chart uses a flat global.* schema. Map umbrella globals explicitly:   --set castai-cluster-agent.global.apiKey=<KEY>   --set castai-cluster-agent.global.provider=<PROVIDER>  Component overrides (stable with --reuse-values):   --set castai-cluster-agent.castai-kvisor.enabled=false |
 | extraObjects | list | `[]` | List of extra Kubernetes objects to render with the chart. Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella. Each item must be a valid Kubernetes manifest (apiVersion, kind, metadata, spec). |
 | global.castai.apiKey | string | `""` |  |
 | global.castai.apiKeySecretRef | string | `""` |  |
