@@ -12,11 +12,11 @@ Wrapper chart for CAST AI Kent profile.
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.1 |
 | https://castai.github.io/helm-charts | castai-kentroller | 0.1.138 |
 | https://castai.github.io/helm-charts | castai-kvisor | 1.0.159 |
-| https://castai.github.io/helm-charts | castai-live | 0.91.0 |
+| https://castai.github.io/helm-charts | castai-live | 0.92.0 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.13.1 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.12 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.0.12 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.14 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.0.14 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
 
 ## Values
