@@ -44,17 +44,12 @@ autoscaler: {}
 # castai-cluster-agent -- Values for the unified cluster-agent sub-chart.
 # Enable with: --set tags.castai-cluster-agent=true
 # Also set a mode tag to select which components to deploy:
-#   --set tags.readonly=true (or node-autoscaler, workload-autoscaler, full)
+#   --set castai-cluster-agent.tags.readonly=true
+#   (or node-autoscaler, workload-autoscaler, full)
 #
 # The unified chart uses a flat global.* schema. Map umbrella globals explicitly:
-#   --set castai-cluster-agent.global.apiKey=<KEY>     (or apiKeySecretRef)
+#   --set castai-cluster-agent.global.apiKey=<KEY>
 #   --set castai-cluster-agent.global.provider=<PROVIDER>
-#   --set castai-cluster-agent.global.apiURL=https://api.cast.ai
-#   --set castai-cluster-agent.global.grpcURL=grpc.cast.ai:443
-#
-# Mode tags are forwarded via castai-cluster-agent.tags.* — set them at the
-# root (tags.<mode>=true) and they are applied inside the unified chart via:
-#   --set castai-cluster-agent.tags.<mode>=true
 #
 # Component overrides (stable with --reuse-values):
 #   --set castai-cluster-agent.castai-kvisor.enabled=false

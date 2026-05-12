@@ -10,16 +10,18 @@ Umbrella chart for CAST AI components.
 | file://charts/autoscaler-openshift | autoscaler-openshift | * |
 | file://charts/autoscaler | autoscaler | * |
 | file://charts/kent | kent | * |
+| https://castai.github.io/helm-charts | castai-cluster-agent | 0.2.2 |
 
 ## Usage
 
-This chart bundles three independent product profiles. Enable exactly one per install.
+This chart bundles four independent product profiles. Enable exactly one per install.
 
 | Bundle | Enabled by | Target clusters | Components |
 |--------|-----------|----------------|-----------|
 | **autoscaler** | `tags.<mode>=true` | Managed cloud (EKS, AKS, GKE) | Mode-dependent — see [Autoscaler](#autoscaler) |
 | **autoscaler-anywhere** | `tags.autoscaler-anywhere=true` | Non-managed (bare metal, on-prem, edge) | castai-agent, castai-cluster-controller, castai-workload-autoscaler, castai-workload-autoscaler-exporter, castai-evictor, castai-pod-mutator |
 | **kent** | `kent.enabled=true` | EKS only | castai-agent, castai-cluster-controller, castai-kentroller, castai-workload-autoscaler, castai-live, castai-pod-mutator |
+| **castai-cluster-agent** | `tags.castai-cluster-agent=true` | Managed cloud (EKS, AKS, GKE) | Unified chart — mode-dependent, see [Castai Cluster Agent](#castai-cluster-agent) |
 
 ---
 
@@ -263,11 +265,56 @@ helm upgrade castai castai-helm/castai \
 
 ---
 
+## Castai Cluster Agent
+
+Unified chart that bundles all CAST AI components in a single release. Mutually exclusive with the **autoscaler**, **autoscaler-anywhere**, and **autoscaler-openshift** profiles.
+
+Uses its own flat `global.*` schema (distinct from `global.castai.*` used by the other profiles).
+
+### Modes
+
+Same mode tags as the autoscaler profile apply inside the unified chart:
+
+| Tag | Components |
+|-----|-----------|
+| `readonly` | castai-agent, castai-spot-handler, castai-kvisor |
+| `node-autoscaler` | castai-agent, castai-spot-handler, castai-kvisor, castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-pod-pinner |
+| `workload-autoscaler` | castai-agent, castai-spot-handler, castai-kvisor, castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-workload-autoscaler, castai-workload-autoscaler-exporter |
+| `full` | all components |
+
+### Install
+
+```shell
+helm repo add castai-helm https://castai.github.io/helm-charts
+helm repo update
+
+helm upgrade --install castai castai-helm/castai \
+  --namespace castai-agent --create-namespace \
+  --set tags.castai-cluster-agent=true \
+  --set castai-cluster-agent.global.apiKey=<YOUR_API_KEY> \
+  --set castai-cluster-agent.global.provider=<eks|aks|gke> \
+  --set castai-cluster-agent.tags.full=true
+```
+
+### Configuring individual components
+
+Use the `castai-cluster-agent.<component>.*` prefix:
+
+```shell
+helm upgrade castai castai-helm/castai \
+  --namespace castai-agent \
+  --reset-then-reuse-values \
+  --set castai-cluster-agent.castai-kvisor.enabled=false
+```
+
+---
+
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | autoscaler | object | `{}` |  |
+| castai-cluster-agent | object | `{"global":{"apiKey":"","apiKeySecretRef":"","apiURL":"https://api.cast.ai","grpcURL":"grpc.cast.ai:443","provider":""}}` | Values for the unified cluster-agent sub-chart. Enable with: --set tags.castai-cluster-agent=true Also set a mode tag to select which components to deploy:   --set castai-cluster-agent.tags.readonly=true   (or node-autoscaler, workload-autoscaler, full)  The unified chart uses a flat global.* schema. Map umbrella globals explicitly:   --set castai-cluster-agent.global.apiKey=<KEY>   --set castai-cluster-agent.global.provider=<PROVIDER>  Component overrides (stable with --reuse-values):   --set castai-cluster-agent.castai-kvisor.enabled=false |
 | extraObjects | list | `[]` | List of extra Kubernetes objects to render with the chart. Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella. Each item must be a valid Kubernetes manifest (apiVersion, kind, metadata, spec). |
 | global.castai.apiKey | string | `""` |  |
 | global.castai.apiKeySecretRef | string | `""` |  |
@@ -278,7 +325,7 @@ helm upgrade castai castai-helm/castai \
 | global.tolerations | list | `[]` |  |
 | kent.enabled | bool | `false` |  |
 | kent.preflight.enabled | bool | `true` |  |
-| tags | object | `{"autoscaler-anywhere":false,"autoscaler-openshift":false,"full":false,"node-autoscaler":false,"readonly":false,"workload-autoscaler":false}` | Profile mode selection (mutually exclusive — pick one). Component overrides are stable across all mode upgrades with --reuse-values:   --set autoscaler.castai-kvisor.enabled=false |
+| tags | object | `{"autoscaler-anywhere":false,"autoscaler-openshift":false,"castai-cluster-agent":false,"full":false,"node-autoscaler":false,"readonly":false,"workload-autoscaler":false}` | Profile mode selection (mutually exclusive — pick one). When castai-cluster-agent is true, all other mode tags must be false (and vice versa). Mode tags (readonly, node-autoscaler, workload-autoscaler, full) are passed through to the castai-cluster-agent sub-chart and control which components are enabled within it.  Component overrides with autoscaler sub-chart:   --set autoscaler.castai-kvisor.enabled=false Component overrides with castai-cluster-agent sub-chart:   --set castai-cluster-agent.castai-kvisor.enabled=false |
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)

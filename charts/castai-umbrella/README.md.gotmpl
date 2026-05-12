@@ -6,13 +6,14 @@
 
 ## Usage
 
-This chart bundles three independent product profiles. Enable exactly one per install.
+This chart bundles four independent product profiles. Enable exactly one per install.
 
 | Bundle | Enabled by | Target clusters | Components |
 |--------|-----------|----------------|-----------|
 | **autoscaler** | `tags.<mode>=true` | Managed cloud (EKS, AKS, GKE) | Mode-dependent — see [Autoscaler](#autoscaler) |
 | **autoscaler-anywhere** | `tags.autoscaler-anywhere=true` | Non-managed (bare metal, on-prem, edge) | castai-agent, castai-cluster-controller, castai-workload-autoscaler, castai-workload-autoscaler-exporter, castai-evictor, castai-pod-mutator |
 | **kent** | `kent.enabled=true` | EKS only | castai-agent, castai-cluster-controller, castai-kentroller, castai-workload-autoscaler, castai-live, castai-pod-mutator |
+| **castai-cluster-agent** | `tags.castai-cluster-agent=true` | Managed cloud (EKS, AKS, GKE) | Unified chart — mode-dependent, see [Castai Cluster Agent](#castai-cluster-agent) |
 
 ---
 
@@ -252,6 +253,50 @@ helm upgrade castai castai-helm/castai \
   --reset-then-reuse-values \
   --set kent.metrics-server.enabled=true \
   --set kent.castai-live.controller.replicaCount=2
+```
+
+---
+
+## Castai Cluster Agent
+
+Unified chart that bundles all CAST AI components in a single release. Mutually exclusive with the **autoscaler**, **autoscaler-anywhere**, and **autoscaler-openshift** profiles.
+
+Uses its own flat `global.*` schema (distinct from `global.castai.*` used by the other profiles).
+
+### Modes
+
+Same mode tags as the autoscaler profile apply inside the unified chart:
+
+| Tag | Components |
+|-----|-----------|
+| `readonly` | castai-agent, castai-spot-handler, castai-kvisor |
+| `node-autoscaler` | castai-agent, castai-spot-handler, castai-kvisor, castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-pod-pinner |
+| `workload-autoscaler` | castai-agent, castai-spot-handler, castai-kvisor, castai-cluster-controller, castai-evictor, castai-pod-mutator, castai-workload-autoscaler, castai-workload-autoscaler-exporter |
+| `full` | all components |
+
+### Install
+
+```shell
+helm repo add castai-helm https://castai.github.io/helm-charts
+helm repo update
+
+helm upgrade --install castai castai-helm/castai \
+  --namespace castai-agent --create-namespace \
+  --set tags.castai-cluster-agent=true \
+  --set castai-cluster-agent.global.apiKey=<YOUR_API_KEY> \
+  --set castai-cluster-agent.global.provider=<eks|aks|gke> \
+  --set castai-cluster-agent.tags.full=true
+```
+
+### Configuring individual components
+
+Use the `castai-cluster-agent.<component>.*` prefix:
+
+```shell
+helm upgrade castai castai-helm/castai \
+  --namespace castai-agent \
+  --reset-then-reuse-values \
+  --set castai-cluster-agent.castai-kvisor.enabled=false
 ```
 
 ---

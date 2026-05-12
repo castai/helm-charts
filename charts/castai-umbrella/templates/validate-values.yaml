@@ -42,8 +42,8 @@
 
 {{/* ── castai-cluster-agent uses its own global schema; validate it has api key ─ */}}
 {{- if $clusterAgentEnabled }}
-{{- $caGlobal := index .Values "castai-cluster-agent" | default dict }}
-{{- $caGlobal = $caGlobal.global | default dict }}
+{{- $ca := index .Values "castai-cluster-agent" | default dict }}
+{{- $caGlobal := $ca.global | default dict }}
 {{- if and (not $caGlobal.apiKey) (not $caGlobal.apiKeySecretRef) }}
 {{ fail "Either castai-cluster-agent.global.apiKey or castai-cluster-agent.global.apiKeySecretRef is required when enabling tags.castai-cluster-agent" }}
 {{- end }}
