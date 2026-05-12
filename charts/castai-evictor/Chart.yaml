@@ -14,14 +14,21 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 0.35.48
+version: 0.35.49
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
 appVersion: 8cb2300c386961b68f8ab522fdd2ed552c72af21
 annotations:
-  release-date: "2026-05-12T10:39:54"
+  release-date: "2026-05-07T06:52:09"
+  artifacthub.io/changes: |
+    - kind: removed
+      description: |
+        Removed 'karpenterMode' values block and the KARPENTER_MODE_ENABLED env var.
+        This was a legacy code path intended for KENT integration; it caused Evictor
+        to label Karpenter-managed nodes in a way that prevented Karpenter consolidation.
+        See UPGRADING.md for required manual node cleanup steps.
 # GitHub actions fails when 'chart' directory is used for dependencies.
 dependencies:
   - name: castai-evictor-ext

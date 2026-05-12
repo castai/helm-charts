@@ -85,19 +85,15 @@ podMutations:
   # This option requires the castai-pod-mutator to be installed in the cluster.
   enabled: true
 
-# karpenterMode -- Specifies settings for working with Karpenter NodePool and NodeClaim resources.
-karpenterMode:
-  # If true, Evictor will consider Karpenter NodePool and NodeClaim information when making eviction decisions.
-  # This allows the evictor to understand Karpenter's node provisioning plans and make more informed optimization decisions.
-  # When enabled, the evictor will have access to read Karpenter resources for cluster optimization.
-  enabled: false
-
 # leaderElection -- Specifies leader election parameters.
 leaderElection:
   # leaderElection.enabled -- Whether to enable leader election.
   enabled: true
 
-# karpenterNodeCleanup -- Specifies Karpenter node cleanup parameters.
+# karpenterNodeCleanup -- Karpenter NodeClaim cleanup for nodes Evictor has drained.
+# When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully
+# drained, so Karpenter's termination controller can clean up the EC2 instance.
+# Requires `nodeclaims.karpenter.sh` get/list/watch/delete permission (granted by this chart).
 karpenterNodeCleanup:
   # karpenterNodeCleanup.enabled -- Whether to enable cleanup of Karpenter nodes.
   enabled: false
