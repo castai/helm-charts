@@ -45,8 +45,7 @@ Cluster utilization defragmentation tool
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
-| karpenterMode | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources. |
-| karpenterNodeCleanup | object | `{"enabled":false}` | Specifies Karpenter node cleanup parameters. |
+| karpenterNodeCleanup | object | `{"enabled":false}` | Karpenter NodeClaim cleanup for nodes Evictor has drained. When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully drained, so Karpenter's termination controller can clean up the EC2 instance. Requires `nodeclaims.karpenter.sh` get/list/watch/delete permission (granted by this chart). |
 | karpenterNodeCleanup.enabled | bool | `false` | Whether to enable cleanup of Karpenter nodes. |
 | kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100}}` | Specifies Kubernetes client settings. |
 | kubernetesClient.rateLimiter.burst | int | `200` | Burst controls the maximum queries per second that the client is allowed to issue in a short burst. |

@@ -88,20 +88,6 @@ rules:
       - delete
       - update
   # ------------------------------------------------
-  # KARPENTER MODE: accessing NodePool and NodeClaim resources
-  # ------------------------------------------------
-  - apiGroups:
-      - karpenter.sh
-    resources:
-      - nodepools
-      - nodepool
-      - nodeclaims
-      - nodeclaim
-    verbs:
-      - get
-      - list
-      - watch
-  # ------------------------------------------------
   # Pod events (for node-related pod events feature)
   # ------------------------------------------------
   - apiGroups:
