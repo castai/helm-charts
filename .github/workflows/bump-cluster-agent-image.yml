@@ -123,25 +123,12 @@ jobs:
           COMPONENT: ${{ steps.check.outputs.component }}
           IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
         run: |
-          VALUES=kubecast/castai-cluster-agent/chart/values.yaml
-          CHART_YAML=kubecast/castai-cluster-agent/chart/Chart.yaml
-
-          CURRENT_TAG=$(yq e ".\"${COMPONENT}\".image.tag" "$VALUES")
-          if [ "$CURRENT_TAG" = "$IMAGE_TAG" ]; then
-            echo "Image tag is already ${IMAGE_TAG} — nothing to do."
-            echo "changed=false" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          yq e -i ".\"${COMPONENT}\".image.tag = \"${IMAGE_TAG}\"" "$VALUES"
-
-          CURRENT_VERSION=$(yq e '.version' "$CHART_YAML")
-          NEW_VERSION=$(echo "$CURRENT_VERSION" | awk -F. '{printf "%d.%d.%d", $1, $2, $3+1}')
-          yq e -i ".version = \"${NEW_VERSION}\"" "$CHART_YAML"
-
-          echo "changed=true" >> $GITHUB_OUTPUT
-          echo "old_tag=${CURRENT_TAG}" >> $GITHUB_OUTPUT
-          echo "new_version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          python3 .github/scripts/bump-kubecast-image.py \
+            kubecast/castai-cluster-agent/chart/values.yaml \
+            kubecast/castai-cluster-agent/chart/Chart.yaml \
+            "${COMPONENT}" \
+            "${IMAGE_TAG}" \
+            | tee /tmp/bump-output.txt | grep -E '^(changed|old_tag|new_version)=' >> $GITHUB_OUTPUT
 
       - name: Push branch and open GitLab MR
         if: steps.bump.outputs.changed == 'true'
@@ -177,8 +164,14 @@ jobs:
             -d "$(jq -n \
               --arg source "$BRANCH" \
               --arg title "[castai-cluster-agent] Bump ${COMPONENT} to ${IMAGE_TAG}" \
-              --arg desc "Automated image bump triggered by [helm-charts release ${RELEASE_TAG}](${RELEASE_URL}).\n\n| | |\n|---|---|\n| **Component** | \`${COMPONENT}\` |\n| **Old tag** | \`${OLD_TAG}\` |\n| **New tag** | \`${IMAGE_TAG}\` |\n| **Chart version** | \`${NEW_VERSION}\` |" \
-              '{source_branch: $source, target_branch: "master", title: $title, description: $desc, labels: "team::identity"}')")
+              --arg component "$COMPONENT" \
+              --arg old_tag "$OLD_TAG" \
+              --arg new_tag "$IMAGE_TAG" \
+              --arg chart_version "$NEW_VERSION" \
+              --arg release_tag "$RELEASE_TAG" \
+              --arg release_url "$RELEASE_URL" \
+              '{ source_branch: $source, target_branch: "master", title: $title, labels: "team::identity",
+                 description: ("Automated image bump triggered by [helm-charts release \($release_tag)](\($release_url)).\n\n| | |\n|---|---|\n| **Component** | `\($component)` |\n| **Old tag** | `\($old_tag)` |\n| **New tag** | `\($new_tag)` |\n| **Chart version** | `\($chart_version)` |") }')")
           HTTP_CODE=$(echo "$RESPONSE" | tail -1)
           BODY=$(echo "$RESPONSE" | head -n -1)
           if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
