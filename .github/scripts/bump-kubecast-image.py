@@ -14,16 +14,11 @@ import re
 import sys
 
 
-def replace_preserving_format(content, pattern, replacement):
-    match = re.search(pattern, content)
-    if not match:
-        print(f"Pattern not found: {pattern}", file=sys.stderr)
-        sys.exit(1)
-    return content[: match.start(1)] + replacement + content[match.end(1) :]
-
-
 def bump_patch(version):
     parts = version.strip().split(".")
+    if len(parts) != 3 or not parts[2].isdigit():
+        print(f"Unexpected version format: {version!r} (expected x.y.z)", file=sys.stderr)
+        sys.exit(1)
     return f"{parts[0]}.{parts[1]}.{int(parts[2]) + 1}"
 
 
@@ -37,23 +32,23 @@ def main():
     with open(values_path) as f:
         values = f.read()
 
-    # Find current tag under the component block.
-    # Matches:  <component>:\n  ...\n    image:\n      tag: <value>
-    pattern = rf"(?m)^{re.escape(component)}:.*?image:\s*\n\s+tag:\s*(\S+)"
+    # Capture optional surrounding quotes so we can preserve them in the replacement.
+    # Matches:  <component>:\n  ...\n    image:\n      tag: ["']?<value>["']?
+    pattern = rf"(?m)^{re.escape(component)}:.*?image:\s*\n\s+tag:\s*([\"']?)(\S+?)\1\s*$"
     match = re.search(pattern, values, re.DOTALL)
     if not match:
         print(f"Could not find {component}.image.tag in {values_path}", file=sys.stderr)
         sys.exit(1)
 
-    current_tag = match.group(1).strip('"').strip("'")
+    quote = match.group(1)
+    current_tag = match.group(2)
     if current_tag == image_tag:
         print(f"Image tag is already {image_tag} — nothing to do.")
         print("changed=false")
         sys.exit(0)
 
-    values = values[: match.start(1)] + image_tag + values[match.end(1) :]
-    with open(values_path, "w") as f:
-        f.write(values)
+    # Compute new values content (write deferred until both mutations succeed).
+    new_values = values[: match.start(1)] + quote + image_tag + quote + values[match.end(1) :]
 
     with open(chart_path) as f:
         chart = f.read()
@@ -65,9 +60,13 @@ def main():
 
     current_version = version_match.group(1)
     new_version = bump_patch(current_version)
-    chart = chart[: version_match.start(1)] + new_version + chart[version_match.end(1) :]
+    new_chart = chart[: version_match.start(1)] + new_version + chart[version_match.end(1) :]
+
+    # Both mutations validated — safe to write.
+    with open(values_path, "w") as f:
+        f.write(new_values)
     with open(chart_path, "w") as f:
-        f.write(chart)
+        f.write(new_chart)
 
     print(f"Bumped {component} image: {current_tag} -> {image_tag}")
     print(f"Bumped chart version: {current_version} -> {new_version}")
