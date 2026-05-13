@@ -101,7 +101,7 @@ jobs:
           echo "skip=false" >> $GITHUB_OUTPUT
 
       - name: Clone kubecast
-        if: steps.image.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' && steps.image.outputs.skip != 'true'
         env:
           GITLAB_TOKEN: ${{ secrets.KUBECAST_GITLAB_TOKEN }}
         run: |
@@ -113,7 +113,7 @@ jobs:
 
       - name: Bump image tag and chart version
         id: bump
-        if: steps.image.outputs.skip != 'true'
+        if: steps.check.outputs.skip != 'true' && steps.image.outputs.skip != 'true'
         env:
           COMPONENT: ${{ steps.check.outputs.component }}
           IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
@@ -164,7 +164,7 @@ jobs:
           git commit -m "Bump ${COMPONENT} image to ${IMAGE_TAG}"
           git push origin HEAD:"$BRANCH"
 
-          curl -sf --fail-with-body \
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X POST \
             -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
             -H "Content-Type: application/json" \
@@ -173,4 +173,11 @@ jobs:
               --arg source "$BRANCH" \
               --arg title "[castai-cluster-agent] Bump ${COMPONENT} to ${IMAGE_TAG}" \
               --arg desc "Automated image bump triggered by [helm-charts release ${RELEASE_TAG}](${RELEASE_URL}).\n\n| | |\n|---|---|\n| **Component** | \`${COMPONENT}\` |\n| **Old tag** | \`${OLD_TAG}\` |\n| **New tag** | \`${IMAGE_TAG}\` |\n| **Chart version** | \`${NEW_VERSION}\` |" \
-              '{source_branch: $source, target_branch: "master", title: $title, description: $desc}')"
+              '{source_branch: $source, target_branch: "master", title: $title, description: $desc, labels: "team::identity"}')")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "GitLab MR creation failed (HTTP ${HTTP_CODE}): ${BODY}"
+            exit 1
+          fi
+          echo "MR created: $(echo "$BODY" | jq -r '.web_url')"
