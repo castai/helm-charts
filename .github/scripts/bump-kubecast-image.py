@@ -32,24 +32,35 @@ def main():
     with open(values_path) as f:
         values = f.read()
 
-    # Capture optional surrounding quotes so we can preserve them in the replacement.
-    # Matches the tag: line anywhere inside the component's image: block,
-    # allowing other keys (repository:, pullPolicy:, etc.) to appear before tag:.
-    pattern = rf"(?m)^{re.escape(component)}:.*?image:.*?^\s+tag:\s*([\"']?)(\S+?)\1\s*$"
-    match = re.search(pattern, values, re.DOTALL | re.MULTILINE)
-    if not match:
+    # Find the component's block (ends at the next top-level key or EOF),
+    # then locate image.tag within that block only — no cross-boundary matching.
+    block_pattern = rf"(?m)^{re.escape(component)}:\n((?:[ \t].*\n|\n)*)"
+    block_match = re.search(block_pattern, values)
+    if not block_match:
+        print(f"Could not find component {component!r} in {values_path}", file=sys.stderr)
+        sys.exit(1)
+
+    block_start = block_match.start(1)
+    block = block_match.group(1)
+
+    # Within the block, find image: stanza then tag: — constrained to 4-space indent.
+    tag_pattern = r"(?m)^  image:\n(?:    (?!tag:).*\n)*    tag:\s*([\"']?)(\S+?)\1\s*$"
+    tag_match = re.search(tag_pattern, block)
+    if not tag_match:
         print(f"Could not find {component}.image.tag in {values_path}", file=sys.stderr)
         sys.exit(1)
 
-    quote = match.group(1)
-    current_tag = match.group(2)
+    quote = tag_match.group(1)
+    current_tag = tag_match.group(2)
     if current_tag == image_tag:
         print(f"Image tag is already {image_tag} — nothing to do.")
         print("changed=false")
         sys.exit(0)
 
-    # Compute new values content (write deferred until both mutations succeed).
-    new_values = values[: match.start(1)] + quote + image_tag + quote + values[match.end(1) :]
+    # Compute replacement at the absolute position in the full file.
+    abs_start = block_start + tag_match.start(1)
+    abs_end = block_start + tag_match.end(2)
+    new_values = values[:abs_start] + quote + image_tag + quote + values[abs_end:]
 
     with open(chart_path) as f:
         chart = f.read()
