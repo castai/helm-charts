@@ -1,6 +1,6 @@
 # castai-pod-mutator
 
-![Version: 0.13.1](https://img.shields.io/badge/Version-0.13.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.3.1](https://img.shields.io/badge/AppVersion-v0.3.1-informational?style=flat-square)
+![Version: 0.13.2](https://img.shields.io/badge/Version-0.13.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.3.1](https://img.shields.io/badge/AppVersion-v0.3.1-informational?style=flat-square)
 
 CAST AI Pod Mutator.
 
@@ -34,7 +34,8 @@ CAST AI Pod Mutator.
 | enforcer.scanInterval | string | `"10s"` |  |
 | envFrom | list | `[]` | Used to set additional environment variables for the pod-mutator container via configMaps or secrets. |
 | fullnameOverride | string | `"castai-pod-mutator"` |  |
-| global | object | `{"commonAnnotations":{},"commonLabels":{},"registry":""}` | Values to apply for the parent and child chart resources. |
+| global | object | `{"apiKeySecretRef":"","commonAnnotations":{},"commonLabels":{},"registry":""}` | Values to apply for the parent and child chart resources. |
+| global.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when castai.apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | global.commonLabels | object | `{}` | Labels to add to all resources. |
 | global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |
