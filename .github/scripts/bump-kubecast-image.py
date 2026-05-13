@@ -33,9 +33,10 @@ def main():
         values = f.read()
 
     # Capture optional surrounding quotes so we can preserve them in the replacement.
-    # Matches:  <component>:\n  ...\n    image:\n      tag: ["']?<value>["']?
-    pattern = rf"(?m)^{re.escape(component)}:.*?image:\s*\n\s+tag:\s*([\"']?)(\S+?)\1\s*$"
-    match = re.search(pattern, values, re.DOTALL)
+    # Matches the tag: line anywhere inside the component's image: block,
+    # allowing other keys (repository:, pullPolicy:, etc.) to appear before tag:.
+    pattern = rf"(?m)^{re.escape(component)}:.*?image:.*?^\s+tag:\s*([\"']?)(\S+?)\1\s*$"
+    match = re.search(pattern, values, re.DOTALL | re.MULTILINE)
     if not match:
         print(f"Could not find {component}.image.tag in {values_path}", file=sys.stderr)
         sys.exit(1)
