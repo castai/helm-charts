@@ -78,7 +78,8 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | envFrom | list | `[]` | Used to set additional environment variables for the spot handler container via configMaps or secrets. |
-| global | object | `{"registry":""}` | Global values propagated from parent charts. |
+| global | object | `{"apiKeySecretRef":"","registry":""}` | Global values propagated from parent charts. |
+| global.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey. |
 | global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/spot-handler"` |  |
