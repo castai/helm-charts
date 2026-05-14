@@ -187,15 +187,16 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{- if or .Values.apiKey .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- if or .Values.apiKey .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if or .Values.apiKey .Values.castai.apiKey }}
-                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- if ne $resolvedSecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
                 name: castai-cluster-controller
                 {{- else }}
-                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
                 {{- end }}
           {{- else if not .Values.envFrom }}
           {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
@@ -302,15 +303,16 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{- if or .Values.apiKey .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- if or .Values.apiKey .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if or .Values.apiKey .Values.castai.apiKey }}
-                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- if ne $resolvedSecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
                 name: castai-cluster-controller
                 {{- else }}
-                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
                 {{- end }}
           {{- else if not .Values.envFrom }}
           {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
