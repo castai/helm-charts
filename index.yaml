@@ -15247,6 +15247,24 @@ entries:
       release-date: 2024-06-04T07:10:07
     apiVersion: v2
     appVersion: v0.62.1
+    created: "2026-05-14T07:01:59.37472033Z"
+    dependencies:
+    - condition: castai-cluster-controller-ext.enabled
+      name: castai-cluster-controller-ext
+      repository: file://child-charts/castai-cluster-controller-ext
+      version: 0.1.1
+    description: Cluster controller is responsible for handling certain Kubernetes
+      actions such as draining and deleting nodes, adding labels, approving CSR requests.
+    digest: 9953126f2e82a943769e75e971e5b025efc4e4041ba2c6709b4ae87c186fccc5
+    name: castai-cluster-controller
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-0.92.2/castai-cluster-controller-0.92.2.tgz
+    version: 0.92.2
+  - annotations:
+      release-date: 2024-06-04T07:10:07
+    apiVersion: v2
+    appVersion: v0.62.1
     created: "2026-05-05T11:22:33.814780831Z"
     dependencies:
     - condition: castai-cluster-controller-ext.enabled
@@ -42814,6 +42832,17 @@ entries:
   castai-spot-handler:
   - apiVersion: v2
     appVersion: v0.23.0
+    created: "2026-05-14T07:01:59.510662974Z"
+    description: Spot Handler is the component responsible for scheduled events monitoring
+      and delivering them to the central platform.
+    digest: dd8a3dff1fd3dc763ec9486f528cfe89a589ccb182de28da9f301db71b1ee087
+    name: castai-spot-handler
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.35.1/castai-spot-handler-0.35.1.tgz
+    version: 0.35.1
+  - apiVersion: v2
+    appVersion: v0.23.0
     created: "2026-05-08T09:27:11.489376688Z"
     description: Spot Handler is the component responsible for scheduled events monitoring
       and delivering them to the central platform.
@@ -56229,4 +56258,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-05-14T07:01:33.707330134Z"
+generated: "2026-05-14T07:01:59.518333708Z"
