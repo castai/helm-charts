@@ -47,10 +47,14 @@ spec:
               {{- else }}
               value: "{{ required "target database port must be provided" .Values.database.port }}"
               {{- end }}
-              {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
+            {{- if eq .Values.database.protocol "postgres" }}
             - name: DATABASE_SSL_MODE
+              {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
               value: "disable"
+              {{- else }}
+              value: "{{ .Values.database.sslMode }}"
               {{- end }}
+            {{- end }}
             - name: DATABASE_USE_CLOUD_SQL_IAM_AUTH
               value: "{{ .Values.database.useCloudSQLIAMAuth }}"
             - name: DATABASE_USE_RDS_IAM_AUTH
