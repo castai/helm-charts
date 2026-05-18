@@ -37,10 +37,11 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts |
 | extraVolumes | list | `[]` | Used to set additional volumes |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
-| global | object | `{"apiKeySecretRef":"","commonAnnotations":{},"commonLabels":{},"registry":""}` | Global values that are propagated to child charts. |
+| global | object | `{"apiKeySecretRef":"","commonAnnotations":{},"commonLabels":{},"imagePullSecrets":[],"registry":""}` | Global values that are propagated to child charts. |
 | global.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when castai.apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources (including child charts). |
 | global.commonLabels | object | `{}` | Labels to add to all resources (including child charts). |
+| global.imagePullSecrets | list | `[]` | Image pull secrets applied to all pods. Merged with local imagePullSecrets. |
 | global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |
 | hostNetwork.enabled | bool | `false` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
