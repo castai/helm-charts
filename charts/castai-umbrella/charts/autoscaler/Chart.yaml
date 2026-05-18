@@ -24,7 +24,7 @@ dependencies:
       - workload-autoscaler
       - full
   - name: castai-kvisor
-    version: "1.160.0"
+    version: "1.160.1"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
     tags:
