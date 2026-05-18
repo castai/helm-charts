@@ -14,6 +14,8 @@ global:
   # global.apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
   # Takes effect when castai.apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey.
   apiKeySecretRef: ""
+  # global.imagePullSecrets -- Image pull secrets applied to all pods. Merged with local imagePullSecrets.
+  imagePullSecrets: []
 
 # replicas -- Number of replicas for castai-cluster-controller deployment.
 replicas: 2
