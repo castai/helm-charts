@@ -123,15 +123,16 @@ spec:
             {{- end }}
           {{- end }}
           envFrom:
-          {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- if or .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if .Values.castai.apiKey }}
-                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- if ne $resolvedSecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
                 name: pod-mutator
                 {{- else }}
-                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
                 {{- end }}
           {{- else if not .Values.envFrom }}
           {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
