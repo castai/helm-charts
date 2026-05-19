@@ -3,6 +3,10 @@ global:
   # When set, images are resolved as "<registry>/<original-repository>".
   # Example: registry: "my-registry.example.com"
   registry: ""
+  # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API.
+  # Can be set at the umbrella chart level to share a single secret across subcharts.
+  # Overridden by castai.apiKeySecretRef if both are set. Mutually exclusive with castai.apiKey.
+  apiKeySecretRef: ""
 
 image:
   repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
@@ -136,7 +140,8 @@ clusterAutoscaler:
 
 # jmxExporter -- Configuration for auto-instrumenting JVM pods with the JMX Prometheus Java agent.
 # When enabled, the mutating webhook injects an init container that copies the agent jar into a
-# shared emptyDir volume, sets JDK_JAVA_OPTIONS on every app container, and exposes port 9404.
+# shared emptyDir volume, sets JDK_JAVA_OPTIONS on every app container, and exposes ports starting
+# from the configured basePort (default: 9404, 9405, ...).
 #
 # The injected init container runs as UID 65532 (non-root) with a SecurityContext matching the
 # Pod Security Standard "restricted" profile. Pods that also enforce runAsNonRoot at the pod
@@ -157,6 +162,9 @@ jmxExporter:
   imagePullSecrets: []
   # - name: my-private-registry
   #
+  # basePort -- Initial port for JMX exporter. Each container in a pod gets a unique port
+  # starting from this value (default: 9404, 9405, ...).
+  basePort: 9404
   # resources -- requests/limits applied to the injected castai-jmx-exporter-init container.
   # Required in clusters with ResourceQuotas that mandate CPU/memory on every container.
   # Any field left empty is omitted on the container (e.g., set requests only, no limits).

@@ -145,6 +145,8 @@ spec:
               value: "true"
             - name: JMX_EXPORTER_INIT_IMAGE
               value: "{{ .Values.jmxExporter.initImage.repository }}:{{ .Values.jmxExporter.initImage.tag }}"
+            - name: JMX_EXPORTER_BASE_PORT
+              value: {{ quote .Values.jmxExporter.basePort }}
             {{- with .Values.jmxExporter.imagePullSecrets }}
             - name: JMX_EXPORTER_IMAGE_PULL_SECRETS
               value: "{{- range $i, $s := . }}{{ if $i }},{{ end }}{{ $s.name }}{{- end }}"
@@ -194,6 +196,7 @@ spec:
                   name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ required "clusterIdSecretKeyRef.key must be provided" .Values.castai.clusterIdSecretKeyRef.key }}
           {{- end }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
           envFrom:
             {{- if .Values.trustedCACert }}
             - secretRef:
@@ -202,18 +205,18 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
             {{- end }}
-              {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+              {{- if or .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if .Values.castai.apiKey }}
-                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- if ne $resolvedSecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
                 name: workload-autoscaler
                 {{- else }}
-                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
                 {{- end }}
               {{- else if not .Values.envFrom -}}
-              {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+              {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
               {{- end }}
             - configMapRef:
                 {{- if .Values.castai.configMapRef}}
