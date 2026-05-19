@@ -77,19 +77,20 @@ spec:
           - name: "{{ $name }}"
             value: "{{ $value }}"
           {{- end }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
           envFrom:
-            {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+            {{- if or .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if .Values.castai.apiKey }}
-                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- if ne $resolvedSecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
                   name: {{ include "exporter.fullname" . }}
                   {{- else }}
-                  name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                  name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
                   {{- end }}
             {{- else if not .Values.envFrom -}}
-            {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+            {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
             {{- end }}
             - configMapRef:
                 {{- if .Values.castai.configMapRef}}
