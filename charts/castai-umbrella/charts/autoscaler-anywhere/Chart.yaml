@@ -21,7 +21,7 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler-exporter.enabled
   - name: castai-evictor
-    version: "0.35.53"
+    version: "0.35.54"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-evictor.enabled
   - name: castai-pod-mutator
