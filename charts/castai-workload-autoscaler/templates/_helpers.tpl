@@ -101,15 +101,21 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "workload-autoscaler.exludeSelfLabelSelectors" -}}
+{{- /* Only exclude by name, not instance, to work with umbrella charts where multiple
+       workloads share the same .Release.Name (instance label). Using instance would
+       incorrectly exclude other workloads like kentroller from webhook mutation. */ -}}
 {{- range splitList "\n" (include "workload-autoscaler.selectorLabels" .)  }}
   {{- /* we split label keypair by `:`. Let's hope there are no `:` in the key*/ -}}
   {{- $parts := splitn ":" 2 . -}}
   {{- $key := trim $parts._0 -}}
   {{- $value := trim $parts._1 }}
+  {{- /* Skip instance label to avoid excluding other workloads in umbrella charts */ -}}
+  {{- if ne $key "app.kubernetes.io/instance" }}
 - key: {{ $key | quote }}
   operator: NotIn
   values:
     - {{ $value | quote }}
+  {{- end }}
 {{- end }}
 {{- end }}
 
