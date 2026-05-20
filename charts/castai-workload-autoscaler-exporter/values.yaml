@@ -3,6 +3,10 @@ global:
   # When set, images are resolved as "<registry>/<original-repository>".
   # Example: registry: "my-registry.example.com"
   registry: ""
+  # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API.
+  # Can be set at the umbrella chart level to share a single secret across subcharts.
+  # Overridden by castai.apiKeySecretRef if both are set. Mutually exclusive with castai.apiKey.
+  apiKeySecretRef: ""
 
 castai:
   # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
@@ -35,6 +39,11 @@ castai:
 
 # workloadWhitelistingEnabled-- Enable whitelisting mode for workload autoscaler exporter. When set to true, only metrics of workloads explicitly labeled as whitelisted will be exported.
 workloadWhitelistingEnabled: false
+
+# priorityClass -- K8s priority class for the exporter pods. When enabled, reduces the chance of kubelet preemption.
+priorityClass:
+  enabled: false
+  name: system-cluster-critical
 
 # Pod security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
@@ -199,12 +208,24 @@ exporter:
     metricsClientInsecure: false
     # Deprecated: use metricLimit instead
     metric_limit: ~
-    metricLimit: 10000
+    # Any non-positive value (-1 default, or 0) disables the limit. A positive
+    # integer caps the number of metrics forwarded per processMetric cycle. The
+    # collected count is reported via the exporter_metrics_collected operations
+    # metric on every cycle; the exporter_metrics_truncated operations metric is
+    # emitted only when the cap is exceeded.
+    metricLimit: -1
     # SidecarNamePatterns is a list of container names that are considered sidecars. If container label
     # is empty, then single non-sidecar container is used as main container. The property has internal
     # default value.
     # sidecarNamePatterns:
       # - "foo"
+
+    nodeMetrics:
+      # Mode defines the connection mode: kubelet, api-server.
+      # - kubelet: Direct kubelet access on node port 10250 (may be blocked by firewall)
+      # - api-server: API Server proxy (works through firewall)
+      mode: api-server
+
 prometheus:
   enabled: true
   serviceAccount:

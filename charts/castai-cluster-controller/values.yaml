@@ -11,6 +11,9 @@ global:
   # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
   # When set, it is prepended to all image repositories.
   registry: ""
+  # global.apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
+  # Takes effect when castai.apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey.
+  apiKeySecretRef: ""
 
 # replicas -- Number of replicas for castai-cluster-controller deployment.
 replicas: 2

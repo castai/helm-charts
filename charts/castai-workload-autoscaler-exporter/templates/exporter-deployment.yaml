@@ -19,6 +19,9 @@ spec:
         app.kubernetes.io/name: {{ include "exporter.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
       serviceAccountName: {{ template "exporter.serviceAccountName" . }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -46,6 +49,8 @@ spec:
             value: {{ quote (coalesce .Values.exporter.config.metric_limit .Values.exporter.config.metricLimit) }}
           - name: METRICS_CLIENT_INSECURE
             value: {{ quote .Values.exporter.config.metricsClientInsecure }}
+          - name: NODE_METRICS_MODE
+            value: {{ quote .Values.exporter.config.nodeMetrics.mode }}
           - name: METRICS_PORT
             value: {{ quote .Values.exporter.metrics.port }}
           - name: HEALTH_PROBE_PORT
@@ -72,19 +77,20 @@ spec:
           - name: "{{ $name }}"
             value: "{{ $value }}"
           {{- end }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
           envFrom:
-            {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+            {{- if or .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if .Values.castai.apiKey }}
-                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- if ne $resolvedSecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
                   name: {{ include "exporter.fullname" . }}
                   {{- else }}
-                  name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                  name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
                   {{- end }}
             {{- else if not .Values.envFrom -}}
-            {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+            {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
             {{- end }}
             - configMapRef:
                 {{- if .Values.castai.configMapRef}}

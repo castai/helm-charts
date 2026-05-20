@@ -26,6 +26,8 @@ database:
   protocol: postgres
   # -- Database name to use for connecting to database instance for auto-discovering logical databases. This is only required for Postgres
   autoDiscoveryDatabase: "postgres"
+  # -- SSL mode for database connection (Postgres only). Forced to "disable" when cloudSqlProxy is enabled.
+  sslMode: "require"
 # -- URL to the CAST AI API gRPC endpoint.
 gRPCEndpoint: ""
 collectors:

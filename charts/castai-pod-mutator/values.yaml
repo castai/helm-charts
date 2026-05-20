@@ -131,6 +131,9 @@ global:
   # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
   # When set, it is prepended to all image repositories.
   registry: ""
+  # global.apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
+  # Takes effect when castai.apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey.
+  apiKeySecretRef: ""
 
 mutator:
   # processingDelay -- Delay in seconds before the pod-mutator processes the pod. Default is 30s

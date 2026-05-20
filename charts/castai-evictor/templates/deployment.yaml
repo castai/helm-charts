@@ -133,12 +133,9 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- if not .Values.overrideEnvFrom}}
+          {{- $resolvedSecretRef := or .Values.apiKeySecretRef .Values.global.apiKeySecretRef }}
             - secretRef:
-                {{- if .Values.apiKeySecretRef }}
-                name: {{ .Values.apiKeySecretRef }}
-                {{- else }}
-                name: castai-cluster-controller
-                {{- end }}
+                name: {{ or $resolvedSecretRef "castai-cluster-controller" }}
                 optional: false
             - configMapRef:
                 name: castai-cluster-controller
