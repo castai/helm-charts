@@ -1,6 +1,6 @@
 # kent
 
-![Version: 0.12.0](https://img.shields.io/badge/Version-0.12.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.13.0](https://img.shields.io/badge/Version-0.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Kent profile.
 
@@ -24,7 +24,7 @@ Wrapper chart for CAST AI Kent profile.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| castai-agent.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-agent.apiKeySecretRef | string | `""` |  |
 | castai-agent.createNamespace | bool | `false` |  |
 | castai-agent.enabled | bool | `true` |  |
 | castai-agent.metadataStore.createConfigMap | bool | `true` |  |
@@ -34,14 +34,14 @@ Wrapper chart for CAST AI Kent profile.
 | castai-chart-upgrader.chart.repository | string | `"https://castai.github.io/helm-charts"` |  |
 | castai-chart-upgrader.enabled | bool | `false` |  |
 | castai-cluster-controller.autoscaling.enabled | bool | `false` |  |
-| castai-cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-cluster-controller.castai.apiKeySecretRef | string | `""` |  |
 | castai-cluster-controller.enabled | bool | `true` |  |
 | castai-cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| castai-kentroller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-kentroller.castai.apiKeySecretRef | string | `""` |  |
 | castai-kentroller.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-kentroller.enabled | bool | `true` |  |
 | castai-kvisor.agent.enabled | bool | `false` |  |
-| castai-kvisor.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-kvisor.castai.apiKeySecretRef | string | `""` |  |
 | castai-kvisor.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-kvisor.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-kvisor.controller.enabled | bool | `true` |  |
@@ -49,25 +49,25 @@ Wrapper chart for CAST AI Kent profile.
 | castai-kvisor.controller.extraArgs.log-level | string | `"info"` |  |
 | castai-kvisor.enabled | bool | `true` |  |
 | castai-live.castai-aws-vpc-cni.enabled | bool | `true` |  |
-| castai-live.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-live.castai.apiKeySecretRef | string | `""` |  |
 | castai-live.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | castai-live.controller.replicaCount | int | `0` |  |
 | castai-live.daemon.labelNodeSubnet | bool | `true` |  |
 | castai-live.enabled | bool | `true` |  |
-| castai-pod-mutator.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-pod-mutator.castai.apiKeySecretRef | string | `""` |  |
 | castai-pod-mutator.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | castai-pod-mutator.dependencyCheck.enabled | bool | `false` |  |
 | castai-pod-mutator.enabled | bool | `true` |  |
 | castai-pod-mutator.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| castai-spot-handler.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-spot-handler.apiKeySecretRef | string | `""` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-spot-handler.castai.provider | string | `"eks"` |  |
 | castai-spot-handler.enabled | bool | `true` |  |
-| castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `""` |  |
 | castai-workload-autoscaler-exporter.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | castai-workload-autoscaler-exporter.enabled | bool | `true` |  |
-| castai-workload-autoscaler.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-workload-autoscaler.castai.apiKeySecretRef | string | `""` |  |
 | castai-workload-autoscaler.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | castai-workload-autoscaler.enabled | bool | `true` |  |
 | metrics-server.enabled | bool | `false` |  |

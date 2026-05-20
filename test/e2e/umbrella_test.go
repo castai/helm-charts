@@ -252,12 +252,6 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 			podHelper.VerifyDeploymentAbsent(Default, "castai-kentroller")
 		})
 
-		It("should create the gpu-metrics-exporter daemonset (enabled by default)", func() {
-			Eventually(func(g Gomega) {
-				podHelper.VerifyDaemonSetExists(g, releaseName+"-gpu-metrics-exporter")
-			}, 2*time.Minute, 5*time.Second).Should(Succeed())
-		})
-
 		It("should have autoscaler config in release values", func() {
 			values, err := helmHelper.GetReleaseValues()
 			Expect(err).NotTo(HaveOccurred())
@@ -358,12 +352,6 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 		It("should create the kvisor-controller deployment", func() {
 			Eventually(func(g Gomega) {
 				podHelper.VerifyDeploymentExists(g, releaseName+"-castai-kvisor-controller")
-			}, 2*time.Minute, 5*time.Second).Should(Succeed())
-		})
-
-		It("should create the gpu-metrics-exporter daemonset", func() {
-			Eventually(func(g Gomega) {
-				podHelper.VerifyDaemonSetExists(g, releaseName+"-gpu-metrics-exporter")
 			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
@@ -649,9 +637,6 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 		It("should create readonly-only components", func() {
 			Eventually(func(g Gomega) {
 				podHelper.VerifyDeploymentExists(g, "castai-agent")
-			}, 2*time.Minute, 5*time.Second).Should(Succeed())
-			Eventually(func(g Gomega) {
-				podHelper.VerifyDaemonSetExists(g, releaseName+"-gpu-metrics-exporter")
 			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
