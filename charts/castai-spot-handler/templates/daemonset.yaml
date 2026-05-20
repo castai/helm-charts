@@ -106,7 +106,7 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{- $resolvedSecretRef := or .Values.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
           {{- if and .Values.castai.apiKey $resolvedSecretRef }}
             {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
           {{- end }}
