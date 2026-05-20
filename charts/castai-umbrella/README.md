@@ -10,7 +10,7 @@ Umbrella chart for CAST AI components.
 | file://charts/autoscaler-openshift | autoscaler-openshift | * |
 | file://charts/autoscaler | autoscaler | * |
 | file://charts/kent | kent | * |
-| https://castai.github.io/helm-charts | castai-cluster-agent | 0.2.2 |
+| https://castai.github.io/helm-charts | castai-cluster-agent | 0.3.0 |
 
 ## Usage
 
