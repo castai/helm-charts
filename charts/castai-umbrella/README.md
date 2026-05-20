@@ -269,6 +269,7 @@ helm upgrade castai castai-helm/castai \
 |-----|------|---------|-------------|
 | autoscaler | object | `{}` |  |
 | extraObjects | list | `[]` | List of extra Kubernetes objects to render with the chart. Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella. Each item must be a valid Kubernetes manifest (apiVersion, kind, metadata, spec). |
+| global.apiKeySecretRef | string | `""` |  |
 | global.castai.apiKey | string | `""` |  |
 | global.castai.apiKeySecretRef | string | `""` |  |
 | global.castai.apiURL | string | `"https://api.cast.ai"` |  |

@@ -1,9 +1,10 @@
 {{/*
 Shared credential Secret name.
-All sub-charts that support apiKeySecretRef should reference this.
+Returns the user-managed secret name when set (global.apiKeySecretRef or its alias
+global.castai.apiKeySecretRef), otherwise "castai-credentials".
 */}}
 {{ define "castai-umbrella.credentialsSecretName" -}}
-castai-credentials
+{{- or .Values.global.apiKeySecretRef .Values.global.castai.apiKeySecretRef | default "castai-credentials" -}}
 {{- end }}
 
 {{/*

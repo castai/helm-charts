@@ -1,8 +1,12 @@
 global:
+  # apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
+  # The secret must have a key named API_KEY. Mutually exclusive with global.castai.apiKey.
+  # Propagated automatically to all sub-charts. Set this when using an externally-managed secret.
+  apiKeySecretRef: ""
   castai:
     apiKey: ""
-    # apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
-    # The secret must have a key named API_KEY. Mutually exclusive with apiKey.
+    # apiKeySecretRef -- Deprecated alias for global.apiKeySecretRef kept for backward compatibility.
+    # Prefer setting global.apiKeySecretRef directly.
     apiKeySecretRef: ""
     apiURL: "https://api.cast.ai"
     grpcURL: "grpc.cast.ai:443"

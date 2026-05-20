@@ -1,6 +1,6 @@
 # autoscaler-anywhere
 
-![Version: 0.4.0](https://img.shields.io/badge/Version-0.4.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.5.0](https://img.shields.io/badge/Version-0.5.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Autoscaler Anywhere profile (non-managed clusters).
 
@@ -9,11 +9,11 @@ Wrapper chart for CAST AI Autoscaler Anywhere profile (non-managed clusters).
 | Repository | Name | Version |
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.153.2 |
-| https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.0 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.37 |
-| https://castai.github.io/helm-charts | castai-pod-mutator | 0.13.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.10 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.0.10 |
+| https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.2 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.54 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.13.2 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.18 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.0.18 |
 
 ## Values
 
@@ -26,19 +26,17 @@ Wrapper chart for CAST AI Autoscaler Anywhere profile (non-managed clusters).
 | castai-agent.provider | string | `"anywhere"` |  |
 | castai-agent.replicaCount | int | `2` |  |
 | castai-cluster-controller.autoscaling.enabled | bool | `true` |  |
-| castai-cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-cluster-controller.castai.apiKeySecretRef | string | `""` |  |
 | castai-cluster-controller.enableTopologySpreadConstraints | bool | `true` |  |
 | castai-cluster-controller.enabled | bool | `true` |  |
 | castai-cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
 | castai-evictor.aggressiveMode | bool | `false` |  |
+| castai-evictor.apiKeySecretRef | string | `""` |  |
 | castai-evictor.enabled | bool | `true` |  |
-| castai-evictor.envFrom[0].secretRef.name | string | `"castai-credentials"` |  |
-| castai-evictor.envFrom[1].configMapRef.name | string | `"castai-agent-metadata"` |  |
-| castai-evictor.overrideEnvFrom | bool | `true` |  |
 | castai-evictor.replicaCount | int | `0` |  |
-| castai-pod-mutator | object | `{"castai":{"apiKeySecretRef":"castai-credentials","configMapRef":"castai-agent-metadata"},"dependencyCheck":{"enabled":false},"enableTopologySpreadConstraints":true,"enabled":true,"envFrom":[{"configMapRef":{"name":"castai-agent-metadata"}}],"fullnameOverride":"castai-pod-mutator"}` | ------------------------------------------------------------------------- |
-| castai-workload-autoscaler | object | `{"castai":{"apiKeySecretRef":"castai-credentials","configMapRef":"castai-agent-metadata"},"enabled":true,"fullnameOverride":"castai-workload-autoscaler"}` | ------------------------------------------------------------------------- |
-| castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-pod-mutator | object | `{"castai":{"apiKeySecretRef":"","configMapRef":"castai-agent-metadata"},"dependencyCheck":{"enabled":false},"enableTopologySpreadConstraints":true,"enabled":true,"envFrom":[{"configMapRef":{"name":"castai-agent-metadata"}}],"fullnameOverride":"castai-pod-mutator"}` | ------------------------------------------------------------------------- |
+| castai-workload-autoscaler | object | `{"castai":{"apiKeySecretRef":"","configMapRef":"castai-agent-metadata"},"enabled":true,"fullnameOverride":"castai-workload-autoscaler"}` | ------------------------------------------------------------------------- |
+| castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `""` |  |
 | castai-workload-autoscaler-exporter.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | castai-workload-autoscaler-exporter.enabled | bool | `true` |  |
 | castai-workload-autoscaler-exporter.fullnameOverride | string | `"castai-workload-autoscaler-exporter"` |  |
