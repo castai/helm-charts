@@ -1,15 +1,18 @@
 dependencies:
 - name: kent
   repository: file://charts/kent
-  version: 0.11.0
+  version: 0.12.0
 - name: autoscaler-anywhere
   repository: file://charts/autoscaler-anywhere
-  version: 0.4.0
+  version: 0.5.0
 - name: autoscaler-openshift
   repository: file://charts/autoscaler-openshift
-  version: 0.1.0
+  version: 0.2.0
 - name: autoscaler
   repository: file://charts/autoscaler
-  version: 0.1.0
-digest: sha256:60538f7222399f986741c9766df2c648e4d767dc35f73ecb3567cb8b6cd26c66
-generated: "2026-04-14T16:13:44.080811+03:00"
+  version: 0.2.0
+- name: castai-cluster-agent
+  repository: https://castai.github.io/helm-charts
+  version: 0.3.0
+digest: sha256:92f4c3e5a35c018b51b9f19415c543672fe3b9580992bb141f175aca9fee74f3
+generated: "2026-05-20T11:40:33.469523+02:00"

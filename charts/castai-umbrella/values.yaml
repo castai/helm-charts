@@ -20,8 +20,14 @@ kent:
     enabled: true
 
 # tags -- Profile mode selection (mutually exclusive — pick one).
-# Component overrides are stable across all mode upgrades with --reuse-values:
+# When castai-cluster-agent is true, all other mode tags must be false (and vice versa).
+# Mode tags (readonly, node-autoscaler, workload-autoscaler, full) are passed through to
+# the castai-cluster-agent sub-chart and control which components are enabled within it.
+#
+# Component overrides with autoscaler sub-chart:
 #   --set autoscaler.castai-kvisor.enabled=false
+# Component overrides with castai-cluster-agent sub-chart:
+#   --set castai-cluster-agent.castai-kvisor.enabled=false
 tags:
   autoscaler-anywhere: false
   autoscaler-openshift: false
@@ -29,6 +35,9 @@ tags:
   node-autoscaler: false
   workload-autoscaler: false
   full: false
+  # castai-cluster-agent -- Enable the unified cluster-agent chart.
+  # Mutually exclusive with all other mode tags.
+  castai-cluster-agent: false
 
 autoscaler: {}
 
