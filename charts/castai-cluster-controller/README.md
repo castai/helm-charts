@@ -37,8 +37,8 @@ Cluster controller is responsible for handling certain Kubernetes actions such a
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts |
 | extraVolumes | list | `[]` | Used to set additional volumes |
 | fullnameOverride | string | `"castai-cluster-controller"` |  |
-| global | object | `{"apiKeySecretRef":"","commonAnnotations":{},"commonLabels":{},"registry":""}` | Global values that are propagated to child charts. |
-| global.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when castai.apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey. |
+| global | object | `{"castai":{"apiKeySecretRef":""},"commonAnnotations":{},"commonLabels":{},"registry":""}` | Global values that are propagated to child charts. |
+| global.castai.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when castai.apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey. |
 | global.commonAnnotations | object | `{}` | Annotations to add to all resources (including child charts). |
 | global.commonLabels | object | `{}` | Labels to add to all resources (including child charts). |
 | global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |

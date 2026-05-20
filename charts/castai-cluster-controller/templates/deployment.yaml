@@ -187,7 +187,7 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef "castai-credentials" }}
           {{- if or .Values.apiKey .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if or .Values.apiKey .Values.castai.apiKey }}
@@ -303,7 +303,7 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
           {{- end }}
-          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef "castai-credentials" }}
           {{- if or .Values.apiKey .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if or .Values.apiKey .Values.castai.apiKey }}
