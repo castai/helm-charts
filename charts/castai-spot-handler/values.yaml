@@ -13,9 +13,10 @@ global:
   # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
   # When set, it is prepended to all image repositories.
   registry: ""
-  # global.apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
+  # global.castai.apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
   # Takes effect when apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey.
-  apiKeySecretRef: ""
+  castai:
+    apiKeySecretRef: ""
 
 image:
   repository: us-docker.pkg.dev/castai-hub/library/spot-handler
