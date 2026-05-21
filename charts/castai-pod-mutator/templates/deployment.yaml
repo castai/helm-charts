@@ -123,7 +123,7 @@ spec:
             {{- end }}
           {{- end }}
           envFrom:
-          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
           {{- if or .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if .Values.castai.apiKey }}
