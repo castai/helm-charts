@@ -1,0 +1,73 @@
+# Default values for castai-chart-upgrader.
+
+# Cron schedule expression (default: daily at 8am UTC)
+schedule: "0 8 * * *"
+
+# Target Helm release to upgrade. Defaults to the release this chart was
+# installed under (.Release.Name). Set this when the chart-upgrader is installed
+# as a standalone release that should upgrade a *different* release.
+targetRelease: ""
+
+# Target chart to upgrade. The updater always upgrades to the latest available
+# version in the configured repository.
+chart:
+  # Chart name to upgrade (e.g., castai, kent).
+  name: "castai"
+  # Helm repository to fetch the chart from. Override this if you mirror the
+  # CAST AI charts behind a proxy or private registry.
+  repository: "https://castai.github.io/helm-charts"
+  # oci -- Set to true when `repository` is an OCI registry (oci:// prefix).
+  # In OCI mode the updater runs `helm registry login` + `helm upgrade <release>
+  # oci://<repository>/<chart.name>` instead of `helm repo add` + `helm upgrade`.
+  oci: false
+  # auth -- Credentials for private chart repositories.
+  auth:
+    # username -- Registry username (ignored when existingSecret is set).
+    username: ""
+    # password -- Registry password (ignored when existingSecret is set).
+    password: ""
+    # existingSecret -- Name of an existing Secret with keys `username` and
+    # `password`. When set, the username/password values above are ignored.
+    existingSecret: ""
+
+# Helm upgrade behaviour.
+upgrade:
+  # atomic -- Roll back automatically on failure. Disable in environments
+  # where pods may never reach a healthy state (e.g. Kind without real cloud
+  # APIs).
+  atomic: true
+  # wait -- Wait for all resources to be ready before marking the upgrade
+  # successful.
+  wait: true
+  # timeout -- Maximum time to wait for the upgrade to complete.
+  timeout: "10m"
+
+serviceAccount:
+  # create -- Whether to create a ServiceAccount. Set to false to use an existing one.
+  create: true
+  # name -- Name of an existing ServiceAccount to use when create is false.
+  # Defaults to the chart fullname.
+  name: ""
+
+rbac:
+  # create -- Whether to create ClusterRole and ClusterRoleBinding.
+  create: true
+
+# Container image for the upgrade job.
+image:
+  repository: "alpine/k8s"
+  tag: "1.33.12"
+  pullPolicy: IfNotPresent
+
+# Resource limits for the upgrade job.
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 50m
+    memory: 64Mi
+
+tolerations: []
+nodeSelector: {}
+affinity: {}
