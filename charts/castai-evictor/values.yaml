@@ -136,6 +136,9 @@ rbac:
 serviceAccount:
   # serviceAccount.create -- Specifies whether a service account should be created.
   create: true
+  # serviceAccount.rbac -- Specifies whether ClusterRole and ClusterRoleBinding should be created.
+  # Set to false if you want to manage cluster-scoped RBAC independently.
+  rbac: true
   # serviceAccount.annotations -- Annotations to add to the service account.
   annotations: {}
   # serviceAccount.name -- The name of the service account to use.
