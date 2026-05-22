@@ -3,10 +3,11 @@ global:
   # When set, images are resolved as "<registry>/<original-repository>".
   # Example: registry: "my-registry.example.com"
   registry: ""
-  # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API.
-  # Can be set at the umbrella chart level to share a single secret across subcharts.
-  # Overridden by castai.apiKeySecretRef if both are set. Mutually exclusive with castai.apiKey.
-  apiKeySecretRef: ""
+  castai:
+    # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API.
+    # Can be set at the umbrella chart level to share a single secret across subcharts.
+    # Overridden by castai.apiKeySecretRef if both are set. Mutually exclusive with castai.apiKey.
+    apiKeySecretRef: ""
 
 castai:
   # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API

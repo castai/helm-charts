@@ -77,7 +77,7 @@ spec:
           - name: "{{ $name }}"
             value: "{{ $value }}"
           {{- end }}
-          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
           envFrom:
             {{- if or .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
