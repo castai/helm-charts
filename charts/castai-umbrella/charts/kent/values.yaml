@@ -90,3 +90,9 @@ castai-kvisor:
     extraArgs:
       log-level: info
       cluster-proxy-enabled: "true"
+
+castai-chart-upgrader:
+  enabled: false
+  chart:
+    name: castai
+    repository: "https://castai.github.io/helm-charts"
