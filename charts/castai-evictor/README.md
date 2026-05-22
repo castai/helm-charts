@@ -37,8 +37,9 @@ Cluster utilization defragmentation tool
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
 | extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-evictor"` |  |
-| global | object | `{"castai":{"apiKeySecretRef":""},"registry":""}` | Global values propagated from parent charts. |
+| global | object | `{"castai":{"apiKeySecretRef":""},"imagePullSecrets":[],"registry":""}` | Global values propagated from parent charts. |
 | global.castai.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when apiKeySecretRef is not set locally. |
+| global.imagePullSecrets | list | `[]` | Image pull secrets applied to all pods. Merged with local imagePullSecrets. |
 | global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
 | ignorePodDisruptionBudgets | bool | `false` | Specifies whether the Evictor should ignore Pod Disruption Budgets (PDBs). If true, evictor will attempt to evict pods even if it would violate a PDB. Use with caution as this may disrupt application availability guarantees. |

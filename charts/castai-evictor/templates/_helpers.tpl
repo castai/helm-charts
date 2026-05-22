@@ -100,6 +100,17 @@ Resolve image repository: prepend global.registry if set.
 {{- end }}
 
 {{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecrets.
+*/}}
+{{- define "evictor.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.imagePullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Pass the customConfig to the configMap
 */}}
 {{- define "evictor.configMap.customConfig" -}}
