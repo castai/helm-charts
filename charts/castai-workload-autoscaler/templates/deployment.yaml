@@ -196,7 +196,7 @@ spec:
                   name: {{ .Values.castai.clusterIdSecretKeyRef.name }}
                   key: {{ required "clusterIdSecretKeyRef.key must be provided" .Values.castai.clusterIdSecretKeyRef.key }}
           {{- end }}
-          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.apiKeySecretRef }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
           envFrom:
             {{- if .Values.trustedCACert }}
             - secretRef:
