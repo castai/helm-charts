@@ -73,6 +73,17 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
 {{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecrets.
+*/}}
+{{- define "exporter.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.imagePullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Merge global and chart-level tolerations.
 */}}
 {{- define "exporter.tolerations" -}}
