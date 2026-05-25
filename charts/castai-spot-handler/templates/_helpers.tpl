@@ -78,6 +78,17 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecrets.
+*/}}
+{{- define "spot-handler.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.imagePullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
 */}}
 {{- define "spot-handler.tolerations" -}}
