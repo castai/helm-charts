@@ -19,6 +19,8 @@ global:
   # Takes effect when apiKeySecretRef is not set locally.
   castai:
     apiKeySecretRef: ""
+  # global.imagePullSecrets -- Image pull secrets applied to all pods. Merged with local imagePullSecrets.
+  imagePullSecrets: []
 
 # dryRyn -- Specifies whether the Evictor should run in dryRun mode (Read-Only).
 # if true, evictor will just log action(s) it would perform
