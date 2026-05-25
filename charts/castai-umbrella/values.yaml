@@ -8,6 +8,8 @@ global:
     grpcURL: "grpc.cast.ai:443"
     # provider -- Kubernetes service provider: eks, aks, gke, kops, anywhere.
     provider: ""
+  # imagePullSecrets -- Image pull secrets applied to all sub-chart pods (merged with per-chart imagePullSecrets).
+  imagePullSecrets: []
   # tolerations -- Global tolerations applied to all sub-chart pods (can be overridden per sub-chart).
   tolerations: []
   # registry -- Container registry prefix for all sub-chart images (e.g. "my-registry.example.com").

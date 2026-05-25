@@ -274,6 +274,7 @@ helm upgrade castai castai-helm/castai \
 | global.castai.apiURL | string | `"https://api.cast.ai"` |  |
 | global.castai.grpcURL | string | `"grpc.cast.ai:443"` |  |
 | global.castai.provider | string | `""` |  |
+| global.imagePullSecrets | list | `[]` |  |
 | global.registry | string | `""` |  |
 | global.tolerations | list | `[]` |  |
 | kent.enabled | bool | `false` |  |
