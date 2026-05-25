@@ -1,6 +1,6 @@
 # castai-db-optimizer
 
-![Version: 0.77.3](https://img.shields.io/badge/Version-0.77.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.78.0](https://img.shields.io/badge/Version-0.78.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database cache deployment.
 
@@ -100,11 +100,12 @@ CAST AI database cache deployment.
 | proxySql.config.stacksize | int | `1048576` | Stacksize for ProxySQL threads |
 | proxySql.config.threads | int | `4` | Number of ProxySQL threads |
 | proxySql.enabled | bool | `false` | Enable ProxySQL pooler sidecar (MySQL only) |
-| proxySql.password | string | `""` | ProxySQL upstream DB password (plain string). Mutually exclusive with usersSecretRef |
+| proxySql.password | string | `""` | Single ProxySQL upstream DB password (plain string). Mutually exclusive with users/usersSecretRef. |
 | proxySql.resources.cpu | string | `"500m"` |  |
 | proxySql.resources.memory | string | `"256Mi"` |  |
-| proxySql.user | string | `""` | ProxySQL upstream DB user (plain string). Mutually exclusive with usersSecretRef |
-| proxySql.usersSecretRef | string | `""` | Reference to existing secret containing username and password. Mutually exclusive with user/password. The secret must contain keys "PROXY_SQL_USERNAME" and "PROXY_SQL_PASSWORD". |
+| proxySql.user | string | `""` | Single ProxySQL upstream DB user (plain string). Mutually exclusive with users/usersSecretRef. |
+| proxySql.users | list | `[]` | Multiple ProxySQL upstream DB users (inline list). Mutually exclusive with user/usersSecretRef. Example: [{username: "u1", password: "p1"}, {username: "u2", password: "p2"}] |
+| proxySql.usersSecretRef | string | `""` | Reference to existing secret containing a users.json key with a JSON array of {username, password} objects. Mutually exclusive with user/users. |
 | proxySqlImage.pullPolicy | string | `"IfNotPresent"` |  |
 | proxySqlImage.repository | string | `"docker.io/proxysql/proxysql"` |  |
 | proxySqlImage.tag | string | `""` |  |
