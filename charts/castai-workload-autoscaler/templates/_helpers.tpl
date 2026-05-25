@@ -201,6 +201,27 @@ Autopilot requires minimum 500m CPU when using pod anti-affinity
 {{- end -}}
 
 {{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecrets.
+*/}}
+{{- define "workload-autoscaler.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.imagePullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
+{{- end }}
+
+{{/*
+Resolve JMX exporter imagePullSecrets: merge global.imagePullSecrets with jmxExporter.imagePullSecrets.
+Returns a comma-separated list of secret names for the JMX_EXPORTER_IMAGE_PULL_SECRETS env var.
+*/}}
+{{- define "workload-autoscaler.jmxExporter.imagePullSecretNames" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.jmxExporter.imagePullSecrets | default list) -}}
+{{- range $i, $s := $combined }}{{ if $i }},{{ end }}{{ $s.name }}{{- end -}}
+{{- end }}
+
+{{/*
 Merge global and chart-level tolerations.
 */}}
 {{- define "workload-autoscaler.tolerations" -}}

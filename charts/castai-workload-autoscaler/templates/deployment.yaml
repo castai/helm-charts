@@ -33,9 +33,9 @@ spec:
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
       serviceAccountName: {{ template "workload-autoscaler.serviceAccountName" . }}
-      {{- with .Values.imagePullSecrets }}
+      {{- with include "workload-autoscaler.imagePullSecrets" . }}
       imagePullSecrets:
-      {{- toYaml . | nindent 8 }}
+      {{- . | nindent 8 }}
       {{- end }}
       {{- $isOpenShift := .Capabilities.APIVersions.Has "security.openshift.io/v1" }}
       {{- $useRestrictedProfile := and $isOpenShift (.Values.openshift.scc.useRestrictedProfile | default false) }}
@@ -147,9 +147,9 @@ spec:
               value: "{{ .Values.jmxExporter.initImage.repository }}:{{ .Values.jmxExporter.initImage.tag }}"
             - name: JMX_EXPORTER_BASE_PORT
               value: {{ quote .Values.jmxExporter.basePort }}
-            {{- with .Values.jmxExporter.imagePullSecrets }}
+            {{- with include "workload-autoscaler.jmxExporter.imagePullSecretNames" . }}
             - name: JMX_EXPORTER_IMAGE_PULL_SECRETS
-              value: "{{- range $i, $s := . }}{{ if $i }},{{ end }}{{ $s.name }}{{- end }}"
+              value: {{ . | quote }}
             {{- end }}
             {{- with .Values.jmxExporter.resources.requests }}
             {{- if .cpu }}

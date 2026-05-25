@@ -89,9 +89,9 @@ spec:
     spec:
       serviceAccountName: {{ include "workload-autoscaler.fullname" . }}-pre-delete
       restartPolicy: OnFailure
-      {{- with .Values.imagePullSecrets }}
+      {{- with include "workload-autoscaler.imagePullSecrets" . }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+      {{- . | nindent 8 }}
       {{- end }}
       {{- with .Values.podSecurityContext }}
       securityContext:
