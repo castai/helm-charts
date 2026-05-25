@@ -57,9 +57,9 @@ spec:
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
       serviceAccountName: {{ .Values.serviceAccount.name }}
-      {{- with .Values.imagePullSecrets }}
+      {{- with include "cluster-controller.imagePullSecrets" . }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       tolerations:
         - operator: Exists
