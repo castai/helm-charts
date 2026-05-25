@@ -90,13 +90,4 @@ data:
     {{- end }}
     )
 
-    mysql_users=
-    (
-      {
-        username = "${PROXY_SQL_USERNAME}"
-        password = "${PROXY_SQL_PASSWORD}"
-        default_hostgroup = 0
-        active = 1
-      }
-    )
 {{- end }}

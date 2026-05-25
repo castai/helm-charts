@@ -90,6 +90,9 @@ spec:
             name: {{ include "name" . }}-proxysql-config
         - name: proxysql-config-output
           emptyDir: {}
+        - name: proxysql-users-secret-volume
+          secret:
+            secretName: {{ ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
         {{- end }}
       {{- if or (and .Values.pgdog .Values.pgdog.enabled) (and .Values.proxySql .Values.proxySql.enabled) }}
       initContainers:
@@ -131,29 +134,35 @@ spec:
             - /bin/sh
             - -c
             - |
-              sed \
-                -e "s|\${PROXY_SQL_USERNAME}|$PROXY_SQL_USERNAME|g" \
-                -e "s|\${PROXY_SQL_PASSWORD}|$PROXY_SQL_PASSWORD|g" \
-                /etc/proxysql-template/proxysql.cnf > /etc/proxysql/proxysql.cnf
+              cp /etc/proxysql-template/proxysql.cnf /etc/proxysql/proxysql.cnf
               openssl req -x509 -newkey rsa:2048 \
                 -keyout /etc/proxysql/proxysql.key \
                 -out /etc/proxysql/proxysql.crt \
                 -days 3650 -nodes -subj "/CN=proxysql"
-          env:
-            {{- $proxySqlSecretName := ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
-            - name: PROXY_SQL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_USERNAME
-            - name: PROXY_SQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_PASSWORD
           volumeMounts:
             - name: proxysql-config-template
               mountPath: /etc/proxysql-template
+              readOnly: true
+            - name: proxysql-config-output
+              mountPath: /etc/proxysql
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 999
+        - name: proxysql-users-init
+          image: "{{.Values.queryProcessorImage.repository}}:{{ include "queryProcessorImage" . }}"
+          imagePullPolicy: {{.Values.queryProcessorImage.pullPolicy}}
+          command:
+            - query-processor
+            - init-proxysql-users
+            - --users-json=/etc/proxysql-users-secret/users.json
+            - --config-output=/etc/proxysql/proxysql.cnf
+          volumeMounts:
+            - name: proxysql-users-secret-volume
+              mountPath: /etc/proxysql-users-secret
               readOnly: true
             - name: proxysql-config-output
               mountPath: /etc/proxysql
@@ -530,18 +539,6 @@ spec:
             readOnlyRootFilesystem: false
             runAsNonRoot: true
             runAsUser: 999
-          env:
-            {{- $proxySqlSecretName := ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
-            - name: PROXY_SQL_USERNAME
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_USERNAME
-            - name: PROXY_SQL_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $proxySqlSecretName }}
-                  key: PROXY_SQL_PASSWORD
           readinessProbe:
             tcpSocket:
               port: {{ .Values.proxySql.basePort }}
