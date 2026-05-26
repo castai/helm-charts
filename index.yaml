@@ -21689,6 +21689,30 @@ entries:
             This was a legacy code path intended for KENT integration; it caused Evictor
             to label Karpenter-managed nodes in a way that prevented Karpenter consolidation.
             See UPGRADING.md for required manual node cleanup steps.
+      release-date: 2026-05-26T17:37:45
+    apiVersion: v2
+    appVersion: dea102ed9ad3f7ee6b5d0b541bd6ab7aa9263c57
+    created: "2026-05-26T18:13:41.95223479Z"
+    dependencies:
+    - condition: castai-evictor-ext.enabled
+      name: castai-evictor-ext
+      repository: file://child-charts/castai-evictor-ext
+      version: 0.5.0
+    description: Cluster utilization defragmentation tool
+    digest: d9dfda75da0b2f9ceb588cc5b77095dcc1debb9e225399915dbc406753dd588b
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.35.62/castai-evictor-0.35.62.tgz
+    version: 0.35.62
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: removed
+          description: |
+            Removed 'karpenterMode' values block and the KARPENTER_MODE_ENABLED env var.
+            This was a legacy code path intended for KENT integration; it caused Evictor
+            to label Karpenter-managed nodes in a way that prevented Karpenter consolidation.
+            See UPGRADING.md for required manual node cleanup steps.
       release-date: 2026-05-26T14:12:05
     apiVersion: v2
     appVersion: 054d70fe8fd4fe51bdfd2198a27664fe3e4f63d6
@@ -58621,4 +58645,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-05-26T15:33:29.857380432Z"
+generated: "2026-05-26T18:13:41.959485062Z"
