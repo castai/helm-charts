@@ -1,23 +1,24 @@
 # autoscaler
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
-CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, full.
+CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, full, castai-cluster-agent.
 
 ## Requirements
 
 | Repository | Name | Version |
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.153.2 |
+| https://castai.github.io/helm-charts | castai-cluster-agent | 0.3.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.4 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.59 |
-| https://castai.github.io/helm-charts | castai-kvisor | 1.160.2 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.60 |
+| https://castai.github.io/helm-charts | castai-kvisor | 1.160.3 |
 | https://castai.github.io/helm-charts | castai-live | 0.97.0 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.13.3 |
 | https://castai.github.io/helm-charts | castai-pod-pinner | 1.12.3 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.2 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.22 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.0.22 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.0.23 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.0.23 |
 | https://castai.github.io/helm-charts | gpu-metrics-exporter | 0.1.29 |
 
 ## Values
@@ -28,6 +29,8 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | castai-agent.createNamespace | bool | `false` |  |
 | castai-agent.metadataStore.createConfigMap | bool | `true` |  |
 | castai-agent.replicaCount | int | `1` |  |
+| castai-cluster-agent.global.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-cluster-agent.tags.full | bool | `true` |  |
 | castai-cluster-controller.aks.enabled | bool | `false` |  |
 | castai-cluster-controller.autoscaling.enabled | bool | `true` |  |
 | castai-cluster-controller.castai.apiKeySecretRef | string | `"castai-credentials"` |  |

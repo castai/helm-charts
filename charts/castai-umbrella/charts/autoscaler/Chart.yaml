@@ -1,8 +1,8 @@
 apiVersion: v2
 name: autoscaler
-description: CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, full.
+description: CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, full, castai-cluster-agent.
 type: application
-version: 0.1.0
+version: 0.2.0
 dependencies:
   # ── readonly components ───────────────────────────────────────────────────────
   - name: castai-agent
@@ -41,6 +41,7 @@ dependencies:
       - node-autoscaler
       - workload-autoscaler
       - full
+      - castai-cluster-agent
   # ── node-autoscaler + workload-autoscaler + full ──────────────────────────────
   - name: castai-cluster-controller
     version: "0.92.4"
@@ -81,6 +82,7 @@ dependencies:
     tags:
       - node-autoscaler
       - full
+      - castai-cluster-agent
   # ── workload-autoscaler + full ────────────────────────────────────────────────
   - name: castai-workload-autoscaler
     version: "1.0.23"
@@ -96,3 +98,10 @@ dependencies:
     tags:
       - workload-autoscaler
       - full
+  # ── castai-cluster-agent (unified chart) ─────────────────────────────────────
+  - name: castai-cluster-agent
+    version: "0.3.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-cluster-agent.enabled
+    tags:
+      - castai-cluster-agent

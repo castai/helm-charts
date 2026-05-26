@@ -2,7 +2,7 @@
 #
 # Helm evaluates dependency tags against the ROOT chart's values. Mode tags
 # must be set at the umbrella root:
-#   --set tags.<mode>=true   (readonly | node-autoscaler | workload-autoscaler | full)
+#   --set tags.<mode>=true   (readonly | node-autoscaler | workload-autoscaler | full | castai-cluster-agent)
 #
 # Setting autoscaler.tags.<mode>=true has no effect on component activation
 # and bypasses the umbrella's mutual-exclusivity and required-value validation.
@@ -115,3 +115,10 @@ castai-workload-autoscaler-exporter:
   castai:
     apiKeySecretRef: castai-credentials
     configMapRef: castai-agent-metadata
+
+castai-cluster-agent:
+  # tags.full activates all subcomponents inside the unified chart.
+  tags:
+    full: true
+  global:
+    apiKeySecretRef: castai-credentials
