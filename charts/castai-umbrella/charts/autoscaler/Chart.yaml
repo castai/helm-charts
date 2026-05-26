@@ -2,7 +2,7 @@ apiVersion: v2
 name: autoscaler
 description: CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, full.
 type: application
-version: 0.1.0
+version: 0.2.0
 dependencies:
   # ── readonly components ───────────────────────────────────────────────────────
   - name: castai-agent
@@ -27,15 +27,6 @@ dependencies:
     version: "1.160.3"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
-    tags:
-      - readonly
-      - node-autoscaler
-      - workload-autoscaler
-      - full
-  - name: gpu-metrics-exporter
-    version: "0.1.29"
-    repository: "https://castai.github.io/helm-charts"
-    condition: gpu-metrics-exporter.enabled
     tags:
       - readonly
       - node-autoscaler
@@ -68,7 +59,7 @@ dependencies:
       - full
   # ── node-autoscaler + full ────────────────────────────────────────────────────
   - name: castai-pod-pinner
-    version: "1.12.3"
+    version: "1.12.5"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-pinner.enabled
     tags:

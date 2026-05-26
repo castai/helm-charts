@@ -13,10 +13,12 @@
 
 {{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
 {{- if $enabledTags }}
-{{- if and (not .Values.global.castai.apiKey) (not .Values.global.castai.apiKeySecretRef) }}
+{{- $hasApiKey := .Values.global.castai.apiKey }}
+{{- $hasCustomSecretRef := and .Values.global.castai.apiKeySecretRef (ne .Values.global.castai.apiKeySecretRef "castai-credentials") }}
+{{- if and (not $hasApiKey) (not $hasCustomSecretRef) }}
 {{ fail "Either global.castai.apiKey or global.castai.apiKeySecretRef is required when enabling a mode tag" }}
 {{- end }}
-{{- if and .Values.global.castai.apiKey .Values.global.castai.apiKeySecretRef }}
+{{- if and $hasApiKey $hasCustomSecretRef }}
 {{ fail "global.castai.apiKey and global.castai.apiKeySecretRef are mutually exclusive" }}
 {{- end }}
 {{- $modeTag := index $enabledTags 0 }}
