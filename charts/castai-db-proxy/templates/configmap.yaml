@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "name" . }}-config
+  labels:
+    {{- include "labels" . | nindent 4 }}
+  annotations:
+    {{- include "annotations" . | nindent 4 }}
+data:
+  config.toml: |
+    protocol = {{ .Values.protocol | quote }}
+    rw_listen_port = {{ .Values.ports.readWrite }}
+    ro_listen_port = {{ .Values.ports.readonly }}
+    metrics_port = {{ .Values.ports.metrics }}
+
+    [api]
+    url = {{ printf "https://%s" (required "apiURL must be provided" .Values.apiURL) | quote }}
+    api_key = "__API_KEY__"
+    organization_id = {{ required "organizationID must be provided" .Values.organizationID | quote }}
+    proxy_id = {{ required "proxyID must be provided" .Values.proxyID | quote }}
+
+    [cache]
+    default_ttl_secs = {{ .Values.cache.defaultTTLSecs }}
+    {{- if .Values.cluster.enabled }}
+
+    [cluster]
+    listen_port = {{ .Values.ports.cluster }}
+
+    [cluster.discovery]
+    type = "dns"
+    host = "headless-{{ include "name" . }}.{{ .Release.Namespace }}.svc.cluster.local"
+    port = {{ .Values.ports.cluster }}
+    {{- end }}
