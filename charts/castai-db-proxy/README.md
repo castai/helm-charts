@@ -21,9 +21,6 @@ CAST AI database proxy cache deployment.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-proxy"` |  |
 | image.tag | string | `""` | Overrides the image tag. Defaults to Chart.appVersion. |
-| initImage.pullPolicy | string | `"IfNotPresent"` |  |
-| initImage.repository | string | `"busybox"` |  |
-| initImage.tag | string | `"1.38.0"` |  |
 | logLevel | string | `"warn"` | Application log level. Supports "trace", "debug", "info", "warn", "error" |
 | nodeSelector | object | `{}` | Pod node selector rules. |
 | organizationID | string | `""` | ID of the organization. |
@@ -31,8 +28,8 @@ CAST AI database proxy cache deployment.
 | podLabels | object | `{}` | Extra labels to add to the pod. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
 | ports.metrics | int | `9090` | Prometheus metrics port. |
+| ports.readOnly | int | `6142` | Listening port for read-only connections. |
 | ports.readWrite | int | `6141` | Listening port for read-write connections. |
-| ports.readonly | int | `6142` | Listening port for read-only connections. |
 | protocol | string | `"Oracle"` | Database protocol. |
 | proxyID | string | `""` | ID of this proxy instance. |
 | replicas | int | `2` |  |

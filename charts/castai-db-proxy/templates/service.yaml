@@ -16,7 +16,7 @@ spec:
       targetPort: rw
       protocol: TCP
     - name: ro
-      port: {{ .Values.ports.readonly }}
+      port: {{ .Values.ports.readOnly }}
       targetPort: ro
       protocol: TCP
     - name: metrics

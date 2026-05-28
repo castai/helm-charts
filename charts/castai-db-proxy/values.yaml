@@ -31,7 +31,7 @@ ports:
   # -- Listening port for read-write connections.
   readWrite: 6141
   # -- Listening port for read-only connections.
-  readonly: 6142
+  readOnly: 6142
   # -- Prometheus metrics port.
   metrics: 9090
   # -- Cluster peer communication port.
@@ -75,11 +75,6 @@ image:
   pullPolicy: IfNotPresent
   # -- Overrides the image tag. Defaults to Chart.appVersion.
   tag: ""
-
-initImage:
-  repository: busybox
-  pullPolicy: IfNotPresent
-  tag: "1.38.0"
 
 # -- The name of the service account to be used by the pod.
 serviceAccountName: ""

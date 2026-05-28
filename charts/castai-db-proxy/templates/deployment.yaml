@@ -60,17 +60,19 @@ spec:
       {{- end }}
 
       volumes:
-        - name: config-template
+        - name: config
           configMap:
             name: {{ include "name" . }}-config
-        - name: config
-          emptyDir: {}
 
-      initContainers:
-        - name: config-init
-          image: "{{ .Values.initImage.repository }}:{{ .Values.initImage.tag }}"
-          imagePullPolicy: {{ .Values.initImage.pullPolicy }}
-          command: ['sh', '-c', 'sed "s|__API_KEY__|$API_KEY|" /config-template/config.toml > /config/config.toml']
+      containers:
+        - name: proxy
+          image: "{{ .Values.image.repository }}:{{ include "proxyImage" . }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - --config
+            - /etc/roxy/config.toml
+            - --log-level
+            - {{ .Values.logLevel }}
           envFrom:
             - secretRef:
               {{- if .Values.apiKey }}
@@ -78,29 +80,6 @@ spec:
               {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef }}
               {{- end }}
-          volumeMounts:
-            - name: config-template
-              mountPath: /config-template
-              readOnly: true
-            - name: config
-              mountPath: /config
-          securityContext:
-            capabilities:
-              drop:
-                - ALL
-            readOnlyRootFilesystem: true
-            runAsNonRoot: true
-            runAsUser: 65534
-
-      containers:
-        - name: roxy-proxy
-          image: "{{ .Values.image.repository }}:{{ include "proxyImage" . }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          args:
-            - --config
-            - /config/config.toml
-            - --log-level
-            - {{ .Values.logLevel }}
           securityContext:
             capabilities:
               drop:
@@ -113,7 +92,7 @@ spec:
               containerPort: {{ .Values.ports.readWrite }}
               protocol: TCP
             - name: ro
-              containerPort: {{ .Values.ports.readonly }}
+              containerPort: {{ .Values.ports.readOnly }}
               protocol: TCP
             - name: metrics
               containerPort: {{ .Values.ports.metrics }}
@@ -135,7 +114,7 @@ spec:
             periodSeconds: 20
           volumeMounts:
             - name: config
-              mountPath: /config
+              mountPath: /etc/roxy
               readOnly: true
           resources:
             requests:
