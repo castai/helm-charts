@@ -27,6 +27,9 @@ proxyID: ""
 # protocol -- Database protocol.
 protocol: "Oracle"
 
+# endpoints -- Upstream database endpoints. Each entry needs `address` (host:port) and `readonly` (bool).
+endpoints: []
+
 ports:
   # -- Listening port for read-write connections.
   readWrite: 6141
