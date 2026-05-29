@@ -18,6 +18,7 @@ CAST AI database proxy cache deployment.
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | dnsConfig | object | `{}` | Pod DNS configuration. |
 | dnsPolicy | string | `""` | Pod DNS policy. |
+| endpoints | list | `[]` | Upstream database endpoints. Each entry needs `address` (host:port) and `readonly` (bool). |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-proxy"` |  |
 | image.tag | string | `""` | Overrides the image tag. Defaults to Chart.appVersion. |

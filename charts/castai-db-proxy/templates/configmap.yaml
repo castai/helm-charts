@@ -13,6 +13,13 @@ data:
     ro_listen_port = {{ .Values.ports.readOnly }}
     metrics_port = {{ .Values.ports.metrics }}
 
+    {{- if not .Values.endpoints }}{{ fail "endpoints must contain at least one endpoint" }}{{ end }}
+    {{- range .Values.endpoints }}
+    [[fallback_endpoints]]
+    address = {{ .address | quote }}
+    readonly = {{ .readonly }}
+    {{- end }}
+
     [api]
     url = {{ printf "https://%s" (required "apiURL must be provided" .Values.apiURL) | quote }}
     organization_id = {{ required "organizationID must be provided" .Values.organizationID | quote }}
