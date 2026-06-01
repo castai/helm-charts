@@ -55,6 +55,7 @@ spec:
       {{- if or .Values.dnsPolicy .Values.hostNetwork  }}
       dnsPolicy: {{ or .Values.dnsPolicy "ClusterFirstWithHostNet" }}
       {{- end }}
+      terminationGracePeriodSeconds: 90
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ include "workload-autoscaler.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
@@ -75,6 +76,8 @@ spec:
             - name: WEBHOOK_NAME
               value: {{ include "workload-autoscaler.webhookName" . }}
             - name: SERVICE_NAME
+              value: {{ include "workload-autoscaler.fullname" . }}
+            - name: WORKLOAD_NAME
               value: {{ include "workload-autoscaler.fullname" . }}
             - name: LOG_LEVEL
               value: {{ .Values.logLevel | default 0 | quote }}
