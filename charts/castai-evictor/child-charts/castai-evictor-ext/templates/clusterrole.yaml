@@ -1,4 +1,5 @@
 ---
+{{- if (dig "rbac" "clusterScoped" "enabled" true (.Values.global | default dict)) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -150,3 +151,4 @@ rules:
       - get
       - list
       - watch
+{{- end }}
