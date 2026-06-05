@@ -14,7 +14,7 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 0.35.69
+version: 0.35.70
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
@@ -23,12 +23,10 @@ appVersion: b4b09731bcdbd53c1464d98e80c2196293f6f227
 annotations:
   release-date: "2026-06-05T10:25:09"
   artifacthub.io/changes: |
-    - kind: removed
+    - kind: added
       description: |
-        Removed 'karpenterMode' values block and the KARPENTER_MODE_ENABLED env var.
-        This was a legacy code path intended for KENT integration; it caused Evictor
-        to label Karpenter-managed nodes in a way that prevented Karpenter consolidation.
-        See UPGRADING.md for required manual node cleanup steps.
+        Added global.rbac.clusterScoped.enabled toggle for cluster-scoped RBAC resources.
+        Set to false to disable ClusterRole and ClusterRoleBinding creation.
 # GitHub actions fails when 'chart' directory is used for dependencies.
 dependencies:
   - name: castai-evictor-ext
