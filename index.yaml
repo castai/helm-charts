@@ -2351,6 +2351,33 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-06-08T13:32:13.958570669Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: da73e382539fc66230d89b5db27a7c94d5f82b40d4892f154c1023a6f84bdec8
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.36.35/castai-0.36.35.tgz
+    version: 0.36.35
+  - apiVersion: v2
     created: "2026-06-05T17:39:18.166481825Z"
     dependencies:
     - condition: kent.enabled
@@ -17300,6 +17327,16 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-audit-logs-receiver-0.1.0/castai-audit-logs-receiver-0.1.0.tgz
     version: 0.1.0
   castai-chart-upgrader:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2026-06-08T13:32:14.129034694Z"
+    description: Auto-updates charts via CronJob
+    digest: c8d4bdb7b4ad4ef859c4a5d194183fe70beb3ccba6252fc745454100bfd62248
+    name: castai-chart-upgrader
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-chart-upgrader-0.1.1/castai-chart-upgrader-0.1.1.tgz
+    version: 0.1.1
   - apiVersion: v2
     appVersion: 0.1.0
     created: "2026-05-22T13:00:36.399739527Z"
@@ -60139,4 +60176,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-06-08T12:47:08.143433852Z"
+generated: "2026-06-08T13:32:14.135199687Z"
