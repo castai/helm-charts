@@ -5,6 +5,8 @@ kind: ServiceAccount
 metadata:
   name: {{ include "chart-upgrader.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    helm.sh/resource-policy: keep
   labels:
     {{- include "chart-upgrader.labels" . | nindent 4 }}
 {{- end }}
@@ -18,6 +20,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ include "chart-upgrader.serviceAccountName" . }}
+  annotations:
+    helm.sh/resource-policy: keep
   labels:
     {{- include "chart-upgrader.labels" . | nindent 4 }}
 rules:
@@ -29,6 +33,8 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: {{ include "chart-upgrader.serviceAccountName" . }}
+  annotations:
+    helm.sh/resource-policy: keep
   labels:
     {{- include "chart-upgrader.labels" . | nindent 4 }}
 roleRef:
