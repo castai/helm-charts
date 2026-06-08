@@ -21,6 +21,11 @@ global:
     apiKeySecretRef: ""
   # global.imagePullSecrets -- Image pull secrets applied to all pods. Merged with local imagePullSecrets.
   imagePullSecrets: []
+  # global.rbac.clusterScoped.enabled -- Enable cluster-scoped RBAC resources (ClusterRole, ClusterRoleBinding).
+  # Set to false to disable cluster-scoped RBAC if using namespace-scoped permissions.
+  rbac:
+    clusterScoped:
+      enabled: true
 
 # dryRyn -- Specifies whether the Evictor should run in dryRun mode (Read-Only).
 # if true, evictor will just log action(s) it would perform
