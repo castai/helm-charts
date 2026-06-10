@@ -5,9 +5,6 @@ import (
 	"os/exec"
 	"time"
 
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-
 	"github.com/castai/helm-charts/test/e2e/utils"
 )
 
@@ -219,7 +216,7 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 
 		It("should create the kvisor-controller deployment", func() {
 			Eventually(func(g Gomega) {
-				podHelper.VerifyDeploymentExists(g, releaseName+"-castai-kvisor-controller")
+				podHelper.VerifyDeploymentExists(g, "castai-kvisor-controller")
 			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
@@ -351,7 +348,7 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 
 		It("should create the kvisor-controller deployment", func() {
 			Eventually(func(g Gomega) {
-				podHelper.VerifyDeploymentExists(g, releaseName+"-castai-kvisor-controller")
+				podHelper.VerifyDeploymentExists(g, "castai-kvisor-controller")
 			}, 2*time.Minute, 5*time.Second).Should(Succeed())
 		})
 
