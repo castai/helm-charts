@@ -10,7 +10,7 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.158.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.4 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.76 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.77 |
 | https://castai.github.io/helm-charts | castai-kvisor | 1.160.6 |
 | https://castai.github.io/helm-charts | castai-live | 0.103.0 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.14.0 |
@@ -39,6 +39,7 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | castai-kvisor.castai.apiKeySecretRef | string | `""` |  |
 | castai-kvisor.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-kvisor.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
+| castai-kvisor.fullnameOverride | string | `"castai-kvisor"` |  |
 | castai-live.castai-aws-vpc-cni.enabled | bool | `false` |  |
 | castai-live.castai.apiKeySecretRef | string | `""` |  |
 | castai-live.castai.configMapRef | string | `"castai-agent-metadata"` |  |

@@ -40,6 +40,7 @@ castai-spot-handler:
   apiKeySecretRef: ""
 
 castai-kvisor:
+  fullnameOverride: castai-kvisor
   castai:
     apiKeySecretRef: ""
     clusterIdConfigMapKeyRef:
