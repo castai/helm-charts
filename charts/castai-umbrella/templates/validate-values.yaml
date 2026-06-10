@@ -14,8 +14,11 @@
 {{/* ── Required values when a mode tag is set ─────────────────────────────── */}}
 {{- if $enabledTags }}
 {{- $hasApiKey := .Values.global.castai.apiKey }}
-{{- $hasCustomSecretRef := and .Values.global.castai.apiKeySecretRef (ne .Values.global.castai.apiKeySecretRef "castai-credentials") }}
-{{- if and (not $hasApiKey) (not $hasCustomSecretRef) }}
+{{- $hasSecretRef := not (empty .Values.global.castai.apiKeySecretRef) }}
+{{/* apiKey + the default "castai-credentials" is fine — apiKey creates that secret.
+     Only a custom ref name conflicts with apiKey. */}}
+{{- $hasCustomSecretRef := and $hasSecretRef (ne .Values.global.castai.apiKeySecretRef "castai-credentials") }}
+{{- if and (not $hasApiKey) (not $hasSecretRef) }}
 {{ fail "Either global.castai.apiKey or global.castai.apiKeySecretRef is required when enabling a mode tag" }}
 {{- end }}
 {{- if and $hasApiKey $hasCustomSecretRef }}
