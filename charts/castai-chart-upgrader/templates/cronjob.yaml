@@ -102,8 +102,34 @@ spec:
               CHART_REF="castai/{{ .Values.chart.name }}"
               {{- end }}
 
-              echo "Upgrading release '{{ include "chart-upgrader.targetRelease" . }}' with chart '$CHART_REF'"
-              helm upgrade "{{ include "chart-upgrader.targetRelease" . }}" "$CHART_REF" \
+              TARGET_RELEASE="{{ include "chart-upgrader.targetRelease" . }}"
+              TARGET_CHART="{{ .Values.chart.name }}"
+
+              echo "Validating target release '$TARGET_RELEASE' before upgrade"
+              RELEASE_METADATA="$(helm get metadata "$TARGET_RELEASE" \
+                --namespace "{{ .Release.Namespace }}" \
+                --output json)"
+              CURRENT_CHART="$(printf '%s\n' "$RELEASE_METADATA" | jq -r '.chart // empty')"
+
+              if [ -z "$CURRENT_CHART" ]; then
+                echo "Failed to determine current top-level chart for release '$TARGET_RELEASE'" >&2
+                exit 1
+              fi
+
+              if [ "$CURRENT_CHART" != "$TARGET_CHART" ]; then
+                echo "Refusing to upgrade release '$TARGET_RELEASE': current top-level chart is '$CURRENT_CHART', expected '$TARGET_CHART'." >&2
+                echo "The chart-upgrader only supports releases installed directly from '$TARGET_CHART'. If '$TARGET_CHART' is installed as a dependency of a customer/wrapper chart, upgrade that parent chart instead." >&2
+                exit 1
+              fi
+
+              if printf '%s\n' "$RELEASE_METADATA" | jq -e --arg chart "$TARGET_CHART" '.dependencies[]? | select(.name == $chart)' >/dev/null; then
+                echo "Refusing to upgrade release '$TARGET_RELEASE': current top-level chart '$CURRENT_CHART' lists '$TARGET_CHART' as a dependency." >&2
+                echo "This indicates '$TARGET_CHART' is installed as a subchart. Upgrade the customer/wrapper chart that owns the release instead." >&2
+                exit 1
+              fi
+
+              echo "Upgrading release '$TARGET_RELEASE' with chart '$CHART_REF'"
+              helm upgrade "$TARGET_RELEASE" "$CHART_REF" \
                 --namespace "{{ .Release.Namespace }}" \
                 {{- if .Values.upgrade.atomic }}
                 --atomic \
