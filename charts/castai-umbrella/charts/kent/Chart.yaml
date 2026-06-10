@@ -13,23 +13,23 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
   - name: castai-kentroller
-    version: "0.1.150"
+    version: "0.1.151"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kentroller.enabled
   - name: castai-workload-autoscaler
-    version: "1.2.0"
+    version: "1.2.1"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
   - name: castai-workload-autoscaler-exporter
-    version: "1.2.0"
+    version: "1.2.1"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler-exporter.enabled
   - name: castai-live
-    version: "0.102.1"
+    version: "0.103.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
   - name: castai-pod-mutator
-    version: "0.13.6"
+    version: "0.14.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-mutator.enabled
   - name: castai-spot-handler
@@ -45,6 +45,6 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
   - name: castai-chart-upgrader
-    version: "0.1.0"
+    version: "0.1.1"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-chart-upgrader.enabled
