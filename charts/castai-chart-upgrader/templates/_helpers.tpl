@@ -60,9 +60,15 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
-Resolve the Helm release name to upgrade.
-Uses .Values.targetRelease when set, otherwise falls back to .Release.Name.
+Name of the Helm release to upgrade. Required.
 */}}
 {{- define "chart-upgrader.targetRelease" -}}
-{{- .Values.targetRelease | default .Release.Name -}}
+{{- required ".Values.targetRelease is required" .Values.targetRelease -}}
+{{- end }}
+
+{{/*
+Namespace where the target release lives. Required.
+*/}}
+{{- define "chart-upgrader.targetNamespace" -}}
+{{- required ".Values.targetNamespace is required" .Values.targetNamespace -}}
 {{- end }}

@@ -102,9 +102,23 @@ spec:
               CHART_REF="castai/{{ .Values.chart.name }}"
               {{- end }}
 
+              echo "Verifying chart name for release '{{ include "chart-upgrader.targetRelease" . }}'..."
+              CURRENT_CHART_NAME=$(helm get metadata "{{ include "chart-upgrader.targetRelease" . }}" \
+                --namespace "{{ include "chart-upgrader.targetNamespace" . }}" -o json 2>/dev/null | jq -r '.chart // empty')
+              if [ -z "$CURRENT_CHART_NAME" ]; then
+                echo "ERROR: release '{{ include "chart-upgrader.targetRelease" . }}' not found in namespace '{{ include "chart-upgrader.targetNamespace" . }}'"
+                exit 1
+              fi
+              EXPECTED_CHART_NAME="{{ .Values.chart.name }}"
+              if [ "$CURRENT_CHART_NAME" != "$EXPECTED_CHART_NAME" ]; then
+                echo "ERROR: chart name mismatch - release '{{ include "chart-upgrader.targetRelease" . }}' is currently using chart '$CURRENT_CHART_NAME', but expected '$EXPECTED_CHART_NAME'"
+                exit 1
+              fi
+              echo "Chart name verified: '$CURRENT_CHART_NAME' matches expected '$EXPECTED_CHART_NAME'"
+
               echo "Upgrading release '{{ include "chart-upgrader.targetRelease" . }}' with chart '$CHART_REF'"
               helm upgrade "{{ include "chart-upgrader.targetRelease" . }}" "$CHART_REF" \
-                --namespace "{{ .Release.Namespace }}" \
+                --namespace "{{ include "chart-upgrader.targetNamespace" . }}" \
                 {{- if .Values.upgrade.atomic }}
                 --atomic \
                 {{- end }}

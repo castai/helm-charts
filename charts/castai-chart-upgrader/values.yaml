@@ -3,10 +3,11 @@
 # Cron schedule expression (default: daily at 8am UTC)
 schedule: "0 8 * * *"
 
-# Target Helm release to upgrade. Defaults to the release this chart was
-# installed under (.Release.Name). Set this when the chart-upgrader is installed
-# as a standalone release that should upgrade a *different* release.
-targetRelease: ""
+# targetRelease -- Name of the Helm release to upgrade.
+targetRelease: "castai"
+
+# targetNamespace -- Namespace where the target release lives.
+targetNamespace: "castai-agent"
 
 # Target chart to upgrade. The updater always upgrades to the latest available
 # version in the configured repository.

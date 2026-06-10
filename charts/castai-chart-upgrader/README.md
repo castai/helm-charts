@@ -1,6 +1,6 @@
 # castai-chart-upgrader
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
+![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
 Auto-updates charts via CronJob
 
@@ -27,7 +27,8 @@ Auto-updates charts via CronJob
 | schedule | string | `"0 8 * * *"` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
-| targetRelease | string | `""` |  |
+| targetNamespace | string | `"castai-agent"` | Namespace where the target release lives. |
+| targetRelease | string | `"castai"` | Name of the Helm release to upgrade. |
 | tolerations | list | `[]` |  |
 | upgrade.atomic | bool | `true` |  |
 | upgrade.timeout | string | `"10m"` |  |
