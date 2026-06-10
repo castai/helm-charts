@@ -25,6 +25,8 @@ castai-kentroller:
     apiKeySecretRef: ""
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
+    organizationIdConfigMapKeyRef:
+      name: castai-agent-metadata
 
 castai-workload-autoscaler:
   enabled: true
