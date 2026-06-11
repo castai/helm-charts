@@ -3,15 +3,22 @@
 # Cron schedule expression (default: daily at 8am UTC)
 schedule: "0 8 * * *"
 
-# Target Helm release to upgrade. Defaults to the release this chart was
-# installed under (.Release.Name). Set this when the chart-upgrader is installed
-# as a standalone release that should upgrade a *different* release.
+# targetRelease -- Target Helm release to upgrade. Defaults to the release this
+# chart was installed under (.Release.Name). Set this when the chart-upgrader is
+# installed as a standalone release that should upgrade a different release.
 targetRelease: ""
 
 # Target chart to upgrade. The updater always upgrades to the latest available
-# version in the configured repository.
+# version in the configured repository. Use this chart only when the target chart
+# is installed as a standalone Helm release. If CAST AI is installed as a
+# dependency of another chart, use dependency automation such as Renovate, Argo
+# CD Image Updater, or Flux Image Automation instead.
 chart:
-  # Chart name to upgrade (e.g., castai, kent).
+  # -- Chart name to upgrade (e.g., castai, kent). This must match the target
+  # release's top-level chart name. Use this chart only when the target chart is
+  # installed as a standalone Helm release. If CAST AI is installed as a
+  # dependency of another chart, use dependency automation such as Renovate,
+  # Argo CD Image Updater, or Flux Image Automation instead.
   name: "castai"
   # Helm repository to fetch the chart from. Override this if you mirror the
   # CAST AI charts behind a proxy or private registry.

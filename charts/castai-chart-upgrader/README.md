@@ -1,6 +1,6 @@
 # castai-chart-upgrader
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.1.0](https://img.shields.io/badge/AppVersion-0.1.0-informational?style=flat-square)
 
 Auto-updates charts via CronJob
 
@@ -12,7 +12,7 @@ Auto-updates charts via CronJob
 | chart.auth.existingSecret | string | `""` |  |
 | chart.auth.password | string | `""` |  |
 | chart.auth.username | string | `""` |  |
-| chart.name | string | `"castai"` |  |
+| chart.name | string | `"castai"` | Chart name to upgrade (e.g., castai, kent). This must match the target release's top-level chart name. Use this chart only when the target chart is installed as a standalone Helm release. If CAST AI is installed as a dependency of another chart, use dependency automation such as Renovate, Argo CD Image Updater, or Flux Image Automation instead. |
 | chart.oci | bool | `false` |  |
 | chart.repository | string | `"https://castai.github.io/helm-charts"` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
@@ -27,7 +27,7 @@ Auto-updates charts via CronJob
 | schedule | string | `"0 8 * * *"` |  |
 | serviceAccount.create | bool | `true` |  |
 | serviceAccount.name | string | `""` |  |
-| targetRelease | string | `""` |  |
+| targetRelease | string | `""` | Target Helm release to upgrade. Defaults to the release this chart was installed under (.Release.Name). Set this when the chart-upgrader is installed as a standalone release that should upgrade a different release. |
 | tolerations | list | `[]` |  |
 | upgrade.atomic | bool | `true` |  |
 | upgrade.timeout | string | `"10m"` |  |
