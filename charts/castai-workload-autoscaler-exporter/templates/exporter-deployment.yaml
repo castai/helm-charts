@@ -3,6 +3,11 @@ kind: Deployment
 metadata:
   name: {{ include "exporter.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    workloads.cast.ai/configuration: |
+      vertical:
+        optimization: "on"
+      scalingPolicyName: balanced
   labels:
   {{- include "exporter.labels" . | nindent 4 }}
 spec:
@@ -18,11 +23,6 @@ spec:
         app: {{ include "exporter.fullname" . }}
         app.kubernetes.io/name: {{ include "exporter.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
-      annotations:
-        workloads.cast.ai/configuration: |
-          vertical:
-            optimization: "on"
-          scalingPolicyName: balanced
     spec:
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}

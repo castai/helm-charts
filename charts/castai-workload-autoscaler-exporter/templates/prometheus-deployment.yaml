@@ -4,6 +4,11 @@ kind: Deployment
 metadata:
   name: {{ include "exporter.fullname" . }}-prometheus
   namespace: {{ .Release.Namespace }}
+  annotations:
+    workloads.cast.ai/configuration: |
+      vertical:
+        optimization: "on"
+      scalingPolicyName: balanced
   labels:
   {{- include "exporter.labels" . | nindent 4 }}
 spec:
@@ -21,10 +26,6 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/prometheus-config.yaml") . | sha256sum }}
-        workloads.cast.ai/configuration: |
-          vertical:
-            optimization: "on"
-          scalingPolicyName: balanced
     spec:
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
