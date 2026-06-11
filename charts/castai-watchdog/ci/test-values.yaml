@@ -2,3 +2,14 @@ castai:
   apiKey: "dummy"
   clusterID: clusterId
   organizationID: orgId
+
+gcp:
+  credentialsJSON: |
+    {
+      "account": "",
+      "client_id": "dummy-ci-test",
+      "client_secret": "dummy-ci-test",
+      "refresh_token": "dummy",
+      "type": "authorized_user",
+      "universe_domain": "googleapis.com"
+    }
