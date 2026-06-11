@@ -1,4 +1,4 @@
-{{- if and (ge .Capabilities.KubeVersion.Minor "21") (gt .Values.replicas 1.0)}}
+{{- if and (ge .Capabilities.KubeVersion.Minor "21") (gt (int .Values.replicas) 1)}}
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
@@ -12,4 +12,3 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "watchdog.fullname" . }}
 {{- end}}
-
