@@ -323,6 +323,11 @@ spec:
                     name:
                       description: Name of the data source
                       type: string
+                    scraped:
+                      description: |-
+                        Scraped indicates that the data source has completed at least one scrape cycle.
+                        nil means the field is not supported by the running workload-autoscaler version.
+                      type: boolean
                     state:
                       type: string
                     type:

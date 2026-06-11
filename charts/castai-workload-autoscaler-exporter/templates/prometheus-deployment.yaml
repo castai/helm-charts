@@ -21,6 +21,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/prometheus-config.yaml") . | sha256sum }}
+        workloads.cast.ai/configuration: |
+          vertical:
+            optimization: "on"
+          scalingPolicyName: balanced
     spec:
       {{- if .Values.priorityClass.enabled }}
       priorityClassName: {{ .Values.priorityClass.name }}
