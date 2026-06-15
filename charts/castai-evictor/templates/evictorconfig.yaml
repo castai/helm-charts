@@ -39,3 +39,7 @@ spec:
     targetAllNodes: false
     targetNodePercentage: 10
     windows: false
+  {{- if .Values.customConfig }}
+  evictionRules:
+    {{- toYaml .Values.customConfig | nindent 4 }}
+  {{- end }}

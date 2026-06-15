@@ -19,23 +19,23 @@ commonLabels:
 commonAnnotations:
   annotation1: "annotation"
 
-customConfig: |
+customConfig:
   - podSelector:
       namespace: "default"
       kind: Job
       labelSelector:
         matchLabels:
-        some.label: someLabel
+          some.label: someLabel
       settings:
-      aggressive:
-        enabled: true
+        aggressive:
+          enabled: true
   - nodeSelector:
       labelSelector:
         matchLabels:
-        fancy-node: poof
+          fancy-node: poof
       settings:
-      removalDisabled:
-        enabled: true
+        removalDisabled:
+          enabled: true
   - podSelector:
       kind: StatefulSet
       labelSelector:
@@ -45,8 +45,8 @@ customConfig: |
           - key: statefulset.kubernetes.io/pod-name
             operator: Exists
       settings:
-      disposable:
-        enabled: true
+        disposable:
+          enabled: true
 
 clusterVPA:
   enabled: true

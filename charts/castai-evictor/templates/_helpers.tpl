@@ -115,6 +115,7 @@ Pass the customConfig to the configMap
 */}}
 {{- define "evictor.configMap.customConfig" -}}
 {{- if .Values.customConfig }}
-{{ .Values.customConfig | nindent 4 }}
+{{ "evictionConfig:" | nindent 4 }}
+{{- toYaml .Values.customConfig | nindent 6 }}
 {{- end }}
 {{- end }}
