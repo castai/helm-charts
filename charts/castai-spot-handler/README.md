@@ -6,7 +6,9 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| additionalEnv.LOG_LEVEL | string | `"5"` |  |
+| additionalEnv.LOG_EXPORTER_ENABLED | string | `"true"` |  |
+| additionalEnv.LOG_EXPORTER_LOG_LEVEL | string | `"info"` |  |
+| additionalEnv.LOG_LEVEL | string | `"debug"` |  |
 | additionalEnv.POLL_INTERVAL_SECONDS | string | `"3"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].key | string | `"eks.amazonaws.com/capacityType"` |  |
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].operator | string | `"In"` |  |
@@ -76,10 +78,14 @@ Spot Handler is the component responsible for scheduled events monitoring and de
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | envFrom | list | `[]` | Used to set additional environment variables for the spot handler container via configMaps or secrets. |
+| global | object | `{"castai":{"apiKeySecretRef":""},"registry":""}` | Global values propagated from parent charts. |
+| global.castai.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey. |
+| global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/spot-handler"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | object | `{}` | what secret should be used for pulling the image |
+| interruption.podDeletionEnabled | bool | `false` | Enable pod deletion on interrupted nodes to speed up eviction via SIGTERM. |
 | nodeSelector | object | `{}` |  |
 | phase2Permissions | bool | `true` |  |
 | podAnnotations | object | `{}` |  |

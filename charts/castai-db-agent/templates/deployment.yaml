@@ -14,6 +14,7 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "name" . }}
     spec:
+      serviceAccountName: {{ include "castai-db-agent.serviceAccountName" . }}
       containers:
         - name: db-agent
           image: "{{.Values.image.repository}}:{{ include "dbAgentImage" . }}"
@@ -46,12 +47,18 @@ spec:
               {{- else }}
               value: "{{ required "target database port must be provided" .Values.database.port }}"
               {{- end }}
-              {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
+            {{- if eq .Values.database.protocol "postgres" }}
             - name: DATABASE_SSL_MODE
+              {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
               value: "disable"
+              {{- else }}
+              value: "{{ .Values.database.sslMode }}"
               {{- end }}
-            - name: DATABASE_USE_IAM_AUTH
-              value: "{{ .Values.database.useIAMAuth }}"
+            {{- end }}
+            - name: DATABASE_USE_CLOUD_SQL_IAM_AUTH
+              value: "{{ .Values.database.useCloudSQLIAMAuth }}"
+            - name: DATABASE_USE_RDS_IAM_AUTH
+              value: "{{ .Values.database.useRDSIAMAuth }}"
             - name: DATABASE_PROTOCOL
               value: "{{ .Values.database.protocol }}"
             - name: DATABASE_AUTO_DISCOVERY_DATABASE

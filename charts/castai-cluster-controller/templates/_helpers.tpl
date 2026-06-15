@@ -84,12 +84,35 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecrets.
+*/}}
+{{- define "cluster-controller.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.imagePullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
 */}}
 {{- define "cluster-controller.tolerations" -}}
 {{- $global := .Values.global | default dict -}}
 {{- with concat ($global.tolerations | default list) (.Values.tolerations | default list) -}}
 {{ toYaml . }}
+{{- end -}}
+{{- end }}
+
+{{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "cluster-controller.imageRepository" -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) .Values.image.repository -}}
+{{- else -}}
+{{- .Values.image.repository -}}
 {{- end -}}
 {{- end }}
 

@@ -1,0 +1,30 @@
+organizationID: "123"
+proxyID: "proxy-20"
+apiKey: "456"
+
+endpoints:
+  - address: "db-primary:1521"
+    readonly: false
+
+podLabels:
+  podLabel: label
+
+podAnnotations:
+  podAnnotation: annotation
+
+commonLabels:
+  commonLabel: label
+
+commonAnnotations:
+  commonAnnotation: annotation
+
+service:
+  trafficDistribution: "PreferClose"
+
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-db-proxy

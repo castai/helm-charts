@@ -58,6 +58,10 @@ spec:
     spec:
       restartPolicy: Never
       serviceAccountName: {{ .Release.Name }}-kent-preflight
+      {{- with .Values.global.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: preflight
           image: bitnami/kubectl:latest

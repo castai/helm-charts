@@ -1,7 +1,7 @@
 castai-agent:
   enabled: true
   replicaCount: 1
-  apiKeySecretRef: castai-credentials
+  apiKeySecretRef: ""
   # Currently only EKS is supported
   provider: eks
   # executed for helm to create the namespace `helm --create-namespace`
@@ -12,7 +12,7 @@ castai-agent:
 castai-cluster-controller:
   enabled: true
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
   envFrom:
     - configMapRef:
         name: castai-agent-metadata
@@ -22,21 +22,29 @@ castai-cluster-controller:
 castai-kentroller:
   enabled: true
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     clusterIdConfigMapKeyRef:
+      name: castai-agent-metadata
+    organizationIdConfigMapKeyRef:
       name: castai-agent-metadata
 
 castai-workload-autoscaler:
   enabled: true
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
+    configMapRef: castai-agent-metadata
+
+castai-workload-autoscaler-exporter:
+  enabled: true
+  castai:
+    apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
 
 # controller.replicaCount: 0 = CLM disabled, 2 = CLM enabled.
 castai-live:
   enabled: true
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
   castai-aws-vpc-cni:
     enabled: true
@@ -50,7 +58,7 @@ castai-pod-mutator:
   dependencyCheck:
     enabled: false
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
   envFrom:
     - configMapRef:
@@ -58,7 +66,7 @@ castai-pod-mutator:
 
 castai-spot-handler:
   enabled: true
-  apiKeySecretRef: castai-credentials
+  apiKeySecretRef: ""
   castai:
     provider: eks
     clusterIdConfigMapKeyRef:
@@ -73,7 +81,7 @@ metrics-server:
 castai-kvisor:
   enabled: true
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID
@@ -84,3 +92,9 @@ castai-kvisor:
     extraArgs:
       log-level: info
       cluster-proxy-enabled: "true"
+
+castai-chart-upgrader:
+  enabled: false
+  chart:
+    name: castai
+    repository: "https://castai.github.io/helm-charts"

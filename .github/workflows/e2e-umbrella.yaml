@@ -20,7 +20,7 @@ jobs:
     if: >
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'release' && startsWith(github.event.release.tag_name, 'castai-')) ||
-      (github.event_name == 'pull_request' && contains(github.event.pull_request.title, 'castai-umbrella'))
+      (github.event_name == 'pull_request' && (contains(github.event.pull_request.title, 'castai-umbrella') || contains(github.event.pull_request.title, 'castai-chart-upgrader')))
     runs-on: ubuntu-latest
     timeout-minutes: 90
 

@@ -14,16 +14,20 @@ database:
   port: 5432
   # -- Username for database authentication. For IAM auth, use the format: "service-account-name@project-id.iam"
   username: ""
-  # -- Password for database authentication (not required when useIAMAuth is true)
+  # -- Password for database authentication (not required when useCloudSQLIAMAuth or useRDSIAMAuth is true)
   password: ""
-  # -- Name of secret with database credentials (username and password). Not required when using useIAMAuth with inline username.
+  # -- Name of secret with database credentials (username and password). Not required when using useCloudSQLIAMAuth or useRDSIAMAuth with inline username.
   credentialsSecretRef: ""
   # -- Enable IAM authentication for database connection (GCP Cloud SQL IAM). Requires Workload Identity setup. See IAM_AUTH_SETUP.md for details.
-  useIAMAuth: false
+  useCloudSQLIAMAuth: false
+  # -- Enable IAM authentication for database connection (AWS RDS IAM). Requires IAM role with rds-db:connect permission.
+  useRDSIAMAuth: false
   # -- Database protocol to use. Supported values: postgres, mysql.
   protocol: postgres
   # -- Database name to use for connecting to database instance for auto-discovering logical databases. This is only required for Postgres
   autoDiscoveryDatabase: "postgres"
+  # -- SSL mode for database connection (Postgres only). Forced to "disable" when cloudSqlProxy is enabled.
+  sslMode: "require"
 # -- URL to the CAST AI API gRPC endpoint.
 gRPCEndpoint: ""
 collectors:
@@ -54,3 +58,13 @@ cloudSqlProxyImage:
   repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
+
+serviceAccount:
+  # -- Specifies whether a service account should be created
+  create: false
+  # -- Annotations to add to the service account (e.g. for AWS IRSA: eks.amazonaws.com/role-arn: <ARN>)
+  annotations: {}
+  # -- The name of the service account to use.
+  # If not set and create is true, the chart name is used.
+  # If not set and create is false, "default" is used.
+  name: ""

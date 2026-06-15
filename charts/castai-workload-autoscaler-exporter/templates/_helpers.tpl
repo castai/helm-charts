@@ -1,4 +1,25 @@
 {{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "exporter.imageRepository" -}}
+{{- $repository := required "image.repository must be provided" (index . 0) -}}
+{{- $registry := ((index . 1).Values.global | default dict).registry | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) $repository -}}
+{{- else -}}
+{{- $repository -}}
+{{- end -}}
+{{- end }}
+
+{{- define "exporter.exporter.imageRepository" -}}
+{{- include "exporter.imageRepository" (list .Values.exporter.image.repository .) -}}
+{{- end }}
+
+{{- define "exporter.prometheus.imageRepository" -}}
+{{- include "exporter.imageRepository" (list .Values.prometheus.image.repository .) -}}
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "exporter.name" -}}
@@ -36,8 +57,9 @@ Common labels
 {{- define "exporter.labels" -}}
 helm.sh/chart: {{ include "exporter.chart" . }}
 {{ include "exporter.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- $appVersion := .Values.appVersion | default .Chart.AppVersion }}
+{{- if $appVersion }}
+app.kubernetes.io/version: {{ $appVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
@@ -48,6 +70,17 @@ Selector labels
 {{- define "exporter.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "exporter.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecrets.
+*/}}
+{{- define "exporter.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.imagePullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
 {{- end }}
 
 {{/*
@@ -70,3 +103,17 @@ Create the name of the service account to use
 {{- default "default" .Values.exporter.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Resolve the node metrics mode, handling both defined and undefined cases.
+Returns: "api-server" (default) or "kubelet"
+*/}}
+{{- define "exporter.nodeMetricsMode" -}}
+{{- $validModes := list "api-server" "kubelet" -}}
+{{- $mode := .Values.exporter.config.nodeMetrics.mode | default "api-server" -}}
+{{- if has $mode $validModes -}}
+{{- $mode -}}
+{{- else -}}
+api-server
+{{- end -}}
+{{- end -}}

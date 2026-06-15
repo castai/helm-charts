@@ -35,6 +35,7 @@ func (h *UmbrellaHelmHelper) InstallKentMode(apiKey string) error {
 		"--set", "kent.enabled=true",
 		"--set", "kent.preflight.enabled=false",
 		"--set", "kent.castai-live.castai-aws-vpc-cni.enabled=false",
+		"--set", "kent.castai-workload-autoscaler-exporter.enabled=false",
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
 		"--timeout", defaultHelmTimeout,

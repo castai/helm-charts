@@ -34,6 +34,7 @@ rules:
     verbs:
       - get
       - list
+      - watch
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -88,6 +89,47 @@ roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
   name: castai-spot-handler-phase2
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.serviceAccount.name }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+
+{{- if .Values.interruption.podDeletionEnabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: castai-spot-handler-delete-pods
+  labels:
+    {{- include "spot-handler.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "spot-handler.annotations" . | nindent 4 }}
+  {{- end }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - list
+      - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: castai-spot-handler-delete-pods
+  labels:
+    {{- include "spot-handler.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "spot-handler.annotations" . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: castai-spot-handler-delete-pods
 subjects:
   - kind: ServiceAccount
     name: {{ .Values.serviceAccount.name }}

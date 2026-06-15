@@ -8,6 +8,16 @@ commonLabels: {}
 # commonAnnotations -- Annotations to add to all resources.
 commonAnnotations: {}
 
+# global -- Global values propagated from parent charts.
+global:
+  # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
+  # When set, it is prepended to all image repositories.
+  registry: ""
+  # global.castai.apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
+  # Takes effect when apiKeySecretRef is not set locally. Mutually exclusive with castai.apiKey.
+  castai:
+    apiKeySecretRef: ""
+
 image:
   repository: us-docker.pkg.dev/castai-hub/library/spot-handler
   # Tag is set using Chart.yaml appVersion field.
@@ -54,8 +64,10 @@ castai:
 podAnnotations: {}
 podLabels: {}
 additionalEnv:
-  LOG_LEVEL: "5"
+  LOG_LEVEL: "debug"
   POLL_INTERVAL_SECONDS: "3"
+  LOG_EXPORTER_ENABLED: "true"
+  LOG_EXPORTER_LOG_LEVEL: "info"
 
 # useHostNetwork -- Host network is used to access instance metadata endpoints which are not always available from pod network.
 useHostNetwork: true
@@ -67,6 +79,10 @@ updateStrategy: {}
 # Phase 1 (false): Only monitoring and read permissions
 # Phase 2 (true): Include permissions for tainting nodes
 phase2Permissions: true
+
+interruption:
+  # interruption.podDeletionEnabled -- Enable pod deletion on interrupted nodes to speed up eviction via SIGTERM.
+  podDeletionEnabled: false
 
 resources:
   requests:

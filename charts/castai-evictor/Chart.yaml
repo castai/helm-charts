@@ -14,14 +14,19 @@ type: application
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
 
-version: 0.35.29
+version: 0.35.81
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
 # It is recommended to use it with quotes.
-appVersion: c62ba7bb054c7ae2230d663c5f06442b3ae5592c
+appVersion: 417a9211a27e4b055de8cd157a9f37ddb168f683
 annotations:
-  release-date: "2026-04-20T10:07:57"
+  release-date: "2026-06-11T14:34:41"
+  artifacthub.io/changes: |
+    - kind: added
+      description: |
+        Added global.rbac.clusterScoped.enabled toggle for cluster-scoped RBAC resources.
+        Set to false to disable ClusterRole and ClusterRoleBinding creation.
 # GitHub actions fails when 'chart' directory is used for dependencies.
 dependencies:
   - name: castai-evictor-ext
