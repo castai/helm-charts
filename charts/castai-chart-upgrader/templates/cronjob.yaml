@@ -1,0 +1,158 @@
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ include "chart-upgrader.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "chart-upgrader.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  startingDeadlineSeconds: 3600
+  suspend: false
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 1800
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            {{- include "chart-upgrader.selectorLabels" . | nindent 12 }}
+        spec:
+          serviceAccountName: {{ include "chart-upgrader.serviceAccountName" . }}
+          automountServiceAccountToken: true
+          restartPolicy: Never
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 65534
+            runAsGroup: 65534
+            fsGroup: 65534
+            seccompProfile:
+              type: RuntimeDefault
+          containers:
+          - name: helm-upgrade
+            image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+            imagePullPolicy: {{ .Values.image.pullPolicy }}
+            securityContext:
+              allowPrivilegeEscalation: false
+              readOnlyRootFilesystem: true
+              capabilities:
+                drop: ["ALL"]
+            env:
+            - name: HOME
+              value: /tmp
+            - name: HELM_CACHE_HOME
+              value: /tmp/helm/cache
+            - name: HELM_CONFIG_HOME
+              value: /tmp/helm/config
+            - name: HELM_DATA_HOME
+              value: /tmp/helm/data
+            {{- if and .Values.chart.oci (or .Values.chart.auth.existingSecret .Values.chart.auth.username) }}
+            - name: REGISTRY_USERNAME
+              {{- if .Values.chart.auth.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.chart.auth.existingSecret }}
+                  key: username
+              {{- else }}
+              value: {{ .Values.chart.auth.username | quote }}
+              {{- end }}
+            - name: REGISTRY_PASSWORD
+              {{- if .Values.chart.auth.existingSecret }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.chart.auth.existingSecret }}
+                  key: password
+              {{- else }}
+              value: {{ .Values.chart.auth.password | quote }}
+              {{- end }}
+            {{- end }}
+            {{- with .Values.resources }}
+            resources:
+              {{- toYaml . | nindent 14 }}
+            {{- end }}
+            volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            command:
+            - /bin/sh
+            - -c
+            - |
+              set -eu
+              {{- if .Values.chart.oci }}
+              {{- if or .Values.chart.auth.existingSecret .Values.chart.auth.username }}
+              echo "Logging in to OCI registry: {{ .Values.chart.repository }}"
+              echo "$REGISTRY_PASSWORD" | helm registry login "{{ .Values.chart.repository | trimPrefix "oci://" }}" \
+                --username "$REGISTRY_USERNAME" \
+                --password-stdin
+              {{- end }}
+
+              CHART_REF="{{ .Values.chart.repository }}/{{ .Values.chart.name }}"
+              {{- else }}
+              echo "Adding Helm repository: {{ .Values.chart.repository }}"
+              helm repo add --force-update castai "{{ .Values.chart.repository }}"
+
+              echo "Updating Helm repositories..."
+              helm repo update
+
+              CHART_REF="castai/{{ .Values.chart.name }}"
+              {{- end }}
+
+              TARGET_RELEASE="{{ include "chart-upgrader.targetRelease" . }}"
+              TARGET_CHART="{{ .Values.chart.name }}"
+
+              echo "Validating target release '$TARGET_RELEASE' before upgrade"
+              RELEASE_METADATA="$(helm get metadata "$TARGET_RELEASE" \
+                --namespace "{{ .Release.Namespace }}" \
+                --output json)"
+              CURRENT_CHART="$(printf '%s\n' "$RELEASE_METADATA" | jq -r '.chart // empty')"
+
+              if [ -z "$CURRENT_CHART" ]; then
+                echo "Failed to determine current top-level chart for release '$TARGET_RELEASE'" >&2
+                exit 1
+              fi
+
+              if [ "$CURRENT_CHART" != "$TARGET_CHART" ]; then
+                echo "Refusing to upgrade release '$TARGET_RELEASE': current top-level chart is '$CURRENT_CHART', expected '$TARGET_CHART'." >&2
+                echo "The chart-upgrader only supports releases installed directly from '$TARGET_CHART'. If '$TARGET_CHART' is installed as a dependency of a customer/wrapper chart, upgrade that parent chart instead." >&2
+                exit 1
+              fi
+
+              if printf '%s\n' "$RELEASE_METADATA" | jq -e --arg chart "$TARGET_CHART" '.dependencies[]? | select(.name == $chart)' >/dev/null; then
+                echo "Refusing to upgrade release '$TARGET_RELEASE': current top-level chart '$CURRENT_CHART' lists '$TARGET_CHART' as a dependency." >&2
+                echo "This indicates '$TARGET_CHART' is installed as a subchart. Upgrade the customer/wrapper chart that owns the release instead." >&2
+                exit 1
+              fi
+
+              echo "Upgrading release '$TARGET_RELEASE' with chart '$CHART_REF'"
+              helm upgrade "$TARGET_RELEASE" "$CHART_REF" \
+                --namespace "{{ .Release.Namespace }}" \
+                {{- if .Values.upgrade.atomic }}
+                --atomic \
+                {{- end }}
+                {{- if .Values.upgrade.wait }}
+                --wait \
+                {{- end }}
+                --reset-then-reuse-values \
+                --timeout "{{ .Values.upgrade.timeout }}"
+
+              echo "Upgrade completed successfully!"
+          {{- with .Values.tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumes:
+          - name: tmp
+            emptyDir: {}

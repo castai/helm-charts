@@ -11,6 +11,8 @@ castai-evictor-ext.
 | commonAnnotations | object | `{}` |  |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | fullnameOverride | string | `"castai-evictor-ext"` |  |
+| global | object | `{"rbac":{"clusterScoped":{"enabled":true}}}` | Global values propagated from parent charts. |
+| global.rbac.clusterScoped.enabled | bool | `true` | Enable cluster-scoped RBAC resources (ClusterRole, ClusterRoleBinding). Set to false to disable cluster-scoped RBAC if using namespace-scoped permissions. |
 | nameOverride | string | `""` |  |
 | serviceAccount.name | string | `"castai-evictor"` |  |
 

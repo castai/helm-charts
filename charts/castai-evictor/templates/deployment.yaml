@@ -39,9 +39,9 @@ spec:
       {{- if .Values.dnsPolicy }}
       dnsPolicy: {{ .Values.dnsPolicy }}
       {{- end }}
-      {{- with .Values.imagePullSecrets }}
+      {{- with include "evictor.imagePullSecrets" . }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "evictor.serviceAccountName" . }}
       {{- if .Values.securityContext }}
@@ -86,8 +86,6 @@ spec:
               value: {{ .Values.woop.useK8sClientCache | quote }}
             - name: POD_MUTATIONS_ENABLED
               value: {{ .Values.podMutations.enabled | quote }}
-            - name: KARPENTER_MODE_ENABLED
-              value: {{ .Values.karpenterMode.enabled | quote }}
             - name: SCOPED_MODE
               value: {{ .Values.scopedMode | quote }}
             - name: NODE_GRACE_PERIOD_MINUTES
@@ -135,12 +133,9 @@ spec:
             {{- toYaml . | nindent 12 }}
           {{- end }}
           {{- if not .Values.overrideEnvFrom}}
+          {{- $resolvedSecretRef := or .Values.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
             - secretRef:
-                {{- if .Values.apiKeySecretRef }}
-                name: {{ .Values.apiKeySecretRef }}
-                {{- else }}
-                name: castai-cluster-controller
-                {{- end }}
+                name: {{ or $resolvedSecretRef "castai-cluster-controller" }}
                 optional: false
             - configMapRef:
                 name: castai-cluster-controller
@@ -169,7 +164,7 @@ spec:
           {{- end }}
           securityContext:
             {{- toYaml .Values.containerSecurityContext | nindent 12 }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "evictor.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http

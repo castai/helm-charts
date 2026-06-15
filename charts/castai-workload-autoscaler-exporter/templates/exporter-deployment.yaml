@@ -3,6 +3,11 @@ kind: Deployment
 metadata:
   name: {{ include "exporter.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  annotations:
+    workloads.cast.ai/configuration: |
+      vertical:
+        optimization: "on"
+      scalingPolicyName: balanced
   labels:
   {{- include "exporter.labels" . | nindent 4 }}
 spec:
@@ -19,10 +24,13 @@ spec:
         app.kubernetes.io/name: {{ include "exporter.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
       serviceAccountName: {{ template "exporter.serviceAccountName" . }}
-      {{- with .Values.imagePullSecrets }}
+      {{- with include "exporter.imagePullSecrets" . }}
       imagePullSecrets:
-      {{- toYaml . | nindent 8 }}
+      {{- . | nindent 8 }}
       {{- end }}
       {{- with .Values.podSecurityContext }}
       securityContext:
@@ -30,10 +38,10 @@ spec:
       {{- end }}
       containers:
         - name: exporter
-          image: "{{ required "exporter.image.repository must be provided" .Values.exporter.image.repository }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "exporter.exporter.imageRepository" . }}:{{ .Values.exporter.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.exporter.image.pullPolicy | default "IfNotPresent" }}
           command:
-            - "castai-workload-autoscaler"
+            - "/usr/local/bin/workload-autoscaler"
             - "exporter"
           ports:
             - containerPort: 8080
@@ -46,10 +54,14 @@ spec:
             value: {{ quote (coalesce .Values.exporter.config.metric_limit .Values.exporter.config.metricLimit) }}
           - name: METRICS_CLIENT_INSECURE
             value: {{ quote .Values.exporter.config.metricsClientInsecure }}
+          - name: NODE_METRICS_MODE
+            value: {{ quote .Values.exporter.config.nodeMetrics.mode }}
           - name: METRICS_PORT
             value: {{ quote .Values.exporter.metrics.port }}
           - name: HEALTH_PROBE_PORT
             value: {{ quote .Values.exporter.healthProbe.port }}
+          - name: LOG_LEVEL
+            value: {{ .Values.logLevel | default 0 | quote }}
           {{- if .Values.castai.clusterIdSecretKeyRef.name }}
           {{- if ne .Values.castai.clusterID "" }}
           {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
@@ -72,19 +84,20 @@ spec:
           - name: "{{ $name }}"
             value: "{{ $value }}"
           {{- end }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
           envFrom:
-            {{- if or .Values.castai.apiKey .Values.castai.apiKeySecretRef }}
+            {{- if or .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if .Values.castai.apiKey }}
-                  {{- if ne .Values.castai.apiKeySecretRef "" }}
+                  {{- if ne $resolvedSecretRef "" }}
                   {{- fail "apiKey and apiKeySecretRef are mutually exclusive" }}
                   {{- end }}
                   name: {{ include "exporter.fullname" . }}
                   {{- else }}
-                  name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.castai.apiKeySecretRef }}
+                  name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
                   {{- end }}
             {{- else if not .Values.envFrom -}}
-            {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+            {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
             {{- end }}
             - configMapRef:
                 {{- if .Values.castai.configMapRef}}

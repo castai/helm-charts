@@ -97,6 +97,19 @@ rules:
       - list
       - watch
   # ---
+  # Read only permissions to get recommendation CRD state
+  # ---
+  - apiGroups:
+      - apiextensions.k8s.io
+    resources:
+      - customresourcedefinitions
+    resourceNames:
+      - recommendations.autoscaling.cast.ai
+    verbs:
+      - get
+      - list
+      - watch
+  # ---
   # Write permissions for autoscaling resources (recommendations) - required for adding finalizers
   # ---
   - apiGroups:
@@ -135,6 +148,7 @@ rules:
       - list
       - update
       - create
+      - patch
       - watch
       - delete
       - get

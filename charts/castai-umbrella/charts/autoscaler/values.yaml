@@ -26,7 +26,7 @@
 
 castai-agent:
   replicaCount: 1
-  apiKeySecretRef: castai-credentials
+  apiKeySecretRef: ""
   createNamespace: false
   metadataStore:
     createConfigMap: true
@@ -37,25 +37,22 @@ castai-spot-handler:
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID
-  apiKeySecretRef: castai-credentials
+  apiKeySecretRef: ""
 
 castai-kvisor:
+  fullnameOverride: castai-kvisor
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID
-
-gpu-metrics-exporter:
-  castai:
-    apiKeySecretRef: castai-credentials
-    clusterIdConfigMapKeyRef:
-      name: castai-agent-metadata
-      key: CLUSTER_ID
+  agent:
+    gpu:
+      enabled: true
 
 castai-cluster-controller:
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
   envFrom:
     - configMapRef:
         name: castai-agent-metadata
@@ -67,10 +64,8 @@ castai-cluster-controller:
 castai-evictor:
   replicaCount: 1
   aggressiveMode: false
-  overrideEnvFrom: true
+  overrideEnvFrom: false
   envFrom:
-    - secretRef:
-        name: castai-credentials
     - configMapRef:
         name: castai-agent-metadata
 
@@ -79,7 +74,7 @@ castai-pod-mutator:
   dependencyCheck:
     enabled: false
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
   envFrom:
     - configMapRef:
@@ -87,7 +82,7 @@ castai-pod-mutator:
 
 castai-pod-pinner:
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID
@@ -95,7 +90,7 @@ castai-pod-pinner:
 
 castai-live:
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
   castai-aws-vpc-cni:
     enabled: false
@@ -107,11 +102,11 @@ castai-live:
 castai-workload-autoscaler:
   fullnameOverride: castai-workload-autoscaler
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
 
 castai-workload-autoscaler-exporter:
   fullnameOverride: castai-workload-autoscaler-exporter
   castai:
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: ""
     configMapRef: castai-agent-metadata

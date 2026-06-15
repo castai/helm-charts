@@ -2,34 +2,38 @@ apiVersion: v2
 name: kent
 description: Wrapper chart for CAST AI Kent profile.
 type: application
-version: 0.11.0
+version: 0.13.1
 dependencies:
   - name: castai-agent
-    version: "0.153.1"
+    version: "0.158.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-agent.enabled
   - name: castai-cluster-controller
-    version: "0.92.0"
+    version: "0.92.5"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
   - name: castai-kentroller
-    version: "0.1.122"
+    version: "0.1.154"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kentroller.enabled
   - name: castai-workload-autoscaler
-    version: "1.0.2"
+    version: "1.2.4"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
+  - name: castai-workload-autoscaler-exporter
+    version: "1.2.4"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-workload-autoscaler-exporter.enabled
   - name: castai-live
-    version: "0.84.0"
+    version: "0.105.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
   - name: castai-pod-mutator
-    version: "0.10.0"
+    version: "0.15.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-mutator.enabled
   - name: castai-spot-handler
-    version: "0.33.0"
+    version: "0.35.2"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-spot-handler.enabled
   - name: metrics-server
@@ -37,6 +41,10 @@ dependencies:
     repository: "https://kubernetes-sigs.github.io/metrics-server/"
     condition: metrics-server.enabled
   - name: castai-kvisor
-    version: "1.0.152"
+    version: "1.161.2"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
+  - name: castai-chart-upgrader
+    version: "0.2.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-chart-upgrader.enabled

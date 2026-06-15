@@ -1,4 +1,5 @@
 ---
+{{- if (dig "rbac" "clusterScoped" "enabled" true (.Values.global | default dict)) }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
@@ -88,20 +89,6 @@ rules:
       - delete
       - update
   # ------------------------------------------------
-  # KARPENTER MODE: accessing NodePool and NodeClaim resources
-  # ------------------------------------------------
-  - apiGroups:
-      - karpenter.sh
-    resources:
-      - nodepools
-      - nodepool
-      - nodeclaims
-      - nodeclaim
-    verbs:
-      - get
-      - list
-      - watch
-  # ------------------------------------------------
   # Pod events (for node-related pod events feature)
   # ------------------------------------------------
   - apiGroups:
@@ -164,3 +151,4 @@ rules:
       - get
       - list
       - watch
+{{- end }}

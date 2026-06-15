@@ -47,33 +47,33 @@ Replace `tags.readonly` with the desired mode tag (`node-autoscaler`, `workload-
 
 #### Using an external secret (Sealed Secrets / ESO / Vault)
 
-If you manage secrets externally, pre-create the `castai-credentials` Secret and pass `apiKeySecretRef` instead of `apiKey`:
+If you manage secrets externally, pre-create a Secret and pass its name as `apiKeySecretRef` instead of `apiKey`:
 
 ```shell
 kubectl create namespace castai-agent
-kubectl create secret generic castai-credentials \
+kubectl create secret generic my-castai-credentials \
   --namespace castai-agent \
   --from-literal=API_KEY=<YOUR_API_KEY>
 
 helm upgrade --install castai castai-helm/castai \
   --namespace castai-agent --create-namespace \
-  --set global.castai.apiKeySecretRef=castai-credentials \
+  --set global.castai.apiKeySecretRef=my-castai-credentials \
   --set global.castai.apiURL=https://api.cast.ai \
   --set global.castai.provider=<eks|aks|gke> \
   --set tags.readonly=true
 ```
 
-The Secret must contain a key named `API_KEY` and be in the same namespace as the release. `apiKey` and `apiKeySecretRef` are mutually exclusive.
+The Secret must contain a key named `API_KEY` and be in the same namespace as the release. `apiKey` and `apiKeySecretRef` are mutually exclusive. The default value for `apiKeySecretRef` is `castai-credentials`, but any Secret name is accepted.
 
 #### Using ExternalSecret (External Secrets Operator)
 
-If you use the [External Secrets Operator](https://external-secrets.io), you can provision the `castai-credentials` secret directly from your secret store using `extraObjects` — no manual `kubectl create secret` step required.
+If you use the [External Secrets Operator](https://external-secrets.io), you can provision a credentials secret directly from your secret store using `extraObjects` — no manual `kubectl create secret` step required.
 
 ```yaml
 global:
   castai:
     apiKey: ""                          # leave empty — ExternalSecret creates the secret
-    apiKeySecretRef: castai-credentials
+    apiKeySecretRef: castai-credentials # any name — must match target.name below
     apiURL: "https://api.cast.ai"
     provider: eks
 
@@ -91,7 +91,7 @@ extraObjects:
         name: my-secret-store           # your SecretStore or ClusterSecretStore name
         kind: SecretStore
       target:
-        name: castai-credentials        # must be exactly this
+        name: castai-credentials        # must match global.castai.apiKeySecretRef
         creationPolicy: Owner
       data:
         - secretKey: API_KEY            # must be exactly this
@@ -99,7 +99,7 @@ extraObjects:
             key: castai/api-key         # path in your secret store
 ```
 
-The `ExternalSecret` is rendered into the same namespace as the release. All subcharts, including `castai-evictor` which reads credentials via `envFrom`, will find the `castai-credentials` secret automatically.
+The `ExternalSecret` is rendered into the same namespace as the release. All subcharts will find the secret named by `global.castai.apiKeySecretRef` automatically.
 
 ### Accepted mode upgrade paths
 
@@ -181,11 +181,11 @@ helm upgrade castai castai-helm/castai \
 
 ## Autoscaler Anywhere
 
-For non-managed Kubernetes clusters (bare metal, on-prem, edge). Authentication uses a pre-created `castai-credentials` Secret instead of inline API key flags.
+For non-managed Kubernetes clusters (bare metal, on-prem, edge). Authentication uses a pre-created credentials Secret instead of inline API key flags.
 
 ### Prerequisites
 
-Create the credentials secret before installing:
+Create the credentials secret before installing (name must match `global.castai.apiKeySecretRef`, default: `castai-credentials`):
 
 ```shell
 kubectl create namespace castai-agent
@@ -220,11 +220,11 @@ helm upgrade castai castai-helm/castai \
 
 ## Kent
 
-CAST AI Kent profile for EKS clusters. Like Autoscaler Anywhere, authentication uses a pre-created `castai-credentials` Secret.
+CAST AI Kent profile for EKS clusters. Like Autoscaler Anywhere, authentication uses a pre-created credentials Secret.
 
 ### Prerequisites
 
-Create the credentials secret before installing:
+Create the credentials secret before installing (name must match `global.castai.apiKeySecretRef`, default: `castai-credentials`):
 
 ```shell
 kubectl create namespace castai-agent

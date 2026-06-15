@@ -22,7 +22,7 @@ Cluster utilization defragmentation tool
 | clusterIdConfigMapKeyRef.name | string | `""` | name and of the config map with cluster id |
 | clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
 | clusterIdSecretKeyRef.name | string | `""` |  |
-| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"registry.k8s.io/cpa/cpvpa","resources":{},"version":"v0.8.4"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |
+| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"us-docker.pkg.dev/castai-hub/library/cpa/cpvpa","resources":{},"version":"v0.8.12"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |
 | commonAnnotations | object | `{}` |  |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | configMapLabels | object | `{}` |  |
@@ -37,14 +37,18 @@ Cluster utilization defragmentation tool
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
 | extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-evictor"` |  |
+| global | object | `{"castai":{"apiKeySecretRef":""},"imagePullSecrets":[],"rbac":{"clusterScoped":{"enabled":true}},"registry":""}` | Global values propagated from parent charts. |
+| global.castai.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when apiKeySecretRef is not set locally. |
+| global.imagePullSecrets | list | `[]` | Image pull secrets applied to all pods. Merged with local imagePullSecrets. |
+| global.rbac.clusterScoped.enabled | bool | `true` | Enable cluster-scoped RBAC resources (ClusterRole, ClusterRoleBinding). Set to false to disable cluster-scoped RBAC if using namespace-scoped permissions. |
+| global.registry | string | `""` | Container registry prefix for all images (e.g. "my-registry.example.com"). When set, it is prepended to all image repositories. |
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
 | ignorePodDisruptionBudgets | bool | `false` | Specifies whether the Evictor should ignore Pod Disruption Budgets (PDBs). If true, evictor will attempt to evict pods even if it would violate a PDB. Use with caution as this may disrupt application availability guarantees. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
-| karpenterMode | object | `{"enabled":false}` | Specifies settings for working with Karpenter NodePool and NodeClaim resources. |
-| karpenterNodeCleanup | object | `{"enabled":false}` | Specifies Karpenter node cleanup parameters. |
+| karpenterNodeCleanup | object | `{"enabled":false}` | Karpenter NodeClaim cleanup for nodes Evictor has drained. When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully drained, so Karpenter's termination controller can clean up the EC2 instance. Requires `nodeclaims.karpenter.sh` get/list/watch/delete permission (granted by this chart). |
 | karpenterNodeCleanup.enabled | bool | `false` | Whether to enable cleanup of Karpenter nodes. |
 | kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100}}` | Specifies Kubernetes client settings. |
 | kubernetesClient.rateLimiter.burst | int | `200` | Burst controls the maximum queries per second that the client is allowed to issue in a short burst. |

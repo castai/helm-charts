@@ -125,11 +125,13 @@ data:
         - name: endpoint_upstream_{{ $index }}
           type: {{ if $endpoint.serviceDiscovery }}{{ default "LOGICAL_DNS" $endpoint.serviceDiscovery.type }}{{ else }}LOGICAL_DNS{{ end }}
           dns_lookup_family: {{ if $endpoint.serviceDiscovery }}{{ default "ALL" $endpoint.serviceDiscovery.dns_lookup_family }}{{ else }}ALL{{ end }}
-          {{- if and $endpoint.serviceDiscovery $endpoint.serviceDiscovery.respect_dns_ttl }}
+          {{- if $endpoint.serviceDiscovery }}
+          {{- if $endpoint.serviceDiscovery.respect_dns_ttl }}
           respect_dns_ttl: {{ $endpoint.serviceDiscovery.respect_dns_ttl }}
           {{- end }}
-          {{- if and $endpoint.serviceDiscovery $endpoint.serviceDiscovery.dns_refresh_rate }}
+          {{- if $endpoint.serviceDiscovery.dns_refresh_rate }}
           dns_refresh_rate: {{ $endpoint.serviceDiscovery.dns_refresh_rate }}
+          {{- end }}
           {{- end }}
           connect_timeout: 1s
           upstream_connection_options:
@@ -164,7 +166,6 @@ data:
                           address: {{ required "endpoint hostname must be provided" $endpoint.hostname }} # upstream database host
                           port_value: {{ required "endpoint targetPort is required" $endpoint.targetPort }} # upstream database port
                           {{- end }}
-          {{- if not (and $.Values.proxySql $.Values.proxySql.enabled) }}
           transport_socket:
             name: envoy.transport_sockets.start_tls
             typed_config:
@@ -174,7 +175,6 @@ data:
                 common_tls_context:
                   tls_params:
                     tls_maximum_protocol_version: TLSv1_3
-          {{- end }}
         {{- end }}
 
         - name: query_processor_service

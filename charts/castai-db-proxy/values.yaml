@@ -1,0 +1,132 @@
+replicas: 2
+
+# -- Rolling update strategy configuration.
+rollingUpdate:
+  # -- Maximum number of pods that can be created above the desired number of pods during an update.
+  maxSurge: "100%"
+  # -- Maximum number of pods that can be unavailable during an update.
+  maxUnavailable: 0
+
+# -- URL to the CAST AI gRPC API server.
+apiURL: "api-grpc.cast.ai"
+
+# -- Token to be used for authorizing access to the CAST AI API.
+apiKey: ""
+
+# apiKeySecretRef -- Name of secret with Token to be used for authorizing access to the API.
+# apiKey and apiKeySecretRef are mutually exclusive.
+# The referenced secret must provide the token in .data["API_KEY"].
+apiKeySecretRef: ""
+
+# organizationID -- ID of the organization.
+organizationID: ""
+
+# proxyID -- ID of this proxy instance.
+proxyID: ""
+
+# protocol -- Database protocol.
+protocol: "Oracle"
+
+# endpoints -- Upstream database endpoints. Each entry needs `address` (host:port) and `readonly` (bool).
+endpoints: []
+
+ports:
+  # -- Listening port for read-write connections.
+  readWrite: 6141
+  # -- Listening port for read-only connections.
+  readOnly: 6142
+  # -- Prometheus metrics port.
+  metrics: 9090
+  # -- Cluster peer communication port.
+  cluster: 9050
+
+cache:
+  # -- Default TTL for cached results in seconds.
+  defaultTTLSecs: 300
+
+cluster:
+  # -- Enable distributed cache cluster mode.
+  enabled: true
+
+# -- Application log level. Supports "trace", "debug", "info", "warn", "error"
+logLevel: "warn"
+
+service:
+  # -- Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic.
+  # Requires Kubernetes 1.31+.
+  trafficDistribution: ""
+
+# commonLabels -- Labels to add to all resources.
+commonLabels: {}
+
+# commonAnnotations -- Annotations to add to all resources.
+commonAnnotations: {}
+
+# -- Extra labels to add to the pod.
+podLabels: {}
+
+# -- Extra annotations to add to the pod.
+podAnnotations: {}
+
+resources:
+  cpu: "2"
+  memoryRequest: "2Gi"
+  memoryLimit: "2Gi"
+
+image:
+  repository: us-docker.pkg.dev/castai-hub/library/db-proxy
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag. Defaults to Chart.appVersion.
+  tag: ""
+
+# -- The name of the service account to be used by the pod.
+serviceAccountName: ""
+
+# -- Pod toleration rules.
+tolerations: {}
+
+# -- Pod node selector rules.
+nodeSelector: {}
+
+# -- Pod affinity rules.
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - APP_NAME
+        topologyKey: kubernetes.io/hostname
+
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/os
+              operator: NotIn
+              values:
+                - windows
+            - key: kubernetes.io/arch
+              operator: In
+              values:
+                - amd64
+                - arm64
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: provisioner.cast.ai/managed-by
+              operator: In
+              values:
+                - cast.ai
+
+# -- Pod topology spread constraints.
+topologySpreadConstraints: []
+
+# -- Pod DNS policy.
+dnsPolicy: ""
+
+# -- Pod DNS configuration.
+dnsConfig: {}

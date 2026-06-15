@@ -84,7 +84,61 @@ spec:
                   type: object
                 type: array
               hpa:
+                description: HPA holds the HPA recommendation configuration.
                 properties:
+                  converters:
+                    description: Converters is an ordered list of HPA spec converters.
+                    items:
+                      description: HPAConverter describes a single step in the HPA
+                        spec conversion pipeline.
+                      properties:
+                        type:
+                          description: Type identifies the converter to apply.
+                          enum:
+                          - None
+                          - AverageValueFromOriginalRequests
+                          type: string
+                      required:
+                      - type
+                      type: object
+                    maxItems: 1
+                    type: array
+                  management:
+                    description: Management configures HPA creation and ownership
+                      behavior.
+                    properties:
+                      create:
+                        default:
+                          type: Always
+                        description: Create defines whether WOOP can create the HPA.
+                        properties:
+                          type:
+                            default: Always
+                            description: Type controls whether WOOP creates the HPA
+                              when it does not exist.
+                            enum:
+                            - Always
+                            - Never
+                            type: string
+                        required:
+                        - type
+                        type: object
+                      ownership:
+                        description: Ownership defines how existing HPAs are managed.
+                        properties:
+                          allowDelete:
+                            description: AllowDelete allows the HPA to be deleted
+                              externally when set to true.
+                            type: boolean
+                          type:
+                            description: Type defines how the HPA spec is applied.
+                            enum:
+                            - Replace
+                            - Patch
+                            - Never
+                            type: string
+                        type: object
+                    type: object
                   spec:
                     description: HorizontalPodAutoscalerSpec describes the desired
                       functionality of the HorizontalPodAutoscaler.
@@ -164,8 +218,8 @@ spec:
                                   and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
                                   triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
 
-                                  This is an beta field and requires the HPAConfigurableTolerance feature
-                                  gate to be enabled.
+                                  This is an alpha field and requires enabling the HPAConfigurableTolerance
+                                  feature gate.
                                 pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                                 x-kubernetes-int-or-string: true
                             type: object
@@ -239,8 +293,8 @@ spec:
                                   and scale-down and scale-up tolerances of 5% and 1% respectively, scaling will be
                                   triggered when the actual consumption falls below 95Mi or exceeds 101Mi.
 
-                                  This is an beta field and requires the HPAConfigurableTolerance feature
-                                  gate to be enabled.
+                                  This is an alpha field and requires enabling the HPAConfigurableTolerance
+                                  feature gate.
                                 pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                                 x-kubernetes-int-or-string: true
                             type: object
@@ -760,8 +814,17 @@ spec:
                     type: object
                   takeOwnership:
                     default: false
+                    description: |-
+                      TakeOwnership is kept for backward compatibility; use management.ownership.type instead.
+                      Cannot be combined with management.ownership.type=Never.
+                      If management.ownership.type is specified, it takes precedence over this field.
                     type: boolean
                 type: object
+                x-kubernetes-validations:
+                - message: takeOwnership=true cannot be combined with management.ownership.type=Never
+                  rule: '!(self.takeOwnership && has(self.management) && has(self.management.ownership)
+                    && has(self.management.ownership.type) && self.management.ownership.type
+                    == ''Never'')'
               limitsPolicy:
                 description: LimitsPolicy defines per-resource limit handling strategies.
                 properties:
@@ -1017,10 +1080,11 @@ spec:
                                         allocatable memory. Range (0, 100].
                                       pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                                       x-kubernetes-int-or-string: true
-                                  required:
-                                  - cpuPercent
-                                  - memoryPercent
                                   type: object
+                                  x-kubernetes-validations:
+                                  - message: at least one of cpuPercent or memoryPercent
+                                      must be set
+                                    rule: has(self.cpuPercent) || has(self.memoryPercent)
                               required:
                               - requests
                               type: object
@@ -1213,10 +1277,11 @@ spec:
                                     memory. Range (0, 100].
                                   pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                                   x-kubernetes-int-or-string: true
-                              required:
-                              - cpuPercent
-                              - memoryPercent
                               type: object
+                              x-kubernetes-validations:
+                              - message: at least one of cpuPercent or memoryPercent
+                                  must be set
+                                rule: has(self.cpuPercent) || has(self.memoryPercent)
                           required:
                           - requests
                           type: object
@@ -1364,6 +1429,20 @@ spec:
                   - type
                   type: object
                 type: array
+              hpa:
+                description: HPAStatus is the controller's resolved view of the HPA
+                  the webhook should enforce.
+                properties:
+                  resolvedAt:
+                    format: date-time
+                    type: string
+                  resolvedSpec:
+                    type: object
+                    x-kubernetes-preserve-unknown-fields: true
+                  targetGeneration:
+                    format: int64
+                    type: integer
+                type: object
             type: object
         type: object
     served: true

@@ -36,3 +36,4 @@ $(addprefix docs-, $(CHART_NAMES)): docs-%: charts/%
 docs-<chart_name>: ## Generate helm docs for a specific chart, e.g., 'make docs-castai-agent'
 
 gen-dbo: docs-castai-db-optimizer
+gen-db-proxy: docs-castai-db-proxy

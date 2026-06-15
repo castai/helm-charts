@@ -88,6 +88,29 @@ Resolve tolerations: merge .Values.global.tolerations with .Values.tolerations.
 {{- end }}
 
 {{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "evictor.imageRepository" -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) .Values.image.repository -}}
+{{- else -}}
+{{- .Values.image.repository -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecrets.
+*/}}
+{{- define "evictor.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.imagePullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
+{{- end }}
+
+{{/*
 Pass the customConfig to the configMap
 */}}
 {{- define "evictor.configMap.customConfig" -}}

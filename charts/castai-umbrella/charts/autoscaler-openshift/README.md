@@ -1,6 +1,6 @@
 # autoscaler-openshift
 
-![Version: 0.1.0](https://img.shields.io/badge/Version-0.1.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Autoscaler OpenShift profile.
 
@@ -8,13 +8,13 @@ Wrapper chart for CAST AI Autoscaler OpenShift profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.152.0 |
+| https://castai.github.io/helm-charts | castai-agent | 0.158.0 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| castai-agent.apiKeySecretRef | string | `"castai-credentials"` |  |
+| castai-agent.apiKeySecretRef | string | `""` |  |
 | castai-agent.containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | castai-agent.containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | castai-agent.containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |

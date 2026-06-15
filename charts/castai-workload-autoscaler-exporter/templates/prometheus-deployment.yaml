@@ -4,6 +4,11 @@ kind: Deployment
 metadata:
   name: {{ include "exporter.fullname" . }}-prometheus
   namespace: {{ .Release.Namespace }}
+  annotations:
+    workloads.cast.ai/configuration: |
+      vertical:
+        optimization: "on"
+      scalingPolicyName: balanced
   labels:
   {{- include "exporter.labels" . | nindent 4 }}
 spec:
@@ -22,25 +27,39 @@ spec:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/prometheus-config.yaml") . | sha256sum }}
     spec:
+      {{- if .Values.priorityClass.enabled }}
+      priorityClassName: {{ .Values.priorityClass.name }}
+      {{- end }}
       serviceAccountName: {{ template "exporter.serviceAccountName" . }}-prometheus
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
       {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.prometheus.podSecurityContext }}
+      securityContext:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         - name: prometheus
-          image: "{{ .Values.prometheus.image.repository }}:{{ .Values.prometheus.image.tag }}"
+          image: "{{ include "exporter.prometheus.imageRepository" . }}:{{ .Values.prometheus.image.tag }}"
           imagePullPolicy: {{ .Values.prometheus.image.pullPolicy }}
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.retention.time={{ .Values.prometheus.storage.retention }}"
+            - "--storage.tsdb.path=/prometheus/data"
           ports:
             - containerPort: 9090
           resources:
             {{- toYaml .Values.prometheus.resources | nindent 12 }}
+          {{- with .Values.prometheus.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           volumeMounts:
             - name: config-volume
               mountPath: /etc/prometheus
+            - name: prometheus-data
+              mountPath: /prometheus/data
           readinessProbe:
             httpGet:
               path: /-/healthy
@@ -59,6 +78,8 @@ spec:
         - name: config-volume
           configMap:
             name: {{ include "exporter.fullname" . }}-prometheus-config
+        - name: prometheus-data
+          emptyDir: {}
       {{- with .Values.nodeSelector }}
       nodeSelector:
       {{- toYaml . | nindent 8 }}

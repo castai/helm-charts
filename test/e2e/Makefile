@@ -12,8 +12,9 @@
 #   CASTAI_API_KEY=<your-key> make e2e-autoscaler
 #   CASTAI_API_KEY=<your-key> make e2e-autoscaler-anywhere
 #   CASTAI_API_KEY=<your-key> make e2e-autoscaler-openshift
+#   CASTAI_API_KEY=<your-key> make e2e-chart-upgrader
 
-.PHONY: e2e e2e-kent e2e-autoscaler e2e-autoscaler-workload e2e-autoscaler-anywhere e2e-autoscaler-openshift e2e-upgrade e2e-uninstall deps tidy
+.PHONY: e2e e2e-kent e2e-autoscaler e2e-autoscaler-workload e2e-autoscaler-anywhere e2e-autoscaler-openshift e2e-upgrade e2e-uninstall e2e-chart-upgrader deps tidy
 
 # Run all e2e tests (each context creates its own Kind cluster)
 e2e:
@@ -42,6 +43,10 @@ e2e-autoscaler-openshift:
 # Run only the readonly-to-full upgrade tests
 e2e-upgrade:
 	go test ./... -v -timeout 30m --ginkgo.focus="autoscaler readonly-to-full upgrade"
+
+# Run only the chart-upgrader auto-upgrade test
+e2e-chart-upgrader:
+	go test ./... -v -timeout 30m --ginkgo.v --ginkgo.focus="auto-upgrade from previous version"
 
 # Run only the uninstall tests
 e2e-uninstall:

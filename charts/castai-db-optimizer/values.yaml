@@ -235,12 +235,15 @@ proxySql:
   # -- Starting port from which ProxySQL internal listening ports are sequentially assigned per endpoint.
   # These ports are pod-internal (Envoy → ProxySQL) and must not conflict with endpoint.port values.
   basePort: 6033
-  # -- ProxySQL upstream DB user (plain string). Mutually exclusive with usersSecretRef
+  # -- Single ProxySQL upstream DB user (plain string). Mutually exclusive with users/usersSecretRef.
   user: ""
-  # -- ProxySQL upstream DB password (plain string). Mutually exclusive with usersSecretRef
+  # -- Single ProxySQL upstream DB password (plain string). Mutually exclusive with users/usersSecretRef.
   password: ""
-  # -- Reference to existing secret containing username and password. Mutually exclusive with user/password.
-  # The secret must contain keys "PROXY_SQL_USERNAME" and "PROXY_SQL_PASSWORD".
+  # -- Multiple ProxySQL upstream DB users (inline list). Mutually exclusive with user/usersSecretRef.
+  # Example: [{username: "u1", password: "p1"}, {username: "u2", password: "p2"}]
+  users: []
+  # -- Reference to existing secret containing a users.json key with a JSON array of {username, password} objects.
+  # Mutually exclusive with user/users.
   usersSecretRef: ""
   resources:
     cpu: "500m"

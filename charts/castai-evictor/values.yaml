@@ -10,6 +10,23 @@ commonLabels: {}
 # annotations - Annotations to add to all resources.
 commonAnnotations: {}
 
+# global -- Global values propagated from parent charts.
+global:
+  # global.registry -- Container registry prefix for all images (e.g. "my-registry.example.com").
+  # When set, it is prepended to all image repositories.
+  registry: ""
+  # global.castai.apiKeySecretRef -- Name of a pre-existing Secret containing the CAST AI API key.
+  # Takes effect when apiKeySecretRef is not set locally.
+  castai:
+    apiKeySecretRef: ""
+  # global.imagePullSecrets -- Image pull secrets applied to all pods. Merged with local imagePullSecrets.
+  imagePullSecrets: []
+  # global.rbac.clusterScoped.enabled -- Enable cluster-scoped RBAC resources (ClusterRole, ClusterRoleBinding).
+  # Set to false to disable cluster-scoped RBAC if using namespace-scoped permissions.
+  rbac:
+    clusterScoped:
+      enabled: true
+
 # dryRyn -- Specifies whether the Evictor should run in dryRun mode (Read-Only).
 # if true, evictor will just log action(s) it would perform
 # instead of actually performing them.
@@ -79,19 +96,15 @@ podMutations:
   # This option requires the castai-pod-mutator to be installed in the cluster.
   enabled: true
 
-# karpenterMode -- Specifies settings for working with Karpenter NodePool and NodeClaim resources.
-karpenterMode:
-  # If true, Evictor will consider Karpenter NodePool and NodeClaim information when making eviction decisions.
-  # This allows the evictor to understand Karpenter's node provisioning plans and make more informed optimization decisions.
-  # When enabled, the evictor will have access to read Karpenter resources for cluster optimization.
-  enabled: false
-
 # leaderElection -- Specifies leader election parameters.
 leaderElection:
   # leaderElection.enabled -- Whether to enable leader election.
   enabled: true
 
-# karpenterNodeCleanup -- Specifies Karpenter node cleanup parameters.
+# karpenterNodeCleanup -- Karpenter NodeClaim cleanup for nodes Evictor has drained.
+# When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully
+# drained, so Karpenter's termination controller can clean up the EC2 instance.
+# Requires `nodeclaims.karpenter.sh` get/list/watch/delete permission (granted by this chart).
 karpenterNodeCleanup:
   # karpenterNodeCleanup.enabled -- Whether to enable cleanup of Karpenter nodes.
   enabled: false
@@ -206,9 +219,9 @@ apiKeySecretRef: ""
 # clusterVPA -- Cluster proportional vertical autoscaler for the evictor deployment
 # https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler.
 clusterVPA:
-  repository: "registry.k8s.io/cpa/cpvpa"
+  repository: "us-docker.pkg.dev/castai-hub/library/cpa/cpvpa"
   enabled: true
-  version: v0.8.4
+  version: v0.8.12
   pollPeriodSeconds: 300
   resources: {}
   # configOverride -- Override the default ClusterVPA calculation configuration.

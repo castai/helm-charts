@@ -1,4 +1,17 @@
 {{/*
+Resolve image repository: prepend global.registry if set.
+*/}}
+{{- define "workload-autoscaler.imageRepository" -}}
+{{- $repository := required "image.repository must be provided" .Values.image.repository -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) $repository -}}
+{{- else -}}
+{{- $repository -}}
+{{- end -}}
+{{- end }}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "workload-autoscaler.name" -}}
@@ -36,8 +49,9 @@ Common labels
 {{- define "workload-autoscaler.labels" -}}
 helm.sh/chart: {{ include "workload-autoscaler.chart" . }}
 {{ include "workload-autoscaler.selectorLabels" . }}
-{{- if .Chart.AppVersion }}
-app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- $appVersion := .Values.appVersion | default .Chart.AppVersion }}
+{{- if $appVersion }}
+app.kubernetes.io/version: {{ $appVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
@@ -47,7 +61,7 @@ Test labels
 */}}
 {{- define "workload-autoscaler.testLabels" -}}
 {{- $labels := include "workload-autoscaler.labels" . | fromYaml -}}
-# Override name to avoid podAntiAffinity
+{{- /* Override name so test pods are excluded from topologySpreadConstraints/affinity selectors */ -}}
 {{- $labels = merge (dict "app.kubernetes.io/name" "castai-workload-autoscaler-test") $labels -}}
 {{- toYaml $labels -}}
 {{- end }}
@@ -87,15 +101,21 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "workload-autoscaler.exludeSelfLabelSelectors" -}}
+{{- /* Only exclude by name, not instance, to work with umbrella charts where multiple
+       workloads share the same .Release.Name (instance label). Using instance would
+       incorrectly exclude other workloads like kentroller from webhook mutation. */ -}}
 {{- range splitList "\n" (include "workload-autoscaler.selectorLabels" .)  }}
   {{- /* we split label keypair by `:`. Let's hope there are no `:` in the key*/ -}}
   {{- $parts := splitn ":" 2 . -}}
   {{- $key := trim $parts._0 -}}
   {{- $value := trim $parts._1 }}
+  {{- /* Skip instance label to avoid excluding other workloads in umbrella charts */ -}}
+  {{- if ne $key "app.kubernetes.io/instance" }}
 - key: {{ $key | quote }}
   operator: NotIn
   values:
     - {{ $value | quote }}
+  {{- end }}
 {{- end }}
 {{- end }}
 
@@ -128,14 +148,15 @@ true
 {{- end -}}
 
 {{/*
-Enforce minimum CPU value for Autopilot
+Enforce minimum CPU value for Autopilot when podAntiAffinity is in use.
 Takes a CPU value string and returns it unchanged or 500m minimum if on Autopilot
 Usage: include "workload-autoscaler.enforceCPUMinimum" (dict "cpu" .Values.resources.requests.cpu "context" .)
 */}}
 {{- define "workload-autoscaler.enforceCPUMinimum" -}}
 {{- $isAutopilot := eq (include "workload-autoscaler.isAutopilot" .context) "true" -}}
+{{- $hasPodAntiAffinity := and .context.Values.affinity (hasKey .context.Values.affinity "podAntiAffinity") -}}
 {{- $cpuValue := .cpu | toString -}}
-{{- if $isAutopilot -}}
+{{- if and $isAutopilot $hasPodAntiAffinity -}}
   {{- /* On Autopilot, enforce minimum 500m CPU */ -}}
   {{- $cpuMillicores := 0 -}}
   {{- if hasSuffix "m" $cpuValue -}}
@@ -178,6 +199,27 @@ Autopilot requires minimum 500m CPU when using pod anti-affinity
 {{- include "workload-autoscaler.enforceCPUMinimum" (dict "cpu" .Values.resources.limits.cpu "context" .) -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecrets.
+*/}}
+{{- define "workload-autoscaler.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.imagePullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
+{{- end }}
+
+{{/*
+Resolve JMX exporter imagePullSecrets: merge global.imagePullSecrets with jmxExporter.imagePullSecrets.
+Returns a comma-separated list of secret names for the JMX_EXPORTER_IMAGE_PULL_SECRETS env var.
+*/}}
+{{- define "workload-autoscaler.jmxExporter.imagePullSecretNames" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.jmxExporter.imagePullSecrets | default list) -}}
+{{- range $i, $s := $combined }}{{ if $i }},{{ end }}{{ $s.name }}{{- end -}}
+{{- end }}
 
 {{/*
 Merge global and chart-level tolerations.
