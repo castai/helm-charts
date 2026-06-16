@@ -11,12 +11,16 @@ metadata:
 spec:
   {{- with .Values.web.service.loadBalancerIP }}
   loadBalancerIP: {{.}}
-    {{- end }}
+  {{- end }}
   type: {{ .Values.web.service.type }}
+  {{- with .Values.web.service.clusterIP }}
+  clusterIP: {{.}}
+  {{- end }}
   ports:
     - port: {{ .Values.web.service.port }}
       targetPort: http
       protocol: TCP
+      appProtocol: {{ .Values.web.service.appProtocol }}
       name: http
       {{- if hasKey .Values.web.service "nodePort" }}
       nodePort: {{ .Values.web.service.nodePort }}

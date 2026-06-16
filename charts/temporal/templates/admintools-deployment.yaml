@@ -14,6 +14,9 @@ spec:
       app.kubernetes.io/name: {{ include "temporal.name" $ }}
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: admintools
+  {{- with .Values.admintools.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
   template:
     metadata:
       annotations:
@@ -22,39 +25,41 @@ spec:
         {{- include "temporal.resourceLabels" (list $ "admintools" "pod") | nindent 8 }}
     spec:
       {{ include "temporal.serviceAccount" $ }}
-      {{- if $.Values.admintools.additionalInitContainers }}
+      {{- with $.Values.admintools.additionalInitContainers }}
       initContainers:
-        {{- toYaml $.Values.admintools.additionalInitContainers | nindent 8 }}
+        {{- toYaml .| nindent 8 }}
       {{- end }}
       containers:
         - name: admin-tools
           image: "{{ .Values.admintools.image.repository }}:{{ .Values.admintools.image.tag }}"
           imagePullPolicy: {{ .Values.admintools.image.pullPolicy }}
-          ports:
-            - name: http
-              containerPort: 22
-              protocol: TCP
           env:
             # TEMPORAL_CLI_ADDRESS is deprecated, use TEMPORAL_ADDRESS instead
             - name: TEMPORAL_CLI_ADDRESS
-              {{- if and (hasKey .Values.server "internalFrontend") .Values.server.internalFrontend.enabled }}
-              value: {{ include "temporal.fullname" $ }}-internal-frontend:{{ .Values.server.internalFrontend.service.port }}
+              {{- if and (index $.Values.server "internal-frontend").enabled }}
+              value: {{ include "temporal.fullname" $ }}-internal-frontend:{{ (index $.Values.server "internal-frontend").service.port }}
               {{- else }}
-              value: {{ include "temporal.fullname" $ }}-frontend:{{ .Values.server.frontend.service.port }}
+              value: {{ include "temporal.fullname" $ }}-frontend:{{ $.Values.server.frontend.service.port }}
               {{- end }}
             - name: TEMPORAL_ADDRESS
-              {{- if and (hasKey .Values.server "internalFrontend") .Values.server.internalFrontend.enabled }}
-              value: {{ include "temporal.fullname" $ }}-internal-frontend:{{ .Values.server.internalFrontend.service.port }}
+              {{- if (index $.Values.server "internal-frontend").enabled }}
+              value: {{ include "temporal.fullname" $ }}-internal-frontend:{{ (index $.Values.server "internal-frontend").service.port }}
               {{- else }}
-              value: {{ include "temporal.fullname" $ }}-frontend:{{ .Values.server.frontend.service.port }}
+              value: {{ include "temporal.fullname" $ }}-frontend:{{ $.Values.server.frontend.service.port }}
               {{- end }}
-          {{- if .Values.admintools.additionalEnv }}
-          {{- toYaml .Values.admintools.additionalEnv | nindent 12 }}
+          {{- with .Values.admintools.additionalEnv }}
+            {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- if .Values.admintools.additionalEnvSecretName }}
+          {{- if or .Values.admintools.additionalEnvSecretName .Values.admintools.additionalEnvConfigMapName }}
           envFrom:
+          {{- with .Values.admintools.additionalEnvSecretName }}
             - secretRef:
-                name: {{ .Values.admintools.additionalEnvSecretName }}
+                name: {{ . }}
+          {{- end }}
+          {{- with .Values.admintools.additionalEnvConfigMapName }}
+            - configMapRef:
+                name: {{ . }}
+          {{- end }}
           {{- end }}
           livenessProbe:
               exec:
@@ -63,9 +68,9 @@ spec:
                 - /
               initialDelaySeconds: 5
               periodSeconds: 5
-          {{- if $.Values.admintools.additionalVolumeMounts }}
+          {{- with $.Values.admintools.additionalVolumeMounts }}
           volumeMounts:
-            {{- toYaml $.Values.admintools.additionalVolumeMounts | nindent 12}}
+            {{- toYaml . | nindent 12}}
           {{- end }}
           {{- with .Values.admintools.resources }}
           resources:
@@ -83,9 +88,9 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- if $.Values.admintools.additionalVolumes }}
+      {{- with $.Values.admintools.additionalVolumes }}
       volumes:
-        {{- toYaml $.Values.admintools.additionalVolumes | nindent 8}}
+        {{- toYaml . | nindent 8}}
       {{- end }}
       {{- with .Values.admintools.nodeSelector }}
       nodeSelector:

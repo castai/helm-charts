@@ -14,6 +14,9 @@ spec:
       app.kubernetes.io/name: {{ include "temporal.name" $ }}
       app.kubernetes.io/instance: {{ .Release.Name }}
       app.kubernetes.io/component: web
+  {{- with .Values.web.minReadySeconds }}
+  minReadySeconds: {{ . }}
+  {{- end }}
   template:
     metadata:
       annotations:
@@ -21,6 +24,10 @@ spec:
       labels:
         {{- include "temporal.resourceLabels" (list $ "web" "pod") | nindent 8 }}
     spec:
+      {{- with .Values.web.additionalInitContainers }}
+      initContainers:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{ include "temporal.serviceAccount" $ }}
       {{- if .Values.web.additionalVolumes }}
       volumes:
@@ -36,10 +43,24 @@ spec:
           {{- if .Values.web.additionalEnv }}
           {{- toYaml .Values.web.additionalEnv | nindent 12 }}
           {{- end }}
-          {{- if .Values.web.additionalEnvSecretName }}
+          {{- if or .Values.web.additionalEnvSecretName .Values.web.additionalEnvConfigMapName }}
           envFrom:
+          {{- if .Values.web.additionalEnvSecretName }}
             - secretRef:
                 name: {{ .Values.web.additionalEnvSecretName }}
+          {{- end }}
+          {{- if .Values.web.additionalEnvConfigMapName }}
+            - configMapRef:
+                name: {{ .Values.web.additionalEnvConfigMapName }}
+          {{- end }}
+          {{- end }}
+          livenessProbe:
+            initialDelaySeconds: 10
+            tcpSocket:
+              port: http
+          {{- with .Values.web.readinessProbe }}
+          readinessProbe:
+            {{- toYaml . | nindent 12 }}
           {{- end }}
           ports:
             - name: http
