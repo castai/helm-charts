@@ -13,31 +13,31 @@ spec:
   enabled: true
   config:
     aggressiveMode: {{ .Values.aggressiveMode }}
-    arm64Supported: true
+    arm64Supported: {{ .Values.arm64Supported }}
     cleanupKarpenterNodes: {{ .Values.karpenterNodeCleanup.enabled }}
     cycleInterval: {{ .Values.cycleInterval | quote }}
-    drainRollbackTimeout: "1m"
-    drainTimeout: "10m"
+    drainRollbackTimeout: {{ .Values.drainRollbackTimeout | quote }}
+    drainTimeout: {{ .Values.drainTimeout | quote }}
     dryRun: {{ .Values.dryRun }}
-    emitNodeRelatedPodEvents: false
+    emitNodeRelatedPodEvents: {{ .Values.emitNodeRelatedPodEvents }}
     forceDisableKarpenterMode: {{ not .Values.karpenterMode.enabled }}
     forceDisableLiveMigration: {{ not .Values.liveMigration.enabled }}
     forceDisablePodMutations: {{ not .Values.podMutations.enabled }}
     forceDisableWOOP: {{ not .Values.woop.enabled }}
     ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
     maxTargetNodesPerCycle: {{ .Values.maxNodesToEvictPerCycle }}
-    minTargetNodesPerCycle: 5
+    minTargetNodesPerCycle: {{ .Values.minNodesToEvictPerCycle }}
     nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
-    podEvictionFailureBackOff: "5s"
-    pricingAwarenessEnabled: false
+    podEvictionFailureBackOff: {{ .Values.podEvictionFailureBackOff | quote }}
+    pricingAwarenessEnabled: {{ .Values.pricingModel.enabled }}
     pricingModel:
-      baseCPUCost: "7.0"
-      baseMemCost: "1.0"
-      spotDiscount: "0.5"
+      baseCPUCost: {{ .Values.pricingModel.baseCPUCost | quote }}
+      baseMemCost: {{ .Values.pricingModel.baseMemCost | quote }}
+      spotDiscount: {{ .Values.pricingModel.spotDiscount | quote }}
     scopedMode: {{ .Values.scopedMode }}
     softTainting: {{ .Values.softTainting.enabled }}
-    targetNodePercentage: 10
-    windows: false
+    targetNodePercentage: {{ .Values.targetNodePercentage }}
+    windows: {{ .Values.windows }}
   {{- if .Values.customConfig }}
   {{- if not (kindIs "string" .Values.customConfig) }}
   {{- if kindIs "slice" .Values.customConfig }}
