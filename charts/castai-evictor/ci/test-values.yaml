@@ -26,16 +26,16 @@ customConfig:
       labelSelector:
         matchLabels:
           some.label: someLabel
-      settings:
-        aggressive:
-          enabled: true
+    settings:
+      aggressive:
+        enabled: true
   - nodeSelector:
       labelSelector:
         matchLabels:
           fancy-node: poof
-      settings:
-        removalDisabled:
-          enabled: true
+    settings:
+      removalDisabled:
+        enabled: true
   - podSelector:
       kind: StatefulSet
       labelSelector:
@@ -44,9 +44,9 @@ customConfig:
             operator: Exists
           - key: statefulset.kubernetes.io/pod-name
             operator: Exists
-      settings:
-        disposable:
-            enabled: true
+    settings:
+      disposable:
+        enabled: true
 
 clusterVPA:
   enabled: true
