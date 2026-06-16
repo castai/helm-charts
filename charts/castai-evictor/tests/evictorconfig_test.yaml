@@ -58,9 +58,6 @@ tests:
           path: spec.config.scopedMode
           value: false
       - equal:
-          path: spec.config.targetAllNodes
-          value: false
-      - equal:
           path: spec.config.emitNodeRelatedPodEvents
           value: false
       - equal:
@@ -200,3 +197,60 @@ tests:
       - equal:
           path: spec.config.forceDisableKarpenterMode
           value: false
+
+  - it: omits evictionRules when customConfig is empty map (default)
+    asserts:
+      - notExists:
+          path: spec.evictionRules
+
+  - it: omits evictionRules when customConfig is a legacy string
+    set:
+      customConfig: |
+        evictionConfig:
+          - nodeSelector:
+              labelSelector:
+                matchLabels:
+                  app: test
+            settings:
+              removalDisabled:
+                enabled: true
+    asserts:
+      - notExists:
+          path: spec.evictionRules
+
+  - it: renders evictionRules from structured slice
+    set:
+      customConfig:
+        - nodeSelector:
+            labelSelector:
+              matchLabels:
+                app: test
+          settings:
+            removalDisabled:
+              enabled: true
+    asserts:
+      - lengthEqual:
+          path: spec.evictionRules
+          count: 1
+      - matchRegex:
+          path: spec.evictionRules[0].nodeSelector.labelSelector.matchLabels.app
+          pattern: "^test$"
+
+  - it: renders evictionRules from map with evictionRules key
+    set:
+      customConfig:
+        evictionRules:
+          - nodeSelector:
+              labelSelector:
+                matchLabels:
+                  app: test
+            settings:
+              removalDisabled:
+                enabled: true
+    asserts:
+      - lengthEqual:
+          path: spec.evictionRules
+          count: 1
+      - matchRegex:
+          path: spec.evictionRules[0].nodeSelector.labelSelector.matchLabels.app
+          pattern: "^test$"

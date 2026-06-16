@@ -143,9 +143,6 @@ tests:
     asserts:
       - contains:
           path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
-          content: targetAllNodes
-      - contains:
-          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
           content: softTainting
       - contains:
           path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
@@ -223,7 +220,7 @@ tests:
       - contains:
           path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items["x-kubernetes-validations"]
           content:
-            rule: "has(self.podSelector) != has(self.nodeSelector)"
+            rule: "(has(self.podSelector) && !has(self.nodeSelector)) || (!has(self.podSelector) && has(self.nodeSelector))"
             message: "exactly one of podSelector or nodeSelector must be set"
 
   - it: podSelector supports namespace kind replicasMin and labelSelector

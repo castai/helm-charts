@@ -36,7 +36,6 @@ spec:
       spotDiscount: "0.5"
     scopedMode: {{ .Values.scopedMode }}
     softTainting: {{ .Values.softTainting.enabled }}
-    targetAllNodes: false
     targetNodePercentage: 10
     windows: false
   {{- if .Values.customConfig }}
