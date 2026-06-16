@@ -40,6 +40,13 @@ spec:
     targetNodePercentage: 10
     windows: false
   {{- if .Values.customConfig }}
+  {{- if not (kindIs "string" .Values.customConfig) }}
+  {{- if kindIs "slice" .Values.customConfig }}
   evictionRules:
     {{- toYaml .Values.customConfig | nindent 4 }}
+  {{- else if .Values.customConfig.evictionRules }}
+  evictionRules:
+    {{- toYaml .Values.customConfig.evictionRules | nindent 4 }}
+  {{- end }}
+  {{- end }}
   {{- end }}

@@ -210,7 +210,9 @@ affinity:
 
 # customConfig - settings for advanced configuration
 # Ref: https://docs.cast.ai/docs/evictor#advanced-configuration
-customConfig: []
+# Can be a string (legacy, passed through to ConfigMap) or a structured object
+# with evictionRules (rendered into both CRD and ConfigMap).
+customConfig: {}
 configMapLabels: {}
 
 # additionalEnv -- Used to set any additional environment variables.
