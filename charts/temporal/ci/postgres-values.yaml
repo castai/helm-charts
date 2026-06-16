@@ -8,8 +8,6 @@ server:
       datastores:
         default:
           sql:
-            createDatabase: false
-            manageSchema: false
             pluginName: postgres12
             databaseName: temporal
             connectAddr: "postgres.default.svc.cluster.local:5432"
@@ -18,8 +16,6 @@ server:
             password: temporal
         visibility:
           sql:
-            createDatabase: false
-            manageSchema: false
             pluginName: postgres12
             databaseName: temporal_visibility
             connectAddr: "postgres.default.svc.cluster.local:5432"

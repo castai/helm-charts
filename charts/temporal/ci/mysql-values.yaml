@@ -8,8 +8,6 @@ server:
       datastores:
         default:
           sql:
-            createDatabase: false
-            manageSchema: false
             pluginName: mysql8
             databaseName: temporal
             connectAddr: "mysql.default.svc.cluster.local:3306"
@@ -18,8 +16,6 @@ server:
             password: temporal
         visibility:
           sql:
-            createDatabase: false
-            manageSchema: false
             pluginName: mysql8
             databaseName: temporal_visibility
             connectAddr: "mysql.default.svc.cluster.local:3306"
