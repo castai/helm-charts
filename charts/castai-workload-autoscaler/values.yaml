@@ -366,5 +366,10 @@ preDeleteHook:
   backoffLimit: 3
   # activeDeadlineSeconds -- Maximum time (in seconds) to wait for cleanup to finish.
   activeDeadlineSeconds: 300
+  # optionalConfig -- when true, the cleanup hook tolerates a missing API-key Secret /
+  # ConfigMap (e.g. when the referenced castai-cluster-controller release was
+  # uninstalled first) instead of failing with CreateContainerConfigError and hanging
+  # the uninstall. Finalizer stripping still works via the hook's own RBAC.
+  optionalConfig: true
 
 fullnameOverride: castai-workload-autoscaler
