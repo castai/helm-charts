@@ -113,6 +113,7 @@ spec:
                 {{- else }}
                 name: {{ .Values.castai.apiKeySecretRef }}
                 {{- end }}
+                optional: {{ .Values.preDeleteHook.optionalConfig }}
             {{- end }}
             - configMapRef:
                 {{- if .Values.castai.configMapRef }}
@@ -120,6 +121,7 @@ spec:
                 {{- else }}
                 name: workload-autoscaler
                 {{- end }}
+                optional: {{ .Values.preDeleteHook.optionalConfig }}
             {{- with .Values.envFrom }}
             {{- toYaml . | nindent 12 }}
             {{- end }}

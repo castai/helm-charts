@@ -80,6 +80,9 @@ spec:
               {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef }}
               {{- end }}
+          env:
+            - name: CHART_VERSION
+              value: {{ .Chart.Version }}
           securityContext:
             capabilities:
               drop:

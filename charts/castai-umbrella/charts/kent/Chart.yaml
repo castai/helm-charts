@@ -2,34 +2,34 @@ apiVersion: v2
 name: kent
 description: Wrapper chart for CAST AI Kent profile.
 type: application
-version: 0.13.1
+version: 0.14.0
 dependencies:
   - name: castai-agent
     version: "0.158.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-agent.enabled
   - name: castai-cluster-controller
-    version: "0.92.5"
+    version: "0.92.6"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
   - name: castai-kentroller
-    version: "0.1.154"
+    version: "0.1.161"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kentroller.enabled
   - name: castai-workload-autoscaler
-    version: "1.2.4"
+    version: "1.2.6"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
   - name: castai-workload-autoscaler-exporter
-    version: "1.2.4"
+    version: "1.2.6"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler-exporter.enabled
   - name: castai-live
-    version: "0.105.0"
+    version: "0.106.1"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
   - name: castai-pod-mutator
-    version: "0.15.0"
+    version: "0.15.1"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-mutator.enabled
   - name: castai-spot-handler
@@ -41,7 +41,7 @@ dependencies:
     repository: "https://kubernetes-sigs.github.io/metrics-server/"
     condition: metrics-server.enabled
   - name: castai-kvisor
-    version: "1.161.2"
+    version: "1.162.2"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
   - name: castai-chart-upgrader
