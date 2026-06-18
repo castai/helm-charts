@@ -26,8 +26,11 @@ tests:
       - matchRegex:
           path: 'data["config.yaml"]'
           pattern: "removalDisabled:"
+      - matchRegex:
+          path: 'data["config.yaml"]'
+          pattern: "enabled: true"
 
-  - it: wraps structured slice in evictionConfig
+  - it: wraps structured slice in evictionConfig preserving enabled objects
     set:
       customConfig:
         - nodeSelector:
@@ -44,8 +47,11 @@ tests:
       - matchRegex:
           path: 'data["config.yaml"]'
           pattern: "removalDisabled:"
+      - matchRegex:
+          path: 'data["config.yaml"]'
+          pattern: "enabled: true"
 
-  - it: wraps map.evictionRules in evictionConfig
+  - it: wraps map.evictionRules in evictionConfig preserving enabled objects
     set:
       customConfig:
         evictionRules:
@@ -63,3 +69,6 @@ tests:
       - matchRegex:
           path: 'data["config.yaml"]'
           pattern: "removalDisabled:"
+      - matchRegex:
+          path: 'data["config.yaml"]'
+          pattern: "enabled: true"

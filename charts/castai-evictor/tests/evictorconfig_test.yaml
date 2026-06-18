@@ -212,13 +212,12 @@ tests:
                 matchLabels:
                   app: test
             settings:
-              removalDisabled:
-                enabled: true
+              removalDisabled: true
     asserts:
       - notExists:
           path: spec.evictionRules
 
-  - it: renders evictionRules from structured slice
+  - it: renders evictionRules from structured slice with flattened settings
     set:
       customConfig:
         - nodeSelector:
@@ -235,8 +234,11 @@ tests:
       - matchRegex:
           path: spec.evictionRules[0].nodeSelector.labelSelector.matchLabels.app
           pattern: "^test$"
+      - equal:
+          path: spec.evictionRules[0].settings.removalDisabled
+          value: true
 
-  - it: renders evictionRules from map with evictionRules key
+  - it: renders evictionRules from map with evictionRules key with flattened settings
     set:
       customConfig:
         evictionRules:
@@ -254,3 +256,6 @@ tests:
       - matchRegex:
           path: spec.evictionRules[0].nodeSelector.labelSelector.matchLabels.app
           pattern: "^test$"
+      - equal:
+          path: spec.evictionRules[0].settings.removalDisabled
+          value: true

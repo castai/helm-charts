@@ -40,12 +40,29 @@ spec:
     windows: {{ .Values.windows }}
   {{- if .Values.customConfig }}
   {{- if not (kindIs "string" .Values.customConfig) }}
+  {{- $rules := list }}
   {{- if kindIs "slice" .Values.customConfig }}
-  evictionRules:
-    {{- toYaml .Values.customConfig | nindent 4 }}
+    {{- $rules = .Values.customConfig }}
   {{- else if .Values.customConfig.evictionRules }}
+    {{- $rules = .Values.customConfig.evictionRules }}
+  {{- end }}
+  {{- if $rules }}
   evictionRules:
-    {{- toYaml .Values.customConfig.evictionRules | nindent 4 }}
+    {{- range $rules }}
+    {{- $rule := omit . "settings" }}
+    {{- if .settings }}
+      {{- $crSettings := dict }}
+      {{- range $k, $v := .settings }}
+        {{- if kindIs "map" $v }}
+          {{- $_ := set $crSettings $k (index $v "enabled") }}
+        {{- else }}
+          {{- $_ := set $crSettings $k $v }}
+        {{- end }}
+      {{- end }}
+      {{- $rule = set $rule "settings" $crSettings }}
+    {{- end }}
+{{ list $rule | toYaml | nindent 4 }}
+    {{- end }}
   {{- end }}
   {{- end }}
   {{- end }}
