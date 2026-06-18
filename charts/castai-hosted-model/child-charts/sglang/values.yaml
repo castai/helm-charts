@@ -1,0 +1,109 @@
+# -- Specifies if the SGLang model should be deployed. Controlled by the parent chart condition.
+enabled: false
+
+image:
+  repository: "lmsysorg/sglang"
+  tag: "latest"
+
+replicaCount: 1
+resources: {}
+
+# -- Model weight storage. When hostPath is enabled, weights are saved to a node-local
+# directory (e.g. /mnt/models/<model>) so they survive pod restarts on the same node.
+# When disabled, an emptyDir is used and weights are re-downloaded on every pod start.
+persistence:
+  hostPath:
+    enabled: false
+    path: ""
+    type: DirectoryOrCreate
+
+model:
+  # -- HF model name or repo id (e.g. "meta-llama/Llama-3.1-8B-Instruct"). Only the HuggingFace source is supported.
+  name:
+  # -- Optional override for the served model name. If not set, defaults to model.name.
+  servedName:
+  # -- HuggingFace token used to pull gated/private models.
+  hfToken:
+
+container:
+  port: 8000
+
+service:
+  type: ClusterIP
+  port: 8000
+
+# -- Tensor parallel size. Translated to SGLang's --tp-size. When >1 a shared-memory volume is mounted.
+tensorParallelSize:
+
+# -- Startup probe configuration
+startupProbe:
+  enabled: true
+  initialDelaySeconds: 20
+  periodSeconds: 6
+  # Allow for up to 60 minutes of startup time
+  failureThreshold: 600
+  timeoutSeconds: 1
+  successThreshold: 1
+  httpGet:
+    path: /health
+
+# -- Readiness probe configuration
+readinessProbe:
+  enabled: true
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  failureThreshold: 3
+  timeoutSeconds: 1
+  successThreshold: 1
+  httpGet:
+    path: /health
+
+# -- Liveness probe configuration
+livenessProbe:
+  enabled: true
+  initialDelaySeconds: 15
+  periodSeconds: 10
+  failureThreshold: 3
+  timeoutSeconds: 1
+  successThreshold: 1
+  httpGet:
+    path: /health
+
+# -- LD_LIBRARY_PATH environment variable for the SGLang container. Set to null or empty string to disable.
+ldLibraryPath: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
+
+# -- Additional environment variables to set in the SGLang container
+env: []
+# Example:
+# env:
+#   - name: MY_CUSTOM_VAR
+#     value: "my-value"
+
+# -- Extra arbitrary arguments passed verbatim to `sglang.launch_server`.
+# Use this for everything beyond the hardcoded --model-path/--served-model-name/--host/--port/--tp-size flags
+# (e.g. --context-length, --dtype, --quantization, --mem-fraction-static, --reasoning-parser, --tool-call-parser).
+extraArgs: []
+# Example:
+# extraArgs:
+#   - "--context-length=8192"
+#   - "--dtype=bfloat16"
+#   - "--mem-fraction-static=0.9"
+
+# -- Additional pod labels to set for the SGLang pod
+podLabels: {}
+# -- Additional pod annotations to set for the SGLang pod
+podAnnotations: {}
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+deployment:
+  labels:
+  # -- Deployment strategy configuration
+  strategy:
+    # -- Deployment strategy type (RollingUpdate or Recreate)
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
