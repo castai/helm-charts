@@ -210,8 +210,18 @@ affinity:
 
 # customConfig - settings for advanced configuration
 # Ref: https://docs.cast.ai/docs/evictor#advanced-configuration
-# Can be a string (legacy, passed through to ConfigMap) or a structured object
-# with evictionRules (rendered into both CRD and ConfigMap).
+# Supports three input formats:
+#   1. String (legacy) — passed through to ConfigMap as-is, CR evictionRules not populated.
+#      customConfig: |
+#        evictionConfig:
+#          - nodeSelector: ...
+#   2. List — rendered into both ConfigMap (wrapped with evictionConfig:) and CR evictionRules.
+#      customConfig:
+#        - nodeSelector: ...
+#   3. Object with evictionRules key — same as list but nested under evictionRules.
+#      customConfig:
+#        evictionRules:
+#          - nodeSelector: ...
 customConfig: {}
 configMapLabels: {}
 
@@ -314,6 +324,10 @@ openshift:
 # CR schema is fully populated; changing them has no effect until the evictor
 # is updated to read them.
 # ──────────────────────────────────────────────────────────────────────────────
+
+# evictorEnabled -- (CR field, not yet read by evictor) Top-level kill-switch for the evictor.
+# When false, no evictions or node drains are performed regardless of other settings.
+evictorEnabled: true
 
 # minNodesToEvictPerCycle -- (CR field, not yet read by evictor) Minimum number of nodes to consider per eviction cycle.
 minNodesToEvictPerCycle: 5

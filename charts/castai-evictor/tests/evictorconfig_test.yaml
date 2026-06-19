@@ -154,6 +154,63 @@ tests:
           path: spec.config.ignorePodDisruptionBudgets
           value: true
 
+  - it: reflects overridden CR-pending config values
+    set:
+      evictorEnabled: false
+      drainTimeout: 15m
+      drainRollbackTimeout: 5m
+      podEvictionFailureBackOff: 10s
+      minNodesToEvictPerCycle: 10
+      targetNodePercentage: 25
+      emitNodeRelatedPodEvents: true
+      arm64Supported: false
+      windows: true
+      pricingModel:
+        enabled: true
+        baseCPUCost: "10.0"
+        baseMemCost: "2.0"
+        spotDiscount: "0.3"
+    asserts:
+      - equal:
+          path: spec.enabled
+          value: false
+      - equal:
+          path: spec.config.drainTimeout
+          value: "15m"
+      - equal:
+          path: spec.config.drainRollbackTimeout
+          value: "5m"
+      - equal:
+          path: spec.config.podEvictionFailureBackOff
+          value: "10s"
+      - equal:
+          path: spec.config.minTargetNodesPerCycle
+          value: 10
+      - equal:
+          path: spec.config.targetNodePercentage
+          value: 25
+      - equal:
+          path: spec.config.emitNodeRelatedPodEvents
+          value: true
+      - equal:
+          path: spec.config.arm64Supported
+          value: false
+      - equal:
+          path: spec.config.windows
+          value: true
+      - equal:
+          path: spec.config.pricingAwarenessEnabled
+          value: true
+      - equal:
+          path: spec.config.pricingModel.baseCPUCost
+          value: "10.0"
+      - equal:
+          path: spec.config.pricingModel.baseMemCost
+          value: "2.0"
+      - equal:
+          path: spec.config.pricingModel.spotDiscount
+          value: "0.3"
+
   # ── forceDisable: inverted from *.enabled ────────────────────────────────────
 
   - it: forceDisable fields are false when all legacy enabled flags are true (default)
@@ -212,7 +269,8 @@ tests:
                 matchLabels:
                   app: test
             settings:
-              removalDisabled: true
+              removalDisabled:
+                enabled: true
     asserts:
       - notExists:
           path: spec.evictionRules

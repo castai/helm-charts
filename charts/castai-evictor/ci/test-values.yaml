@@ -19,21 +19,21 @@ commonLabels:
 commonAnnotations:
   annotation1: "annotation"
 
-customConfig:
+customConfig: |
   - podSelector:
       namespace: "default"
       kind: Job
       labelSelector:
         matchLabels:
-          some.label: someLabel
-    settings:
+        some.label: someLabel
+      settings:
       aggressive:
         enabled: true
   - nodeSelector:
       labelSelector:
         matchLabels:
-          fancy-node: poof
-    settings:
+        fancy-node: poof
+      settings:
       removalDisabled:
         enabled: true
   - podSelector:
@@ -44,7 +44,7 @@ customConfig:
             operator: Exists
           - key: statefulset.kubernetes.io/pod-name
             operator: Exists
-    settings:
+      settings:
       disposable:
         enabled: true
 

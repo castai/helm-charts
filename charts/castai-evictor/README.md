@@ -38,6 +38,7 @@ Cluster utilization defragmentation tool
 | dryRun | bool | `false` |  |
 | emitNodeRelatedPodEvents | CR field, not yet read by evictor | `false` | Emit Kubernetes events on pods when they are evicted as part of a node drain. |
 | envFrom | list | `[]` | Additional environment sources for the evictor container. Accepts a list of `configMapRef` or `secretRef` entries, following the standard `envFrom` format. |
+| evictorEnabled | CR field, not yet read by evictor | `true` | Top-level kill-switch for the evictor. When false, no evictions or node drains are performed regardless of other settings. |
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
 | extraVolumes | list | `[]` | Used to set additional volumes. |
 | fullnameOverride | string | `"castai-evictor"` |  |

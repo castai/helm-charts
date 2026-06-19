@@ -10,7 +10,7 @@ metadata:
     helm.sh/hook-delete-policy: before-hook-creation
 spec:
   managementMode: {{ .Values.managedByCASTAI | ternary "castai" "self-managed" }}
-  enabled: true
+  enabled: {{ .Values.evictorEnabled }}
   config:
     aggressiveMode: {{ .Values.aggressiveMode }}
     arm64Supported: {{ .Values.arm64Supported }}
@@ -54,7 +54,7 @@ spec:
       {{- $crSettings := dict }}
       {{- range $k, $v := .settings }}
         {{- if kindIs "map" $v }}
-          {{- $_ := set $crSettings $k (index $v "enabled") }}
+          {{- $_ := set $crSettings $k (dig "enabled" false $v) }}
         {{- else }}
           {{- $_ := set $crSettings $k $v }}
         {{- end }}
