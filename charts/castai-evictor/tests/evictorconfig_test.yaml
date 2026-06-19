@@ -106,9 +106,6 @@ tests:
           path: spec.config.softTainting
           value: false
       - equal:
-          path: spec.config.cleanupKarpenterNodes
-          value: false
-      - equal:
           path: spec.config.ignorePodDisruptionBudgets
           value: false
 
@@ -121,8 +118,6 @@ tests:
       nodeGracePeriodMinutes: 10
       maxNodesToEvictPerCycle: 50
       softTainting:
-        enabled: true
-      karpenterNodeCleanup:
         enabled: true
       ignorePodDisruptionBudgets: true
     asserts:
@@ -146,9 +141,6 @@ tests:
           value: 50
       - equal:
           path: spec.config.softTainting
-          value: true
-      - equal:
-          path: spec.config.cleanupKarpenterNodes
           value: true
       - equal:
           path: spec.config.ignorePodDisruptionBudgets
@@ -225,7 +217,7 @@ tests:
           path: spec.config.forceDisablePodMutations
           value: false
 
-  - it: karpenterMode forceDisable is true when enabled is false (default)
+  - it: forceDisableKarpenterMode is true by default
     asserts:
       - equal:
           path: spec.config.forceDisableKarpenterMode
@@ -239,8 +231,7 @@ tests:
         enabled: false
       podMutations:
         enabled: false
-      karpenterMode:
-        enabled: true
+      forceDisableKarpenterMode: false
     asserts:
       - equal:
           path: spec.config.forceDisableLiveMigration

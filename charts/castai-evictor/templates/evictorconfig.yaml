@@ -14,13 +14,12 @@ spec:
   config:
     aggressiveMode: {{ .Values.aggressiveMode }}
     arm64Supported: {{ .Values.arm64Supported }}
-    cleanupKarpenterNodes: {{ .Values.karpenterNodeCleanup.enabled }}
     cycleInterval: {{ .Values.cycleInterval | quote }}
     drainRollbackTimeout: {{ .Values.drainRollbackTimeout | quote }}
     drainTimeout: {{ .Values.drainTimeout | quote }}
     dryRun: {{ .Values.dryRun }}
     emitNodeRelatedPodEvents: {{ .Values.emitNodeRelatedPodEvents }}
-    forceDisableKarpenterMode: {{ not .Values.karpenterMode.enabled }}
+    forceDisableKarpenterMode: {{ .Values.forceDisableKarpenterMode }}
     forceDisableLiveMigration: {{ not .Values.liveMigration.enabled }}
     forceDisablePodMutations: {{ not .Values.podMutations.enabled }}
     forceDisableWOOP: {{ not .Values.woop.enabled }}

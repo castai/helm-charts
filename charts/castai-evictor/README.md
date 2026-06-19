@@ -41,6 +41,7 @@ Cluster utilization defragmentation tool
 | evictorEnabled | CR field, not yet read by evictor | `true` | Top-level kill-switch for the evictor. When false, no evictions or node drains are performed regardless of other settings. |
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
 | extraVolumes | list | `[]` | Used to set additional volumes. |
+| forceDisableKarpenterMode | CR field, not yet read by evictor | `true` | Disables Karpenter-aware scheduling simulation even when Karpenter is detected on the cluster. Capability-detected by the evictor. |
 | fullnameOverride | string | `"castai-evictor"` |  |
 | global | object | `{"castai":{"apiKeySecretRef":""},"imagePullSecrets":[],"rbac":{"clusterScoped":{"enabled":true}},"registry":""}` | Global values propagated from parent charts. |
 | global.castai.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when apiKeySecretRef is not set locally. |
@@ -53,8 +54,6 @@ Cluster utilization defragmentation tool
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
-| karpenterMode | object | `{"enabled":false}` | Karpenter mode settings. |
-| karpenterMode.enabled | bool | `false` | Whether to enable Karpenter mode. |
 | karpenterNodeCleanup | object | `{"enabled":false}` | Karpenter NodeClaim cleanup for nodes Evictor has drained. When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully drained, so Karpenter's termination controller can clean up the EC2 instance. Requires `nodeclaims.karpenter.sh` get/list/watch/delete permission (granted by this chart). |
 | karpenterNodeCleanup.enabled | bool | `false` | Whether to enable cleanup of Karpenter nodes. |
 | kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100}}` | Specifies Kubernetes client settings. |

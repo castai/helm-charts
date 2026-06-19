@@ -31,8 +31,6 @@ woop:
   enabled: false
 podMutations:
   enabled: false
-karpenterMode:
-  enabled: true
 karpenterNodeCleanup:
   enabled: true
 softTainting:
@@ -40,6 +38,7 @@ softTainting:
 
 # ── config: CR-pending fields (not yet read by evictor) ────────────────────────
 
+forceDisableKarpenterMode: false
 minNodesToEvictPerCycle: 10
 targetNodePercentage: 25
 drainTimeout: 15m

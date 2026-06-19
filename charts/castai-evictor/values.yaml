@@ -101,11 +101,6 @@ leaderElection:
   # leaderElection.enabled -- Whether to enable leader election.
   enabled: true
 
-# karpenterMode -- Karpenter mode settings.
-karpenterMode:
-  # karpenterMode.enabled -- Whether to enable Karpenter mode.
-  enabled: false
-
 # karpenterNodeCleanup -- Karpenter NodeClaim cleanup for nodes Evictor has drained.
 # When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully
 # drained, so Karpenter's termination controller can clean up the EC2 instance.
@@ -344,6 +339,10 @@ drainRollbackTimeout: 1m
 
 # podEvictionFailureBackOff -- (CR field, not yet read by evictor) Wait time before retrying after a pod eviction request fails.
 podEvictionFailureBackOff: 5s
+
+# forceDisableKarpenterMode -- (CR field, not yet read by evictor) Disables Karpenter-aware scheduling simulation
+# even when Karpenter is detected on the cluster. Capability-detected by the evictor.
+forceDisableKarpenterMode: true
 
 # emitNodeRelatedPodEvents -- (CR field, not yet read by evictor) Emit Kubernetes events on pods when they are evicted as part of a node drain.
 emitNodeRelatedPodEvents: false

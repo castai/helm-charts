@@ -149,9 +149,6 @@ tests:
           content: emitNodeRelatedPodEvents
       - contains:
           path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
-          content: cleanupKarpenterNodes
-      - contains:
-          path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required
           content: drainTimeout
       - contains:
           path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.config.required

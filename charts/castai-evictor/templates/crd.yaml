@@ -87,11 +87,6 @@ spec:
                       Arm64Supported indicates arm64 nodes are present so the scheduling simulation
                       includes them as valid bin-packing targets.
                     type: boolean
-                  cleanupKarpenterNodes:
-                    description: |-
-                      CleanupKarpenterNodes deletes the Karpenter NodeClaim after draining a
-                      Karpenter-managed node, triggering faster node removal.
-                    type: boolean
                   cycleInterval:
                     description: CycleInterval is the time between consecutive evictor
                       cycles (e.g. "1m").
@@ -230,7 +225,6 @@ spec:
                 required:
                 - aggressiveMode
                 - arm64Supported
-                - cleanupKarpenterNodes
                 - cycleInterval
                 - drainRollbackTimeout
                 - drainTimeout
