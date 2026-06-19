@@ -47,7 +47,7 @@ castai-live:
     apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
   castai-aws-vpc-cni:
-    enabled: true
+    enabled: false
   daemon:
     labelNodeSubnet: true
   controller:
