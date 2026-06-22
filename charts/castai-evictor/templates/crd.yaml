@@ -390,8 +390,7 @@ spec:
                   type: object
                   x-kubernetes-validations:
                   - message: exactly one of podSelector or nodeSelector must be set
-                    rule: (has(self.podSelector) && !has(self.nodeSelector)) || (!has(self.podSelector)
-                      && has(self.nodeSelector))
+                    rule: has(self.podSelector) != has(self.nodeSelector)
                 type: array
               managementMode:
                 description: |-
