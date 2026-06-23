@@ -32,6 +32,7 @@ CAST AI hosted model deployment chart for SGLang.
 | resources | object | `{}` |  |
 | service.port | int | `8000` |  |
 | service.type | string | `"ClusterIP"` |  |
+| shm.sizeLimit | string | `"10Gi"` | Size limit of the shared-memory (/dev/shm) emptyDir used for tensor-parallel inference. Increase for large models / high tensor-parallel degrees; decrease to save node RAM. |
 | startupProbe | object | `{"enabled":true,"failureThreshold":600,"httpGet":{"path":"/health"},"initialDelaySeconds":20,"periodSeconds":6,"successThreshold":1,"timeoutSeconds":1}` | Startup probe configuration |
 | tensorParallelSize | string | `nil` |  |
 | tolerations | list | `[]` |  |

@@ -52,5 +52,5 @@ podAutoscaler:
   # -- Represents the threshold before scaling down,
   # -- which means no scaling down will occur unless the currentMetricValue is less than the targetValue by more than downFluctuationTolerance
   downFluctuationTolerance: 0.2
-  # -- The name of the vLLM deployment that the pod autoscaler should target
+  # -- The name of the model engine deployment that the pod autoscaler should target (vLLM or SGLang)
   targetDeploymentName:

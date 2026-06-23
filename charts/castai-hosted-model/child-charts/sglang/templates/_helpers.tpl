@@ -1,8 +1,10 @@
 {{/*
 Expand the name of the chart.
+service.name is normally provided by the parent chart's per-model values. Fall
+back to a Release-derived name so resources never render with an empty name.
 */}}
 {{- define "sglang.fullname" -}}
-{{ .Values.service.name }}
+{{ .Values.service.name | default (printf "%s-sglang" .Release.Name) | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*

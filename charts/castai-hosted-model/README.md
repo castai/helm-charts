@@ -26,7 +26,7 @@ CAST AI hosted model deployment chart with PVC support for compilation caches.
 | podAutoscaler.maxReplicas | int | `3` | Max number of replicas |
 | podAutoscaler.minReplicas | int | `1` | Min number of replicas |
 | podAutoscaler.port | int | `8000` | Port the engine exposes Prometheus metrics on. Match the engine's container.port (vLLM/SGLang default 8000) |
-| podAutoscaler.targetDeploymentName | string | `nil` | The name of the vLLM deployment that the pod autoscaler should target |
+| podAutoscaler.targetDeploymentName | string | `nil` | The name of the model engine deployment that the pod autoscaler should target (vLLM or SGLang) |
 | podAutoscaler.targetMetric | string | `nil` | The metric to observe for scaling decisions |
 | podAutoscaler.targetMetricWindow | string | `"30s"` | Target metric window length |
 | podAutoscaler.targetValue | string | `nil` | The threshold value of observed metric to trigger scale up/down decisions |

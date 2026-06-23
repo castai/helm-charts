@@ -44,13 +44,13 @@ spec:
         - name: shm
           emptyDir:
             medium: Memory
-            sizeLimit: "10Gi"
+            sizeLimit: {{ .Values.shm.sizeLimit | quote }}
         {{- end }}
         {{- if .Values.persistence.hostPath.enabled }}
         # Model weights are saved to host storage so they survive pod restarts on the same node.
         - name: models
           hostPath:
-            path: {{ .Values.persistence.hostPath.path }}/models
+            path: {{ required "persistence.hostPath.path must be set when persistence.hostPath.enabled is true" .Values.persistence.hostPath.path }}/models
             type: {{ .Values.persistence.hostPath.type }}
         {{- else }}
         - name: models

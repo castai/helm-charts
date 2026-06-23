@@ -35,6 +35,11 @@ service:
 # -- Tensor parallel size. Translated to SGLang's --tp-size. When >1 a shared-memory volume is mounted.
 tensorParallelSize:
 
+shm:
+  # -- Size limit of the shared-memory (/dev/shm) emptyDir used for tensor-parallel inference.
+  # Increase for large models / high tensor-parallel degrees; decrease to save node RAM.
+  sizeLimit: "10Gi"
+
 # -- Startup probe configuration
 startupProbe:
   enabled: true
