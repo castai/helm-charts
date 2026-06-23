@@ -16,8 +16,8 @@ CAST AI hosted model deployment chart for SGLang.
 | enabled | bool | `false` | Specifies if the SGLang model should be deployed. Controlled by the parent chart condition. |
 | env | list | `[]` | Additional environment variables to set in the SGLang container |
 | extraArgs | list | `[]` | Extra arbitrary arguments passed verbatim to `sglang.launch_server`. Use this for everything beyond the hardcoded --model-path/--served-model-name/--host/--port/--tp-size flags (e.g. --context-length, --dtype, --quantization, --mem-fraction-static, --reasoning-parser, --tool-call-parser). |
-| image.repository | string | `"lmsysorg/sglang"` |  |
-| image.tag | string | `"latest"` |  |
+| image.repository | string | `"us-docker.pkg.dev/castai-hub/library/sglang"` |  |
+| image.tag | string | `"v0.5.13"` |  |
 | ldLibraryPath | string | `""` |  |
 | livenessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}` | Liveness probe configuration |
 | model.hfToken | string | `nil` | HuggingFace token used to pull gated/private models. |
