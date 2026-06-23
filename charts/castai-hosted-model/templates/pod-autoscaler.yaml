@@ -18,7 +18,7 @@ spec:
   metricsSources:
     - metricSourceType: pod
       protocolType: http
-      port: "8000"
+      port: {{ .Values.podAutoscaler.port | default 8000 | quote }}
       path: metrics
       targetMetric: {{ required "podAutoscaler.targetMetric is required" .Values.podAutoscaler.targetMetric }}
       targetValue: {{ required "podAutoscaler.targetValue is required" .Values.podAutoscaler.targetValue | quote }}
