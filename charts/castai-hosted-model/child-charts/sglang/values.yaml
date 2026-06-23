@@ -69,8 +69,7 @@ livenessProbe:
   httpGet:
     path: /health
 
-# -- LD_LIBRARY_PATH environment variable for the SGLang container. Set to null or empty string to disable.
-ldLibraryPath: "/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"
+ldLibraryPath: ""
 
 # -- Additional environment variables to set in the SGLang container
 env: []

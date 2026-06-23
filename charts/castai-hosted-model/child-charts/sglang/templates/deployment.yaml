@@ -70,7 +70,6 @@ spec:
             {{- if .Values.tensorParallelSize }}
             - "--tp-size={{ .Values.tensorParallelSize }}"
             {{- end }}
-            - "--trust-remote-code"
             {{- range .Values.extraArgs }}
             - {{ . | quote }}
             {{- end }}

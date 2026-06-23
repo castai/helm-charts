@@ -18,7 +18,7 @@ CAST AI hosted model deployment chart for SGLang.
 | extraArgs | list | `[]` | Extra arbitrary arguments passed verbatim to `sglang.launch_server`. Use this for everything beyond the hardcoded --model-path/--served-model-name/--host/--port/--tp-size flags (e.g. --context-length, --dtype, --quantization, --mem-fraction-static, --reasoning-parser, --tool-call-parser). |
 | image.repository | string | `"lmsysorg/sglang"` |  |
 | image.tag | string | `"latest"` |  |
-| ldLibraryPath | string | `"/usr/local/nvidia/lib:/usr/local/nvidia/lib64:${LD_LIBRARY_PATH}"` | LD_LIBRARY_PATH environment variable for the SGLang container. Set to null or empty string to disable. |
+| ldLibraryPath | string | `""` |  |
 | livenessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}` | Liveness probe configuration |
 | model.hfToken | string | `nil` | HuggingFace token used to pull gated/private models. |
 | model.name | string | `nil` | HF model name or repo id (e.g. "meta-llama/Llama-3.1-8B-Instruct"). Only the HuggingFace source is supported. |
