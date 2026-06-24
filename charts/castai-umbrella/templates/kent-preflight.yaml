@@ -1,4 +1,8 @@
-{{- if and .Values.kent.enabled (dig "preflight" "enabled" true .Values.kent) }}
+{{- $preflight := dig "preflight" dict .Values.kent -}}
+{{- if and .Values.kent.enabled (dig "enabled" true $preflight) }}
+{{- $podLabels := dig "podLabels" dict $preflight -}}
+{{- $podAnnotations := dig "podAnnotations" dict $preflight -}}
+{{- $tolerations := concat (default (list) .Values.global.tolerations) (dig "tolerations" (list) $preflight) -}}
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -9,6 +13,9 @@ metadata:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "-10"
     "helm.sh/hook-delete-policy": before-hook-creation
+    {{- with (dig "serviceAccount" "annotations" dict $preflight) }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -55,21 +62,55 @@ metadata:
 spec:
   backoffLimit: 0
   template:
+    {{- if or $podLabels $podAnnotations }}
+    metadata:
+      {{- with $podLabels }}
+      labels:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- end }}
     spec:
       restartPolicy: Never
       serviceAccountName: {{ .Release.Name }}-kent-preflight
-      {{- with .Values.global.tolerations }}
+      {{- with (dig "imagePullSecrets" (list) $preflight) }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (dig "podSecurityContext" dict $preflight) }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (dig "priorityClassName" "" $preflight) }}
+      priorityClassName: {{ . | quote }}
+      {{- end }}
+      {{- with (dig "nodeSelector" dict $preflight) }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with $tolerations }}
       tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (dig "affinity" dict $preflight) }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with (dig "topologySpreadConstraints" (list) $preflight) }}
+      topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       containers:
         - name: preflight
           image: bitnami/kubectl:latest
-          {{- with (dig "preflight" "resources" dict .Values.kent) }}
+          {{- with (dig "resources" dict $preflight) }}
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-          {{- with (dig "preflight" "containerSecurityContext" dict .Values.kent) }}
+          {{- with (dig "containerSecurityContext" dict $preflight) }}
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}

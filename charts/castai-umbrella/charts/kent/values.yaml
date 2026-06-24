@@ -1,6 +1,22 @@
 ## Kent is a wrapper profile. Component keys below are passed through to the
-## matching child charts; empty resources and containerSecurityContext maps are
-## intentional override points for clusters with strict admission policies.
+## matching child charts. Empty maps/lists are intentional override points for
+## clusters with strict admission policies and platform scheduling standards.
+
+preflight:
+  enabled: true
+  serviceAccount:
+    annotations: {}
+  podLabels: {}
+  podAnnotations: {}
+  podSecurityContext: {}
+  containerSecurityContext: {}
+  resources: {}
+  imagePullSecrets: []
+  priorityClassName: ""
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: []
 
 castai-agent:
   enabled: true
@@ -12,6 +28,14 @@ castai-agent:
   createNamespace: false
   metadataStore:
     createConfigMap: true
+  serviceAccount:
+    annotations: {}
+  podAnnotations: {}
+  podLabels: {}
+  priorityClass:
+    enabled: true
+    name: system-cluster-critical
+  imagePullSecrets: []
   clusterVPA:
     # Disable when admission policies require CPU and memory requests/limits on every container.
     enabled: true
@@ -19,7 +43,40 @@ castai-agent:
   resources: {}
   monitor:
     resources: {}
+  tolerations: []
+  nodeSelector: {}
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: provisioner.cast.ai/managed-by
+                operator: In
+                values:
+                  - cast.ai
+  securityContext:
+    runAsNonRoot: true
+    fsGroup: 65532
+    runAsGroup: 65532
+    runAsUser: 65532
+    seccompProfile:
+      type: RuntimeDefault
   containerSecurityContext: {}
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: castai-agent
 
 castai-cluster-controller:
   enabled: true
@@ -30,9 +87,47 @@ castai-cluster-controller:
         name: castai-agent-metadata
   autoscaling:
     enabled: false
+  serviceAccount:
+    annotations: {}
+  podAnnotations: {}
+  podLabels: {}
+  priorityClass:
+    enabled: true
+    name: system-cluster-critical
+  imagePullSecrets: []
   resources: {}
   monitor:
     resources: {}
+  tolerations: []
+  nodeSelector: {}
+  enableTopologySpreadConstraints: false
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - castai-cluster-controller
+          topologyKey: kubernetes.io/hostname
+  securityContext:
+    runAsNonRoot: true
+    fsGroup: 65532
+    runAsGroup: 65532
+    runAsUser: 65532
   containerSecurityContext: {}
 
 castai-kentroller:
@@ -43,33 +138,174 @@ castai-kentroller:
       name: castai-agent-metadata
     organizationIdConfigMapKeyRef:
       name: castai-agent-metadata
+  serviceAccount:
+    annotations: {}
+  imagePullSecrets: []
+  resources:
+    requests:
+      cpu: 1
+      memory: 2Gi
+    limits:
+      memory: 2Gi
+  securityContext:
+    runAsNonRoot: true
+    fsGroup: 1003
+    runAsGroup: 1003
+    runAsUser: 1003
+  enableTopologySpreadConstraints: false
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: castai-kentroller
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - castai-kentroller
+          topologyKey: kubernetes.io/hostname
+  nodeSelector: {}
+  tolerations: []
+  podAnnotations: {}
+  podLabels: {}
 
 castai-workload-autoscaler:
   enabled: true
   castai:
     apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
+  imagePullSecrets: []
+  podSecurityContext:
+    runAsNonRoot: true
+    fsGroup: 1005
+    runAsGroup: 1005
+    runAsUser: 1005
   containerSecurityContext: {}
+  podAnnotations: {}
+  podLabels: {}
+  priorityClass:
+    enabled: true
+    name: system-cluster-critical
+  tolerations:
+    - key: scheduling.cast.ai/spot
+      operator: Exists
+    - key: CriticalAddonsOnly
+      operator: Exists
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  nodeSelector: {}
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: castai-workload-autoscaler
 
 castai-workload-autoscaler-exporter:
   enabled: true
   castai:
     apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
+  imagePullSecrets: []
+  priorityClass:
+    enabled: false
+    name: system-cluster-critical
+  podSecurityContext:
+    runAsNonRoot: true
+    fsGroup: 1006
+    runAsGroup: 1006
+    runAsUser: 1006
   containerSecurityContext: {}
+  tolerations:
+    - key: scheduling.cast.ai/spot
+      operator: Exists
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+  nodeSelector: {}
+  exporter:
+    resources:
+      limits:
+        cpu: 2
+        memory: 512Mi
+      requests:
+        cpu: 500m
+        memory: 256Mi
   prometheus:
+    podSecurityContext:
+      runAsNonRoot: true
+      runAsUser: 65534
+      runAsGroup: 65534
+      fsGroup: 65534
+      seccompProfile:
+        type: RuntimeDefault
     containerSecurityContext: {}
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
 
 # controller.replicaCount: 0 = CLM disabled, 2 = CLM enabled.
 castai-live:
   enabled: true
+  imagePullSecrets: []
   castai:
     apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
   daemon:
     labelNodeSubnet: true
+    resources: {}
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
   controller:
     replicaCount: 0
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 500m
+        memory: 512Mi
+    nodeSelector: {}
+    tolerations: []
+  tc:
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
 
 castai-pod-mutator:
   enabled: true
@@ -81,7 +317,54 @@ castai-pod-mutator:
   envFrom:
     - configMapRef:
         name: castai-agent-metadata
+  imagePullSecrets: []
+  podSecurityContext:
+    runAsNonRoot: true
+    fsGroup: 1005
+    runAsGroup: 1005
+    runAsUser: 1005
   containerSecurityContext: {}
+  podAnnotations: {}
+  podLabels: {}
+  priorityClass:
+    enabled: true
+    name: system-cluster-critical
+  tolerations:
+    - key: CriticalAddonsOnly
+      operator: Exists
+  enableTopologySpreadConstraints: false
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: kubernetes.io/hostname
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: castai-pod-mutator
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - castai-pod-mutator
+          topologyKey: kubernetes.io/hostname
+  nodeSelector: {}
+  resources:
+    requests:
+      cpu: 20m
+      memory: 512Mi
+    limits:
+      memory: 512Mi
 
 castai-spot-handler:
   enabled: true
@@ -91,14 +374,152 @@ castai-spot-handler:
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID
+  imagePullSecrets: []
+  podAnnotations: {}
+  podLabels: {}
+  resources:
+    requests:
+      cpu: 20m
+      memory: 25Mi
+    limits:
+      memory: 25Mi
+  priorityClassName: system-cluster-critical
+  serviceAccount:
+    annotations: {}
+  tolerations:
+    - operator: Exists
+      effect: NoSchedule
+    - key: kubernetes.azure.com/scalesetpriority
+      operator: Equal
+      value: spot
+      effect: NoSchedule
+  nodeSelector: {}
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: eks.amazonaws.com/capacityType
+                operator: In
+                values:
+                  - SPOT
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+          - matchExpressions:
+              - key: karpenter.sh/capacity-type
+                operator: In
+                values:
+                  - spot
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+          - matchExpressions:
+              - key: kubernetes.azure.com/scalesetpriority
+                operator: In
+                values:
+                  - spot
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+          - matchExpressions:
+              - key: cloud.google.com/gke-spot
+                operator: In
+                values:
+                  - "true"
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+          - matchExpressions:
+              - key: cloud.google.com/gke-preemptible
+                operator: In
+                values:
+                  - "true"
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+          - matchExpressions:
+              - key: spotinst.io/node-lifecycle
+                operator: In
+                values:
+                  - spot
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+          - matchExpressions:
+              - key: node.kubernetes.io/lifecycle
+                operator: In
+                values:
+                  - spot
+                  - SpotInstance
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+          - matchExpressions:
+              - key: kubernetes.io/lifecycle
+                operator: In
+                values:
+                  - spot
+                  - SpotInstance
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+          - matchExpressions:
+              - key: scheduling.cast.ai/spot
+                operator: In
+                values:
+                  - "true"
+              - key: kubernetes.io/os
+                operator: NotIn
+                values:
+                  - windows
+  securityContext:
+    runAsNonRoot: true
+    fsGroup: 1003
+    runAsGroup: 1003
+    runAsUser: 1003
 
 # Disabled by default — most clusters already provide the metrics.k8s.io API.
 metrics-server:
   enabled: false
+  imagePullSecrets: []
+  serviceAccount:
+    annotations: {}
+  podLabels: {}
+  podAnnotations: {}
+  podSecurityContext: {}
+  securityContext:
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    runAsNonRoot: true
+    runAsUser: 1000
+    seccompProfile:
+      type: RuntimeDefault
+    capabilities:
+      drop:
+        - ALL
+  priorityClassName: system-cluster-critical
+  resources:
+    requests:
+      cpu: 100m
+      memory: 200Mi
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  topologySpreadConstraints: []
 
 # castai-kvisor with just cluster proxy for OpsPilot debugging
 castai-kvisor:
   enabled: true
+  imagePullSecrets: []
   castai:
     apiKeySecretRef: ""
     clusterIdConfigMapKeyRef:
@@ -106,19 +527,97 @@ castai-kvisor:
       key: CLUSTER_ID
   agent:
     enabled: false
+    serviceAccount:
+      annotations: {}
+    priorityClass: system-node-critical
+    podAnnotations: {}
+    podLabels: {}
+    securityContext: {}
     containerSecurityContext: {}
+    resources:
+      requests:
+        memory: 64Mi
+      limits:
+        memory: 512Mi
+    nodeSelector: {}
+    tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: eks.amazonaws.com/compute-type
+                  operator: NotIn
+                  values:
+                    - fargate
+                - key: kubernetes.io/os
+                  operator: NotIn
+                  values:
+                    - windows
     reliabilityMetrics:
       obi:
         containerSecurityContext: {}
+        resources:
+          requests:
+            memory: 192Mi
+          limits:
+            memory: 512Mi
+      collector:
+        resources:
+          requests:
+            memory: 128Mi
+          limits:
+            memory: 256Mi
   controller:
     enabled: true
+    serviceAccount:
+      annotations: {}
+    priorityClass: system-cluster-critical
+    podAnnotations: {}
+    podLabels: {}
+    securityContext:
+      fsGroup: 1001
+      runAsNonRoot: true
     containerSecurityContext: {}
+    resources:
+      requests:
+        cpu: 100m
+        memory: 512Mi
+      limits:
+        memory: 512Mi
+    nodeSelector: {}
+    tolerations: []
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/os
+                  operator: NotIn
+                  values:
+                    - windows
     extraArgs:
       log-level: info
       cluster-proxy-enabled: "true"
+    reliabilityMetrics:
+      collector:
+        resources:
+          requests:
+            cpu: 250m
+            memory: 256Mi
+          limits:
+            memory: 512Mi
 
 castai-chart-upgrader:
   enabled: false
+  resources: {}
+  tolerations: []
+  nodeSelector: {}
+  affinity: {}
   chart:
     name: castai
     repository: "https://castai.github.io/helm-charts"
