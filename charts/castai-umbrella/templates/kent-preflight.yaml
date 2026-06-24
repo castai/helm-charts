@@ -65,6 +65,14 @@ spec:
       containers:
         - name: preflight
           image: bitnami/kubectl:latest
+          {{- with (dig "preflight" "resources" dict .Values.kent) }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with (dig "preflight" "containerSecurityContext" dict .Values.kent) }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command:
             - /bin/sh
             - -c

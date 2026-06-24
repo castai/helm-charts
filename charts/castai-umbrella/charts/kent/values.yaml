@@ -1,3 +1,7 @@
+## Kent is a wrapper profile. Component keys below are passed through to the
+## matching child charts; empty resources and containerSecurityContext maps are
+## intentional override points for clusters with strict admission policies.
+
 castai-agent:
   enabled: true
   replicaCount: 1
@@ -8,6 +12,14 @@ castai-agent:
   createNamespace: false
   metadataStore:
     createConfigMap: true
+  clusterVPA:
+    # Disable when admission policies require CPU and memory requests/limits on every container.
+    enabled: true
+    resources: {}
+  resources: {}
+  monitor:
+    resources: {}
+  containerSecurityContext: {}
 
 castai-cluster-controller:
   enabled: true
@@ -18,6 +30,10 @@ castai-cluster-controller:
         name: castai-agent-metadata
   autoscaling:
     enabled: false
+  resources: {}
+  monitor:
+    resources: {}
+  containerSecurityContext: {}
 
 castai-kentroller:
   enabled: true
@@ -33,12 +49,16 @@ castai-workload-autoscaler:
   castai:
     apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
+  containerSecurityContext: {}
 
 castai-workload-autoscaler-exporter:
   enabled: true
   castai:
     apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
+  containerSecurityContext: {}
+  prometheus:
+    containerSecurityContext: {}
 
 # controller.replicaCount: 0 = CLM disabled, 2 = CLM enabled.
 castai-live:
@@ -61,6 +81,7 @@ castai-pod-mutator:
   envFrom:
     - configMapRef:
         name: castai-agent-metadata
+  containerSecurityContext: {}
 
 castai-spot-handler:
   enabled: true
@@ -85,8 +106,13 @@ castai-kvisor:
       key: CLUSTER_ID
   agent:
     enabled: false
+    containerSecurityContext: {}
+    reliabilityMetrics:
+      obi:
+        containerSecurityContext: {}
   controller:
     enabled: true
+    containerSecurityContext: {}
     extraArgs:
       log-level: info
       cluster-proxy-enabled: "true"
