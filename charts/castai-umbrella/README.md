@@ -277,8 +277,25 @@ helm upgrade castai castai-helm/castai \
 | global.imagePullSecrets | list | `[]` |  |
 | global.registry | string | `""` |  |
 | global.tolerations | list | `[]` |  |
+| kent.castai-agent.clusterVPA.enabled | bool | `true` |  |
+| kent.castai-agent.clusterVPA.resources | object | `{}` |  |
+| kent.castai-agent.containerSecurityContext | object | `{}` |  |
+| kent.castai-agent.monitor.resources | object | `{}` |  |
+| kent.castai-agent.resources | object | `{}` |  |
+| kent.castai-cluster-controller.containerSecurityContext | object | `{}` |  |
+| kent.castai-cluster-controller.monitor.resources | object | `{}` |  |
+| kent.castai-cluster-controller.resources | object | `{}` |  |
+| kent.castai-kvisor.agent.containerSecurityContext | object | `{}` |  |
+| kent.castai-kvisor.agent.reliabilityMetrics.obi.containerSecurityContext | object | `{}` |  |
+| kent.castai-kvisor.controller.containerSecurityContext | object | `{}` |  |
+| kent.castai-pod-mutator.containerSecurityContext | object | `{}` |  |
+| kent.castai-workload-autoscaler-exporter.containerSecurityContext | object | `{}` |  |
+| kent.castai-workload-autoscaler-exporter.prometheus.containerSecurityContext | object | `{}` |  |
+| kent.castai-workload-autoscaler.containerSecurityContext | object | `{}` |  |
 | kent.enabled | bool | `false` |  |
+| kent.preflight.containerSecurityContext | object | `{}` |  |
 | kent.preflight.enabled | bool | `true` |  |
+| kent.preflight.resources | object | `{}` |  |
 | tags | object | `{"autoscaler-anywhere":false,"autoscaler-openshift":false,"full":false,"node-autoscaler":false,"readonly":false,"workload-autoscaler":false}` | Profile mode selection (mutually exclusive — pick one). Component overrides are stable across all mode upgrades with --reuse-values:   --set autoscaler.castai-kvisor.enabled=false |
 
 ----------------------------------------------
