@@ -111,36 +111,13 @@ jobs:
           fetch-depth: 1
           path: helm-charts
 
-      - name: Read appVersion (image tag) from released chart
-        id: image
+      - name: Checkout helm-charts at HEAD (for scripts)
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
-        env:
-          CHART_NAME: ${{ steps.parse.outputs.chart_name }}
-          CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
-        run: |
-          # Components that have no chart in this repo; use the release chart_version
-          # directly as the image tag (images are versioned alongside the chart).
-          USES_CHART_VERSION=(castai-live)
-          for name in "${USES_CHART_VERSION[@]}"; do
-            if [ "$name" = "$CHART_NAME" ]; then
-              echo "image_tag=${CHART_VERSION}" >> $GITHUB_OUTPUT
-              exit 0
-            fi
-          done
-
-          CHART_FILE="helm-charts/charts/${CHART_NAME}/Chart.yaml"
-          if [ ! -f "$CHART_FILE" ]; then
-            echo "Chart file '${CHART_FILE}' not found — image tag update will be skipped."
-            echo "image_tag=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          APP_VERSION=$(yq e '.appVersion' "$CHART_FILE")
-          if [ -z "$APP_VERSION" ] || [ "$APP_VERSION" = "null" ]; then
-            echo "No appVersion in ${CHART_FILE} — image tag update will be skipped."
-            echo "image_tag=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "image_tag=${APP_VERSION}" >> $GITHUB_OUTPUT
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+          path: helm-charts-head
 
       - name: Clone kubecast
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
@@ -152,6 +129,64 @@ jobs:
           cd kubecast
           git config user.email "ci@cast.ai"
           git config user.name "GitHub Actions"
+
+      - name: Read appVersion (image tag) from released chart
+        id: image
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        env:
+          CHART_NAME: ${{ steps.parse.outputs.chart_name }}
+          CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
+        run: |
+          # castai-live templates come from the clm repo — no chart source available;
+          # its images are versioned identically to the chart release.
+          if [ "$CHART_NAME" = "castai-live" ]; then
+            echo "image_tag=${CHART_VERSION}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Chart source directories — paths relative to the workspace root.
+          # evictor and chart-upgrader live in the helm-charts repo (this repo, tag checkout).
+          # Everything else lives in kubecast/services/.
+          declare -A CHART_DIRS=(
+            [castai-agent]="kubecast/services/castai-agent/chart"
+            [castai-cluster-controller]="kubecast/services/cluster-controller/charts"
+            [castai-kvisor]="kubecast/services/kvisor/chart"
+            [castai-pod-mutator]="kubecast/services/pod-mutator/chart"
+            [castai-pod-pinner]="kubecast/services/castai-pod-pinner/chart"
+            [castai-spot-handler]="kubecast/services/spot-handler/charts"
+            [castai-kentroller]="kubecast/services/kentroller/charts"
+            [castai-workload-autoscaler]="kubecast/services/workload-autoscaler/charts/castai-workload-autoscaler"
+            [castai-workload-autoscaler-exporter]="kubecast/services/workload-autoscaler/charts/castai-workload-autoscaler-exporter"
+            [castai-evictor]="helm-charts/charts/castai-evictor"
+            [castai-chart-upgrader]="helm-charts/charts/castai-chart-upgrader"
+          )
+
+          CHART_DIR="${CHART_DIRS[$CHART_NAME]}"
+          if [ -z "$CHART_DIR" ]; then
+            echo "No chart source mapping for ${CHART_NAME} — image tag update will be skipped."
+            echo "image_tag=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          CHART_FILE="${CHART_DIR}/Chart.yaml"
+          if [ ! -f "$CHART_FILE" ]; then
+            echo "Chart file not found: ${CHART_FILE} — image tag update will be skipped."
+            echo "image_tag=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          APP_VERSION=$(yq e '.appVersion' "$CHART_FILE")
+          if [ -z "$APP_VERSION" ] || [ "$APP_VERSION" = "null" ]; then
+            echo "No appVersion in ${CHART_FILE} — image tag update will be skipped."
+            echo "image_tag=" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "image_tag=${APP_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Install Python dependencies
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        run: pip install --quiet ruamel.yaml
 
       # ── Update 1: image tag in flat-template umbrella values.yaml ─────────────
 
@@ -186,7 +221,7 @@ jobs:
               echo "${COMPONENT}: ${YQ_PATH} already at ${IMAGE_TAG} — no change."
               continue
             fi
-            yq -i "${YQ_PATH} = \"${IMAGE_TAG}\"" "$VALUES"
+            python3 helm-charts-head/.github/scripts/bump-yaml-field.py "$YQ_PATH" "$IMAGE_TAG" "$VALUES"
             echo "Bumped ${COMPONENT} ${YQ_PATH}: ${CURRENT} -> ${IMAGE_TAG}"
             CHANGED=true
             OLD_TAGS="${OLD_TAGS:+$OLD_TAGS, }${CURRENT}"
@@ -224,7 +259,8 @@ jobs:
             if yq ".dependencies[].name" "$SUBCHART_FILE" | grep -qx "$CHART_NAME"; then
               CURRENT=$(yq ".dependencies[] | select(.name == \"$CHART_NAME\") | .version" "$SUBCHART_FILE")
               if [ "$CURRENT" != "$CHART_VERSION" ]; then
-                yq -i "(.dependencies[] | select(.name == \"$CHART_NAME\") | .version) = \"${CHART_VERSION}\"" "$SUBCHART_FILE"
+                python3 helm-charts-head/.github/scripts/bump-chart-dep.py \
+                  "$CHART_NAME" "$CHART_VERSION" "$SUBCHART_FILE"
                 echo "Updated ${CHART_NAME} in ${SUBCHART_FILE}: ${CURRENT} -> ${CHART_VERSION}"
                 CHANGED=true
                 SUBCHART_NAME=$(yq '.name' "$SUBCHART_FILE")
@@ -237,6 +273,34 @@ jobs:
 
           echo "changed=${CHANGED}" >> $GITHUB_OUTPUT
           echo "summary=${BUMP_SUMMARY}" >> $GITHUB_OUTPUT
+
+      # ── Validate modified YAML files ──────────────────────────────────────────
+
+      - name: Validate modified YAML files
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          FILES=(
+            "kubecast/castai-umbrella/chart/values.yaml"
+            "kubecast/castai-umbrella/chart/Chart.yaml"
+            "kubecast/castai-umbrella/chart/charts/kent/Chart.yaml"
+            "kubecast/castai-umbrella/chart/charts/autoscaler-anywhere/Chart.yaml"
+            "kubecast/castai-umbrella/chart/charts/autoscaler-openshift/Chart.yaml"
+          )
+          FAILED=false
+          for f in "${FILES[@]}"; do
+            [ -f "$f" ] || continue
+            if yq . "$f" > /dev/null 2>&1; then
+              echo "OK: $f"
+            else
+              echo "ERROR: $f is not valid YAML"
+              FAILED=true
+            fi
+          done
+          if [ "$FAILED" = "true" ]; then
+            echo "One or more YAML files are invalid — aborting before commit."
+            exit 1
+          fi
 
       # ── Gate the rest on at least one change ──────────────────────────────────
 
@@ -264,7 +328,8 @@ jobs:
           NEXT_RC=$((RC_NUM + 1))
           NEW_VERSION="0.0.0-rc${NEXT_RC}"
 
-          yq -i ".version = \"${NEW_VERSION}\"" "$CHART_YAML"
+          python3 helm-charts-head/.github/scripts/bump-yaml-field.py \
+            ".version" "$NEW_VERSION" "$CHART_YAML"
           echo "Bumped umbrella version: ${CURRENT} -> ${NEW_VERSION}"
           echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "tag=castai-${NEW_VERSION}" >> $GITHUB_OUTPUT
@@ -276,7 +341,7 @@ jobs:
           CHART_NAME: ${{ steps.parse.outputs.chart_name }}
           CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
         run: |
-          bash helm-charts/.github/scripts/check-umbrella-drift.sh
+          bash helm-charts-head/.github/scripts/check-umbrella-drift.sh
 
       - name: Commit to kubecast and open GitLab MR
         if: steps.changed.outputs.any == 'true'
