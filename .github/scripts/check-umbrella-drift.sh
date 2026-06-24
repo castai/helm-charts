@@ -1,22 +1,36 @@
 #!/usr/bin/env bash
-# Compares env vars defined in a component's Helm templates against the
-# corresponding folded templates in the kubecast umbrella chart.
+# Detects structural drift between a component's Helm templates and the
+# corresponding copied templates in the kubecast umbrella chart.
+#
+# Uses Kimchi Inference (minimax-m3) to semantically compare templates,
+# handling the fact that umbrella templates have different Go template syntax
+# (.Values paths, helper names, $pp variables) but should represent the same
+# Kubernetes resource structure.
 #
 # Required env vars:
-#   CHART_NAME     — e.g. castai-agent, castai-workload-autoscaler, castai-live
-#   CHART_VERSION  — required only for castai-live (pulled from registry)
+#   CHART_NAME        — e.g. castai-agent, castai-pod-pinner, castai-live
+#   KIMCHI_API_KEY    — Kimchi Inference API key
+#   CHART_VERSION     — required only for castai-live (pulled from registry)
 #
-# Paths expected to exist at call time (set up by release-umbrella-rc.yml):
-#   kubecast/      — clone of the kubecast repo (contains both services/ and castai-umbrella/)
+# Paths expected to exist at call time:
+#   kubecast/         — clone of the kubecast repo
+#   helm-charts/      — optional, for evictor / chart-upgrader
 #
-# Writes markdown to stdout and, when GITHUB_OUTPUT is set, appends
+# For castai-live, the chart is pulled from the public Helm registry.
+#
+# Writes markdown to stdout and, when GITHUB_OUTPUT is set, appends:
 #   drift_report<<DELIMITER / ... / DELIMITER
-# to that file.
 
 set -euo pipefail
 
 CHART_NAME="${CHART_NAME:?CHART_NAME env var required}"
 CHART_VERSION="${CHART_VERSION:-}"
+KIMCHI_API_KEY="${KIMCHI_API_KEY:?KIMCHI_API_KEY env var required}"
+
+KIMCHI_API_URL="https://llm.kimchi.dev/openai/v1/chat/completions"
+KIMCHI_MODEL="minimax-m3"
+
+# ── Locate component templates ────────────────────────────────────────────────
 
 COMP_TEMPLATES=""
 
@@ -25,7 +39,6 @@ if [ "$CHART_NAME" = "castai-live" ]; then
     echo "CHART_VERSION is required for castai-live" >&2
     exit 1
   fi
-  # castai-live lives in a separate repo; pull its chart from the public registry.
   LIVE_UNTAR_DIR="/tmp/castai-live-chart"
   rm -rf "$LIVE_UNTAR_DIR"
   helm repo add castai-helm https://castai.github.io/helm-charts --force-update >/dev/null 2>&1
@@ -35,10 +48,8 @@ if [ "$CHART_NAME" = "castai-live" ]; then
     --untardir "$LIVE_UNTAR_DIR"
   COMP_TEMPLATES="${LIVE_UNTAR_DIR}/castai-live/templates"
 else
-  # Locate the chart by matching the chart name in Chart.yaml.
-  # Most components live in kubecast/services/; evictor and chart-upgrader
-  # live in the helm-charts repo (tag checkout at helm-charts/).
-  CHART_YAML_PATH=$(find kubecast/services -name "Chart.yaml" -exec grep -l "^name: ${CHART_NAME}$" {} \; 2>/dev/null | head -1 || true)
+  CHART_YAML_PATH=$(find kubecast/services -name "Chart.yaml" \
+    -exec grep -l "^name: ${CHART_NAME}$" {} \; 2>/dev/null | head -1 || true)
 
   if [ -z "$CHART_YAML_PATH" ] && [ -d "helm-charts/charts/${CHART_NAME}" ]; then
     CHART_YAML_PATH="helm-charts/charts/${CHART_NAME}/Chart.yaml"
@@ -46,7 +57,7 @@ else
 
   if [ -z "$CHART_YAML_PATH" ]; then
     cat <<MD
-## Env-var drift: \`${CHART_NAME}\`
+## Template drift: \`${CHART_NAME}\`
 
 > Chart not found in \`kubecast/services/\` or \`helm-charts/charts/\` — skipping drift check.
 MD
@@ -59,7 +70,7 @@ UMB_TEMPLATES="kubecast/castai-umbrella/chart/templates/${CHART_NAME}"
 
 if [ ! -d "$COMP_TEMPLATES" ]; then
   cat <<MD
-## Env-var drift: \`${CHART_NAME}\`
+## Template drift: \`${CHART_NAME}\`
 
 > Component templates not found at \`${COMP_TEMPLATES}\` — skipping drift check.
 MD
@@ -68,7 +79,7 @@ fi
 
 if [ ! -d "$UMB_TEMPLATES" ]; then
   cat <<MD
-## Env-var drift: \`${CHART_NAME}\`
+## Template drift: \`${CHART_NAME}\`
 
 > Umbrella templates not found at \`${UMB_TEMPLATES}\` — skipping drift check.
 > The umbrella may use a subchart for this component rather than flat templates.
@@ -76,71 +87,152 @@ MD
   exit 0
 fi
 
-extract_env_vars() {
+# ── Collect template file contents ────────────────────────────────────────────
+
+collect_templates() {
   local dir="$1"
-  # Only scan files that define a DaemonSet or Deployment — skip infrastructure
-  # templates (clickhouse, secrets, standalone jobs, etc.) that contain env vars
-  # not applicable to the umbrella workload containers.
+  local label="$2"
+  local out=""
   while IFS= read -r -d '' f; do
-    if grep -q 'kind: DaemonSet\|kind: Deployment' "$f"; then
-      cat "$f"
-    fi
-  done < <(find "$dir" -name '*.yaml' -print0) \
-    | grep '^\s*- name:\s*[A-Z_]' \
-    | sed 's/.*- name:[[:space:]]*//' \
-    | sed 's/[[:space:]]*$//' \
-    | sort -u
+    local fname
+    fname=$(basename "$f")
+    # Skip helpers/_helpers.tpl — pure Go template definitions, no K8s resources
+    [[ "$fname" == _* ]] && continue
+    out+="### File: ${fname}\n\`\`\`yaml\n$(cat "$f")\n\`\`\`\n\n"
+  done < <(find "$dir" -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
+  echo -e "$out"
 }
 
-COMP_VARS=$(extract_env_vars "$COMP_TEMPLATES")
-UMB_VARS=$(extract_env_vars "$UMB_TEMPLATES")
+COMP_CONTENT=$(collect_templates "$COMP_TEMPLATES" "component")
+UMB_CONTENT=$(collect_templates "$UMB_TEMPLATES" "umbrella")
 
-COMP_ONLY=$(comm -23 \
-  <(echo "$COMP_VARS") \
-  <(echo "$UMB_VARS") \
-  || true)
+if [ -z "$COMP_CONTENT" ]; then
+  cat <<MD
+## Template drift: \`${CHART_NAME}\`
 
-UMB_ONLY=$(comm -13 \
-  <(echo "$COMP_VARS") \
-  <(echo "$UMB_VARS") \
-  || true)
+> No template files found in component at \`${COMP_TEMPLATES}\`.
+MD
+  exit 0
+fi
 
-build_report() {
-  echo "## Env-var drift: \`${CHART_NAME}\`"
-  echo ""
-  if [ -z "$COMP_ONLY" ] && [ -z "$UMB_ONLY" ]; then
-    echo "No drift detected — umbrella env vars match the component chart."
-    return
-  fi
-  if [ -n "$COMP_ONLY" ]; then
-    echo "### In component, missing from umbrella (need porting)"
-    echo ""
-    echo "| Env var |"
-    echo "|---------|"
-    while IFS= read -r var; do
-      [ -z "$var" ] && continue
-      echo "| \`${var}\` |"
-    done <<< "$COMP_ONLY"
-    echo ""
-  else
-    echo "No env vars missing from umbrella."
-    echo ""
-  fi
-  if [ -n "$UMB_ONLY" ]; then
-    echo "### In umbrella only (umbrella additions — informational)"
-    echo ""
-    echo "| Env var |"
-    echo "|---------|"
-    while IFS= read -r var; do
-      [ -z "$var" ] && continue
-      echo "| \`${var}\` |"
-    done <<< "$UMB_ONLY"
-  else
-    echo "No umbrella-only env vars."
-  fi
+if [ -z "$UMB_CONTENT" ]; then
+  cat <<MD
+## Template drift: \`${CHART_NAME}\`
+
+> No template files found in umbrella at \`${UMB_TEMPLATES}\`.
+MD
+  exit 0
+fi
+
+# ── Build prompt ──────────────────────────────────────────────────────────────
+
+# castai-live note: its templates dir may contain flattened dependency templates
+CASTAI_LIVE_NOTE=""
+if [ "$CHART_NAME" = "castai-live" ]; then
+  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates directory may contain flattened templates from chart dependencies mixed in with the main component's templates. Use your best judgment to identify which resources belong to the main castai-live workload versus dependencies when comparing."
+fi
+
+PROMPT="You are a Helm chart reviewer. Your job is to detect **structural drift** between a component's original Helm templates and a copied version of those templates inside an umbrella chart.
+
+CONTEXT:
+- The umbrella chart is a near-verbatim copy of the component chart's templates, adapted to fit inside a larger umbrella Helm chart.
+- Adaptations include: different .Values paths (e.g. \`\$pp.image.tag\` instead of \`.Values.image.tag\`), different helper function names (e.g. \`umbrella.castai-pod-pinner.fullname\` instead of \`pod-pinner.fullname\`), and an outer \`{{- \$pp := index .Values... }}\` variable binding.
+- These syntactic differences are EXPECTED and should NOT be reported as drift.
+- What matters is the Kubernetes resource structure: which resource kinds exist, what fields they contain, what RBAC rules are defined, what env vars, volumes, volumeMounts, probes, ports, affinity rules, tolerations, sidecars, etc.
+
+${CASTAI_LIVE_NOTE}
+
+YOUR TASK:
+Compare the two sets of templates below and produce a structured drift report in Markdown. For each finding:
+1. Match resources by their Kubernetes \`kind\` (and disambiguate by name pattern if there are multiple of the same kind).
+2. Report drift in BOTH directions:
+   a. **Component → Umbrella gaps**: things present in the component that are missing or structurally different in the umbrella. These likely need to be ported. Mark these clearly as ACTION REQUIRED.
+   b. **Umbrella → Component gaps**: things present in the umbrella but not in the component (umbrella additions or stale resources). Mark these as INFORMATIONAL — reviewer should verify whether these are intentional umbrella additions or stale resources from a dropped component feature.
+3. For each finding, be specific: name the resource kind, the field or section that changed, and briefly describe what changed.
+4. If there is no drift, say so clearly.
+5. Do NOT report differences that are purely syntactic Go template adaptations (helper names, .Values path changes, variable bindings).
+
+---
+
+## COMPONENT TEMPLATES (\`${COMP_TEMPLATES}\`)
+
+${COMP_CONTENT}
+
+---
+
+## UMBRELLA TEMPLATES (\`${UMB_TEMPLATES}\`)
+
+${UMB_CONTENT}
+
+---
+
+Now produce the drift report."
+
+# ── Call Kimchi Inference API ─────────────────────────────────────────────────
+
+# Escape prompt for JSON — use python if available, else fall back to sed
+if command -v python3 &>/dev/null; then
+  PROMPT_JSON=$(python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))" <<< "$PROMPT")
+else
+  # Minimal escaping: backslash, double-quote, newline, tab
+  PROMPT_JSON=$(printf '%s' "$PROMPT" \
+    | sed 's/\\/\\\\/g; s/"/\\"/g' \
+    | awk '{printf "%s\\n", $0}' \
+    | sed 's/\\n$//' \
+    | sed 's/\t/\\t/g')
+  PROMPT_JSON="\"${PROMPT_JSON}\""
+fi
+
+REQUEST_BODY=$(cat <<EOF
+{
+  "model": "${KIMCHI_MODEL}",
+  "max_tokens": 4096,
+  "messages": [
+    {
+      "role": "user",
+      "content": ${PROMPT_JSON}
+    }
+  ]
+}
+EOF
+)
+
+HTTP_RESPONSE=$(curl -sf \
+  -X POST "$KIMCHI_API_URL" \
+  -H "Authorization: Bearer ${KIMCHI_API_KEY}" \
+  -H "Content-Type: application/json" \
+  -d "$REQUEST_BODY" 2>&1) || {
+  cat <<MD
+## Template drift: \`${CHART_NAME}\`
+
+> ❌ Kimchi API call failed. Check that KIMCHI_API_KEY is set correctly and the API is reachable.
+> Error: ${HTTP_RESPONSE}
+MD
+  exit 1
 }
 
-REPORT=$(build_report)
+# Extract the model's reply from the OpenAI-format response
+if command -v python3 &>/dev/null; then
+  AI_REPORT=$(python3 -c "
+import json, sys
+data = json.loads(sys.stdin.read())
+print(data['choices'][0]['message']['content'])
+" <<< "$HTTP_RESPONSE")
+elif command -v jq &>/dev/null; then
+  AI_REPORT=$(echo "$HTTP_RESPONSE" | jq -r '.choices[0].message.content')
+else
+  echo "Error: neither python3 nor jq available to parse API response" >&2
+  exit 1
+fi
+
+# ── Build final report ────────────────────────────────────────────────────────
+
+REPORT="## Template drift: \`${CHART_NAME}\`
+
+_Compared \`${COMP_TEMPLATES}\` (component) vs \`${UMB_TEMPLATES}\` (umbrella) using ${KIMCHI_MODEL}._
+
+${AI_REPORT}"
+
 echo "$REPORT"
 
 if [ -n "${GITHUB_OUTPUT:-}" ]; then

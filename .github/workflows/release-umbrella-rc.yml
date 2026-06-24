@@ -5,7 +5,7 @@ name: Release umbrella RC
 #
 #  1. Image tag in values.yaml (autoscaler.<component>.image.tag)
 #     — for flat-template autoscaler/workload-autoscaler modes.
-#     Uses the chart's appVersion as the image tag.
+#     Derives the image tag from the GitHub release tag (v<chart_version>).
 #
 #  2. Subchart dependency version in charts/kent/Chart.yaml,
 #     charts/autoscaler-anywhere/Chart.yaml, and
@@ -130,59 +130,21 @@ jobs:
           git config user.email "ci@cast.ai"
           git config user.name "GitHub Actions"
 
-      - name: Read appVersion (image tag) from released chart
+      - name: Derive image tag from release version
         id: image
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         env:
           CHART_NAME: ${{ steps.parse.outputs.chart_name }}
           CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
         run: |
-          # castai-live templates come from the clm repo — no chart source available;
-          # its images are versioned identically to the chart release.
+          # Image tags follow the GitHub release tag directly:
+          #   castai-kvisor-1.55.21 → v1.55.21
+          # castai-live is the exception — its images don't carry the v prefix.
           if [ "$CHART_NAME" = "castai-live" ]; then
             echo "image_tag=${CHART_VERSION}" >> $GITHUB_OUTPUT
-            exit 0
+          else
+            echo "image_tag=v${CHART_VERSION}" >> $GITHUB_OUTPUT
           fi
-
-          # Chart source directories — paths relative to the workspace root.
-          # evictor and chart-upgrader live in the helm-charts repo (this repo, tag checkout).
-          # Everything else lives in kubecast/services/.
-          declare -A CHART_DIRS=(
-            [castai-agent]="kubecast/services/castai-agent/chart"
-            [castai-cluster-controller]="kubecast/services/cluster-controller/charts"
-            [castai-kvisor]="kubecast/services/kvisor/chart"
-            [castai-pod-mutator]="kubecast/services/pod-mutator/chart"
-            [castai-pod-pinner]="kubecast/services/castai-pod-pinner/chart"
-            [castai-spot-handler]="kubecast/services/spot-handler/charts"
-            [castai-kentroller]="kubecast/services/kentroller/charts"
-            [castai-workload-autoscaler]="kubecast/services/workload-autoscaler/charts/castai-workload-autoscaler"
-            [castai-workload-autoscaler-exporter]="kubecast/services/workload-autoscaler/charts/castai-workload-autoscaler-exporter"
-            [castai-evictor]="helm-charts/charts/castai-evictor"
-            [castai-chart-upgrader]="helm-charts/charts/castai-chart-upgrader"
-          )
-
-          CHART_DIR="${CHART_DIRS[$CHART_NAME]}"
-          if [ -z "$CHART_DIR" ]; then
-            echo "No chart source mapping for ${CHART_NAME} — image tag update will be skipped."
-            echo "image_tag=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          CHART_FILE="${CHART_DIR}/Chart.yaml"
-          if [ ! -f "$CHART_FILE" ]; then
-            echo "Chart file not found: ${CHART_FILE} — image tag update will be skipped."
-            echo "image_tag=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          APP_VERSION=$(yq e '.appVersion' "$CHART_FILE")
-          if [ -z "$APP_VERSION" ] || [ "$APP_VERSION" = "null" ]; then
-            echo "No appVersion in ${CHART_FILE} — image tag update will be skipped."
-            echo "image_tag=" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-
-          echo "image_tag=${APP_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Install Python dependencies
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
@@ -334,12 +296,13 @@ jobs:
           echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "tag=castai-${NEW_VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Check env-var drift between component and umbrella
+      - name: Check template drift between component and umbrella
         id: drift
         if: steps.changed.outputs.any == 'true'
         env:
           CHART_NAME: ${{ steps.parse.outputs.chart_name }}
           CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
+          KIMCHI_API_KEY: ${{ secrets.KIMCHI_API_KEY }}
         run: |
           bash helm-charts-head/.github/scripts/check-umbrella-drift.sh
 
