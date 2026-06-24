@@ -16,8 +16,8 @@ Wrapper chart for CAST AI Kent profile.
 | https://castai.github.io/helm-charts | castai-live | 0.107.1 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.15.2 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.4 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.2.8 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.2.8 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.3.0 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.3.0 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
 
 ## Values
