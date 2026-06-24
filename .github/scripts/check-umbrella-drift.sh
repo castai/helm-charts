@@ -35,14 +35,20 @@ if [ "$CHART_NAME" = "castai-live" ]; then
     --untardir "$LIVE_UNTAR_DIR"
   COMP_TEMPLATES="${LIVE_UNTAR_DIR}/castai-live/templates"
 else
-  # Locate the chart inside kubecast/services/ by matching the chart name in Chart.yaml.
+  # Locate the chart by matching the chart name in Chart.yaml.
+  # Most components live in kubecast/services/; evictor and chart-upgrader
+  # live in the helm-charts repo (tag checkout at helm-charts/).
   CHART_YAML_PATH=$(find kubecast/services -name "Chart.yaml" -exec grep -l "^name: ${CHART_NAME}$" {} \; 2>/dev/null | head -1 || true)
+
+  if [ -z "$CHART_YAML_PATH" ] && [ -d "helm-charts/charts/${CHART_NAME}" ]; then
+    CHART_YAML_PATH="helm-charts/charts/${CHART_NAME}/Chart.yaml"
+  fi
+
   if [ -z "$CHART_YAML_PATH" ]; then
     cat <<MD
 ## Env-var drift: \`${CHART_NAME}\`
 
-> Chart not found under \`kubecast/services/\` — skipping drift check.
-> This component may be a subchart dependency only (e.g. castai-kentroller, castai-chart-upgrader).
+> Chart not found in \`kubecast/services/\` or \`helm-charts/charts/\` — skipping drift check.
 MD
     exit 0
   fi
@@ -72,7 +78,15 @@ fi
 
 extract_env_vars() {
   local dir="$1"
-  grep -rh '^\s*- name:\s*[A-Z_]' "$dir" \
+  # Only scan files that define a DaemonSet or Deployment — skip infrastructure
+  # templates (clickhouse, secrets, standalone jobs, etc.) that contain env vars
+  # not applicable to the umbrella workload containers.
+  while IFS= read -r -d '' f; do
+    if grep -q 'kind: DaemonSet\|kind: Deployment' "$f"; then
+      cat "$f"
+    fi
+  done < <(find "$dir" -name '*.yaml' -print0) \
+    | grep '^\s*- name:\s*[A-Z_]' \
     | sed 's/.*- name:[[:space:]]*//' \
     | sed 's/[[:space:]]*$//' \
     | sort -u
