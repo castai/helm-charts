@@ -20,43 +20,8 @@ global:
 
 kent:
   enabled: false
-  # Kent is a wrapper profile. Values under kent.<component> are passed through
-  # to the matching child chart; empty resources and containerSecurityContext maps
-  # are intentional override points for clusters with strict admission policies.
   preflight:
     enabled: true
-    resources: {}
-    containerSecurityContext: {}
-  castai-agent:
-    clusterVPA:
-      # Disable when admission policies require CPU and memory requests/limits on every container.
-      enabled: true
-      resources: {}
-    resources: {}
-    monitor:
-      resources: {}
-    containerSecurityContext: {}
-  castai-cluster-controller:
-    resources: {}
-    monitor:
-      resources: {}
-    containerSecurityContext: {}
-  castai-workload-autoscaler:
-    containerSecurityContext: {}
-  castai-workload-autoscaler-exporter:
-    containerSecurityContext: {}
-    prometheus:
-      containerSecurityContext: {}
-  castai-pod-mutator:
-    containerSecurityContext: {}
-  castai-kvisor:
-    agent:
-      containerSecurityContext: {}
-      reliabilityMetrics:
-        obi:
-          containerSecurityContext: {}
-    controller:
-      containerSecurityContext: {}
 
 # tags -- Profile mode selection (mutually exclusive — pick one).
 # Component overrides are stable across all mode upgrades with --reuse-values:
