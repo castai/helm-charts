@@ -136,21 +136,56 @@ PROMPT="You are a Helm chart reviewer. Your job is to detect **structural drift*
 
 CONTEXT:
 - The umbrella chart is a near-verbatim copy of the component chart's templates, adapted to fit inside a larger umbrella Helm chart.
-- Adaptations include: different .Values paths (e.g. \`\$pp.image.tag\` instead of \`.Values.image.tag\`), different helper function names (e.g. \`umbrella.castai-pod-pinner.fullname\` instead of \`pod-pinner.fullname\`), and an outer \`{{- \$pp := index .Values... }}\` variable binding.
+- Adaptations include: different .Values paths (e.g. \$pp.image.tag instead of .Values.image.tag), different helper function names (e.g. umbrella.castai-pod-pinner.fullname instead of pod-pinner.fullname), and an outer {{- \$pp := index .Values... }} variable binding.
 - These syntactic differences are EXPECTED and should NOT be reported as drift.
 - What matters is the Kubernetes resource structure: which resource kinds exist, what fields they contain, what RBAC rules are defined, what env vars, volumes, volumeMounts, probes, ports, affinity rules, tolerations, sidecars, etc.
 
 ${CASTAI_LIVE_NOTE}
 
 YOUR TASK:
-Compare the two sets of templates below and produce a structured drift report in Markdown. For each finding:
-1. Match resources by their Kubernetes \`kind\` (and disambiguate by name pattern if there are multiple of the same kind).
-2. Report drift in BOTH directions:
-   a. **Component → Umbrella gaps**: things present in the component that are missing or structurally different in the umbrella. These likely need to be ported. Mark these clearly as ACTION REQUIRED.
-   b. **Umbrella → Component gaps**: things present in the umbrella but not in the component (umbrella additions or stale resources). Mark these as INFORMATIONAL — reviewer should verify whether these are intentional umbrella additions or stale resources from a dropped component feature.
-3. For each finding, be specific: name the resource kind, the field or section that changed, and briefly describe what changed.
-4. If there is no drift, say so clearly.
-5. Do NOT report differences that are purely syntactic Go template adaptations (helper names, .Values path changes, variable bindings).
+Go through every Kubernetes resource in both template sets. For each resource (matched by kind and name pattern):
+
+1. Extract and compare these fields exhaustively between component and umbrella:
+   - env / envFrom entries (name, value, valueFrom)
+   - volumes and volumeMounts (name, mountPath, type)
+   - livenessProbe / readinessProbe / startupProbe (path, port, scheme, thresholds)
+   - ports (name, containerPort, protocol)
+   - securityContext (pod-level and container-level)
+   - resources (requests and limits)
+   - tolerations, affinity, nodeSelector, topologySpreadConstraints
+   - RBAC rules (apiGroups, resources, verbs)
+   - initContainers and sidecars
+   - args and command
+   - imagePullPolicy, serviceAccountName, hostNetwork, dnsPolicy
+   - Any other spec fields present in either side
+
+2. For each field that differs or is absent on one side, output a finding block in exactly this format:
+
+---
+**Resource:** \`<kind>/<name-pattern>\`
+**Field:** \`<exact field path, e.g. spec.template.spec.containers[0].env[KARPENTER_MODE_ENABLED]>\`
+**Component:**
+\`\`\`yaml
+<exact lines from the component template, or \"(absent)\" if missing>
+\`\`\`
+**Umbrella:**
+\`\`\`yaml
+<exact lines from the umbrella template, or \"(absent)\" if missing>
+\`\`\`
+**Classification:** ACTION REQUIRED | INFORMATIONAL
+**Reason:** <one sentence: what this means and why it matters>
+
+---
+
+3. Rules for classification:
+   - ACTION REQUIRED: component has something the umbrella is missing or has differently — umbrella needs updating.
+   - INFORMATIONAL: umbrella has something the component doesn't — may be intentional addition or stale; reviewer must verify.
+
+4. For entire resources missing from one side, output one finding block for the whole resource with the full resource yaml in the relevant side's field.
+
+5. If there is zero drift after checking all fields, output only: \"✅ No structural drift detected.\"
+
+6. Do NOT group findings. One finding block per differing field. Do NOT summarize or omit fields — exhaustive coverage is required.
 
 ---
 
@@ -166,7 +201,7 @@ ${UMB_CONTENT}
 
 ---
 
-Now produce the drift report."
+Now produce the drift report. Be exhaustive. Show exact lines."
 
 # ── Call Kimchi Inference API ─────────────────────────────────────────────────
 
