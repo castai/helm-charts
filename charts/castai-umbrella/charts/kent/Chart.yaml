@@ -29,7 +29,7 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
   - name: castai-pod-mutator
-    version: "0.15.1"
+    version: "0.15.2"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-mutator.enabled
   - name: castai-spot-handler
