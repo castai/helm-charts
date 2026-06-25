@@ -1,6 +1,8 @@
+global:
+  organizationID: "test-org"
+
 db-proxy:
   enabled: true
-  organizationID: "test-org"
   proxyID: "test-proxy"
   apiKey: "test-key"
   endpoints:
@@ -10,7 +12,6 @@ db-proxy:
 db-agent:
   enabled: true
   apiKey: "test-key"
-  organizationID: "test-org"
   cacheGroupID: "test-cache-group"
   database:
     host: "test-db"
@@ -21,7 +22,6 @@ db-agent:
 db-optimizer:
   enabled: true
   cacheGroupID: "test-cache-group"
-  organizationID: "test-org"
   apiKey: "test-key"
   protocol: "PostgreSQL"
   endpoints:

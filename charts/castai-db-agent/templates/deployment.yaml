@@ -32,7 +32,7 @@ spec:
             - name: API_URL
               value:  "{{ .Values.apiURL | default "https://api.cast.ai/" }}"
             - name: ORGANIZATION_ID
-              value: "{{ required "organization ID must be provided" .Values.organizationID }}"
+              value: "{{ .Values.organizationID | default (.Values.global | default dict).organizationID | required "organization ID must be provided" }}"
             - name: CACHE_GROUP_ID
               value: "{{ required "cache group ID must be provided" .Values.cacheGroupID }}"
             - name: DATABASE_HOST
