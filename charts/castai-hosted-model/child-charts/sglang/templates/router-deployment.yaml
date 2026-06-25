@@ -8,6 +8,17 @@ Single replica recommended — the cache-aware radix tree is not synced across r
 {{- $routerImageRepo := .Values.router.image.repository | default .Values.image.repository -}}
 {{- $routerImageTag := .Values.router.image.tag | default .Values.image.tag -}}
 {{- $sdNamespace := .Values.router.serviceDiscovery.namespace | default .Release.Namespace -}}
+{{- /*
+The router's RBAC (router-rbac.yaml) is a namespaced Role/RoleBinding in the
+release namespace, so it can only grant pod get/list/watch THERE. If the
+configured discovery namespace differs, the router would get 403s from the API.
+Fail fast rather than ship a silently-broken router. For genuine cross-namespace
+discovery, switch the RBAC to a ClusterRole/ClusterRoleBinding (not done by
+default — it grants cluster-wide pod read).
+*/}}
+{{- if and .Values.router.serviceDiscovery.enabled (ne $sdNamespace .Release.Namespace) -}}
+{{- fail (printf "router.serviceDiscovery.namespace (%s) must equal the release namespace (%s): the router's RBAC is namespaced and will get 403s watching another namespace. Leave it empty to default to the release namespace, or change the RBAC to ClusterRole for cross-namespace discovery." $sdNamespace .Release.Namespace) -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
