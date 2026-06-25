@@ -32,6 +32,7 @@ KIMCHI_MODEL="minimax-m3"
 # ── Locate component templates ────────────────────────────────────────────────
 
 COMP_TEMPLATES=""
+COMP_CHARTS_DIR=""
 
 if [ "$CHART_NAME" = "castai-live" ]; then
   if [ -z "$CHART_VERSION" ]; then
@@ -49,7 +50,8 @@ if [ "$CHART_NAME" = "castai-live" ]; then
     "https://oauth2:${GITLAB_TOKEN}@gitlab.com/castai/live/clm.git" \
     "$LIVE_CLONE_DIR"
 
-  COMP_TEMPLATES="${LIVE_CLONE_DIR}/helm"
+  COMP_TEMPLATES="${LIVE_CLONE_DIR}/helm/templates"
+  COMP_CHARTS_DIR="${LIVE_CLONE_DIR}/helm/charts"
 else
   CHART_YAML_PATH=$(find kubecast/services -name "Chart.yaml" \
     -exec grep -l "^name: ${CHART_NAME}$" {} \; 2>/dev/null | head -1 || true)
@@ -94,7 +96,6 @@ fi
 
 collect_templates() {
   local dir="$1"
-  local label="$2"
   local out=""
   while IFS= read -r -d '' f; do
     local fname
@@ -102,12 +103,25 @@ collect_templates() {
     # Skip helpers/_helpers.tpl — pure Go template definitions, no K8s resources
     [[ "$fname" == _* ]] && continue
     out+="### File: ${fname}\n\`\`\`yaml\n$(cat "$f")\n\`\`\`\n\n"
-  done < <(find "$dir" -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
+  done < <(find "$dir" -maxdepth 1 -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
   echo -e "$out"
 }
 
-COMP_CONTENT=$(collect_templates "$COMP_TEMPLATES" "component")
-UMB_CONTENT=$(collect_templates "$UMB_TEMPLATES" "umbrella")
+COMP_CONTENT=$(collect_templates "$COMP_TEMPLATES")
+
+# For castai-live, also collect direct dependency templates (one level deep only)
+if [ "$CHART_NAME" = "castai-live" ] && [ -d "$COMP_CHARTS_DIR" ]; then
+  for dep_dir in "$COMP_CHARTS_DIR"/*/templates; do
+    [ -d "$dep_dir" ] || continue
+    dep_name=$(basename "$(dirname "$dep_dir")")
+    dep_content=$(collect_templates "$dep_dir")
+    if [ -n "$dep_content" ]; then
+      COMP_CONTENT+="### Dependency: ${dep_name}\n\n${dep_content}"
+    fi
+  done
+fi
+
+UMB_CONTENT=$(collect_templates "$UMB_TEMPLATES")
 
 if [ -z "$COMP_CONTENT" ]; then
   cat <<MD
@@ -129,13 +143,9 @@ fi
 
 # ── Build prompt ──────────────────────────────────────────────────────────────
 
-# castai-live note: its templates dir may contain flattened dependency templates
 CASTAI_LIVE_NOTE=""
 if [ "$CHART_NAME" = "castai-live" ]; then
-  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates directory may contain flattened templates \
-from chart dependencies. However, you must still report ALL differences you find — do not skip or \
-excuse any diff on the grounds that it might belong to a dependency. Flag everything; the reviewer \
-will decide what is intentional."
+  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates directory may contain templates from chart dependencies (listed under 'Dependency: <name>' sections). However, you must still report ALL differences you find — do not skip or excuse any diff on the grounds that it might belong to a dependency. Flag everything; the reviewer will decide what is intentional."
 fi
 
 PROMPT="You are a Helm chart reviewer. Your job is to detect **structural drift** between a component's original Helm templates and a copied version of those templates inside an umbrella chart.
@@ -215,7 +225,6 @@ Now produce the drift report. Be exhaustive. Show exact lines."
 if command -v python3 &>/dev/null; then
   PROMPT_JSON=$(python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))" <<< "$PROMPT")
 else
-  # Minimal escaping: backslash, double-quote, newline, tab
   PROMPT_JSON=$(printf '%s' "$PROMPT" \
     | sed 's/\\/\\\\/g; s/"/\\"/g' \
     | awk '{printf "%s\\n", $0}' \
@@ -238,7 +247,8 @@ cat > "$REQUEST_BODY_FILE" <<EOF
 }
 EOF
 
-HTTP_RESPONSE=$(curl -sf \
+HTTP_RESPONSE=$(curl -s \
+  -w "\n__HTTP_STATUS__:%{http_code}" \
   -X POST "$KIMCHI_API_URL" \
   -H "Authorization: Bearer ${KIMCHI_API_KEY}" \
   -H "Content-Type: application/json" \
@@ -246,12 +256,15 @@ HTTP_RESPONSE=$(curl -sf \
 CURL_EXIT=$?
 rm -f "$REQUEST_BODY_FILE"
 
-if [ $CURL_EXIT -ne 0 ]; then
+HTTP_STATUS=$(echo "$HTTP_RESPONSE" | grep -o '__HTTP_STATUS__:[0-9]*' | cut -d: -f2)
+HTTP_RESPONSE=$(echo "$HTTP_RESPONSE" | sed 's/__HTTP_STATUS__:[0-9]*$//')
+
+if [ $CURL_EXIT -ne 0 ] || [ "${HTTP_STATUS:-0}" -lt 200 ] || [ "${HTTP_STATUS:-0}" -ge 300 ]; then
   cat <<MD
 ## Template drift: \`${CHART_NAME}\`
 
-> ❌ Kimchi API call failed. Check that KIMCHI_API_KEY is set correctly and the API is reachable.
-> Error: ${HTTP_RESPONSE}
+> ❌ Kimchi API call failed (HTTP ${HTTP_STATUS:-unknown}, curl exit ${CURL_EXIT}).
+> Response: ${HTTP_RESPONSE}
 MD
   exit 1
 fi
