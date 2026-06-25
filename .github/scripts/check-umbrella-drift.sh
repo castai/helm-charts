@@ -123,6 +123,9 @@ fi
 
 UMB_CONTENT=$(collect_templates "$UMB_TEMPLATES")
 
+echo "DEBUG: COMP_CONTENT size: $(echo "$COMP_CONTENT" | wc -c) bytes" >&2
+echo "DEBUG: UMB_CONTENT size: $(echo "$UMB_CONTENT" | wc -c) bytes" >&2
+
 if [ -z "$COMP_CONTENT" ]; then
   cat <<MD
 ## Template drift: \`${CHART_NAME}\`
@@ -247,6 +250,8 @@ cat > "$REQUEST_BODY_FILE" <<EOF
 }
 EOF
 
+echo "DEBUG: REQUEST_BODY size: $(wc -c < "$REQUEST_BODY_FILE") bytes" >&2
+
 HTTP_RESPONSE=$(curl -s \
   -w "\n__HTTP_STATUS__:%{http_code}" \
   -X POST "$KIMCHI_API_URL" \
@@ -258,6 +263,9 @@ rm -f "$REQUEST_BODY_FILE"
 
 HTTP_STATUS=$(echo "$HTTP_RESPONSE" | grep -o '__HTTP_STATUS__:[0-9]*' | cut -d: -f2)
 HTTP_RESPONSE=$(echo "$HTTP_RESPONSE" | sed 's/__HTTP_STATUS__:[0-9]*$//')
+
+echo "DEBUG: HTTP_STATUS: ${HTTP_STATUS}" >&2
+echo "DEBUG: HTTP_RESPONSE: ${HTTP_RESPONSE}" >&2
 
 if [ $CURL_EXIT -ne 0 ] || [ "${HTTP_STATUS:-0}" -lt 200 ] || [ "${HTTP_STATUS:-0}" -ge 300 ]; then
   cat <<MD
