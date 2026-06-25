@@ -8,6 +8,13 @@ Single replica recommended — the cache-aware radix tree is not synced across r
 {{- $routerImageRepo := .Values.router.image.repository | default .Values.image.repository -}}
 {{- $routerImageTag := .Values.router.image.tag | default .Values.image.tag -}}
 {{- $sdNamespace := .Values.router.serviceDiscovery.namespace | default .Release.Namespace -}}
+{{- /* Router->worker protocol. http (default) = workers unchanged; grpc = SRT gRPC fast-path.
+   The discovery port differs by protocol: http -> the worker container.port, grpc -> workerGrpcPort. */}}
+{{- $workerProto := .Values.router.workerProtocol | default "http" -}}
+{{- $discoveryPort := ternary (int .Values.router.workerGrpcPort) (int .Values.container.port) (eq $workerProto "grpc") -}}
+{{- if not (has $workerProto (list "http" "grpc")) -}}
+{{- fail (printf "router.workerProtocol must be 'http' or 'grpc', got '%s'" $workerProto) -}}
+{{- end -}}
 {{- /*
 The router's RBAC (router-rbac.yaml) is a namespaced Role/RoleBinding in the
 release namespace, so it can only grant pod get/list/watch THERE. If the
@@ -34,8 +41,18 @@ metadata:
 spec:
   replicas: {{ .Values.router.replicaCount }}
   strategy:
-    # Router holds in-memory routing state; replace cleanly rather than surge two.
+    {{- if gt (int .Values.router.replicaCount) 1 }}
+    {{- /* HA: roll one at a time so the LB always has a router available. */}}
+    type: {{ .Values.router.strategy.type }}
+    {{- if eq .Values.router.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.router.strategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.router.strategy.rollingUpdate.maxUnavailable }}
+    {{- end }}
+    {{- else }}
+    {{- /* Single router holds in-memory routing state; replace cleanly, never two at once. */}}
     type: Recreate
+    {{- end }}
   selector:
     matchLabels:
       {{- include "sglang.router.selectorLabels" . | nindent 6 }}
@@ -69,15 +86,34 @@ spec:
             - "--balance-rel-threshold={{ .Values.router.balanceRelThreshold }}"
             - "--eviction-interval-secs={{ .Values.router.evictionIntervalSecs }}"
             {{- end }}
+            {{- if eq $workerProto "grpc" }}
+            # Router -> workers over gRPC (requires workers launched as SRT gRPC workers).
+            - "--grpc-mode"
+            {{- end }}
             {{- if .Values.router.serviceDiscovery.enabled }}
             # Discover worker pods dynamically by label; watches add/remove live.
+            # Discovery port follows workerProtocol: http -> container.port, grpc -> workerGrpcPort.
             - "--service-discovery"
             - "--service-discovery-namespace={{ $sdNamespace }}"
-            - "--service-discovery-port={{ .Values.container.port }}"
+            - "--service-discovery-port={{ $discoveryPort }}"
             - "--selector"
             {{- range ( include "sglang.router.discoverySelector" . | splitList " " ) }}
             - {{ . | quote }}
             {{- end }}
+            {{- end }}
+            {{- if .Values.router.metrics.enabled }}
+            # Prometheus metrics (smg_*) served at /metrics on this port.
+            - "--prometheus-host=0.0.0.0"
+            - "--prometheus-port={{ .Values.router.metrics.port }}"
+            {{- end }}
+            {{- with .Values.router.production }}
+            # Production resilience (sgl_model_gateway recommendations).
+            - "--max-concurrent-requests={{ .maxConcurrentRequests }}"
+            - "--queue-timeout-secs={{ .queueTimeoutSecs }}"
+            - "--health-check-interval-secs={{ .healthCheckIntervalSecs }}"
+            - "--retry-max-retries={{ .retryMaxRetries }}"
+            - "--cb-failure-threshold={{ .cbFailureThreshold }}"
+            - "--cb-timeout-duration-secs={{ .cbTimeoutDurationSecs }}"
             {{- end }}
             {{- range .Values.router.extraArgs }}
             - {{ . | quote }}
@@ -86,6 +122,11 @@ spec:
             - name: http
               containerPort: {{ .Values.router.port }}
               protocol: TCP
+            {{- if .Values.router.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.router.metrics.port }}
+              protocol: TCP
+            {{- end }}
           resources:
             {{- toYaml .Values.router.resources | nindent 12 }}
           {{- if .Values.router.startupProbe.enabled }}

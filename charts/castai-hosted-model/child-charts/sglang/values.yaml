@@ -58,6 +58,14 @@ router:
   evictionIntervalSecs: 120
   # -- Router HTTP port. Should equal service.port so the Service contract is unchanged.
   port: 8000
+  # -- Protocol the router uses to reach the WORKERS. Clients always talk HTTP/OpenAI to the
+  # router regardless. "http" = current path (workers run sglang.launch_server, no boot change).
+  # "grpc" = the Rust fast-path (router tokenizes, streams token-ids to SRT gRPC workers) — this
+  # REQUIRES the workers to be launched as SRT gRPC workers (--grpc-mode, gRPC port) and HiCache
+  # re-validated under that mode. Not a free flag flip on the worker side.
+  workerProtocol: http
+  # -- Worker gRPC port (only used when workerProtocol=grpc). Must match the worker's gRPC port.
+  workerGrpcPort: 20000
   # -- Kubernetes service discovery: the router watches pods matching this selector
   # (defaults to the worker selector labels of THIS instance). Requires pod get/list/watch RBAC.
   serviceDiscovery:
@@ -66,7 +74,30 @@ router:
     namespace: ""
     # -- Extra label selector to add on top of the worker selector. Map of key: value.
     extraSelector: {}
-  replicaCount: 1
+  # -- Prometheus metrics. The router serves smg_* metrics at /metrics on metricsPort
+  # (separate from the API port). Mirrors how workers expose metrics (on-pod, scraped directly).
+  metrics:
+    enabled: true
+    port: 29000
+  # -- Default 2 replicas for HA behind the model Service. NOTE: router replicas do NOT
+  # share their cache-aware radix tree (no cross-replica sync), so >1 replica trades ~10-20%
+  # cache-hit rate for availability. Set to 1 for maximum cache locality (single coherent tree).
+  replicaCount: 2
+  # -- Deployment strategy. Use RollingUpdate when replicaCount > 1; the chart forces
+  # Recreate when replicaCount == 1 (single in-memory router, avoid two competing instances).
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  # -- Production resilience flags (sgl_model_gateway production recommendations).
+  production:
+    maxConcurrentRequests: 512
+    queueTimeoutSecs: 60
+    healthCheckIntervalSecs: 15
+    retryMaxRetries: 3
+    cbFailureThreshold: 3
+    cbTimeoutDurationSecs: 15
   resources:
     requests:
       cpu: 250m
