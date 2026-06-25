@@ -1,13 +1,13 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "name" . }}
+  name: {{ include "castai-db-proxy.name" . }}
   labels:
-    {{- include "labels" . | nindent 4 }}
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
   annotations:
-    {{- include "annotations" . | nindent 4 }}
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
 spec:
   maxUnavailable: 1
   selector:
     matchLabels:
-      {{- include "selectorLabels" . | nindent 6 }}
+      {{- include "castai-db-proxy.selectorLabels" . | nindent 6 }}
