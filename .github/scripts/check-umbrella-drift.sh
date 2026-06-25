@@ -32,7 +32,7 @@ KIMCHI_MODEL="minimax-m3"
 # ── Locate component templates ────────────────────────────────────────────────
 
 COMP_TEMPLATES=""
-COMP_CHARTS_DIR=""
+COMP_DEPS_DIR=""
 
 if [ "$CHART_NAME" = "castai-live" ]; then
   if [ -z "$CHART_VERSION" ]; then
@@ -51,7 +51,7 @@ if [ "$CHART_NAME" = "castai-live" ]; then
     "$LIVE_CLONE_DIR"
 
   COMP_TEMPLATES="${LIVE_CLONE_DIR}/helm/templates"
-  COMP_CHARTS_DIR="${LIVE_CLONE_DIR}/helm/charts"
+  COMP_DEPS_DIR="${LIVE_CLONE_DIR}/helm/dependencies"
 else
   CHART_YAML_PATH=$(find kubecast/services -name "Chart.yaml" \
     -exec grep -l "^name: ${CHART_NAME}$" {} \; 2>/dev/null | head -1 || true)
@@ -103,15 +103,15 @@ collect_templates() {
     # Skip helpers/_helpers.tpl — pure Go template definitions, no K8s resources
     [[ "$fname" == _* ]] && continue
     out+="### File: ${fname}\n\`\`\`yaml\n$(cat "$f")\n\`\`\`\n\n"
-  done < <(find "$dir" -maxdepth 1 -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
+  done < <(find "$dir" -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
   echo -e "$out"
 }
 
 COMP_CONTENT=$(collect_templates "$COMP_TEMPLATES")
 
-# For castai-live, also collect direct dependency templates (one level deep only)
-if [ "$CHART_NAME" = "castai-live" ] && [ -d "$COMP_CHARTS_DIR" ]; then
-  for dep_dir in "$COMP_CHARTS_DIR"/*/templates; do
+# For castai-live, also collect dependency templates as they are flattened into the umbrella
+if [ "$CHART_NAME" = "castai-live" ] && [ -d "$COMP_DEPS_DIR" ]; then
+  for dep_dir in "$COMP_DEPS_DIR"/*/templates; do
     [ -d "$dep_dir" ] || continue
     dep_name=$(basename "$(dirname "$dep_dir")")
     dep_content=$(collect_templates "$dep_dir")
@@ -145,7 +145,7 @@ fi
 
 CASTAI_LIVE_NOTE=""
 if [ "$CHART_NAME" = "castai-live" ]; then
-  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates directory may contain templates from chart dependencies (listed under 'Dependency: <name>' sections). However, you must still report ALL differences you find — do not skip or excuse any diff on the grounds that it might belong to a dependency. Flag everything; the reviewer will decide what is intentional."
+  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates are split across subdirectories (controller/, daemon/, tc/) and dependency charts (aws-vpc-cni, crds, etc.) which are all flattened into single files in the umbrella (controller.yaml, daemon.yaml, tc.yaml, aws-vpc-cni.yaml, crd.yaml, etc.). Match resources by kind and name pattern across this flattening — do not report drift just because a resource appears in a different file. Report ALL structural differences you find; the reviewer will decide what is intentional."
 fi
 
 PROMPT="You are a Helm chart reviewer. Your job is to detect **structural drift** between a component's original Helm templates and a copied version of those templates inside an umbrella chart.
