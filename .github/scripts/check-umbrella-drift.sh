@@ -92,204 +92,224 @@ MD
   exit 0
 fi
 
-# ── Collect template file contents ────────────────────────────────────────────
+# ── Kimchi API call helper ────────────────────────────────────────────────────
 
-collect_templates() {
-  local dir="$1"
-  local out=""
-  while IFS= read -r -d '' f; do
-    local fname
-    fname=$(basename "$f")
-    # Skip helpers/_helpers.tpl — pure Go template definitions, no K8s resources
-    [[ "$fname" == _* ]] && continue
-    out+="### File: ${fname}\n\`\`\`yaml\n$(cat "$f")\n\`\`\`\n\n"
-  done < <(find "$dir" -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
-  echo -e "$out"
-}
+call_kimchi() {
+  local prompt="$1"
+  local prompt_json
 
-COMP_CONTENT=$(collect_templates "$COMP_TEMPLATES")
+  if command -v python3 &>/dev/null; then
+    prompt_json=$(python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))" <<< "$prompt")
+  else
+    prompt_json=$(printf '%s' "$prompt" \
+      | sed 's/\\/\\\\/g; s/"/\\"/g' \
+      | awk '{printf "%s\\n", $0}' \
+      | sed 's/\\n$//' \
+      | sed 's/\t/\\t/g')
+    prompt_json="\"${prompt_json}\""
+  fi
 
-# For castai-live, also collect dependency templates as they are flattened into the umbrella
-if [ "$CHART_NAME" = "castai-live" ] && [ -d "$COMP_DEPS_DIR" ]; then
-  for dep_dir in "$COMP_DEPS_DIR"/*/templates; do
-    [ -d "$dep_dir" ] || continue
-    dep_name=$(basename "$(dirname "$dep_dir")")
-    dep_content=$(collect_templates "$dep_dir")
-    if [ -n "$dep_content" ]; then
-      COMP_CONTENT+="### Dependency: ${dep_name}\n\n${dep_content}"
-    fi
-  done
-fi
-
-UMB_CONTENT=$(collect_templates "$UMB_TEMPLATES")
-
-echo "DEBUG: COMP_CONTENT size: $(echo "$COMP_CONTENT" | wc -c) bytes" >&2
-echo "DEBUG: UMB_CONTENT size: $(echo "$UMB_CONTENT" | wc -c) bytes" >&2
-
-if [ -z "$COMP_CONTENT" ]; then
-  cat <<MD
-## Template drift: \`${CHART_NAME}\`
-
-> No template files found in component at \`${COMP_TEMPLATES}\`.
-MD
-  exit 0
-fi
-
-if [ -z "$UMB_CONTENT" ]; then
-  cat <<MD
-## Template drift: \`${CHART_NAME}\`
-
-> No template files found in umbrella at \`${UMB_TEMPLATES}\`.
-MD
-  exit 0
-fi
-
-# ── Build prompt ──────────────────────────────────────────────────────────────
-
-CASTAI_LIVE_NOTE=""
-if [ "$CHART_NAME" = "castai-live" ]; then
-  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates are split across subdirectories (controller/, daemon/, tc/) and dependency charts (aws-vpc-cni, crds, etc.) which are all flattened into single files in the umbrella (controller.yaml, daemon.yaml, tc.yaml, aws-vpc-cni.yaml, crd.yaml, etc.). Match resources by kind and name pattern across this flattening — do not report drift just because a resource appears in a different file. Report ALL structural differences you find; the reviewer will decide what is intentional."
-fi
-
-PROMPT="You are a Helm chart reviewer. Your job is to detect **structural drift** between a component's original Helm templates and a copied version of those templates inside an umbrella chart.
-
-CONTEXT:
-- The umbrella chart is a near-verbatim copy of the component chart's templates, adapted to fit inside a larger umbrella Helm chart.
-- Adaptations include: different .Values paths (e.g. \$pp.image.tag instead of .Values.image.tag), different helper function names (e.g. umbrella.castai-pod-pinner.fullname instead of pod-pinner.fullname), and an outer {{- \$pp := index .Values... }} variable binding.
-- These syntactic differences are EXPECTED and should NOT be reported as drift.
-- What matters is the Kubernetes resource structure: which resource kinds exist, what fields they contain, what RBAC rules are defined, what env vars, volumes, volumeMounts, probes, ports, affinity rules, tolerations, sidecars, etc.
-
-${CASTAI_LIVE_NOTE}
-
-YOUR TASK:
-Go through every Kubernetes resource in both template sets. For each resource (matched by kind and name pattern):
-
-1. Extract and compare these fields exhaustively between component and umbrella:
-   - env / envFrom entries (name, value, valueFrom)
-   - volumes and volumeMounts (name, mountPath, type)
-   - livenessProbe / readinessProbe / startupProbe (path, port, scheme, thresholds)
-   - ports (name, containerPort, protocol)
-   - securityContext (pod-level and container-level)
-   - resources (requests and limits)
-   - tolerations, affinity, nodeSelector, topologySpreadConstraints
-   - RBAC rules (apiGroups, resources, verbs)
-   - initContainers and sidecars
-   - args and command
-   - imagePullPolicy, serviceAccountName, hostNetwork, dnsPolicy
-   - Any other spec fields present in either side
-
-2. For each field that differs or is absent on one side, output a finding block in exactly this format:
-
----
-**Resource:** \`<kind>/<name-pattern>\`
-**Field:** \`<exact field path, e.g. spec.template.spec.containers[0].env[KARPENTER_MODE_ENABLED]>\`
-**Component:**
-\`\`\`yaml
-<exact lines from the component template, or \"(absent)\" if missing>
-\`\`\`
-**Umbrella:**
-\`\`\`yaml
-<exact lines from the umbrella template, or \"(absent)\" if missing>
-\`\`\`
-**Classification:** ACTION REQUIRED | INFORMATIONAL
-**Reason:** <one sentence: what this means and why it matters>
-
----
-
-3. Rules for classification:
-   - ACTION REQUIRED: component has something the umbrella is missing or has differently — umbrella needs updating.
-   - INFORMATIONAL: umbrella has something the component doesn't — may be intentional addition or stale; reviewer must verify.
-
-4. For entire resources missing from one side, output one finding block for the whole resource with the full resource yaml in the relevant side's field.
-
-5. If there is zero drift after checking all fields, output only: \"✅ No structural drift detected.\"
-
-6. Do NOT group findings. One finding block per differing field. Do NOT summarize or omit fields — exhaustive coverage is required.
-
----
-
-## COMPONENT TEMPLATES (\`${COMP_TEMPLATES}\`)
-
-${COMP_CONTENT}
-
----
-
-## UMBRELLA TEMPLATES (\`${UMB_TEMPLATES}\`)
-
-${UMB_CONTENT}
-
----
-
-Now produce the drift report. Be exhaustive. Show exact lines."
-
-# ── Call Kimchi Inference API ─────────────────────────────────────────────────
-
-# Escape prompt for JSON — use python if available, else fall back to sed
-if command -v python3 &>/dev/null; then
-  PROMPT_JSON=$(python3 -c "import json,sys; print(json.dumps(sys.stdin.read()))" <<< "$PROMPT")
-else
-  PROMPT_JSON=$(printf '%s' "$PROMPT" \
-    | sed 's/\\/\\\\/g; s/"/\\"/g' \
-    | awk '{printf "%s\\n", $0}' \
-    | sed 's/\\n$//' \
-    | sed 's/\t/\\t/g')
-  PROMPT_JSON="\"${PROMPT_JSON}\""
-fi
-
-REQUEST_BODY_FILE=$(mktemp /tmp/kimchi-request-XXXXXX.json)
-cat > "$REQUEST_BODY_FILE" <<EOF
+  local req_file
+  req_file=$(mktemp /tmp/kimchi-request-XXXXXX.json)
+  cat > "$req_file" <<EOF
 {
   "model": "${KIMCHI_MODEL}",
   "max_tokens": 4096,
-  "messages": [
-    {
-      "role": "user",
-      "content": ${PROMPT_JSON}
-    }
-  ]
+  "messages": [{ "role": "user", "content": ${prompt_json} }]
 }
 EOF
 
-echo "DEBUG: REQUEST_BODY size: $(wc -c < "$REQUEST_BODY_FILE") bytes" >&2
+  echo "DEBUG: request size: $(wc -c < "$req_file") bytes" >&2
 
-HTTP_RESPONSE=$(curl -s \
-  -w "\n__HTTP_STATUS__:%{http_code}" \
-  -X POST "$KIMCHI_API_URL" \
-  -H "Authorization: Bearer ${KIMCHI_API_KEY}" \
-  -H "Content-Type: application/json" \
-  --data-binary "@${REQUEST_BODY_FILE}" 2>&1)
-CURL_EXIT=$?
-rm -f "$REQUEST_BODY_FILE"
+  local response
+  response=$(curl -s \
+    -w "\n__HTTP_STATUS__:%{http_code}" \
+    -X POST "$KIMCHI_API_URL" \
+    -H "Authorization: Bearer ${KIMCHI_API_KEY}" \
+    -H "Content-Type: application/json" \
+    --data-binary "@${req_file}" 2>&1)
+  local exit_code=$?
+  rm -f "$req_file"
 
-HTTP_STATUS=$(echo "$HTTP_RESPONSE" | grep -o '__HTTP_STATUS__:[0-9]*' | cut -d: -f2)
-HTTP_RESPONSE=$(echo "$HTTP_RESPONSE" | sed 's/__HTTP_STATUS__:[0-9]*$//')
+  local status
+  status=$(echo "$response" | grep -o '__HTTP_STATUS__:[0-9]*' | cut -d: -f2)
+  local body
+  body=$(echo "$response" | sed 's/__HTTP_STATUS__:[0-9]*$//')
 
-echo "DEBUG: HTTP_STATUS: ${HTTP_STATUS}" >&2
-echo "DEBUG: HTTP_RESPONSE: ${HTTP_RESPONSE}" >&2
+  echo "DEBUG: HTTP_STATUS: ${status}" >&2
 
-if [ $CURL_EXIT -ne 0 ] || [ "${HTTP_STATUS:-0}" -lt 200 ] || [ "${HTTP_STATUS:-0}" -ge 300 ]; then
-  cat <<MD
-## Template drift: \`${CHART_NAME}\`
+  if [ $exit_code -ne 0 ] || [ "${status:-0}" -lt 200 ] || [ "${status:-0}" -ge 300 ]; then
+    echo "> ❌ Kimchi API call failed (HTTP ${status:-unknown}): ${body}" >&2
+    return 1
+  fi
 
-> ❌ Kimchi API call failed (HTTP ${HTTP_STATUS:-unknown}, curl exit ${CURL_EXIT}).
-> Response: ${HTTP_RESPONSE}
-MD
-  exit 1
+  if command -v python3 &>/dev/null; then
+    python3 -c "import json,sys; d=json.loads(sys.stdin.read()); print(d['choices'][0]['message']['content'])" <<< "$body"
+  else
+    echo "$body" | jq -r '.choices[0].message.content'
+  fi
+}
+
+# ── Find matching component files for an umbrella filename ───────────────────
+# For castai-live, umbrella files are flattened from subdirs and deps:
+#   controller.yaml  ← helm/templates/controller/*.yaml
+#   daemon.yaml      ← helm/templates/daemon/*.yaml
+#   tc.yaml          ← helm/templates/tc/*.yaml
+#   aws-vpc-cni.yaml ← helm/dependencies/aws-vpc-cni/templates/*.yaml
+#   crd.yaml         ← helm/dependencies/crds/templates/*.yaml
+# For other charts, filenames match 1:1.
+
+get_comp_content_for_umb() {
+  local umb_fname="$1"
+  local base="${umb_fname%.yaml}"
+  local out=""
+
+  if [ "$CHART_NAME" = "castai-live" ]; then
+    # Check for a matching subdir in helm/templates/<base>/
+    local subdir="${COMP_TEMPLATES}/${base}"
+    if [ -d "$subdir" ]; then
+      while IFS= read -r -d '' f; do
+        local fname
+        fname=$(basename "$f")
+        [[ "$fname" == _* ]] && continue
+        out+="### File: ${base}/${fname}\n\`\`\`yaml\n$(cat "$f")\n\`\`\`\n\n"
+      done < <(find "$subdir" -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
+    fi
+
+    # Check for a matching file directly in helm/templates/<base>.yaml
+    local direct_file="${COMP_TEMPLATES}/${umb_fname}"
+    if [ -f "$direct_file" ]; then
+      out+="### File: ${umb_fname}\n\`\`\`yaml\n$(cat "$direct_file")\n\`\`\`\n\n"
+    fi
+
+    # Check for a matching dependency in helm/dependencies/
+    if [ -d "$COMP_DEPS_DIR" ]; then
+      # Try exact dep name match (e.g. aws-vpc-cni.yaml -> aws-vpc-cni/)
+      local dep_dir="${COMP_DEPS_DIR}/${base}"
+      if [ -d "${dep_dir}/templates" ]; then
+        while IFS= read -r -d '' f; do
+          local fname
+          fname=$(basename "$f")
+          [[ "$fname" == _* ]] && continue
+          out+="### File: ${base}/${fname}\n\`\`\`yaml\n$(cat "$f")\n\`\`\`\n\n"
+        done < <(find "${dep_dir}/templates" -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
+      fi
+
+      # Also try fuzzy match: dep dir name contains base or base contains dep name
+      # e.g. crd.yaml -> crds/, aws-vpc-cni-extra.yaml -> aws-vpc-cni-extra/
+      for dep in "$COMP_DEPS_DIR"/*/; do
+        [ -d "$dep" ] || continue
+        local dep_name
+        dep_name=$(basename "$dep")
+        [ "$dep_name" = "$base" ] && continue  # already handled above
+        if [[ "$dep_name" == "$base"* ]] || [[ "$base" == "$dep_name"* ]] || [[ "$dep_name" == "crds" && "$base" == "crd" ]]; then
+          if [ -d "${dep}/templates" ]; then
+            while IFS= read -r -d '' f; do
+              local fname
+              fname=$(basename "$f")
+              [[ "$fname" == _* ]] && continue
+              out+="### File: ${dep_name}/${fname}\n\`\`\`yaml\n$(cat "$f")\n\`\`\`\n\n"
+            done < <(find "${dep}/templates" -name '*.yaml' -o -name '*.tpl' | sort | tr '\n' '\0')
+          fi
+        fi
+      done
+    fi
+  else
+    # Non-live: match by filename directly
+    local match
+    match=$(find "$COMP_TEMPLATES" -name "${umb_fname}" | head -1 || true)
+    if [ -n "$match" ]; then
+      out+="### File: ${umb_fname}\n\`\`\`yaml\n$(cat "$match")\n\`\`\`\n\n"
+    fi
+  fi
+
+  echo -e "$out"
+}
+
+# ── Build context note ────────────────────────────────────────────────────────
+
+CASTAI_LIVE_NOTE=""
+if [ "$CHART_NAME" = "castai-live" ]; then
+  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates are split across subdirectories (controller/, daemon/, tc/) and dependency charts (aws-vpc-cni, crds, etc.) which are all flattened into single files in the umbrella (controller.yaml, daemon.yaml, tc.yaml, aws-vpc-cni.yaml, crd.yaml, etc.). Match resources by kind and name pattern — do not report drift just because a resource appears in a different file. Report ALL structural differences; the reviewer will decide what is intentional."
 fi
 
-# Extract the model's reply from the OpenAI-format response
-if command -v python3 &>/dev/null; then
-  AI_REPORT=$(python3 -c "
-import json, sys
-data = json.loads(sys.stdin.read())
-print(data['choices'][0]['message']['content'])
-" <<< "$HTTP_RESPONSE")
-elif command -v jq &>/dev/null; then
-  AI_REPORT=$(echo "$HTTP_RESPONSE" | jq -r '.choices[0].message.content')
-else
-  echo "Error: neither python3 nor jq available to parse API response" >&2
-  exit 1
-fi
+# ── Call Kimchi per umbrella file ─────────────────────────────────────────────
+
+AI_REPORT=""
+
+while IFS= read -r -d '' umb_file; do
+  umb_fname=$(basename "$umb_file")
+  umb_content=$(cat "$umb_file")
+
+  echo "DEBUG: processing umbrella file ${umb_fname}" >&2
+
+  matched_comp=$(get_comp_content_for_umb "$umb_fname")
+
+  if [ -z "$matched_comp" ]; then
+    echo "DEBUG: no matching component files found for ${umb_fname}" >&2
+    AI_REPORT+="### ${umb_fname}\n> ⚠️ No matching component file found — may be an umbrella-only addition.\n\n"
+    continue
+  fi
+
+  per_file_prompt="You are a Helm chart reviewer detecting structural drift.
+
+CONTEXT:
+- The umbrella chart is a near-verbatim copy of component templates, adapted with different .Values paths (e.g. \$pp.image.tag), different helper names, and an outer {{- \$pp := index .Values... }} binding. These are EXPECTED and should NOT be reported.
+- ${CASTAI_LIVE_NOTE}
+
+UMBRELLA FILE: ${umb_fname}
+\`\`\`yaml
+${umb_content}
+\`\`\`
+
+COMPONENT FILES (matched to this umbrella file):
+${matched_comp}
+
+YOUR TASK:
+Compare every Kubernetes resource in the umbrella file against the component files. For each difference found in any of these fields:
+- env / envFrom entries (name, value, valueFrom)
+- volumes and volumeMounts (name, mountPath, type)
+- livenessProbe / readinessProbe / startupProbe
+- ports (name, containerPort, protocol)
+- securityContext (pod-level and container-level)
+- resources (requests and limits)
+- tolerations, affinity, nodeSelector, topologySpreadConstraints
+- RBAC rules (apiGroups, resources, verbs)
+- initContainers and sidecars
+- args and command
+- imagePullPolicy, serviceAccountName, hostNetwork, dnsPolicy
+- Any other spec fields present in either side
+
+Output exactly this format per difference:
+---
+**Resource:** \`<kind>/<name-pattern>\`
+**Field:** \`<field path>\`
+**Component:**
+\`\`\`yaml
+<value or \"(absent)\">
+\`\`\`
+**Umbrella:**
+\`\`\`yaml
+<value or \"(absent)\">
+\`\`\`
+**Classification:** ACTION REQUIRED | INFORMATIONAL
+**Reason:** <one sentence>
+
+---
+
+Rules:
+- ACTION REQUIRED: component has something the umbrella is missing or has differently.
+- INFORMATIONAL: umbrella has something the component doesn't.
+- One finding block per differing field. Do NOT group or summarize.
+- If no drift, output only: \"✅ No drift in ${umb_fname}.\""
+
+  file_report=$(call_kimchi "$per_file_prompt") || {
+    AI_REPORT+="### ${umb_fname}\n> ❌ API call failed — skipped.\n\n"
+    continue
+  }
+  AI_REPORT+="### ${umb_fname}\n${file_report}\n\n"
+
+done < <(find "$UMB_TEMPLATES" -name '*.yaml' | sort | tr '\n' '\0')
 
 # ── Build final report ────────────────────────────────────────────────────────
 
