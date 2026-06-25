@@ -1,0 +1,174 @@
+{{- if .Values.router.enabled }}
+{{- /*
+Cache-aware SGLang Model Gateway (router), placed in front of the worker pods.
+The model Service targets this pod; this pod discovers the workers by label via
+Kubernetes service-discovery. OpenAI-compatible: same /v1/* endpoints, streaming forwarded.
+Single replica recommended — the cache-aware radix tree is not synced across router replicas.
+*/}}
+{{- $routerImageRepo := .Values.router.image.repository | default .Values.image.repository -}}
+{{- $routerImageTag := .Values.router.image.tag | default .Values.image.tag -}}
+{{- $sdNamespace := .Values.router.serviceDiscovery.namespace | default .Release.Namespace -}}
+{{- /* Router->worker protocol. http (default) = workers unchanged; grpc = SRT gRPC fast-path.
+   The discovery port differs by protocol: http -> the worker container.port, grpc -> workerGrpcPort. */}}
+{{- $workerProto := .Values.router.workerProtocol | default "http" -}}
+{{- $discoveryPort := ternary (int .Values.router.workerGrpcPort) (int .Values.container.port) (eq $workerProto "grpc") -}}
+{{- if not (has $workerProto (list "http" "grpc")) -}}
+{{- fail (printf "router.workerProtocol must be 'http' or 'grpc', got '%s'" $workerProto) -}}
+{{- end -}}
+{{- /*
+The router's RBAC (router-rbac.yaml) is a namespaced Role/RoleBinding in the
+release namespace, so it can only grant pod get/list/watch THERE. If the
+configured discovery namespace differs, the router would get 403s from the API.
+Fail fast rather than ship a silently-broken router. For genuine cross-namespace
+discovery, switch the RBAC to a ClusterRole/ClusterRoleBinding (not done by
+default — it grants cluster-wide pod read).
+*/}}
+{{- if and .Values.router.serviceDiscovery.enabled (ne $sdNamespace .Release.Namespace) -}}
+{{- fail (printf "router.serviceDiscovery.namespace (%s) must equal the release namespace (%s): the router's RBAC is namespaced and will get 403s watching another namespace. Leave it empty to default to the release namespace, or change the RBAC to ClusterRole for cross-namespace discovery." $sdNamespace .Release.Namespace) -}}
+{{- end -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sglang.router.fullname" . }}
+  labels:
+    {{- include "sglang.router.labels" . | nindent 4 }}
+  annotations:
+    workloads.cast.ai/configuration: |
+      vertical:
+        optimization: off
+      horizontal:
+        optimization: off
+spec:
+  replicas: {{ .Values.router.replicaCount }}
+  strategy:
+    {{- if gt (int .Values.router.replicaCount) 1 }}
+    {{- /* HA: roll one at a time so the LB always has a router available. */}}
+    type: {{ .Values.router.strategy.type }}
+    {{- if eq .Values.router.strategy.type "RollingUpdate" }}
+    rollingUpdate:
+      maxSurge: {{ .Values.router.strategy.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.router.strategy.rollingUpdate.maxUnavailable }}
+    {{- end }}
+    {{- else }}
+    {{- /* Single router holds in-memory routing state; replace cleanly, never two at once. */}}
+    type: Recreate
+    {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sglang.router.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.router.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "sglang.router.labels" . | nindent 8 }}
+        {{- with .Values.router.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.router.serviceDiscovery.enabled }}
+      serviceAccountName: {{ include "sglang.router.fullname" . }}
+      {{- end }}
+      containers:
+        - name: router
+          image: "{{ required "router.image.repository or image.repository must be set" $routerImageRepo }}:{{ required "router.image.tag or image.tag must be set" $routerImageTag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "-m", "sglang_router.launch_router"]
+          args:
+            - "--host=0.0.0.0"
+            - "--port={{ .Values.router.port }}"
+            - "--policy={{ .Values.router.policy }}"
+            {{- if eq .Values.router.policy "cache_aware" }}
+            - "--cache-threshold={{ .Values.router.cacheThreshold }}"
+            - "--balance-abs-threshold={{ .Values.router.balanceAbsThreshold }}"
+            - "--balance-rel-threshold={{ .Values.router.balanceRelThreshold }}"
+            - "--eviction-interval-secs={{ .Values.router.evictionIntervalSecs }}"
+            {{- end }}
+            {{- if eq $workerProto "grpc" }}
+            # Router -> workers over gRPC (requires workers launched as SRT gRPC workers).
+            - "--grpc-mode"
+            {{- end }}
+            {{- if .Values.router.serviceDiscovery.enabled }}
+            # Discover worker pods dynamically by label; watches add/remove live.
+            # Discovery port follows workerProtocol: http -> container.port, grpc -> workerGrpcPort.
+            - "--service-discovery"
+            - "--service-discovery-namespace={{ $sdNamespace }}"
+            - "--service-discovery-port={{ $discoveryPort }}"
+            - "--selector"
+            {{- range ( include "sglang.router.discoverySelector" . | splitList " " ) }}
+            - {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.router.metrics.enabled }}
+            # Prometheus metrics (smg_*) served at /metrics on this port.
+            - "--prometheus-host=0.0.0.0"
+            - "--prometheus-port={{ .Values.router.metrics.port }}"
+            {{- end }}
+            {{- with .Values.router.production }}
+            # Production resilience (sgl_model_gateway recommendations).
+            - "--max-concurrent-requests={{ .maxConcurrentRequests }}"
+            - "--queue-timeout-secs={{ .queueTimeoutSecs }}"
+            - "--health-check-interval-secs={{ .healthCheckIntervalSecs }}"
+            - "--retry-max-retries={{ .retryMaxRetries }}"
+            - "--cb-failure-threshold={{ .cbFailureThreshold }}"
+            - "--cb-timeout-duration-secs={{ .cbTimeoutDurationSecs }}"
+            {{- end }}
+            {{- range .Values.router.extraArgs }}
+            - {{ . | quote }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.router.port }}
+              protocol: TCP
+            {{- if .Values.router.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.router.metrics.port }}
+              protocol: TCP
+            {{- end }}
+          resources:
+            {{- toYaml .Values.router.resources | nindent 12 }}
+          {{- if .Values.router.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.router.startupProbe.httpGet.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.router.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.router.startupProbe.periodSeconds }}
+            failureThreshold: {{ .Values.router.startupProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.router.startupProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.router.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.router.readinessProbe.httpGet.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.router.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.router.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.router.readinessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.router.readinessProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.router.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.router.livenessProbe.httpGet.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.router.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.router.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.router.livenessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.router.livenessProbe.timeoutSeconds }}
+          {{- end }}
+      {{- with .Values.router.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.router.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.router.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

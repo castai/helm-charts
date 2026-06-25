@@ -32,6 +32,110 @@ service:
   type: ClusterIP
   port: 8000
 
+# -- SGLang Model Gateway (cache-aware router) placed IN FRONT of the worker pods.
+# When enabled: the model Service targets the ROUTER pod instead of the
+# workers; the workers become a bare Deployment (no Service) and the router
+# discovers them dynamically by label via Kubernetes service-discovery. Clients
+# keep hitting the same Service name/port — only what's behind it changes.
+# The router is OpenAI-compatible (same /v1/* endpoints, streaming forwarded).
+router:
+  # -- Deploy the cache-aware router in front of the workers.
+  enabled: false
+  image:
+    # -- Router image. Defaults to the same SGLang image (it ships sglang_router).
+    repository: ""
+    tag: ""
+  # -- Routing policy. cache_aware keeps cross-worker prefix affinity (pairs with
+  # the workers' HiRadixCache/HiCache). Other options: round_robin, random, power_of_two, bucket.
+  policy: cache_aware
+  # -- Cache-aware tuning (defaults match SGLang). Min prefix-match ratio to prefer cache locality.
+  cacheThreshold: 0.3
+  # -- Absolute load-imbalance threshold (requests) before rebalancing away from cache locality.
+  balanceAbsThreshold: 64
+  # -- Relative load-imbalance ratio before rebalancing.
+  balanceRelThreshold: 1.5
+  # -- Router's own radix-tree eviction cadence (seconds).
+  evictionIntervalSecs: 120
+  # -- Router HTTP port. Should equal service.port so the Service contract is unchanged.
+  port: 8000
+  # -- Protocol the router uses to reach the WORKERS. Clients always talk HTTP/OpenAI to the
+  # router regardless. "http" = current path (workers run sglang.launch_server, no boot change).
+  # "grpc" = the Rust fast-path (router tokenizes, streams token-ids to SRT gRPC workers) — this
+  # REQUIRES the workers to be launched as SRT gRPC workers (--grpc-mode, gRPC port) and HiCache
+  # re-validated under that mode. Not a free flag flip on the worker side.
+  workerProtocol: http
+  # -- Worker gRPC port (only used when workerProtocol=grpc). Must match the worker's gRPC port.
+  workerGrpcPort: 20000
+  # -- Kubernetes service discovery: the router watches pods matching this selector
+  # (defaults to the worker selector labels of THIS instance). Requires pod get/list/watch RBAC.
+  serviceDiscovery:
+    enabled: true
+    # -- Namespace to watch. Defaults to the release namespace if empty.
+    namespace: ""
+    # -- Extra label selector to add on top of the worker selector. Map of key: value.
+    extraSelector: {}
+  # -- Prometheus metrics. The router serves smg_* metrics at /metrics on metricsPort
+  # (separate from the API port). Mirrors how workers expose metrics (on-pod, scraped directly).
+  metrics:
+    enabled: true
+    port: 29000
+  # -- Default 2 replicas for HA behind the model Service. NOTE: router replicas do NOT
+  # share their cache-aware radix tree (no cross-replica sync), so >1 replica trades ~10-20%
+  # cache-hit rate for availability. Set to 1 for maximum cache locality (single coherent tree).
+  replicaCount: 2
+  # -- Deployment strategy. Use RollingUpdate when replicaCount > 1; the chart forces
+  # Recreate when replicaCount == 1 (single in-memory router, avoid two competing instances).
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  # -- Production resilience flags (sgl_model_gateway production recommendations).
+  production:
+    maxConcurrentRequests: 512
+    queueTimeoutSecs: 60
+    healthCheckIntervalSecs: 15
+    retryMaxRetries: 3
+    cbFailureThreshold: 3
+    cbTimeoutDurationSecs: 15
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      memory: 1Gi
+  startupProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    failureThreshold: 60
+    timeoutSeconds: 3
+    httpGet:
+      path: /health
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    failureThreshold: 3
+    timeoutSeconds: 3
+    httpGet:
+      path: /health
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 10
+    periodSeconds: 20
+    failureThreshold: 5
+    timeoutSeconds: 3
+    httpGet:
+      path: /health
+  podLabels: {}
+  podAnnotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # -- Extra args passed verbatim to sglang_router.launch_router.
+  extraArgs: []
+
 # -- Tensor parallel size. Translated to SGLang's --tp-size. When >1 a shared-memory volume is mounted.
 tensorParallelSize:
 

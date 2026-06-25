@@ -12,4 +12,9 @@ spec:
       protocol: TCP
       name: http
   selector:
+    {{- if .Values.router.enabled }}
+    {{- /* the Service fronts the ROUTER pod; workers are a bare Deployment discovered by the router. */}}
+    {{- include "sglang.router.selectorLabels" . | nindent 4 }}
+    {{- else }}
     {{- include "sglang.selectorLabels" . | nindent 4 }}
+    {{- end }}

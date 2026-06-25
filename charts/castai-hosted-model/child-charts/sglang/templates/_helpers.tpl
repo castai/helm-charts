@@ -41,3 +41,45 @@ Name of the HuggingFace token secret.
 {{- define "sglang.hfSecretName" -}}
 {{- printf "%s-model-registry" (include "sglang.fullname" .) -}}
 {{- end }}
+
+{{/*
+Router name (the worker fullname with a -router suffix).
+*/}}
+{{- define "sglang.router.fullname" -}}
+{{- printf "%s-router" (include "sglang.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+Router selector labels — used by the model Service to target the ROUTER pod
+(Option A) and by the router Deployment's own selector.
+*/}}
+{{- define "sglang.router.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "sglang.router.fullname" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
+
+{{/*
+Router common labels.
+*/}}
+{{- define "sglang.router.labels" -}}
+helm.sh/chart: {{ include "sglang.chart" . }}
+{{ include "sglang.router.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: router
+{{- end }}
+
+{{/*
+The label selector string the router passes to --selector for service-discovery.
+Defaults to THIS instance's worker selector labels, plus any router.serviceDiscovery.extraSelector.
+Rendered as space-separated key=value pairs.
+*/}}
+{{- define "sglang.router.discoverySelector" -}}
+{{- $pairs := list (printf "app.kubernetes.io/name=%s" (include "sglang.fullname" .)) (printf "app.kubernetes.io/instance=%s" .Release.Name) -}}
+{{- range $k, $v := .Values.router.serviceDiscovery.extraSelector -}}
+{{- $pairs = append $pairs (printf "%s=%s" $k $v) -}}
+{{- end -}}
+{{- join " " $pairs -}}
+{{- end }}
