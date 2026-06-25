@@ -2,41 +2,41 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "name" -}}
+{{- define "castai-db-optimizer.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create chart name and version as used by the chart label.
 */}}
-{{- define "chart" -}}
+{{- define "castai-db-optimizer.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{- define "queryProcessorImage" -}}
-{{-  default (include "defaultQueryProcessorVersion" .) .Values.queryProcessorImage.tag }}
+{{- define "castai-db-optimizer.queryProcessorImage" -}}
+{{-  default (include "castai-db-optimizer.defaultQueryProcessorVersion" .) .Values.queryProcessorImage.tag }}
 {{- end }}
 
-{{- define "proxyImage" -}}
-{{-  default (include "defaultProxyVersion" .) .Values.proxyImage.tag }}
+{{- define "castai-db-optimizer.proxyImage" -}}
+{{-  default (include "castai-db-optimizer.defaultProxyVersion" .) .Values.proxyImage.tag }}
 {{- end }}
 
-{{- define "cloudSqlProxyImage" -}}
-{{-  default (include "defaultCloudSqlProxyVersion" .) .Values.cloudSqlProxyImage.tag }}
+{{- define "castai-db-optimizer.cloudSqlProxyImage" -}}
+{{-  default (include "castai-db-optimizer.defaultCloudSqlProxyVersion" .) .Values.cloudSqlProxyImage.tag }}
 {{- end }}
 
-{{- define "pgdogImage" -}}
-{{-  default (include "defaultPgdogVersion" .) .Values.pgdogImage.tag }}
+{{- define "castai-db-optimizer.pgdogImage" -}}
+{{-  default (include "castai-db-optimizer.defaultPgdogVersion" .) .Values.pgdogImage.tag }}
 {{- end }}
 
-{{- define "proxySqlImage" -}}
-{{-  default (include "defaultProxySqlVersion" .) .Values.proxySqlImage.tag }}
+{{- define "castai-db-optimizer.proxySqlImage" -}}
+{{-  default (include "castai-db-optimizer.defaultProxySqlVersion" .) .Values.proxySqlImage.tag }}
 {{- end }}
 
 {{/*
 Helpers for customizing proxy TLS settings.
 */}}
-{{- define "proxy.tls.certificates" -}}
+{{- define "castai-db-optimizer.proxy.tls.certificates" -}}
 tls_certificates:
   - certificate_chain:
       filename: "{{ if .Values.proxy.tlsSecretName }}/etc/tls/tls.crt{{ else }}cert.pem{{ end }}"
@@ -47,16 +47,16 @@ tls_certificates:
 {{/*
 How long other sidecars should wait for proxy to fully drain before terminating.
 */}}
-{{- define "proxy.draining.sidecarTerminationDelay" -}}
+{{- define "castai-db-optimizer.proxy.draining.sidecarTerminationDelay" -}}
 {{- add .Values.proxy.draining.gracePeriodSeconds 15 -}}
 {{- end -}}
 
 {{/*
 Helper for calculating terminationGracePeriodSeconds
 */}}
-{{- define "terminationGracePeriodSeconds" -}}
+{{- define "castai-db-optimizer.terminationGracePeriodSeconds" -}}
 {{- if .Values.proxy.draining.enabled -}}
-  {{- $grace := add (include "proxy.draining.sidecarTerminationDelay" .) 15 | int -}}
+  {{- $grace := add (include "castai-db-optimizer.proxy.draining.sidecarTerminationDelay" .) 15 | int -}}
   {{- if and .Values.pgdog .Values.pgdog.enabled -}}
     {{- add $grace (div .Values.pgdog.config.shutdown_timeout 1000) -}}
   {{- else if and .Values.proxySql .Values.proxySql.enabled -}}
@@ -72,7 +72,7 @@ Helper for calculating terminationGracePeriodSeconds
 {{/*
 Define common labels.
 */}}
-{{- define "labels" -}}
+{{- define "castai-db-optimizer.labels" -}}
 {{- if .Values.commonLabels }}
 {{ if gt (len .Values.commonLabels) 0 -}}
 {{- with .Values.commonLabels }}
@@ -84,14 +84,14 @@ app.kubernetes.io/managed-by: Helm
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
-app.kubernetes.io/name: {{ include "name" . }}
-helm.sh/chart: {{ include "chart" . }}
+app.kubernetes.io/name: {{ include "castai-db-optimizer.name" . }}
+helm.sh/chart: {{ include "castai-db-optimizer.chart" . }}
 {{- end }}
 
 {{/*
 Common Annotations
 */}}
-{{- define "annotations" -}}
+{{- define "castai-db-optimizer.annotations" -}}
 {{- if .Values.commonAnnotations }}
 {{ if gt (len .Values.commonAnnotations) 0 -}}
 {{- with .Values.commonAnnotations }}
@@ -104,11 +104,11 @@ Common Annotations
 {{/*
 Selector labels
 */}}
-{{- define "selectorLabels" -}}
-app.kubernetes.io/name: {{ include "name" . }}
+{{- define "castai-db-optimizer.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "castai-db-optimizer.name" . }}
 {{- end }}
 
-{{- define "workloads-annotations" -}}
+{{- define "castai-db-optimizer.workloads-annotations" -}}
 {{- if hasKey .Values "workloadsAnnotations" }}
   {{- if kindIs "map" .Values.workloadsAnnotations }}
     {{- if eq (len .Values.workloadsAnnotations) 0 }}
@@ -139,7 +139,7 @@ workloads.cast.ai/configuration: |
 {{/*
 Convert CPU resource limit to concurrency value.
 */}}
-{{- define "cpu-to-concurrency" -}}
+{{- define "castai-db-optimizer.cpu-to-concurrency" -}}
 {{- $cpu := toString . -}}
 {{- $cpuCores := 0.0 -}}
 {{- if hasSuffix "m" $cpu -}}
