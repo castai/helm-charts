@@ -1,0 +1,122 @@
+{{- if .Values.router.enabled }}
+{{- /*
+Cache-aware SGLang Model Gateway (router), placed in front of the worker pods.
+The model Service targets this pod; this pod discovers the workers by label via
+Kubernetes service-discovery. OpenAI-compatible: same /v1/* endpoints, streaming forwarded.
+Single replica recommended — the cache-aware radix tree is not synced across router replicas.
+*/}}
+{{- $routerImageRepo := .Values.router.image.repository | default .Values.image.repository -}}
+{{- $routerImageTag := .Values.router.image.tag | default .Values.image.tag -}}
+{{- $sdNamespace := .Values.router.serviceDiscovery.namespace | default .Release.Namespace -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "sglang.router.fullname" . }}
+  labels:
+    {{- include "sglang.router.labels" . | nindent 4 }}
+  annotations:
+    workloads.cast.ai/configuration: |
+      vertical:
+        optimization: off
+      horizontal:
+        optimization: off
+spec:
+  replicas: {{ .Values.router.replicaCount }}
+  strategy:
+    # Router holds in-memory routing state; replace cleanly rather than surge two.
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "sglang.router.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.router.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        {{- include "sglang.router.labels" . | nindent 8 }}
+        {{- with .Values.router.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.router.serviceDiscovery.enabled }}
+      serviceAccountName: {{ include "sglang.router.fullname" . }}
+      {{- end }}
+      containers:
+        - name: router
+          image: "{{ required "router.image.repository or image.repository must be set" $routerImageRepo }}:{{ required "router.image.tag or image.tag must be set" $routerImageTag }}"
+          imagePullPolicy: IfNotPresent
+          command: ["python3", "-m", "sglang_router.launch_router"]
+          args:
+            - "--host=0.0.0.0"
+            - "--port={{ .Values.router.port }}"
+            - "--policy={{ .Values.router.policy }}"
+            {{- if eq .Values.router.policy "cache_aware" }}
+            - "--cache-threshold={{ .Values.router.cacheThreshold }}"
+            - "--balance-abs-threshold={{ .Values.router.balanceAbsThreshold }}"
+            - "--balance-rel-threshold={{ .Values.router.balanceRelThreshold }}"
+            - "--eviction-interval-secs={{ .Values.router.evictionIntervalSecs }}"
+            {{- end }}
+            {{- if .Values.router.serviceDiscovery.enabled }}
+            # Discover worker pods dynamically by label; watches add/remove live.
+            - "--service-discovery"
+            - "--service-discovery-namespace={{ $sdNamespace }}"
+            - "--service-discovery-port={{ .Values.container.port }}"
+            - "--selector"
+            {{- range ( include "sglang.router.discoverySelector" . | splitList " " ) }}
+            - {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- range .Values.router.extraArgs }}
+            - {{ . | quote }}
+            {{- end }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.router.port }}
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.router.resources | nindent 12 }}
+          {{- if .Values.router.startupProbe.enabled }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.router.startupProbe.httpGet.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.router.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.router.startupProbe.periodSeconds }}
+            failureThreshold: {{ .Values.router.startupProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.router.startupProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.router.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.router.readinessProbe.httpGet.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.router.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.router.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.router.readinessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.router.readinessProbe.timeoutSeconds }}
+          {{- end }}
+          {{- if .Values.router.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.router.livenessProbe.httpGet.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.router.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.router.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.router.livenessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.router.livenessProbe.timeoutSeconds }}
+          {{- end }}
+      {{- with .Values.router.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.router.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.router.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}
