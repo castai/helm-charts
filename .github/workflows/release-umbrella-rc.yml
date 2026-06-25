@@ -122,7 +122,7 @@ jobs:
       - name: Clone kubecast
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         env:
-          GITLAB_TOKEN: ${{ secrets.KUBECAST_GITLAB_TOKEN }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_PAT_OANA }}
         run: |
           git config --global credential.helper '!f() { echo "username=oauth2"; echo "password='"${GITLAB_TOKEN}"'"; }; f'
           git clone https://gitlab.com/castai/kubecast.git kubecast
@@ -303,6 +303,7 @@ jobs:
           CHART_NAME: ${{ steps.parse.outputs.chart_name }}
           CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
           KIMCHI_API_KEY: ${{ secrets.KIMCHI_API_KEY }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_PAT_OANA }} 
         run: |
           bash helm-charts-head/.github/scripts/check-umbrella-drift.sh
 
@@ -315,7 +316,7 @@ jobs:
           RC_VERSION: ${{ steps.rc.outputs.version }}
           RELEASE_TAG: ${{ github.event.release.tag_name }}
           RELEASE_URL: ${{ github.event.release.html_url }}
-          GITLAB_TOKEN: ${{ secrets.KUBECAST_GITLAB_TOKEN }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_PAT_OANA }}
           IMAGE_OLD_TAG: ${{ steps.bump_image.outputs.old_tag }}
           DEPS_SUMMARY: ${{ steps.bump_deps.outputs.summary }}
           DRIFT_REPORT: ${{ steps.drift.outputs.drift_report }}

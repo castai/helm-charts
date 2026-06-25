@@ -39,14 +39,18 @@ if [ "$CHART_NAME" = "castai-live" ]; then
     echo "CHART_VERSION is required for castai-live" >&2
     exit 1
   fi
-  LIVE_UNTAR_DIR="/tmp/castai-live-chart"
-  rm -rf "$LIVE_UNTAR_DIR"
-  helm repo add castai-helm https://castai.github.io/helm-charts --force-update >/dev/null 2>&1
-  helm pull castai-helm/castai-live \
-    --version "$CHART_VERSION" \
-    --untar \
-    --untardir "$LIVE_UNTAR_DIR"
-  COMP_TEMPLATES="${LIVE_UNTAR_DIR}/castai-live/templates"
+  GITLAB_TOKEN="${GITLAB_TOKEN:?GITLAB_TOKEN env var required for castai-live}"
+
+  LIVE_CLONE_DIR="/tmp/castai-live-source"
+  rm -rf "$LIVE_CLONE_DIR"
+
+  git clone \
+    --depth 1 \
+    --branch "v${CHART_VERSION}" \
+    "https://oauth2:${GITLAB_TOKEN}@gitlab.com/castai/live/clm.git" \
+    "$LIVE_CLONE_DIR"
+
+  COMP_TEMPLATES="${LIVE_CLONE_DIR}/helm"
 else
   CHART_YAML_PATH=$(find kubecast/services -name "Chart.yaml" \
     -exec grep -l "^name: ${CHART_NAME}$" {} \; 2>/dev/null | head -1 || true)
@@ -129,7 +133,10 @@ fi
 # castai-live note: its templates dir may contain flattened dependency templates
 CASTAI_LIVE_NOTE=""
 if [ "$CHART_NAME" = "castai-live" ]; then
-  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates directory may contain flattened templates from chart dependencies mixed in with the main component's templates. Use your best judgment to identify which resources belong to the main castai-live workload versus dependencies when comparing."
+  CASTAI_LIVE_NOTE="NOTE: castai-live's component templates directory may contain flattened templates \
+from chart dependencies. However, you must still report ALL differences you find — do not skip or \
+excuse any diff on the grounds that it might belong to a dependency. Flag everything; the reviewer \
+will decide what is intentional."
 fi
 
 PROMPT="You are a Helm chart reviewer. Your job is to detect **structural drift** between a component's original Helm templates and a copied version of those templates inside an umbrella chart.
