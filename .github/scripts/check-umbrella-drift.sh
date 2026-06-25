@@ -10,13 +10,12 @@
 # Required env vars:
 #   CHART_NAME        — e.g. castai-agent, castai-pod-pinner, castai-live
 #   KIMCHI_API_KEY    — Kimchi Inference API key
-#   CHART_VERSION     — required only for castai-live (pulled from registry)
+#   CHART_VERSION     — required only for castai-live (cloned from GitLab at tag v<version>)
+#   GITLAB_TOKEN      — required only for castai-live (to clone gitlab.com/castai/live/clm)
 #
 # Paths expected to exist at call time:
 #   kubecast/         — clone of the kubecast repo
 #   helm-charts/      — optional, for evictor / chart-upgrader
-#
-# For castai-live, the chart is pulled from the public Helm registry.
 #
 # Writes markdown to stdout and, when GITHUB_OUTPUT is set, appends:
 #   drift_report<<DELIMITER / ... / DELIMITER
@@ -225,7 +224,8 @@ else
   PROMPT_JSON="\"${PROMPT_JSON}\""
 fi
 
-REQUEST_BODY=$(cat <<EOF
+REQUEST_BODY_FILE=$(mktemp /tmp/kimchi-request-XXXXXX.json)
+cat > "$REQUEST_BODY_FILE" <<EOF
 {
   "model": "${KIMCHI_MODEL}",
   "max_tokens": 4096,
@@ -237,13 +237,16 @@ REQUEST_BODY=$(cat <<EOF
   ]
 }
 EOF
-)
 
 HTTP_RESPONSE=$(curl -sf \
   -X POST "$KIMCHI_API_URL" \
   -H "Authorization: Bearer ${KIMCHI_API_KEY}" \
   -H "Content-Type: application/json" \
-  -d "$REQUEST_BODY" 2>&1) || {
+  --data-binary "@${REQUEST_BODY_FILE}" 2>&1)
+CURL_EXIT=$?
+rm -f "$REQUEST_BODY_FILE"
+
+if [ $CURL_EXIT -ne 0 ]; then
   cat <<MD
 ## Template drift: \`${CHART_NAME}\`
 
@@ -251,7 +254,7 @@ HTTP_RESPONSE=$(curl -sf \
 > Error: ${HTTP_RESPONSE}
 MD
   exit 1
-}
+fi
 
 # Extract the model's reply from the OpenAI-format response
 if command -v python3 &>/dev/null; then
