@@ -111,10 +111,24 @@ Resolve imagePullSecrets: merge global.imagePullSecrets with local imagePullSecr
 {{- end }}
 
 {{/*
-Pass the customConfig to the configMap
+Pass the customConfig to the configMap.
+Supports legacy string mode (passed through as-is) and structured mode
+(renders as evictionConfig: for arrays or customConfig.evictionRules for maps).
+Values are rendered as-is (original {enabled: bool} format).
 */}}
 {{- define "evictor.configMap.customConfig" -}}
 {{- if .Values.customConfig }}
+  {{- if kindIs "string" .Values.customConfig }}
+    {{- /* Legacy string mode — pass through directly */ -}}
 {{ .Values.customConfig | nindent 4 }}
+  {{- else if kindIs "slice" .Values.customConfig }}
+    {{- /* Structured array mode */ -}}
+{{ "evictionConfig:" | nindent 4 }}
+{{- toYaml .Values.customConfig | nindent 6 }}
+  {{- else if .Values.customConfig.evictionRules }}
+    {{- /* Map mode with nested evictionRules */ -}}
+{{ "evictionConfig:" | nindent 4 }}
+{{- toYaml .Values.customConfig.evictionRules | nindent 6 }}
+  {{- end }}
 {{- end }}
 {{- end }}
