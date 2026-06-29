@@ -25356,6 +25356,28 @@ entries:
       release-date: 2026-06-26T11:53:55
     apiVersion: v2
     appVersion: 777c514f641cd3e4bc582e037746b99109c5c95b
+    created: "2026-06-29T11:48:14.369233109Z"
+    dependencies:
+    - condition: castai-evictor-ext.enabled
+      name: castai-evictor-ext
+      repository: file://child-charts/castai-evictor-ext
+      version: 0.5.0
+    description: Cluster utilization defragmentation tool
+    digest: 77a7211bee66912bf8b44096f0c1fe8917287012906628ca677f419684fe036d
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.35.98/castai-evictor-0.35.98.tgz
+    version: 0.35.98
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: |
+            Added global.rbac.clusterScoped.enabled toggle for cluster-scoped RBAC resources.
+            Set to false to disable ClusterRole and ClusterRoleBinding creation.
+      release-date: 2026-06-26T11:53:55
+    apiVersion: v2
+    appVersion: 777c514f641cd3e4bc582e037746b99109c5c95b
     created: "2026-06-29T08:38:04.177173409Z"
     dependencies:
     - condition: castai-evictor-ext.enabled
@@ -64735,4 +64757,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-06-29T10:54:22.386935971Z"
+generated: "2026-06-29T11:48:14.374931026Z"
