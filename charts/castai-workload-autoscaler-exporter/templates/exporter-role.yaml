@@ -1,0 +1,18 @@
+{{- if .Values.exporter.serviceAccount.rbac }}
+# Required to read Secrets referenced in PrometheusDataSource authentication
+# (e.g. bearer tokens for external Prometheus-compatible APIs like Dash0).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "exporter.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "exporter.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+{{- end }}

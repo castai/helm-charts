@@ -1,6 +1,9 @@
 vllm:
   # -- Specifies if vLLM model should be deployed
   enabled: true
+sglang:
+  # -- Specifies if SGLang model should be deployed. Mutually exclusive with vllm.enabled.
+  enabled: false
 placementJob:
   # -- Specifies if a node placement job should be deployed
   enabled: false
@@ -29,8 +32,10 @@ placementJob:
     limits:
       nvidia.com/gpu: 1
 podAutoscaler:
-  # -- Specifies if pod autoscaler should be enabled. It is only relevant for vllm deployments
+  # -- Specifies if pod autoscaler should be enabled. Relevant for both vllm and sglang deployments
   enabled: false
+  # -- Port the engine exposes Prometheus metrics on. Match the engine's container.port (vLLM/SGLang default 8000)
+  port: 8000
   # -- Min number of replicas
   minReplicas: 1
   # -- Max number of replicas
@@ -47,5 +52,5 @@ podAutoscaler:
   # -- Represents the threshold before scaling down,
   # -- which means no scaling down will occur unless the currentMetricValue is less than the targetValue by more than downFluctuationTolerance
   downFluctuationTolerance: 0.2
-  # -- The name of the vLLM deployment that the pod autoscaler should target
+  # -- The name of the model engine deployment that the pod autoscaler should target (vLLM or SGLang)
   targetDeploymentName:

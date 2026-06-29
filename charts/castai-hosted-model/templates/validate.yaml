@@ -1,0 +1,8 @@
+{{- /*
+Only one model engine may be deployed per release. The engines are independent
+dependency conditions (vllm.enabled / sglang.enabled) and vllm.enabled defaults
+to true, so without this guard enabling sglang alone would silently render both.
+*/ -}}
+{{- if and .Values.vllm.enabled .Values.sglang.enabled -}}
+{{- fail "Only one model engine can be enabled: set either vllm.enabled=true or sglang.enabled=true, not both." -}}
+{{- end -}}

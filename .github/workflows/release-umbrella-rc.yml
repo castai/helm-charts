@@ -1,0 +1,374 @@
+name: Release umbrella RC
+
+# Fires when a tracked component chart is released in this repo.
+# Performs two complementary updates in the kubecast umbrella chart:
+#
+#  1. Image tag in values.yaml (autoscaler.<component>.image.tag)
+#     — for flat-template autoscaler/workload-autoscaler modes.
+#     Derives the image tag from the GitHub release tag (v<chart_version>).
+#
+#  2. Subchart dependency version in charts/kent/Chart.yaml,
+#     charts/autoscaler-anywhere/Chart.yaml, and
+#     charts/autoscaler-openshift/Chart.yaml
+#     — for kent / autoscaler-anywhere / autoscaler-openshift modes.
+#     Uses the chart version from the release tag.
+#
+# After either update, increments the RC counter in Chart.yaml and
+# publishes a GitHub prerelease tagged castai-0.0.0-rc<N>.
+#
+# Versioning: always publishes as 0.0.0-rc<N>. These are semver
+# prereleases that castctl's GetLatestChartVersion skips by default;
+# install a specific RC via `castctl cluster connect --umbrella-version 0.0.0-rcN`.
+
+on:
+  release:
+    types:
+      - published
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Component release tag to simulate (e.g. castai-agent-0.158.0)'
+        required: true
+
+jobs:
+  release-umbrella-rc:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Parse release tag
+        id: parse
+        env:
+          TAG: ${{ github.event.release.tag_name || inputs.tag_name }}
+        run: |
+          VERSION=$(echo "$TAG" | grep -oP '\d+\.\d+\.\d+$' || true)
+          if [ -z "$VERSION" ]; then
+            echo "Tag '${TAG}' does not match <chart-name>-x.y.z — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          CHART_NAME="${TAG%-${VERSION}}"
+
+          if ! echo "$CHART_NAME" | grep -qP '^[a-z0-9-]+$'; then
+            echo "Chart name '${CHART_NAME}' contains unexpected characters — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Skip umbrella self-releases to avoid infinite loops.
+          if [ "$CHART_NAME" = "castai" ]; then
+            echo "Tag '${TAG}' is the umbrella itself — skipping."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "chart_name=${CHART_NAME}" >> $GITHUB_OUTPUT
+          echo "chart_version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
+
+      - name: Check if component is tracked in umbrella
+        id: check
+        if: steps.parse.outputs.skip != 'true'
+        env:
+          CHART_NAME: ${{ steps.parse.outputs.chart_name }}
+        run: |
+          # Explicit allowlist — components that trigger an umbrella RC release.
+          # Covers both flat-template mode (image tag in values.yaml) and
+          # subchart deps (kent / autoscaler-anywhere / autoscaler-openshift).
+          TRACKED=(
+            castai-agent
+            castai-cluster-controller
+            castai-spot-handler
+            castai-kvisor
+            castai-evictor
+            castai-pod-pinner
+            castai-pod-mutator
+            castai-workload-autoscaler
+            castai-workload-autoscaler-exporter
+            castai-kentroller
+            castai-chart-upgrader
+            castai-live
+          )
+
+          for name in "${TRACKED[@]}"; do
+            if [ "$name" = "$CHART_NAME" ]; then
+              echo "component=${CHART_NAME}" >> $GITHUB_OUTPUT
+              echo "skip=false" >> $GITHUB_OUTPUT
+              exit 0
+            fi
+          done
+
+          echo "Chart '${CHART_NAME}' is not tracked in the umbrella — skipping."
+          echo "skip=true" >> $GITHUB_OUTPUT
+
+      - name: Install yq
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        uses: mikefarah/yq@v4.44.3
+
+      - name: Checkout helm-charts at release tag
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name || inputs.tag_name }}
+          fetch-depth: 1
+          path: helm-charts
+
+      - name: Checkout helm-charts at HEAD (for scripts)
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+          path: helm-charts-head
+
+      - name: Clone kubecast
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_PAT_OANA }}
+        run: |
+          git config --global credential.helper '!f() { echo "username=oauth2"; echo "password='"${GITLAB_TOKEN}"'"; }; f'
+          git clone https://gitlab.com/castai/kubecast.git kubecast
+          cd kubecast
+          git config user.email "ci@cast.ai"
+          git config user.name "GitHub Actions"
+
+      - name: Derive image tag from release version
+        id: image
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        env:
+          CHART_NAME: ${{ steps.parse.outputs.chart_name }}
+          CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
+        run: |
+          # Image tags follow the GitHub release tag directly:
+          #   castai-kvisor-1.55.21 → v1.55.21
+          # castai-live is the exception — its images don't carry the v prefix.
+          if [ "$CHART_NAME" = "castai-live" ]; then
+            echo "image_tag=${CHART_VERSION}" >> $GITHUB_OUTPUT
+          else
+            echo "image_tag=v${CHART_VERSION}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Install Python dependencies
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        run: pip install --quiet ruamel.yaml
+
+      # ── Update 1: image tag in flat-template umbrella values.yaml ─────────────
+
+      - name: Update image tag in values.yaml
+        id: bump_image
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true' && steps.image.outputs.image_tag != ''
+        env:
+          COMPONENT: ${{ steps.check.outputs.component }}
+          IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
+        run: |
+          VALUES="kubecast/castai-umbrella/chart/values.yaml"
+
+          # Space-separated yq paths per component.
+          # Components with multiple images (e.g. castai-live) list all paths here.
+          # All others default to .autoscaler."<component>".image.tag.
+          declare -A IMAGE_TAG_PATHS=(
+            [castai-workload-autoscaler-exporter]='.autoscaler."castai-workload-autoscaler-exporter".exporter.image.tag'
+            [castai-live]='.autoscaler."castai-live".daemon.image.tag .autoscaler."castai-live".controller.image.tag .autoscaler."castai-live".tc.image.tag'
+          )
+          YQ_PATHS_STR="${IMAGE_TAG_PATHS[$COMPONENT]:-".autoscaler.\"${COMPONENT}\".image.tag"}"
+          read -ra YQ_PATHS <<< "$YQ_PATHS_STR"
+
+          CHANGED=false
+          OLD_TAGS=""
+          for YQ_PATH in "${YQ_PATHS[@]}"; do
+            CURRENT=$(yq "$YQ_PATH" "$VALUES")
+            if [ "$CURRENT" = "null" ] || [ -z "$CURRENT" ]; then
+              echo "${COMPONENT}: no value at ${YQ_PATH} — skipping."
+              continue
+            fi
+            if [ "$CURRENT" = "$IMAGE_TAG" ]; then
+              echo "${COMPONENT}: ${YQ_PATH} already at ${IMAGE_TAG} — no change."
+              continue
+            fi
+            python3 helm-charts-head/.github/scripts/bump-yaml-field.py "$YQ_PATH" "$IMAGE_TAG" "$VALUES"
+            echo "Bumped ${COMPONENT} ${YQ_PATH}: ${CURRENT} -> ${IMAGE_TAG}"
+            CHANGED=true
+            OLD_TAGS="${OLD_TAGS:+$OLD_TAGS, }${CURRENT}"
+          done
+
+          if [ "$CHANGED" = "false" ]; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "changed=true" >> $GITHUB_OUTPUT
+          echo "old_tag=${OLD_TAGS}" >> $GITHUB_OUTPUT
+
+      # ── Update 2: subchart dependency versions (kent / anywhere / openshift) ──
+
+      - name: Update subchart dependency versions
+        id: bump_deps
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        env:
+          CHART_NAME: ${{ steps.parse.outputs.chart_name }}
+          CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
+        run: |
+          set -euo pipefail
+          SUBCHART_FILES=(
+            "kubecast/castai-umbrella/chart/charts/kent/Chart.yaml"
+            "kubecast/castai-umbrella/chart/charts/autoscaler-anywhere/Chart.yaml"
+            "kubecast/castai-umbrella/chart/charts/autoscaler-openshift/Chart.yaml"
+          )
+
+          CHANGED=false
+          BUMP_SUMMARY=""
+
+          for SUBCHART_FILE in "${SUBCHART_FILES[@]}"; do
+            [ -f "$SUBCHART_FILE" ] || continue
+
+            if yq ".dependencies[].name" "$SUBCHART_FILE" | grep -qx "$CHART_NAME"; then
+              CURRENT=$(yq ".dependencies[] | select(.name == \"$CHART_NAME\") | .version" "$SUBCHART_FILE")
+              if [ "$CURRENT" != "$CHART_VERSION" ]; then
+                python3 helm-charts-head/.github/scripts/bump-chart-dep.py \
+                  "$CHART_NAME" "$CHART_VERSION" "$SUBCHART_FILE"
+                echo "Updated ${CHART_NAME} in ${SUBCHART_FILE}: ${CURRENT} -> ${CHART_VERSION}"
+                CHANGED=true
+                SUBCHART_NAME=$(yq '.name' "$SUBCHART_FILE")
+                BUMP_SUMMARY="${BUMP_SUMMARY:+$BUMP_SUMMARY, }${SUBCHART_NAME}"
+              else
+                echo "${CHART_NAME} in ${SUBCHART_FILE} already at ${CHART_VERSION} — skipping."
+              fi
+            fi
+          done
+
+          echo "changed=${CHANGED}" >> $GITHUB_OUTPUT
+          echo "summary=${BUMP_SUMMARY}" >> $GITHUB_OUTPUT
+
+      # ── Validate modified YAML files ──────────────────────────────────────────
+
+      - name: Validate modified YAML files
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        run: |
+          set -euo pipefail
+          FILES=(
+            "kubecast/castai-umbrella/chart/values.yaml"
+            "kubecast/castai-umbrella/chart/Chart.yaml"
+            "kubecast/castai-umbrella/chart/charts/kent/Chart.yaml"
+            "kubecast/castai-umbrella/chart/charts/autoscaler-anywhere/Chart.yaml"
+            "kubecast/castai-umbrella/chart/charts/autoscaler-openshift/Chart.yaml"
+          )
+          FAILED=false
+          for f in "${FILES[@]}"; do
+            [ -f "$f" ] || continue
+            if yq . "$f" > /dev/null 2>&1; then
+              echo "OK: $f"
+            else
+              echo "ERROR: $f is not valid YAML"
+              FAILED=true
+            fi
+          done
+          if [ "$FAILED" = "true" ]; then
+            echo "One or more YAML files are invalid — aborting before commit."
+            exit 1
+          fi
+
+      # ── Gate the rest on at least one change ──────────────────────────────────
+
+      - name: Check if anything changed
+        id: changed
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        run: |
+          IMAGE_CHANGED="${{ steps.bump_image.outputs.changed }}"
+          DEPS_CHANGED="${{ steps.bump_deps.outputs.changed }}"
+          if [ "$IMAGE_CHANGED" = "true" ] || [ "$DEPS_CHANGED" = "true" ]; then
+            echo "any=true" >> $GITHUB_OUTPUT
+          else
+            echo "any=false" >> $GITHUB_OUTPUT
+            echo "No changes — skipping RC release."
+          fi
+
+      - name: Increment RC version in Chart.yaml
+        id: rc
+        if: steps.changed.outputs.any == 'true'
+        run: |
+          CHART_YAML="kubecast/castai-umbrella/chart/Chart.yaml"
+          CURRENT=$(yq '.version' "$CHART_YAML")
+
+          RC_NUM=$(echo "$CURRENT" | grep -oP 'rc\K\d+$' || echo "0")
+          NEXT_RC=$((RC_NUM + 1))
+          NEW_VERSION="0.0.0-rc${NEXT_RC}"
+
+          python3 helm-charts-head/.github/scripts/bump-yaml-field.py \
+            ".version" "$NEW_VERSION" "$CHART_YAML"
+          echo "Bumped umbrella version: ${CURRENT} -> ${NEW_VERSION}"
+          echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=castai-${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Check template drift between component and umbrella
+        id: drift
+        if: steps.changed.outputs.any == 'true'
+        env:
+          CHART_NAME: ${{ steps.parse.outputs.chart_name }}
+          CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
+          KIMCHI_API_KEY: ${{ secrets.KIMCHI_API_KEY }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_PAT_OANA }} 
+        run: |
+          bash helm-charts-head/.github/scripts/check-umbrella-drift.sh
+
+      - name: Commit to kubecast and open GitLab MR
+        if: steps.changed.outputs.any == 'true'
+        env:
+          COMPONENT: ${{ steps.check.outputs.component }}
+          IMAGE_TAG: ${{ steps.image.outputs.image_tag }}
+          CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
+          RC_VERSION: ${{ steps.rc.outputs.version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_URL: ${{ github.event.release.html_url }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_PAT_OANA }}
+          IMAGE_OLD_TAG: ${{ steps.bump_image.outputs.old_tag }}
+          DEPS_SUMMARY: ${{ steps.bump_deps.outputs.summary }}
+          DRIFT_REPORT: ${{ steps.drift.outputs.drift_report }}
+        run: |
+          BRANCH="bump/castai-umbrella-${COMPONENT}-${CHART_VERSION}"
+          cd kubecast
+
+          if git fetch origin "$BRANCH" 2>/dev/null; then
+            echo "Branch '${BRANCH}' already exists — skipping."
+            exit 0
+          fi
+
+          git checkout -b "$BRANCH"
+          git add castai-umbrella/chart/
+          git commit -m "Bump ${COMPONENT} to ${CHART_VERSION} in umbrella (${RC_VERSION})"
+          git push origin HEAD:"$BRANCH"
+
+          # Build MR description rows dynamically.
+          DESC_ROWS="| **Component** | \`${COMPONENT}\` |\n| **Chart version** | \`${CHART_VERSION}\` |\n| **Umbrella RC** | \`${RC_VERSION}\` |"
+          if [ -n "$IMAGE_TAG" ] && [ -n "$IMAGE_OLD_TAG" ]; then
+            DESC_ROWS="${DESC_ROWS}\n| **Image tag** | \`${IMAGE_OLD_TAG}\` → \`${IMAGE_TAG}\` |"
+          fi
+          if [ -n "$DEPS_SUMMARY" ]; then
+            DESC_ROWS="${DESC_ROWS}\n| **Subchart deps updated** | ${DEPS_SUMMARY} |"
+          fi
+
+          if [ -n "$RELEASE_TAG" ] && [ -n "$RELEASE_URL" ]; then
+            TRIGGER_LINE="Automated bump triggered by [helm-charts release ${RELEASE_TAG}](${RELEASE_URL})."
+          else
+            TRIGGER_LINE="Automated bump triggered by manual workflow_dispatch."
+          fi
+
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -X POST \
+            -H "PRIVATE-TOKEN: ${GITLAB_TOKEN}" \
+            -H "Content-Type: application/json" \
+            "https://gitlab.com/api/v4/projects/castai%2Fkubecast/merge_requests" \
+            -d "$(jq -n \
+              --arg source "$BRANCH" \
+              --arg title "[castai-umbrella] Bump ${COMPONENT} to ${CHART_VERSION} (${RC_VERSION})" \
+              --arg trigger_line "$TRIGGER_LINE" \
+              --arg rows "$DESC_ROWS" \
+              --arg drift "$DRIFT_REPORT" \
+              '{ source_branch: $source, target_branch: "master", title: $title, labels: "team::identity",
+                 description: ($trigger_line + "\n\n| | |\n|---|---|\n" + $rows + if ($drift | length) > 0 then "\n\n---\n\n" + $drift else "" end) }')")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+          if [ "$HTTP_CODE" -lt 200 ] || [ "$HTTP_CODE" -ge 300 ]; then
+            echo "GitLab MR creation failed (HTTP ${HTTP_CODE}): ${BODY}"
+            exit 1
+          fi
+          echo "MR created: $(echo "$BODY" | jq -r '.web_url')"
+
+      # Packaging and publishing happen in the kubecast GitLab CI pipeline
+      # (castai-umbrella/pipeline.yml) after the MR above is merged to master.
