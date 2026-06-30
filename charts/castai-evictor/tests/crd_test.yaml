@@ -39,10 +39,11 @@ tests:
 
   # ── Helm lifecycle annotations ───────────────────────────────────────────────
 
-  - it: CRD does not have resource-policy keep so helm uninstall cleans it up
+  - it: CRD has resource-policy keep so helm uninstall does not delete it
     asserts:
-      - isNull:
+      - equal:
           path: metadata.annotations["helm.sh/resource-policy"]
+          value: keep
 
   - it: CRD is applied as a pre-install pre-upgrade hook so it exists before the CR post-install hook
     asserts:
@@ -216,7 +217,7 @@ tests:
       - contains:
           path: spec.versions[0].schema.openAPIV3Schema.properties.spec.properties.evictionRules.items["x-kubernetes-validations"]
           content:
-            rule: "has(self.podSelector) != has(self.nodeSelector)"
+            rule: "(has(self.podSelector) && !has(self.nodeSelector)) || (!has(self.podSelector) && has(self.nodeSelector))"
             message: "exactly one of podSelector or nodeSelector must be set"
 
   - it: podSelector supports namespace kind replicasMin and labelSelector
