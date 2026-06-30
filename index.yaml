@@ -2351,6 +2351,33 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-06-30T07:23:09.647774134Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 588b2ea2d961cc9217e3818761ed8fdec2a99915b2b785e6806eea796adac8ef
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.42.10/castai-0.42.10.tgz
+    version: 0.42.10
+  - apiVersion: v2
     created: "2026-06-29T14:01:47.556926044Z"
     dependencies:
     - condition: kent.enabled
@@ -25426,6 +25453,28 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-db-proxy-0.1.0/castai-db-proxy-0.1.0.tgz
     version: 0.1.0
   castai-evictor:
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: |
+            Added global.rbac.clusterScoped.enabled toggle for cluster-scoped RBAC resources.
+            Set to false to disable ClusterRole and ClusterRoleBinding creation.
+      release-date: 2026-06-29T14:05:26
+    apiVersion: v2
+    appVersion: 35f16143e3885bebf7c56f33f5aa5b395d9bdb2f
+    created: "2026-06-30T07:23:09.88557804Z"
+    dependencies:
+    - condition: castai-evictor-ext.enabled
+      name: castai-evictor-ext
+      repository: file://child-charts/castai-evictor-ext
+      version: 0.5.0
+    description: Cluster utilization defragmentation tool
+    digest: afbaa5300b19aaf0815c550caf4c2fb57f2643f5e0c1d158d314a311ccecfceb
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.35.101/castai-evictor-0.35.101.tgz
+    version: 0.35.101
   - annotations:
       artifacthub.io/changes: |
         - kind: added
@@ -64920,4 +64969,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-06-30T07:10:19.934027145Z"
+generated: "2026-06-30T07:23:09.894446884Z"
