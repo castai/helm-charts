@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "name" $ }}
+  name: {{ include "castai-db-agent.name" $ }}
   labels:
-    {{- include "labels" . | nindent 4 }}
+    {{- include "castai-db-agent.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "name" . }}
+      app.kubernetes.io/name: {{ include "castai-db-agent.name" . }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "name" . }}
+        app.kubernetes.io/name: {{ include "castai-db-agent.name" . }}
     spec:
       serviceAccountName: {{ include "castai-db-agent.serviceAccountName" . }}
       containers:
         - name: db-agent
-          image: "{{.Values.image.repository}}:{{ include "dbAgentImage" . }}"
+          image: "{{.Values.image.repository}}:{{ include "castai-db-agent.dbAgentImage" . }}"
           imagePullPolicy: {{.Values.image.pullPolicy}}
           securityContext:
             capabilities:
@@ -32,7 +32,7 @@ spec:
             - name: API_URL
               value:  "{{ .Values.apiURL | default "https://api.cast.ai/" }}"
             - name: ORGANIZATION_ID
-              value: "{{ required "organization ID must be provided" .Values.organizationID }}"
+              value: "{{ .Values.organizationID | default (.Values.global | default dict).organizationID | required "organization ID must be provided" }}"
             - name: CACHE_GROUP_ID
               value: "{{ required "cache group ID must be provided" .Values.cacheGroupID }}"
             - name: DATABASE_HOST
@@ -86,19 +86,19 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: K8S_DEPLOYMENT
-              value: {{ include "name" . }}
+              value: {{ include "castai-db-agent.name" . }}
             - name: AGENT_IMAGE
-              value: {{ include "dbAgentImage" . }}
+              value: {{ include "castai-db-agent.dbAgentImage" . }}
           envFrom:
             - secretRef:
               {{- if .Values.apiKey }}
-                name: {{ include "name" . -}}-api-key
+                name: {{ include "castai-db-agent.name" . -}}-api-key
               {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
               {{- end }}
             {{- if .Values.database.username }}
             - secretRef:
-                name: {{ include "name" $ }}-db-user
+                name: {{ include "castai-db-agent.name" $ }}-db-user
             {{- else if .Values.database.credentialsSecretRef }}
             - secretRef:
                 name: {{ .Values.database.credentialsSecretRef -}}
@@ -107,7 +107,7 @@ spec:
             {{- end }}
         {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
         - name: cloud-sql-proxy
-          image: "{{.Values.cloudSqlProxyImage.repository}}:{{ include "cloudSqlProxyImage" . }}"
+          image: "{{.Values.cloudSqlProxyImage.repository}}:{{ include "castai-db-agent.cloudSqlProxyImage" . }}"
           imagePullPolicy: {{ $.Values.cloudSqlProxyImage.pullPolicy }}
           args:
             {{- if .Values.cloudSqlProxy.privateIp }}

@@ -1,0 +1,52 @@
+{{ template "chart.header" . }}
+{{ template "chart.deprecationWarning" . }}
+
+{{ template "chart.description" . }}
+
+{{ template "chart.homepageLine" . }}
+
+{{ template "chart.maintainersSection" . }}
+
+{{ template "chart.sourcesSection" . }}
+
+{{ template "chart.requirementsSection" . }}
+
+## Usage
+
+```shell
+helm repo add castai-helm https://castai.github.io/helm-charts
+helm repo update
+
+helm upgrade --install castai-dbo castai-helm/castai-dbo \
+  --namespace castai-agent --create-namespace \
+  --set db-optimizer.apiKey=<API_KEY> \
+  --set db-optimizer.organizationID=<ORG_ID> \
+  --set db-optimizer.cacheGroupID=<CACHE_GROUP_ID> \
+  --set db-optimizer.protocol=PostgreSQL \
+  --set db-agent.apiKey=<API_KEY> \
+  --set db-agent.organizationID=<ORG_ID> \
+  --set db-agent.cacheGroupID=<CACHE_GROUP_ID>
+```
+
+### Configuring individual components
+
+Pass component-specific values through the `<component>.*` prefix:
+
+```shell
+helm upgrade --install castai-dbo castai-helm/castai-dbo \
+  --namespace castai-agent --create-namespace \
+  -f values.yaml
+```
+
+### Disabling a component
+
+Any sub-chart can be excluded:
+
+```shell
+helm upgrade castai-dbo castai-helm/castai-dbo \
+  --namespace castai-agent \
+  --reset-then-reuse-values \
+  --set db-proxy.enabled=false
+```
+
+{{ template "chart.valuesSection" . }}

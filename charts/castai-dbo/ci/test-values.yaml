@@ -1,0 +1,32 @@
+global:
+  organizationID: "test-org"
+
+db-proxy:
+  enabled: true
+  proxyID: "test-proxy"
+  apiKey: "test-key"
+  endpoints:
+    - address: "db-primary:5432"
+      readonly: false
+
+db-agent:
+  enabled: true
+  apiKey: "test-key"
+  cacheGroupID: "test-cache-group"
+  database:
+    host: "test-db"
+    username: "test-user"
+    password: "test-pass"
+  gRPCEndpoint: "grpc.example.com:443"
+
+db-optimizer:
+  enabled: true
+  cacheGroupID: "test-cache-group"
+  apiKey: "test-key"
+  protocol: "PostgreSQL"
+  endpoints:
+    - name: "db1"
+      hostname: "db1.example.com"
+      port: 5433
+      targetPort: 5432
+      servicePort: 5433
