@@ -61,5 +61,3 @@ helm upgrade castai-dbo castai-helm/castai-dbo \
 | db-agent.enabled | bool | `true` |  |
 | db-optimizer.enabled | bool | `true` |  |
 | db-proxy.enabled | bool | `true` |  |
-| global | object | `{"organizationID":""}` | Global values forwarded to all sub-charts. |
-| global.organizationID | string | `""` | Organization ID shared by all DBO components. |

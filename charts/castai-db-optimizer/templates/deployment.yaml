@@ -246,9 +246,9 @@ spec:
             - name: POOLING_ENABLED
               value: "true"
             {{- end }}
-            {{- with (.Values.organizationID | default (.Values.global | default dict).organizationID) }}
+            {{- if .Values.organizationID }}
             - name: ORGANIZATION_ID
-              value: {{ . | quote }}
+              value: {{ .Values.organizationID | quote }}
             {{- end }}
             - name: CRASH_LOG_PATH
               value: {{ .Values.queryProcessor.crashLogPath }}
