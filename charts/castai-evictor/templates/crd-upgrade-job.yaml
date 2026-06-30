@@ -1,0 +1,143 @@
+{{- if .Values.crdUpgrade.enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+rules:
+- apiGroups:
+  - apiextensions.k8s.io
+  resourceNames:
+  - evictorconfigs.autoscaling.cast.ai
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+subjects:
+- kind: ServiceAccount
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "evictor.fullname" . }}-crds
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+data:
+  crds.yaml: |
+{{ .Files.Get "crds/evictorconfigs.autoscaling.cast.ai.yaml" | indent 4 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "evictor.fullname" . }}-crd-upgrade-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      name: {{ include "evictor.fullname" . }}-crd-upgrade
+      labels:
+        {{- include "evictor.labels" . | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "evictor.fullname" . }}-crd-upgrade
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+        seccompProfile:
+          type: RuntimeDefault
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: crd-upgrade
+        image: {{ .Values.crdUpgrade.image.repository }}:{{ .Values.crdUpgrade.image.tag }}
+        imagePullPolicy: {{ .Values.crdUpgrade.image.pullPolicy }}
+        command:
+        - /bin/kubectl
+        args:
+        - apply
+        - --server-side
+        - --force-conflicts
+        - -f
+        - /crds/crds.yaml
+        volumeMounts:
+        - name: crds
+          mountPath: /crds
+          readOnly: true
+        securityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 1000
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+            - ALL
+          seccompProfile:
+            type: RuntimeDefault
+      volumes:
+      - name: crds
+        configMap:
+          name: {{ include "evictor.fullname" . }}-crds
+{{- end }}
