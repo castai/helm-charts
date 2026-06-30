@@ -125,10 +125,14 @@ Values are rendered as-is (original {enabled: bool} format).
     {{- /* Structured array mode */ -}}
 {{ "evictionConfig:" | nindent 4 }}
 {{- toYaml .Values.customConfig | nindent 6 }}
-  {{- else if .Values.customConfig.evictionRules }}
+  {{- else if kindIs "map" .Values.customConfig }}
+    {{- if .Values.customConfig.evictionRules }}
     {{- /* Map mode with nested evictionRules */ -}}
 {{ "evictionConfig:" | nindent 4 }}
 {{- toYaml .Values.customConfig.evictionRules | nindent 6 }}
+    {{- else }}
+      {{- fail "customConfig map must contain an 'evictionRules' key" }}
+    {{- end }}
   {{- end }}
 {{- end }}
 {{- end }}

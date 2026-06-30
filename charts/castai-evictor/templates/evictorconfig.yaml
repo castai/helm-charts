@@ -38,8 +38,12 @@ spec:
   {{- $rules := list }}
   {{- if kindIs "slice" .Values.customConfig }}
     {{- $rules = .Values.customConfig }}
-  {{- else if .Values.customConfig.evictionRules }}
-    {{- $rules = .Values.customConfig.evictionRules }}
+  {{- else if kindIs "map" .Values.customConfig }}
+    {{- if .Values.customConfig.evictionRules }}
+      {{- $rules = .Values.customConfig.evictionRules }}
+    {{- else }}
+      {{- fail "customConfig map must contain an 'evictionRules' key" }}
+    {{- end }}
   {{- end }}
   {{- if $rules }}
   evictionRules:
@@ -56,7 +60,7 @@ spec:
       {{- end }}
       {{- $rule = set $rule "settings" $crSettings }}
     {{- end }}
-{{ list $rule | toYaml | nindent 4 }}
+    - {{ $rule | toYaml | nindent 6 | trim }}
     {{- end }}
   {{- end }}
   {{- end }}
