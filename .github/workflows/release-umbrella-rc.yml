@@ -108,7 +108,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name || inputs.tag_name }}
-          fetch-depth: 1
+          # fetch-depth: 0 — drift check needs full tag history to diff
+          # the current release against the previous component tag.
+          fetch-depth: 0
           path: helm-charts
 
       - name: Checkout helm-charts at HEAD (for scripts)
@@ -125,6 +127,9 @@ jobs:
           GITLAB_TOKEN: ${{ secrets.GITLAB_PAT_OANA }}
         run: |
           git config --global credential.helper '!f() { echo "username=oauth2"; echo "password='"${GITLAB_TOKEN}"'"; }; f'
+          # Full clone (no --depth) is required: the drift check diffs the
+          # current component tag against the previous component tag via
+          # `git log` / `git diff` against the local tag list.
           git clone https://gitlab.com/castai/kubecast.git kubecast
           cd kubecast
           git config user.email "ci@cast.ai"
