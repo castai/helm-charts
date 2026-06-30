@@ -11,10 +11,10 @@ Wrapper chart for CAST AI Kent profile.
 | https://castai.github.io/helm-charts | castai-agent | 0.158.0 |
 | https://castai.github.io/helm-charts | castai-chart-upgrader | 0.2.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.7 |
-| https://castai.github.io/helm-charts | castai-kentroller | 0.1.163 |
-| https://castai.github.io/helm-charts | castai-kvisor | 1.163.2 |
-| https://castai.github.io/helm-charts | castai-live | 0.107.1 |
-| https://castai.github.io/helm-charts | castai-pod-mutator | 0.15.2 |
+| https://castai.github.io/helm-charts | castai-kentroller | 0.1.164 |
+| https://castai.github.io/helm-charts | castai-kvisor | 1.163.3 |
+| https://castai.github.io/helm-charts | castai-live | 0.108.0 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.16.0 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.4 |
 | https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.3.0 |
 | https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.3.0 |
