@@ -247,7 +247,11 @@ while IFS= read -r -d '' umb_file; do
 
   if [ -z "$matched_comp" ]; then
     echo "DEBUG: no matching component files found for ${umb_fname}" >&2
-    AI_REPORT+="### ${umb_fname}\n> ⚠️ No matching component file found — may be an umbrella-only addition.\n\n"
+    AI_REPORT+="### ${umb_fname}
+
+> ⚠️ No matching component file found — may be an umbrella-only addition.
+
+"
     continue
   fi
 
@@ -301,13 +305,38 @@ Rules:
 - ACTION REQUIRED: component has something the umbrella is missing or has differently.
 - INFORMATIONAL: umbrella has something the component doesn't.
 - One finding block per differing field. Do NOT group or summarize.
-- If no drift, output only: \"✅ No drift in ${umb_fname}.\""
+- If there is no drift, output EXACTLY this single line and nothing else: ✅ No drift in ${umb_fname}.
+- Do NOT output the word \"None\", \"N/A\", an empty string, or any other placeholder. Either emit one or more finding blocks in the format above, or the single ✅ line.
+- Use real markdown formatting (newlines, headings, fenced code blocks). Do NOT emit literal backslash-n escape sequences."
 
   file_report=$(call_kimchi "$per_file_prompt") || {
-    AI_REPORT+="### ${umb_fname}\n> ❌ API call failed — skipped.\n\n"
+    AI_REPORT+="### ${umb_fname}
+
+> ❌ API call failed — skipped.
+
+"
     continue
   }
-  AI_REPORT+="### ${umb_fname}\n${file_report}\n\n"
+
+  # Normalise the model output:
+  #  - strip surrounding whitespace
+  #  - convert literal backslash-n sequences (some models emit them) to real newlines
+  #  - collapse degenerate \"None\" / \"N/A\" / empty replies to the no-drift line
+  file_report=$(printf '%s' "$file_report" \
+    | python3 -c "import sys; s=sys.stdin.read().strip(); s=s.replace('\\\\n','\n'); print(s)")
+
+  normalised=$(printf '%s' "$file_report" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]./\\"'\''`')
+  case "$normalised" in
+    ''|none|na|nodrift|null|nil|empty|nochanges|nochange|nodifference|nodifferences)
+      file_report="✅ No drift in ${umb_fname}."
+      ;;
+  esac
+
+  AI_REPORT+="### ${umb_fname}
+
+${file_report}
+
+"
 
 done < <(find "$UMB_TEMPLATES" -name '*.yaml' | sort | tr '\n' '\0')
 
