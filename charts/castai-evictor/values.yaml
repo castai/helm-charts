@@ -363,3 +363,15 @@ pricingModel:
   baseMemCost: "1.0"
   # pricingModel.spotDiscount -- Fractional discount applied to spot instance price relative to on-demand.
   spotDiscount: "0.5"
+
+# CRD installation
+installCRDs: true
+
+# -- CRD upgrade configuration.
+# Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job.
+crdUpgrade:
+  enabled: true
+  image:
+    repository: rancher/kubectl
+    tag: "v1.35.6"
+    pullPolicy: IfNotPresent
