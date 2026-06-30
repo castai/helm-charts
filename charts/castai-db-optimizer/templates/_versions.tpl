@@ -1,5 +1,5 @@
-{{- define "defaultProxyVersion" -}}v4.84.2{{- end -}}
-{{- define "defaultQueryProcessorVersion" -}}v0.48.0{{- end -}}
-{{- define "defaultCloudSqlProxyVersion" -}}2.18.2{{- end -}}
-{{- define "defaultPgdogVersion" -}}v0.1.43{{- end -}}
-{{- define "defaultProxySqlVersion" -}}3.0.6{{- end -}}
+{{- define "castai-db-optimizer.defaultProxyVersion" -}}v4.84.2{{- end -}}
+{{- define "castai-db-optimizer.defaultQueryProcessorVersion" -}}v0.48.0{{- end -}}
+{{- define "castai-db-optimizer.defaultCloudSqlProxyVersion" -}}2.18.2{{- end -}}
+{{- define "castai-db-optimizer.defaultPgdogVersion" -}}v0.1.43{{- end -}}
+{{- define "castai-db-optimizer.defaultProxySqlVersion" -}}3.0.6{{- end -}}
