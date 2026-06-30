@@ -1429,6 +1429,28 @@ spec:
                   - type
                   type: object
                 type: array
+              finalization:
+                description: |-
+                  FinalizationStatus tracks the controller's progress finalizing a deleted recommendation.
+                  It is populated by the recommendation reconciler once DeletionTimestamp is set and is
+                  intended for observability and as the source of truth for the force-finalize deadline.
+                  The recommendation CR is garbage-collected shortly after the finalizer is removed, so
+                  this status is only visible during the Terminating window. The deletion start time
+                  lives on metadata.deletionTimestamp and is not duplicated here.
+                properties:
+                  lastProgressAt:
+                    description: |-
+                      LastProgressAt is updated whenever RemainingPodCount decreases. Used as the primary
+                      anchor for the force-finalize deadline; if it never advances, the recommendation is
+                      considered stuck.
+                    format: date-time
+                    type: string
+                  remainingPodCount:
+                    description: |-
+                      RemainingPodCount is the number of pods still owning this recommendation's vertical
+                      hash annotation as observed on the most recent reconcile. Used to detect forward motion.
+                    type: integer
+                type: object
               hpa:
                 description: HPAStatus is the controller's resolved view of the HPA
                   the webhook should enforce.
