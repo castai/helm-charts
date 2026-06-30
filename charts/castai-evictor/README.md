@@ -30,6 +30,7 @@ Cluster utilization defragmentation tool
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
+| crdUpgrade | object | `{"enabled":true,"image":{"pullPolicy":"IfNotPresent","repository":"rancher/kubectl","tag":"v1.35.6"}}` | CRD upgrade configuration. Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job. |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
@@ -54,6 +55,7 @@ Cluster utilization defragmentation tool
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
+| installCRDs | bool | `true` |  |
 | karpenterNodeCleanup | object | `{"enabled":false}` | Karpenter NodeClaim cleanup for nodes Evictor has drained. When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully drained, so Karpenter's termination controller can clean up the EC2 instance. Requires `nodeclaims.karpenter.sh` get/list/watch/delete permission (granted by this chart). |
 | karpenterNodeCleanup.enabled | bool | `false` | Whether to enable cleanup of Karpenter nodes. |
 | kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100}}` | Specifies Kubernetes client settings. |
