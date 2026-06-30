@@ -205,6 +205,18 @@ affinity:
 
 # customConfig - settings for advanced configuration
 # Ref: https://docs.cast.ai/docs/evictor#advanced-configuration
+# Supports three input formats:
+#   1. String (legacy) — passed through to ConfigMap as-is, CR evictionRules not populated.
+#      customConfig: |
+#        evictionConfig:
+#          - nodeSelector: ...
+#   2. List — rendered into both ConfigMap (wrapped with evictionConfig:) and CR evictionRules.
+#      customConfig:
+#        - nodeSelector: ...
+#   3. Object with evictionRules key — same as list but nested under evictionRules.
+#      customConfig:
+#        evictionRules:
+#          - nodeSelector: ...
 customConfig: {}
 configMapLabels: {}
 
@@ -298,3 +310,56 @@ openshift:
     # This makes the SCC less restrictive, preventing it from being selected for other workloads.
     # WARNING: Only enable if CAST AI container images support running as arbitrary UIDs.
     useRestrictedProfile: false
+
+# ──────────────────────────────────────────────────────────────────────────────
+# EvictorConfig CR fields — not yet read by the evictor.
+#
+# These values are rendered into the EvictorConfig custom resource but the
+# evictor does not yet consume them from the CR. They are defined here so the
+# CR schema is fully populated; changing them has no effect until the evictor
+# is updated to read them.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# evictorEnabled -- (CR field, not yet read by evictor) Top-level kill-switch for the evictor.
+# When false, no evictions or node drains are performed regardless of other settings.
+evictorEnabled: true
+
+# minNodesToEvictPerCycle -- (CR field, not yet read by evictor) Minimum number of nodes to consider per eviction cycle.
+minNodesToEvictPerCycle: 5
+
+# targetNodePercentage -- (CR field, not yet read by evictor) Percentage of eligible nodes to consider per cycle,
+# applied after min/max target node bounds.
+targetNodePercentage: 10
+
+# drainTimeout -- (CR field, not yet read by evictor) Maximum time the evictor waits for a node to fully drain before giving up.
+drainTimeout: 10m
+
+# drainRollbackTimeout -- (CR field, not yet read by evictor) How long the evictor waits before rolling back a cordon when a drain attempt fails.
+drainRollbackTimeout: 1m
+
+# podEvictionFailureBackOff -- (CR field, not yet read by evictor) Wait time before retrying after a pod eviction request fails.
+podEvictionFailureBackOff: 5s
+
+# forceDisableKarpenterMode -- (CR field, not yet read by evictor) Disables Karpenter-aware scheduling simulation
+# even when Karpenter is detected on the cluster. Capability-detected by the evictor.
+forceDisableKarpenterMode: true
+
+# emitNodeRelatedPodEvents -- (CR field, not yet read by evictor) Emit Kubernetes events on pods when they are evicted as part of a node drain.
+emitNodeRelatedPodEvents: false
+
+# arm64Supported -- (CR field, not yet read by evictor) Indicates arm64 nodes are present so the scheduling simulation includes them as valid targets.
+arm64Supported: true
+
+# windows -- (CR field, not yet read by evictor) Enable eviction of pods and nodes running Windows workloads.
+windows: false
+
+# pricingModel -- (CR field, not yet read by evictor) Cost coefficients used when pricingAwareness is enabled.
+pricingModel:
+  # pricingModel.enabled -- Enable pricing-aware drain candidate selection (prefer draining more expensive nodes first).
+  enabled: false
+  # pricingModel.baseCPUCost -- Cost coefficient per CPU core.
+  baseCPUCost: "7.0"
+  # pricingModel.baseMemCost -- Cost coefficient per GiB of memory.
+  baseMemCost: "1.0"
+  # pricingModel.spotDiscount -- Fractional discount applied to spot instance price relative to on-demand.
+  spotDiscount: "0.5"
