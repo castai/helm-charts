@@ -1,6 +1,6 @@
 # castai-workload-autoscaler
 
-![Version: 1.3.0](https://img.shields.io/badge/Version-1.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.3.0](https://img.shields.io/badge/AppVersion-v1.3.0-informational?style=flat-square)
+![Version: 1.3.2](https://img.shields.io/badge/Version-1.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v1.3.2](https://img.shields.io/badge/AppVersion-v1.3.2-informational?style=flat-square)
 
 CAST AI workload autoscaler.
 
@@ -32,6 +32,7 @@ CAST AI workload autoscaler.
 | evictionRateLimitingEnabled | bool | `true` | Enable rate limiting pod evictions by workload autoscaler. |
 | extraVolumeMounts | list | `[]` | Used to set additional volumemounts |
 | extraVolumes | list | `[]` | Used to set additional volumes |
+| forceFinalizeAfter | string | `"15m"` |  |
 | fullnameOverride | string | `"castai-workload-autoscaler"` |  |
 | global.castai.apiKeySecretRef | string | `""` |  |
 | global.imagePullSecrets | list | `[]` |  |

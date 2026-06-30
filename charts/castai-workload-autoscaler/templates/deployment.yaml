@@ -93,6 +93,8 @@ spec:
               value: {{ include "workload-autoscaler.leaderElectionLeaseName" . }}
             - name: CERTS_SECRET
               value: {{ include "workload-autoscaler.certsSecretName" . }}
+            - name: FORCE_FINALIZE_AFTER
+              value: {{ quote .Values.forceFinalizeAfter }}
             {{- if .Values.inPlaceResizeEnabled }}
             - name: IN_PLACE_RESIZE_ENABLED
               value: {{ quote .Values.inPlaceResizeEnabled }}
