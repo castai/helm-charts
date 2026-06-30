@@ -18,7 +18,6 @@ Cluster utilization defragmentation tool
 | affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions[0].values[0] | string | `"windows"` |  |
 | aggressiveMode | bool | `false` | Specifies whether the Evictor can behave as aggressive if true, evictor will start considering single replica pods as long as they can be scheduled somewhere else. |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing evictor access to the API apiKey and apiKeySecretRef are mutually exclusive The referenced secret must provide the token in .data["API_KEY"]. |
-| arm64Supported | CR field, not yet read by evictor | `true` | Indicates arm64 nodes are present so the scheduling simulation includes them as valid targets. |
 | clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` | key of the cluster id value in the config map |
 | clusterIdConfigMapKeyRef.name | string | `""` | name and of the config map with cluster id |
 | clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
@@ -33,15 +32,10 @@ Cluster utilization defragmentation tool
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
-| drainRollbackTimeout | CR field, not yet read by evictor | `"1m"` | How long the evictor waits before rolling back a cordon when a drain attempt fails. |
-| drainTimeout | CR field, not yet read by evictor | `"10m"` | Maximum time the evictor waits for a node to fully drain before giving up. |
 | dryRun | bool | `false` |  |
-| emitNodeRelatedPodEvents | CR field, not yet read by evictor | `false` | Emit Kubernetes events on pods when they are evicted as part of a node drain. |
 | envFrom | list | `[]` | Additional environment sources for the evictor container. Accepts a list of `configMapRef` or `secretRef` entries, following the standard `envFrom` format. |
-| evictorEnabled | CR field, not yet read by evictor | `true` | Top-level kill-switch for the evictor. When false, no evictions or node drains are performed regardless of other settings. |
 | extraVolumeMounts | list | `[]` | Used to set additional volume mounts. |
 | extraVolumes | list | `[]` | Used to set additional volumes. |
-| forceDisableKarpenterMode | CR field, not yet read by evictor | `true` | Disables Karpenter-aware scheduling simulation even when Karpenter is detected on the cluster. Capability-detected by the evictor. |
 | fullnameOverride | string | `"castai-evictor"` |  |
 | global | object | `{"castai":{"apiKeySecretRef":""},"imagePullSecrets":[],"rbac":{"clusterScoped":{"enabled":true}},"registry":""}` | Global values propagated from parent charts. |
 | global.castai.apiKeySecretRef | string | `""` | Name of a pre-existing Secret containing the CAST AI API key. Takes effect when apiKeySecretRef is not set locally. |
@@ -64,7 +58,6 @@ Cluster utilization defragmentation tool
 | liveMigration | object | `{"enabled":true,"useK8sClientCache":true}` | Specifies LIVE migration settings. This options assumes that the CAST AI LIVE components are already installed in the cluster. |
 | managedByCASTAI | bool | `true` | Specifies whether the Evictor was installed using mothership and is automatically updated by CAST AI. Alternative scenarios are, when CAST AI is not managing charts, and customers' are install them with Argo CD/Terraform or something else. |
 | maxNodesToEvictPerCycle | int | `20` | Specifies the max nodes evictor can evict in a single cycle. |
-| minNodesToEvictPerCycle | CR field, not yet read by evictor | `5` | Minimum number of nodes to consider per eviction cycle. |
 | nameOverride | string | `""` |  |
 | nodeGracePeriodMinutes | int | `5` | Specifies the grace period after a node is created before it is considered for eviction The number of minutes a node must exist before it will be considered. |
 | nodeSelector | object | `{}` |  |
@@ -73,14 +66,8 @@ Cluster utilization defragmentation tool
 | openshift.scc.useRestrictedProfile | bool | `false` |  |
 | overrideEnvFrom | bool | `false` | If set to true, completely overrides the default `envFrom` section for the evictor container. When false (default), values provided here will be appended to the chart's defaults. |
 | podAnnotations | object | `{}` |  |
-| podEvictionFailureBackOff | CR field, not yet read by evictor | `"5s"` | Wait time before retrying after a pod eviction request fails. |
 | podLabels | object | `{}` |  |
 | podMutations | object | `{"enabled":true}` | Specifies settings for working with PodMutation CRs. |
-| pricingModel | CR field, not yet read by evictor | `{"baseCPUCost":"7.0","baseMemCost":"1.0","enabled":false,"spotDiscount":"0.5"}` | Cost coefficients used when pricingAwareness is enabled. |
-| pricingModel.baseCPUCost | string | `"7.0"` | Cost coefficient per CPU core. |
-| pricingModel.baseMemCost | string | `"1.0"` | Cost coefficient per GiB of memory. |
-| pricingModel.enabled | bool | `false` | Enable pricing-aware drain candidate selection (prefer draining more expensive nodes first). |
-| pricingModel.spotDiscount | string | `"0.5"` | Fractional discount applied to spot instance price relative to on-demand. |
 | rbac.enabled | bool | `true` |  |
 | replicaCount | int | `1` |  |
 | resources | object | `{}` |  |
@@ -96,8 +83,6 @@ Cluster utilization defragmentation tool
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template. |
 | softTainting | object | `{"enabled":false}` | Specifies soft tainting parameters. |
 | softTainting.enabled | bool | `false` | Whether to enable soft tainting of evicted nodes. |
-| targetNodePercentage | CR field, not yet read by evictor | `10` | Percentage of eligible nodes to consider per cycle, applied after min/max target node bounds. |
 | tolerations | list | `[]` |  |
 | updateStrategy | object | `{"type":"Recreate"}` | Controls `deployment.spec.strategy` field. |
-| windows | CR field, not yet read by evictor | `false` | Enable eviction of pods and nodes running Windows workloads. |
 | woop | object | `{"enabled":true,"useK8sClientCache":true}` | Specifies settings for working with WOOP recommendations. |
