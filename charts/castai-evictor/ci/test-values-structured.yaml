@@ -1,0 +1,88 @@
+global:
+  tolerations:
+    - effect: NoSchedule
+      key: global-taint
+      operator: Equal
+      value: "true"
+
+test:
+  clusterID: "test"
+  apiKey: "test"
+  apiURL: "test"
+
+# ── spec-level fields ──────────────────────────────────────────────────────────
+
+managedByCASTAI: false
+evictorEnabled: true
+
+# ── config: already-supported fields ───────────────────────────────────────────
+
+dryRun: true
+aggressiveMode: true
+scopedMode: true
+cycleInterval: 2m
+nodeGracePeriodMinutes: 10
+maxNodesToEvictPerCycle: 50
+ignorePodDisruptionBudgets: true
+
+liveMigration:
+  enabled: false
+woop:
+  enabled: false
+podMutations:
+  enabled: false
+karpenterNodeCleanup:
+  enabled: true
+softTainting:
+  enabled: true
+
+# ── config: CR-pending fields (not yet read by evictor) ────────────────────────
+
+forceDisableKarpenterMode: false
+minNodesToEvictPerCycle: 10
+targetNodePercentage: 25
+drainTimeout: 15m
+drainRollbackTimeout: 5m
+podEvictionFailureBackOff: 10s
+emitNodeRelatedPodEvents: true
+arm64Supported: false
+windows: true
+pricingModel:
+  enabled: true
+  baseCPUCost: "10.0"
+  baseMemCost: "2.0"
+  spotDiscount: "0.3"
+
+# ── evictionRules: all selector and settings types ─────────────────────────────
+
+customConfig:
+  - podSelector:
+      namespace: "default"
+      kind: Job
+      labelSelector:
+        matchLabels:
+          some.label: someLabel
+    settings:
+      aggressive:
+        enabled: true
+  - nodeSelector:
+      labelSelector:
+        matchLabels:
+          fancy-node: poof
+    settings:
+      removalDisabled:
+        enabled: true
+  - podSelector:
+      kind: StatefulSet
+      labelSelector:
+        matchExpressions:
+          - key: app.kubernetes.io/name
+            operator: Exists
+          - key: statefulset.kubernetes.io/pod-name
+            operator: Exists
+    settings:
+      disposable:
+        enabled: true
+
+clusterVPA:
+  enabled: true
