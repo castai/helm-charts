@@ -15,12 +15,12 @@
 #   CHART_NAME        — e.g. castai-agent, castai-pod-pinner, castai-live
 #   CHART_VERSION     — e.g. 0.35.103 (used to assemble the current tag)
 #   KIMCHI_API_KEY    — Kimchi Inference API key
-#   GITLAB_TOKEN      — required only for castai-live (to clone gitlab.com/castai/live/clm)
+#   GITLAB_TOKEN      — required only for castai-live (to clone gitlab.com/castai/*)
 #
 # Paths expected to exist at call time (created by release-umbrella-rc.yml):
 #   helm-charts/      — full clone of helm-charts at the release tag (fetch-depth:0)
 #   kubecast/         — full clone of the kubecast repo (no --depth)
-#   For castai-live the script clones gitlab.com/castai/live/clm itself.
+#   For castai-live the script clones gitlab.com/castai/* itself.
 #
 # Writes markdown to stdout and, when GITHUB_OUTPUT is set, appends:
 #   drift_report<<DELIMITER / ... / DELIMITER
@@ -69,32 +69,32 @@ configure_component() {
       ;;
     castai-agent)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/castai-agent"
+      COMPONENT_PATH="services/castai-agent/chart"
       TAG_PREFIX="castai-agent/v"
       ;;
     castai-pod-pinner)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/castai-pod-pinner"
+      COMPONENT_PATH="services/castai-pod-pinner/chart"
       TAG_PREFIX="castai-pod-pinner/v"
       ;;
     castai-cluster-controller)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/cluster-controller"
+      COMPONENT_PATH="services/cluster-controller/charts/castai-cluster-controller"
       TAG_PREFIX="cluster-controller/v"
       ;;
     castai-kvisor)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/kvisor"
+      COMPONENT_PATH="services/kvisor/chart"
       TAG_PREFIX="kvisor/v"
       ;;
     castai-pod-mutator)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/pod-mutator"
+      COMPONENT_PATH="services/pod-mutator/chart"
       TAG_PREFIX="pod-mutator/v"
       ;;
     castai-spot-handler)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/spot-handler"
+      COMPONENT_PATH="services/spot-handler/charts/castai-spot-handler"
       TAG_PREFIX="spot-handler/v"
       ;;
     castai-workload-autoscaler)
@@ -105,12 +105,11 @@ configure_component() {
     castai-workload-autoscaler-exporter)
       REPO_CLONE_DIR="kubecast"
       COMPONENT_PATH="services/workload-autoscaler/charts/castai-workload-autoscaler-exporter"
-      # Shares the same release tag as castai-workload-autoscaler.
       TAG_PREFIX="workload-autoscaler/v"
       ;;
     castai-live)
-      REPO_CLONE_DIR="clm"   # cloned below
-      COMPONENT_PATH="helm"  # diff scope: helm/ subtree (templates + dependencies)
+      REPO_CLONE_DIR="clm"
+      COMPONENT_PATH="helm"
       TAG_PREFIX="v"
       ;;
     *)

@@ -103,6 +103,18 @@ jobs:
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         uses: mikefarah/yq@v4.44.3
 
+      - name: Install Helm
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        uses: azure/setup-helm@v4.3.1
+        with:
+          version: v3.17.0
+
+      - name: Set up Go
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
       - name: Checkout helm-charts at release tag
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         uses: actions/checkout@v4
@@ -316,6 +328,32 @@ jobs:
           echo "Bumped umbrella version: ${CURRENT} -> ${NEW_VERSION}"
           echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "tag=castai-${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Refresh subchart Chart.lock files
+        if: steps.changed.outputs.any == 'true' && steps.bump_deps.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          helm repo add castai-helm https://castai.github.io/helm-charts
+          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+          helm repo update
+
+          # Refresh Chart.lock and packaged .tgz for each mode subchart whose
+          # Chart.yaml was bumped, then refresh the umbrella chart itself so
+          # its Chart.lock stays consistent.
+          for sub in kent autoscaler-anywhere autoscaler-openshift; do
+            path="kubecast/castai-umbrella/chart/charts/${sub}"
+            if [ -d "$path" ]; then
+              echo "==> helm dependency update ${path}"
+              helm dependency update "$path"
+            fi
+          done
+          echo "==> helm dependency update kubecast/castai-umbrella/chart"
+          helm dependency update kubecast/castai-umbrella/chart
+
+      - name: Regenerate helm-docs README.md files
+        if: steps.changed.outputs.any == 'true'
+        working-directory: kubecast/castai-umbrella
+        run: make helm-docs
 
       - name: Check template drift between component and umbrella
         id: drift
