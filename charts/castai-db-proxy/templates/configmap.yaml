@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "name" . }}-config
+  name: {{ include "castai-db-proxy.name" . }}-config
   labels:
-    {{- include "labels" . | nindent 4 }}
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
   annotations:
-    {{- include "annotations" . | nindent 4 }}
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
 data:
   config.toml: |
     protocol = {{ .Values.protocol | quote }}
@@ -34,6 +34,6 @@ data:
 
     [cluster.discovery]
     type = "dns"
-    host = "headless-{{ include "name" . }}.{{ .Release.Namespace }}.svc.cluster.local"
+    host = "headless-{{ include "castai-db-proxy.name" . }}.{{ .Release.Namespace }}.svc.cluster.local"
     port = {{ .Values.ports.cluster }}
     {{- end }}
