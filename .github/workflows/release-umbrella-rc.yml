@@ -108,7 +108,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.event.release.tag_name || inputs.tag_name }}
-          fetch-depth: 1
+          # fetch-depth: 0 — drift check needs full tag history to diff
+          # the current release against the previous component tag.
+          fetch-depth: 0
           path: helm-charts
 
       - name: Checkout helm-charts at HEAD (for scripts)
@@ -125,6 +127,9 @@ jobs:
           GITLAB_TOKEN: ${{ secrets.GITLAB_PAT_OANA }}
         run: |
           git config --global credential.helper '!f() { echo "username=oauth2"; echo "password='"${GITLAB_TOKEN}"'"; }; f'
+          # Full clone (no --depth) is required: the drift check diffs the
+          # current component tag against the previous component tag via
+          # `git log` / `git diff` against the local tag list.
           git clone https://gitlab.com/castai/kubecast.git kubecast
           cd kubecast
           git config user.email "ci@cast.ai"
@@ -139,9 +144,25 @@ jobs:
         run: |
           # Image tags follow the GitHub release tag directly:
           #   castai-kvisor-1.55.21 → v1.55.21
-          # castai-live is the exception — its images don't carry the v prefix.
+          # Exceptions:
+          #   - castai-live: images don't carry the v prefix.
+          #   - castai-evictor: image tag is the appVersion (commit SHA)
+          #     from charts/castai-evictor/Chart.yaml, not the chart version.
           if [ "$CHART_NAME" = "castai-live" ]; then
             echo "image_tag=${CHART_VERSION}" >> $GITHUB_OUTPUT
+          elif [ "$CHART_NAME" = "castai-evictor" ]; then
+            EVICTOR_CHART="helm-charts/charts/castai-evictor/Chart.yaml"
+            if [ ! -f "$EVICTOR_CHART" ]; then
+              echo "Expected ${EVICTOR_CHART} to exist in the release checkout — aborting."
+              exit 1
+            fi
+            APP_VERSION=$(yq '.appVersion' "$EVICTOR_CHART")
+            if [ -z "$APP_VERSION" ] || [ "$APP_VERSION" = "null" ]; then
+              echo "castai-evictor Chart.yaml has no appVersion — aborting."
+              exit 1
+            fi
+            echo "castai-evictor: using appVersion '${APP_VERSION}' from ${EVICTOR_CHART} as image tag."
+            echo "image_tag=${APP_VERSION}" >> $GITHUB_OUTPUT
           else
             echo "image_tag=v${CHART_VERSION}" >> $GITHUB_OUTPUT
           fi
