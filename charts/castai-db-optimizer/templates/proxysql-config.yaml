@@ -17,11 +17,11 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "name" . }}-proxysql-config
+  name: {{ include "castai-db-optimizer.name" . }}-proxysql-config
   labels:
-    {{- include "labels" . | nindent 4 }}
+    {{- include "castai-db-optimizer.labels" . | nindent 4 }}
   annotations:
-    {{- include "annotations" . | nindent 4 }}
+    {{- include "castai-db-optimizer.annotations" . | nindent 4 }}
 data:
   proxysql.cnf: |
     datadir="/var/lib/proxysql"

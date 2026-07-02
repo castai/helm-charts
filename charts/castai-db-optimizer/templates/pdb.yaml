@@ -1,13 +1,13 @@
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ include "name" . }}
+  name: {{ include "castai-db-optimizer.name" . }}
   labels:
-    {{- include "labels" . | nindent 4 }}
+    {{- include "castai-db-optimizer.labels" . | nindent 4 }}
   annotations:
-    {{- include "annotations" . | nindent 4 }}
+    {{- include "castai-db-optimizer.annotations" . | nindent 4 }}
 spec:
   maxUnavailable: 1
   selector:
     matchLabels:
-      {{- include "selectorLabels" . | nindent 6 }}
+      {{- include "castai-db-optimizer.selectorLabels" . | nindent 6 }}

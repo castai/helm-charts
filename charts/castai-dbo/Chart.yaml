@@ -9,12 +9,12 @@ maintainers:
 dependencies:
   - name: castai-db-proxy
     alias: db-proxy
-    version: "0.1.3"
+    version: "0.2.1"
     repository: "https://castai.github.io/helm-charts"
     condition: db-proxy.enabled
   - name: castai-db-agent
     alias: db-agent
-    version: "0.22.1"
+    version: "0.22.0"
     repository: "https://castai.github.io/helm-charts"
     condition: db-agent.enabled
   - name: castai-db-optimizer

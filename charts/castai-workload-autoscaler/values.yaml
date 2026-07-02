@@ -373,3 +373,7 @@ preDeleteHook:
   optionalConfig: true
 
 fullnameOverride: castai-workload-autoscaler
+
+# If no progress is observed for this period, finalizer will be removed from the recommendation.
+# Set to 0 to disable.
+forceFinalizeAfter: 15m
