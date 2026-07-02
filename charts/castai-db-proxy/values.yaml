@@ -130,3 +130,10 @@ dnsPolicy: ""
 
 # -- Pod DNS configuration.
 dnsConfig: {}
+
+# -- Connection draining configuration
+connection_draining:
+  # -- How long existing connections have to finish after SIGTERM. Must be > 0
+  grace_period_seconds: 55
+  # -- How long the server waits for runtimes to shut down after the grace period. Must be > 0
+  graceful_shutdown_timeout_seconds: 5

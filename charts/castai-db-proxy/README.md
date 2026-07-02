@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -16,6 +16,9 @@ CAST AI database proxy cache deployment.
 | cluster.enabled | bool | `true` | Enable distributed cache cluster mode. |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
+| connection_draining | object | `{"grace_period_seconds":55,"graceful_shutdown_timeout_seconds":5}` | Connection draining configuration |
+| connection_draining.grace_period_seconds | int | `55` | How long existing connections have to finish after SIGTERM. Must be > 0 |
+| connection_draining.graceful_shutdown_timeout_seconds | int | `5` | How long the server waits for runtimes to shut down after the grace period. Must be > 0 |
 | dnsConfig | object | `{}` | Pod DNS configuration. |
 | dnsPolicy | string | `""` | Pod DNS policy. |
 | endpoints | list | `[]` | Upstream database endpoints. Each entry needs `address` (host:port) and `readonly` (bool). |
