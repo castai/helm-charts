@@ -4,6 +4,7 @@ target-branch: main
 chart-dirs:
   - charts
 chart-repos:
+  - castai-helm=https://castai.github.io/helm-charts
   - tetragon=https://helm.cilium.io
   - vector=https://helm.vector.dev
 helm-extra-args: --timeout 600s
