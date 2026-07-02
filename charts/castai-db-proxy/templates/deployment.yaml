@@ -33,7 +33,10 @@ spec:
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
-      terminationGracePeriodSeconds: 60
+      {{- if or (lt (int .Values.connection_draining.grace_period_seconds) 1) (lt (int .Values.connection_draining.graceful_shutdown_timeout_seconds) 1) }}
+        {{- fail "connection_draining.grace_period_seconds and graceful_shutdown_timeout_seconds must be positive integers" }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ add .Values.connection_draining.grace_period_seconds .Values.connection_draining.graceful_shutdown_timeout_seconds 5 }}
       {{- with .Values.dnsPolicy }}
       dnsPolicy: {{ . }}
       {{- end }}

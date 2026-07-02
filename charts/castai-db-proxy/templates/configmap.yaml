@@ -37,3 +37,7 @@ data:
     host = "headless-{{ include "castai-db-proxy.name" . }}.{{ .Release.Namespace }}.svc.cluster.local"
     port = {{ .Values.ports.cluster }}
     {{- end }}
+
+    [server]
+    grace_period_seconds = {{ .Values.connection_draining.grace_period_seconds }}
+    graceful_shutdown_timeout_seconds = {{ .Values.connection_draining.graceful_shutdown_timeout_seconds }}
