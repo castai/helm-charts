@@ -19,34 +19,61 @@ helm repo update
 
 helm upgrade --install castai-dbo castai-helm/castai-dbo \
   --namespace castai-agent --create-namespace \
-  --set db-optimizer.apiKey=<API_KEY> \
-  --set db-optimizer.organizationID=<ORG_ID> \
-  --set db-optimizer.cacheGroupID=<CACHE_GROUP_ID> \
-  --set db-optimizer.protocol=PostgreSQL \
-  --set db-agent.apiKey=<API_KEY> \
-  --set db-agent.organizationID=<ORG_ID> \
-  --set db-agent.cacheGroupID=<CACHE_GROUP_ID>
-```
-
-### Configuring individual components
-
-Pass component-specific values through the `<component>.*` prefix:
-
-```shell
-helm upgrade --install castai-dbo castai-helm/castai-dbo \
-  --namespace castai-agent --create-namespace \
   -f values.yaml
 ```
 
-### Disabling a component
+See below for the required values for each component.
 
-Any sub-chart can be excluded:
+> **Note:** `db-proxy` and `db-optimizer` are mutually exclusive — enable only one of them.
 
-```shell
-helm upgrade castai-dbo castai-helm/castai-dbo \
-  --namespace castai-agent \
-  --reset-then-reuse-values \
-  --set db-proxy.enabled=false
+### Example: db-optimizer + db-agent
+
+```yaml
+db-optimizer:
+  enabled: true
+  apiKey: "<API_KEY>"
+  organizationID: "<ORG_ID>"
+  cacheGroupID: "<CACHE_GROUP_ID>"
+  protocol: "PostgreSQL"
+  endpoints:
+    - name: "primary"
+      hostname: "<DB_HOST>"
+      port: 5433
+      targetPort: 5432
+      servicePort: 5433
+
+db-agent:
+  enabled: true
+  apiKey: "<API_KEY>"
+  organizationID: "<ORG_ID>"
+  cacheGroupID: "<CACHE_GROUP_ID>"
+  database:
+    host: "<DB_HOST>"
+    username: "<DB_USER>"
+    password: "<DB_PASSWORD>"
+```
+
+### Example: db-proxy + db-agent
+
+```yaml
+db-proxy:
+  enabled: true
+  apiKey: "<API_KEY>"
+  organizationID: "<ORG_ID>"
+  proxyID: "<PROXY_ID>"
+  endpoints:
+    - address: "<DB_HOST>:<DB_PORT>"
+      readonly: false
+
+db-agent:
+  enabled: true
+  apiKey: "<API_KEY>"
+  organizationID: "<ORG_ID>"
+  cacheGroupID: "<CACHE_GROUP_ID>"
+  database:
+    host: "<DB_HOST>"
+    username: "<DB_USER>"
+    password: "<DB_PASSWORD>"
 ```
 
 {{ template "chart.valuesSection" . }}
