@@ -41,6 +41,7 @@ rules:
       - statefulsets
     verbs:
       - update
+      - patch
   # ---
   # Read/write permissions for pods
   # ---
@@ -95,6 +96,7 @@ rules:
       - list
       - watch
       - update
+      - patch
   # ---
   # Read only permissions to view autoscaling resources
   # ---
