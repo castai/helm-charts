@@ -337,18 +337,37 @@ jobs:
           helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
           helm repo update
 
-          # Refresh Chart.lock and packaged .tgz for each mode subchart whose
-          # Chart.yaml was bumped, then refresh the umbrella chart itself so
-          # its Chart.lock stays consistent.
+          # Retry helper — the newly released chart version can take a few minutes
+          # to propagate to the Helm repo index after the GitHub release publishes.
+          helm_dep_update_with_retry() {
+          local path="$1"
+          local max_attempts=5
+          local delay=90  # seconds between attempts
+
+          for attempt in $(seq 1 "$max_attempts"); do
+            echo "==> helm dependency update ${path} (attempt ${attempt}/${max_attempts})"
+            if helm dependency update "$path"; then
+              return 0
+            fi
+            if [ "$attempt" -lt "$max_attempts" ]; then
+              echo "    Failed — chart version may not be indexed yet. Retrying in ${delay}s..."
+              helm repo update
+              sleep "$delay"
+            fi
+          done
+
+          echo "ERROR: helm dependency update ${path} failed after ${max_attempts} attempts."
+          return 1
+          }
+
           for sub in kent autoscaler-anywhere autoscaler-openshift; do
             path="kubecast/castai-umbrella/chart/charts/${sub}"
             if [ -d "$path" ]; then
-              echo "==> helm dependency update ${path}"
-              helm dependency update "$path"
+              helm_dep_update_with_retry "$path"
             fi
           done
-          echo "==> helm dependency update kubecast/castai-umbrella/chart"
-          helm dependency update kubecast/castai-umbrella/chart
+
+          helm_dep_update_with_retry "kubecast/castai-umbrella/chart"
 
       - name: Regenerate helm-docs README.md files
         if: steps.changed.outputs.any == 'true'
