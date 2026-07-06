@@ -4,6 +4,23 @@ metadata:
   name: {{ include "sglang.fullname" . }}
   labels:
     {{- include "sglang.labels" . | nindent 4 }}
+  {{- /*
+  Zero-downtime router cutover: when the router is enabled the Service selector
+  flips from the worker pods to the router pod. Placing the Service in a LATER
+  ArgoCD sync-wave than the router objects makes Argo apply (and wait for the
+  Ready health of) the router BEFORE the selector moves — so the Service never
+  points at a router that isn't up yet. Waves are only emitted when the router
+  is enabled, so a router-less model's Service is unchanged.
+  */}}
+  {{- if or .Values.service.annotations (and .Values.router.enabled .Values.router.syncWaves.enabled) }}
+  annotations:
+    {{- if and .Values.router.enabled .Values.router.syncWaves.enabled }}
+    argocd.argoproj.io/sync-wave: {{ .Values.router.syncWaves.service | quote }}
+    {{- end }}
+    {{- with .Values.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- end }}
 spec:
   type: {{ .Values.service.type }}
   ports:

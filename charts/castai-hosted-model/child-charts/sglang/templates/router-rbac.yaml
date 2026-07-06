@@ -9,6 +9,12 @@ metadata:
   name: {{ include "sglang.router.fullname" . }}
   labels:
     {{- include "sglang.router.labels" . | nindent 4 }}
+  {{- if .Values.router.syncWaves.enabled }}
+  {{- /* RBAC before the router pod (which needs the SA to watch pods), which is
+     before the Service selector flip. Wave: rbac < router < service. */}}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.router.syncWaves.rbac | quote }}
+  {{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -16,6 +22,10 @@ metadata:
   name: {{ include "sglang.router.fullname" . }}
   labels:
     {{- include "sglang.router.labels" . | nindent 4 }}
+  {{- if .Values.router.syncWaves.enabled }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.router.syncWaves.rbac | quote }}
+  {{- end }}
 rules:
   - apiGroups: [""]
     resources: ["pods"]
@@ -27,6 +37,10 @@ metadata:
   name: {{ include "sglang.router.fullname" . }}
   labels:
     {{- include "sglang.router.labels" . | nindent 4 }}
+  {{- if .Values.router.syncWaves.enabled }}
+  annotations:
+    argocd.argoproj.io/sync-wave: {{ .Values.router.syncWaves.rbac | quote }}
+  {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role

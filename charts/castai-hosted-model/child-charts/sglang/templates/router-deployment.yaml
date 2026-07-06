@@ -33,6 +33,11 @@ metadata:
   labels:
     {{- include "sglang.router.labels" . | nindent 4 }}
   annotations:
+    {{- /* Earlier sync-wave than the Service: Argo brings the router pod to Ready
+       health before the model Service selector flips to it (zero-downtime cutover). */}}
+    {{- if .Values.router.syncWaves.enabled }}
+    argocd.argoproj.io/sync-wave: {{ .Values.router.syncWaves.router | quote }}
+    {{- end }}
     workloads.cast.ai/configuration: |
       vertical:
         optimization: off
