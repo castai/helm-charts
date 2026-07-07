@@ -1,0 +1,231 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "castai-kentroller.serviceAccountName" . }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+  {{- with .Values.serviceAccount.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+automountServiceAccountToken: true
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "castai-kentroller.name" . }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+rules:
+  # permissions to do leader election.
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  # Events creations
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+      - create
+      - update
+      - patch
+      - delete
+  # ConfigMaps for dynamic config management
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  {{- if .Values.webhook.enabled }}
+  # Secrets: cert-controller needs to list/watch all secrets to detect rotation
+  # events, and read/write the specific webhook-certs secret it manages.
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - list
+      - watch
+  # The placeholder Secret is provisioned by the Helm chart (webhook-secret.yaml),
+  # so cert-controller only needs read/update access to it — not create. The
+  # `create` verb is also incompatible with `resourceNames` in Kubernetes RBAC
+  # (object names are not evaluated at authorization time for create requests),
+  # so including it here would silently grant nothing.
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    resourceNames:
+      - {{ include "castai-kentroller.webhookCertsSecretName" . }}
+    verbs:
+      - get
+      - update
+      - patch
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # Supplementary role for permissions that cannot be expressed via kubebuilder RBAC markers.
+  # Controller-generated RBAC lives in role.yaml (regenerated via `make generate`).
+  name: {{ include "castai-kentroller.serviceAccountName" . }}-auth
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+rules:
+  # Metrics endpoint authentication requires tokenreviews and subjectaccessreviews
+  - apiGroups:
+      - authentication.k8s.io
+    resources:
+      - tokenreviews
+    verbs:
+      - create
+  - apiGroups:
+      - authorization.k8s.io
+    resources:
+      - subjectaccessreviews
+    verbs:
+      - create
+  {{- if .Values.webhook.enabled }}
+  # cert-controller patches the caBundle of the MutatingWebhookConfiguration
+  # it manages. It needs cluster-wide list/watch to receive update events, and
+  # write access (scoped to the named object) to perform the patch.
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - admissionregistration.k8s.io
+    resources:
+      - mutatingwebhookconfigurations
+    resourceNames:
+      - {{ include "castai-kentroller.webhookConfigurationName" . }}
+    verbs:
+      - get
+      - patch
+      - update
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "castai-kentroller.name" . }}-metrics-reader
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+rules:
+  - nonResourceURLs:
+      - "/metrics"
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "castai-kentroller.name" . }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "castai-kentroller.name" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-kentroller.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "castai-kentroller.serviceAccountName" . }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "castai-kentroller.serviceAccountName" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-kentroller.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "castai-kentroller.serviceAccountName" . }}-auth
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "castai-kentroller.serviceAccountName" . }}-auth
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-kentroller.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- if .Values.castai.audit.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "castai-kentroller.name" . }}-events-writer
+  namespace: {{ .Values.castai.audit.namespace }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+rules:
+# permissions to do leader election.
+- apiGroups:
+  - events.k8s.io
+  resources:
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+  - create
+  - update
+  - patch
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "castai-kentroller.name" . }}-events-writer
+  namespace: {{ .Values.castai.audit.namespace }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "castai-kentroller.name" . }}
+subjects:
+- kind: ServiceAccount
+  name: {{ include "castai-kentroller.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}

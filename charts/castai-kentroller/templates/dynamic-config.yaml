@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "castai-kentroller.dynamicConfigMapName" . }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+  {{- with .Values.dynamicConfig.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+data:
+  config.yaml: |
+    spotInterruptionPrediction:
+      enabled: {{ .Values.castai.spotInterruptionPrediction.enabled | default false }}
+    rebalancer:
+      enabled: {{ .Values.castai.rebalance.enabled | default false }}
+      {{- if hasKey .Values.castai.rebalance "preferenceWeightedPacking" }}
+      preferenceWeightedPackingEnabled: {{ .Values.castai.rebalance.preferenceWeightedPacking }}
+      {{- end }}
+      {{- if hasKey .Values.castai.rebalance "namespaceLabeling" }}
+      namespaceLabelingEnabled: {{ .Values.castai.rebalance.namespaceLabeling }}
+      {{- end }}
+    clm:
+      enabled: {{ .Values.castai.clm.enabled | default false }}
+    continuousRebalancing:
+      enabled: {{ .Values.castai.continuousRebalancing.enabled | default false }}
+      {{- if .Values.castai.continuousRebalancing.cycleIntervalSeconds }}
+      cycleIntervalSeconds: {{ .Values.castai.continuousRebalancing.cycleIntervalSeconds }}
+      {{- end }}
+      {{- if .Values.castai.continuousRebalancing.fullModeCycleIntervalSeconds }}
+      fullModeCycleIntervalSeconds: {{ .Values.castai.continuousRebalancing.fullModeCycleIntervalSeconds }}
+      {{- end }}
+      {{- if .Values.castai.continuousRebalancing.drainOnlyCycleIntervalSeconds }}
+      drainOnlyCycleIntervalSeconds: {{ .Values.castai.continuousRebalancing.drainOnlyCycleIntervalSeconds }}
+      {{- end }}
+      {{- if .Values.castai.continuousRebalancing.deleteEmptyCycleIntervalSeconds }}
+      deleteEmptyCycleIntervalSeconds: {{ .Values.castai.continuousRebalancing.deleteEmptyCycleIntervalSeconds }}
+      {{- end }}
+      {{- if .Values.castai.continuousRebalancing.savingsThresholdPercentage }}
+      savingsThresholdPercentage: {{ .Values.castai.continuousRebalancing.savingsThresholdPercentage }}
+      {{- end }}
+      {{- if .Values.castai.continuousRebalancing.mode }}
+      mode: {{ .Values.castai.continuousRebalancing.mode }}
+      {{- end }}
+      {{- if .Values.castai.continuousRebalancing.minNodeAgeSeconds }}
+      minNodeAgeSeconds: {{ .Values.castai.continuousRebalancing.minNodeAgeSeconds }}
+      {{- end }}
+      {{- with .Values.castai.continuousRebalancing.evictionConfig }}
+      evictionConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.castai.continuousRebalancing.aggressiveModeConfig }}
+      aggressiveModeConfig:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

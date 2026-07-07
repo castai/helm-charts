@@ -1,0 +1,22 @@
+replicaCount: 1
+resources:
+  requests:
+    cpu: 100m
+    memory: 64Mi
+  limits:
+    cpu: 1000m
+    memory: 256Mi
+
+castai:
+  apiKey: "API_KEY_TEST"
+  apiURL: "API_URL_TEST"
+  grpcURL: "GRPS_URL_TEST"
+  organizationIdConfigMapKeyRef:
+    name: "test-org-configmap"
+    key: "ORGANIZATION_ID"
+
+additionalEnv:
+  CLUSTER_ID: "8192e3c9-bbe7-4afa-b364-7897b479a5b4"
+tolerations:
+  - key: scheduling.cast.ai/spot
+    operator: Exists
