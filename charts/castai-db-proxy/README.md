@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -25,7 +25,7 @@ CAST AI database proxy cache deployment.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-proxy"` |  |
 | image.tag | string | `""` | Overrides the image tag. Defaults to Chart.appVersion. |
-| logLevel | string | `"warn"` | Application log level. Supports "trace", "debug", "info", "warn", "error" |
+| logLevel | string | `"info"` | Application log level. Supports "trace", "debug", "info", "warn", "error" |
 | nodeSelector | object | `{}` | Pod node selector rules. |
 | organizationID | string | `""` | ID of the organization. |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
