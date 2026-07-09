@@ -194,6 +194,27 @@ livenessProbe:
   httpGet:
     path: /health
 
+# -- End-to-end inference tracing. When enabled, both the worker
+# (sglang.launch_server) and, if deployed, the router (sglang_router.launch_router)
+# are launched with --enable-trace and export OTLP spans to otlpEndpoint.
+# NOTE: SGLang does not continue an upstream W3C traceparent — it starts its own
+# root trace per request. Spans correlate to the caller by request id, not parent span.
+tracing:
+  # -- Turn on --enable-trace + OTLP export for worker and router.
+  enabled: false
+  # -- OTLP collector endpoint (host:port). Defaults to the shared observability
+  # gateway (same collector the LLM proxy uses). For OTLP/HTTP use the :4318 port
+  # and protocol http/protobuf; for OTLP/gRPC use :4317 and protocol grpc.
+  otlpEndpoint: "observability-otel-gateway-opentelemetry-collector.tools.svc.cluster.local:4318"
+  # -- Exporter protocol: "http/protobuf" (pairs with :4318) or "grpc" (pairs with :4317).
+  # SGLang's --otlp-traces-endpoint defaults to gRPC, so this is set explicitly via
+  # OTEL_EXPORTER_OTLP_TRACES_PROTOCOL to match the endpoint above.
+  protocol: "http/protobuf"
+  # -- Optional trace verbosity (0-3). Empty leaves the SGLang default.
+  level: ""
+  # -- Optional service name reported on spans. Defaults to the served model name when empty.
+  serviceName: ""
+
 ldLibraryPath: ""
 
 # -- Additional environment variables to set in the SGLang container

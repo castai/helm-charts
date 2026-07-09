@@ -73,9 +73,25 @@ spec:
             {{- range .Values.extraArgs }}
             - {{ . | quote }}
             {{- end }}
+            {{- if .Values.tracing.enabled }}
+            - "--enable-trace"
+            - "--otlp-traces-endpoint={{ required "tracing.otlpEndpoint must be set when tracing.enabled is true" .Values.tracing.otlpEndpoint }}"
+            {{- end }}
           env:
             - name: HF_HOME # Co-locate the HuggingFace cache with the download dir
               value: /models
+            {{- if .Values.tracing.enabled }}
+            {{- if .Values.tracing.protocol }}
+            - name: OTEL_EXPORTER_OTLP_TRACES_PROTOCOL
+              value: {{ .Values.tracing.protocol | quote }}
+            {{- end }}
+            - name: OTEL_SERVICE_NAME
+              value: {{ .Values.tracing.serviceName | default (.Values.model.servedName | default .Values.model.name) | quote }}
+            {{- if .Values.tracing.level | toString | ne "" }}
+            - name: SGLANG_TRACE_LEVEL
+              value: {{ .Values.tracing.level | quote }}
+            {{- end }}
+            {{- end }}
             {{- if .Values.ldLibraryPath }}
             - name: LD_LIBRARY_PATH
               value: {{ .Values.ldLibraryPath | quote }}

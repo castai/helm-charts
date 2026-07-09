@@ -123,6 +123,23 @@ spec:
             {{- range .Values.router.extraArgs }}
             - {{ . | quote }}
             {{- end }}
+            {{- if .Values.tracing.enabled }}
+            - "--enable-trace"
+            - "--otlp-traces-endpoint={{ required "tracing.otlpEndpoint must be set when tracing.enabled is true" .Values.tracing.otlpEndpoint }}"
+            {{- end }}
+          {{- if .Values.tracing.enabled }}
+          env:
+            {{- if .Values.tracing.protocol }}
+            - name: OTEL_EXPORTER_OTLP_TRACES_PROTOCOL
+              value: {{ .Values.tracing.protocol | quote }}
+            {{- end }}
+            - name: OTEL_SERVICE_NAME
+              value: {{ printf "%s-router" (.Values.tracing.serviceName | default (.Values.model.servedName | default .Values.model.name)) | quote }}
+            {{- if .Values.tracing.level | toString | ne "" }}
+            - name: SGLANG_TRACE_LEVEL
+              value: {{ .Values.tracing.level | quote }}
+            {{- end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.router.port }}
