@@ -1,6 +1,6 @@
 # sglang
 
-![Version: 0.1.1](https://img.shields.io/badge/Version-0.1.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
+![Version: 0.1.2](https://img.shields.io/badge/Version-0.1.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
 
 CAST AI hosted model deployment chart for SGLang.
 
@@ -16,8 +16,11 @@ CAST AI hosted model deployment chart for SGLang.
 | enabled | bool | `false` | Specifies if the SGLang model should be deployed. Controlled by the parent chart condition. |
 | env | list | `[]` | Additional environment variables to set in the SGLang container |
 | extraArgs | list | `[]` | Extra arbitrary arguments passed verbatim to `sglang.launch_server`. Use this for everything beyond the hardcoded --model-path/--served-model-name/--host/--port/--tp-size flags (e.g. --context-length, --dtype, --quantization, --mem-fraction-static, --reasoning-parser, --tool-call-parser). |
+| extraVolumeMounts | list | `[]` | Extra volumeMounts appended to the SGLang container (verbatim mount list). |
+| extraVolumes | list | `[]` | Extra volumes appended to the pod (verbatim volume list). |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/sglang"` |  |
 | image.tag | string | `"v0.5.13"` |  |
+| initContainers | list | `[]` | Init containers to run before the SGLang server (verbatim pod-spec list). Used e.g. to pre-compile GPU JIT kernels once (single-writer) into a shared cache so the TP ranks don't race to compile them at first forward. |
 | ldLibraryPath | string | `""` |  |
 | livenessProbe | object | `{"enabled":true,"failureThreshold":3,"httpGet":{"path":"/health"},"initialDelaySeconds":15,"periodSeconds":10,"successThreshold":1,"timeoutSeconds":1}` | Liveness probe configuration |
 | model.hfToken | string | `nil` | HuggingFace token used to pull gated/private models. |

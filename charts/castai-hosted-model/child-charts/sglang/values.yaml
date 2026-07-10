@@ -203,6 +203,21 @@ env: []
 #   - name: MY_CUSTOM_VAR
 #     value: "my-value"
 
+# -- Init containers to run before the SGLang server (verbatim pod-spec list).
+# Used e.g. to pre-compile GPU JIT kernels once (single-writer) into a shared
+# cache so the TP ranks don't race to compile them at first forward.
+initContainers: []
+# Example:
+# initContainers:
+#   - name: warm-cache
+#     image: ...
+#     command: ["bash","-lc","..."]
+
+# -- Extra volumes appended to the pod (verbatim volume list).
+extraVolumes: []
+# -- Extra volumeMounts appended to the SGLang container (verbatim mount list).
+extraVolumeMounts: []
+
 # -- Extra arbitrary arguments passed verbatim to `sglang.launch_server`.
 # Use this for everything beyond the hardcoded --model-path/--served-model-name/--host/--port/--tp-size flags
 # (e.g. --context-length, --dtype, --quantization, --mem-fraction-static, --reasoning-parser, --tool-call-parser).
