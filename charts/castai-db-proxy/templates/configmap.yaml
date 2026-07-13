@@ -43,5 +43,5 @@ data:
     graceful_shutdown_timeout_seconds = {{ .Values.connection_draining.graceful_shutdown_timeout_seconds }}
 
     [tls]
-    cert = "/etc/roxy/tls/tls.crt"
-    key = "/etc/roxy/tls/tls.key"
+    cert = "/etc/tls/tls.crt"
+    key = "/etc/tls/tls.key"
