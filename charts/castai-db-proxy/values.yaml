@@ -25,7 +25,7 @@ organizationID: ""
 proxyID: ""
 
 # protocol -- Database protocol.
-protocol: "Oracle"
+protocol: "PostgreSQL"
 
 # endpoints -- Upstream database endpoints. Each entry needs `address` (host:port) and `readonly` (bool).
 endpoints: []
@@ -137,3 +137,9 @@ connection_draining:
   grace_period_seconds: 55
   # -- How long the server waits for runtimes to shut down after the grace period. Must be > 0
   graceful_shutdown_timeout_seconds: 5
+
+tls:
+  # -- Enable TLS for client connections (app → proxy).
+  enabled: false
+  # -- Name of the secret containing tls.crt and tls.key.
+  secretName: ""
