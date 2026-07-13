@@ -61,17 +61,15 @@ spec:
       topologySpreadConstraints:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-
       volumes:
         - name: config
           configMap:
             name: {{ include "castai-db-proxy.name" . }}-config
-        {{- if .Values.tls.enabled }}
+        {{- if .Values.tls.secretName }}
         - name: tls
           secret:
-            secretName: {{ required "tls.secretName must be provided when tls.enabled is true" .Values.tls.secretName }}
+            secretName: {{ .Values.tls.secretName }}
         {{- end }}
-
       containers:
         - name: proxy
           image: "{{ .Values.image.repository }}:{{ include "castai-db-proxy.proxyImage" . }}"
@@ -133,7 +131,7 @@ spec:
             - name: config
               mountPath: /etc/roxy
               readOnly: true
-            {{- if .Values.tls.enabled }}
+            {{- if .Values.tls.secretName }}
             - name: tls
               mountPath: /etc/roxy/tls
               readOnly: true

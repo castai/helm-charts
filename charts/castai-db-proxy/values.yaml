@@ -139,7 +139,5 @@ connection_draining:
   graceful_shutdown_timeout_seconds: 5
 
 tls:
-  # -- Enable TLS for client connections (app → proxy).
-  enabled: false
-  # -- Name of the secret containing tls.crt and tls.key.
+  # -- Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert.
   secretName: ""
