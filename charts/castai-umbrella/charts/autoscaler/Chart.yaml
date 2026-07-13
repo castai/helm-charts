@@ -34,7 +34,7 @@ dependencies:
       - full
   # ── node-autoscaler + workload-autoscaler + full ──────────────────────────────
   - name: castai-cluster-controller
-    version: "0.92.8"
+    version: "0.92.9"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
     tags:
