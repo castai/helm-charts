@@ -32,6 +32,7 @@ Cluster utilization defragmentation tool
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | crdUpgrade | object | `{"enabled":true,"image":{"digest":"","pullPolicy":"IfNotPresent","repository":"rancher/kubectl","tag":"v1.35.6"},"resources":{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}}` | CRD upgrade configuration. Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job. |
 | crdUpgrade.image.digest | string | `""` | Image digest for pinning (e.g. sha256:abc...). When set, appended to the image reference. |
+| crdUpgrade.imagePullSecrets | list | `[]` | Image pull secrets for the CRD upgrade Job. Use when crdUpgrade.image.repository points to a private registry. Independent of the evictor imagePullSecrets. |
 | crdUpgrade.resources | object | `{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}` | Resource requests/limits for the CRD upgrade Job container. |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |

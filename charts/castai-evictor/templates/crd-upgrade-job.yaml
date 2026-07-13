@@ -98,9 +98,9 @@ spec:
         fsGroup: 1000
         seccompProfile:
           type: RuntimeDefault
-      {{- with include "evictor.imagePullSecrets" . }}
+      {{- with .Values.crdUpgrade.imagePullSecrets }}
       imagePullSecrets:
-        {{- . | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.tolerations }}
       tolerations:

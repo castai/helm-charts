@@ -374,6 +374,9 @@ crdUpgrade:
     # crdUpgrade.image.digest -- Image digest for pinning (e.g. sha256:abc...). When set, appended to the image reference.
     digest: ""
     pullPolicy: IfNotPresent
+  # crdUpgrade.imagePullSecrets -- Image pull secrets for the CRD upgrade Job. Use when crdUpgrade.image.repository
+  # points to a private registry that requires authentication. Independent of the evictor imagePullSecrets.
+  imagePullSecrets: []
   # crdUpgrade.resources -- Resource requests/limits for the CRD upgrade Job container.
   resources:
     requests:
