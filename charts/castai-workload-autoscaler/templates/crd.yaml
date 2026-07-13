@@ -1331,6 +1331,16 @@ spec:
                         AutoInstrument controls whether the runtime should be automatically instrumented
                         (e.g. JMX exporter injection for JVM containers).
                       type: boolean
+                    jvm:
+                      description: JVM carries JVM-specific instrumentation settings.
+                      properties:
+                        agentEnvVar:
+                          description: |-
+                            AgentEnvVar is the environment variable used to pass -javaagent to this container.
+                            Empty string falls back to the global JavaAgentEnvVar config (JDK_JAVA_OPTIONS).
+                            "KAFKA_OPTS" for Kafka, etc.
+                          type: string
+                      type: object
                     runtime:
                       description: Runtime identifies the container runtime (e.g.
                         jvm).

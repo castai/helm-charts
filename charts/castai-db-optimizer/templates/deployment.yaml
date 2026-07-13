@@ -3,18 +3,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "name" . }}
+  name: {{ include "castai-db-optimizer.name" . }}
   labels:
-    {{- include "labels" . | nindent 4 }}
+    {{- include "castai-db-optimizer.labels" . | nindent 4 }}
   annotations:
-    {{- include "annotations" . | nindent 4 }}
-    {{- include "workloads-annotations" . | nindent 4 }}
+    {{- include "castai-db-optimizer.annotations" . | nindent 4 }}
+    {{- include "castai-db-optimizer.workloads-annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      {{- include "selectorLabels" . | nindent 6 }}
+      {{- include "castai-db-optimizer.selectorLabels" . | nindent 6 }}
   strategy:
     rollingUpdate:
       maxSurge: {{ .Values.rollingUpdate.maxSurge }}
@@ -28,7 +28,7 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
       labels:
-        {{- include "selectorLabels" . | nindent 8 }}
+        {{- include "castai-db-optimizer.selectorLabels" . | nindent 8 }}
         {{- with .Values.podLabels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -38,7 +38,7 @@ spec:
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
-      terminationGracePeriodSeconds: {{ include "terminationGracePeriodSeconds" . }}
+      terminationGracePeriodSeconds: {{ include "castai-db-optimizer.terminationGracePeriodSeconds" . }}
       {{- with .Values.dnsPolicy }}
       dnsPolicy: {{ . }}
       {{- end }}
@@ -67,7 +67,7 @@ spec:
       volumes:
         - name: envoy-config
           configMap:
-            name: {{ include "name" . }}-envoy-config
+            name: {{ include "castai-db-optimizer.name" . }}-envoy-config
         - name: temp-storage
           emptyDir: {}
         - name: data-storage
@@ -87,18 +87,18 @@ spec:
           emptyDir: {}
         - name: proxysql-config-template
           configMap:
-            name: {{ include "name" . }}-proxysql-config
+            name: {{ include "castai-db-optimizer.name" . }}-proxysql-config
         - name: proxysql-config-output
           emptyDir: {}
         - name: proxysql-users-secret-volume
           secret:
-            secretName: {{ ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "name" .)) (ne .Values.proxySql.usersSecretRef "") }}
+            secretName: {{ ternary .Values.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "castai-db-optimizer.name" .)) (ne .Values.proxySql.usersSecretRef "") }}
         {{- end }}
       {{- if or (and .Values.pgdog .Values.pgdog.enabled) (and .Values.proxySql .Values.proxySql.enabled) }}
       initContainers:
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog-init
-          image: "{{.Values.pgdogImage.repository}}:{{ include "pgdogImage" . }}"
+          image: "{{.Values.pgdogImage.repository}}:{{ include "castai-db-optimizer.pgdogImage" . }}"
           imagePullPolicy: {{.Values.pgdogImage.pullPolicy}}
           command:
             - /bin/sh
@@ -128,7 +128,7 @@ spec:
         {{- end }}
         {{- if and .Values.proxySql .Values.proxySql.enabled }}
         - name: proxysql-init
-          image: "{{.Values.proxySqlImage.repository}}:{{ include "proxySqlImage" . }}"
+          image: "{{.Values.proxySqlImage.repository}}:{{ include "castai-db-optimizer.proxySqlImage" . }}"
           imagePullPolicy: {{.Values.proxySqlImage.pullPolicy}}
           command:
             - /bin/sh
@@ -153,7 +153,7 @@ spec:
             runAsNonRoot: true
             runAsUser: 999
         - name: proxysql-users-init
-          image: "{{.Values.queryProcessorImage.repository}}:{{ include "queryProcessorImage" . }}"
+          image: "{{.Values.queryProcessorImage.repository}}:{{ include "castai-db-optimizer.queryProcessorImage" . }}"
           imagePullPolicy: {{.Values.queryProcessorImage.pullPolicy}}
           command:
             - query-processor
@@ -177,7 +177,7 @@ spec:
       {{- end }}
       containers:
         - name: query-processor
-          image: "{{.Values.queryProcessorImage.repository}}:{{ include "queryProcessorImage" . }}"
+          image: "{{.Values.queryProcessorImage.repository}}:{{ include "castai-db-optimizer.queryProcessorImage" . }}"
           imagePullPolicy: {{.Values.queryProcessorImage.pullPolicy}}
           securityContext:
             capabilities:
@@ -201,7 +201,7 @@ spec:
           envFrom:
             - secretRef:
               {{- if .Values.apiKey }}
-                name: {{ include "name" . -}}
+                name: {{ include "castai-db-optimizer.name" . -}}
               {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
               {{- end }}
@@ -227,17 +227,17 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: QUERY_PROCESSOR_IMAGE
-              value: {{ include "queryProcessorImage" . }}
+              value: {{ include "castai-db-optimizer.queryProcessorImage" . }}
             - name: PROXY_IMAGE
-              value: {{ include "proxyImage" . }}
+              value: {{ include "castai-db-optimizer.proxyImage" . }}
             - name: K8S_SERVICE_NAME
-              value: {{ include "name" . }}
+              value: {{ include "castai-db-optimizer.name" . }}
             - name: SERVER_PORT
               value: "9050"
             - name: METRICS_PORT
               value: "2112"
             - name: PEERS_URL
-              value: headless-{{ include "name" . }}
+              value: headless-{{ include "castai-db-optimizer.name" . }}
             - name: CACHE_GROUP_ID
               value: {{ .Values.cacheGroupID | required ".Values.cacheGroupID is required." | quote }}
             {{- if and .Values.proxySql .Values.proxySql.enabled }}
@@ -272,7 +272,7 @@ spec:
             - name: PGDOG_CONFIG_TEMPLATE
               valueFrom:
                 configMapKeyRef:
-                  name: {{ include "name" . }}-pgdog-config
+                  name: {{ include "castai-db-optimizer.name" . }}-pgdog-config
                   key: pgdog.toml
             - name: PGDOG_OUTPUT_FILE
               value: /etc/pgdog/pgdog.toml
@@ -283,7 +283,7 @@ spec:
                   {{- if .Values.pgdog.usersSecretRef }}
                   name: {{ .Values.pgdog.usersSecretRef }}
                   {{- else }}
-                  name: {{ include "name" . }}-pgdog-users
+                  name: {{ include "castai-db-optimizer.name" . }}-pgdog-users
                   {{- end }}
                   key: users.toml
             - name: PGDOG_USERS_OUTPUT_FILE
@@ -300,7 +300,7 @@ spec:
                 command:
                   - query-processor
                   - sleep
-                  - {{ include "proxy.draining.sidecarTerminationDelay" . }}s
+                  - {{ include "castai-db-optimizer.proxy.draining.sidecarTerminationDelay" . }}s
           {{- end }}
           readinessProbe:
             tcpSocket:
@@ -320,7 +320,7 @@ spec:
             limits:
               memory: {{ coalesce .Values.resources.queryProcessor.memory .Values.resources.queryProcessor.memoryLimit }}
         - name: proxy
-          image: "{{.Values.proxyImage.repository}}:{{ include "proxyImage" . }}"
+          image: "{{.Values.proxyImage.repository}}:{{ include "castai-db-optimizer.proxyImage" . }}"
           imagePullPolicy: {{.Values.proxyImage.pullPolicy}}
           {{- if .Values.proxy.draining.enabled }}
           lifecycle:
@@ -370,7 +370,7 @@ spec:
             {{- if (int .Values.proxy.concurrency) }}
             - "{{ .Values.proxy.concurrency }}"
             {{- else }}
-            - "{{ include "cpu-to-concurrency" .Values.resources.proxy.cpu }}"
+            - "{{ include "castai-db-optimizer.cpu-to-concurrency" .Values.resources.proxy.cpu }}"
             {{- end }}
             - --drain-strategy
             - immediate
@@ -407,7 +407,7 @@ spec:
           envFrom:
             - secretRef:
               {{- if .Values.apiKey }}
-                name: {{ include "name" . -}}
+                name: {{ include "castai-db-optimizer.name" . -}}
               {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef -}}
               {{- end }}
@@ -426,7 +426,7 @@ spec:
             {{- end }}
         {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
         - name: cloud-sql-proxy
-          image: "{{.Values.cloudSqlProxyImage.repository}}:{{ include "cloudSqlProxyImage" . }}"
+          image: "{{.Values.cloudSqlProxyImage.repository}}:{{ include "castai-db-optimizer.cloudSqlProxyImage" . }}"
           imagePullPolicy: {{ $.Values.cloudSqlProxyImage.pullPolicy }}
           args:
             {{- if .Values.cloudSqlProxy.privateIp }}
@@ -448,7 +448,7 @@ spec:
         {{- end }}
         {{- if and .Values.pgdog .Values.pgdog.enabled }}
         - name: pgdog
-          image: "{{.Values.pgdogImage.repository}}:{{ include "pgdogImage" . }}"
+          image: "{{.Values.pgdogImage.repository}}:{{ include "castai-db-optimizer.pgdogImage" . }}"
           imagePullPolicy: {{.Values.pgdogImage.pullPolicy}}
           command:
             - pgdog
@@ -499,7 +499,7 @@ spec:
         {{- end }}
         {{- if and .Values.proxySql .Values.proxySql.enabled }}
         - name: proxysql
-          image: "{{.Values.proxySqlImage.repository}}:{{ include "proxySqlImage" . }}"
+          image: "{{.Values.proxySqlImage.repository}}:{{ include "castai-db-optimizer.proxySqlImage" . }}"
           imagePullPolicy: {{.Values.proxySqlImage.pullPolicy}}
           command:
             - proxysql

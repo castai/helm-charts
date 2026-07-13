@@ -1,1 +1,1 @@
-{{- define "defaultProxyVersion" -}}v0.2.0{{- end -}}
+{{- define "castai-db-proxy.defaultProxyVersion" -}}v0.3.1{{- end -}}

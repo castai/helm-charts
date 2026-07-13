@@ -6,7 +6,7 @@ CAST AI hosted model deployment chart with PVC support for compilation caches.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| file://child-charts/sglang | sglang | 0.1.0 |
+| file://child-charts/sglang | sglang | 0.1.2 |
 | file://child-charts/vllm | vllm | 0.0.46 |
 
 ## Values

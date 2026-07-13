@@ -1,0 +1,228 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "castai-kentroller.fullname" . }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+  {{- with .Values.deploymentAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "castai-kentroller.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "castai-kentroller.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with include "castai-kentroller.imagePullSecrets" . }}
+      imagePullSecrets:
+      {{- . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "castai-kentroller.serviceAccountName" . }}
+      securityContext:
+      {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - args:
+            - --leader-elect
+            - --health-probe-bind-address=:8081
+            {{- if .Values.metrics.enabled }}
+            - --metrics-bind-address=:{{ .Values.metrics.port }}
+            {{- end }}
+            {{- if .Values.webhook.enabled }}
+            - --webhook-cert-path={{ .Values.webhook.certPath | default "/tmp/k8s-webhook-server/serving-certs" }}
+            {{- end }}
+          image: "{{ include "castai-kentroller.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: kentroller
+          ports:
+            {{- if .Values.metrics.enabled }}
+            - name: metrics
+              containerPort: {{ .Values.metrics.port }}
+              protocol: TCP
+            {{- end }}
+            - name: health
+              containerPort: 8081
+              protocol: TCP
+            {{- if .Values.webhook.enabled }}
+            - name: webhook
+              containerPort: 9443
+              protocol: TCP
+            {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_TEMPLATE_HASH
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.labels['pod-template-hash']
+            - name: DYNAMIC_CONFIG_MAP_NAME
+              value: {{ include "castai-kentroller.dynamicConfigMapName" . }}
+            {{- if not (has .Values.provider (list "aws" "azure" "gcp")) }}
+            {{- fail "provider must be one of: aws, azure, gcp" }}
+            {{- end }}
+            {{- if and (eq .Values.provider "azure") (not .Values.azure.subscriptionID) }}
+            {{- fail "azure.subscriptionID is required when provider is \"azure\"" }}
+            {{- end }}
+            - name: PROVIDER
+              value: {{ .Values.provider | quote }}
+            {{- if .Values.azure.subscriptionID }}
+            - name: AZURE_SUBSCRIPTION_ID
+              value: {{ .Values.azure.subscriptionID | quote }}
+            {{- end }}
+            - name: COMMITMENT_BUDGETS_ENABLED
+              value: {{ .Values.castai.commitmentBudgets.enabled | quote }}
+            {{- if .Values.webhook.enabled }}
+            # cert-controller (in-process) provisions and rotates the TLS
+            # material for the webhook. These env vars line the rotator up
+            # with the chart-rendered resource names so that the right Secret
+            # gets populated and the right MutatingWebhookConfiguration's
+            # caBundle gets patched.
+            - name: CERT_ROTATOR_ENABLED
+              value: "true"
+            - name: CERT_ROTATOR_CERT_DIR
+              value: {{ .Values.webhook.certPath | default "/tmp/k8s-webhook-server/serving-certs" | quote }}
+            - name: CERT_ROTATOR_SECRET_NAME
+              value: {{ include "castai-kentroller.webhookCertsSecretName" . | quote }}
+            - name: CERT_ROTATOR_WEBHOOK_NAME
+              value: {{ include "castai-kentroller.webhookConfigurationName" . | quote }}
+            - name: CERT_ROTATOR_SERVICE_NAME
+              value: {{ include "castai-kentroller.webhookServiceName" . | quote }}
+            {{- end }}
+          {{- range $k, $v := .Values.additionalEnv }}
+            - name: {{ $k }}
+              value: "{{ $v }}"
+          {{- end }}
+          {{- if .Values.castai.clusterIdConfigMapKeyRef.name }}
+            - name: CLUSTER_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.clusterIdConfigMapKeyRef.name }}
+                  key: {{ .Values.castai.clusterIdConfigMapKeyRef.key }}
+                  optional: false
+          {{- end }}
+          {{- if .Values.castai.organizationIdConfigMapKeyRef.name }}
+            - name: ORGANIZATION_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.organizationIdConfigMapKeyRef.name }}
+                  key: {{ .Values.castai.organizationIdConfigMapKeyRef.key }}
+                  optional: false
+          {{- end }}
+          {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
+          envFrom:
+          {{- if or .Values.apiKey .Values.castai.apiKey $resolvedSecretRef }}
+            - secretRef:
+                {{- if or .Values.apiKey .Values.castai.apiKey }}
+                  {{- if ne $resolvedSecretRef "" }}
+                  {{- fail "castai.apiKey and castai.apiKeySecretRef are mutually exclusive" }}
+                  {{- end }}
+                name: {{ include "castai-kentroller.fullname" . }}
+                {{- else }}
+                name: {{ required "castai.apiKey or castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
+                {{- end }}
+          {{- else if not .Values.envFrom }}
+          {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
+          {{- /* else: envFrom is non-empty — API key is expected to arrive via a custom env source. */}}
+          {{- end }}
+            - configMapRef:
+                name: {{ include "castai-kentroller.fullname" . }}
+          {{- with .Values.envFrom }}
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          securityContext:
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - "ALL"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          {{- with .Values.resources }}
+          resources:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            {{- with .Values.volumeMounts }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+            {{- if .Values.webhook.enabled }}
+            # The webhook serving cert is mounted from the Secret that
+            # cert-controller manages. cert-controller writes generated/rotated
+            # cert material to the Secret and exits the pod (RestartOnSecretRefresh);
+            # on the next start kubelet projects the Secret contents into this
+            # path so controller-runtime's webhook server can read tls.crt/tls.key
+            # at boot. Using an emptyDir here would prevent that bootstrap because
+            # the cert files would not survive the restart.
+            - name: webhook-cert
+              mountPath: {{ .Values.webhook.certPath | default "/tmp/k8s-webhook-server/serving-certs" }}
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        {{- with .Values.volumes }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+        {{- if .Values.webhook.enabled }}
+        - name: webhook-cert
+          secret:
+            secretName: {{ include "castai-kentroller.webhookCertsSecretName" . }}
+            # cert-controller has not populated the Secret yet on first install,
+            # so allow the pod to start with an empty volume and rely on the
+            # rotator's RestartOnSecretRefresh to bring up a second pod once the
+            # Secret has the cert files written.
+            optional: true
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if not .Values.enableTopologySpreadConstraints }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.enableTopologySpreadConstraints }}
+      {{- with .Values.topologySpreadConstraints }}
+      topologySpreadConstraints:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- end }}
+      {{- with include "castai-kentroller.tolerations" . }}
+      tolerations:
+      {{- . | nindent 8 }}
+      {{- end }}

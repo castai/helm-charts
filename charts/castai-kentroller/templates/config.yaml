@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "castai-kentroller.fullname" . }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+data:
+  # Prefer umbrella/global API URL override, then fall back to chart-local value.
+  API_URL: {{ required "castai.apiURL must be provided" (coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiURL) | quote }}
+  GRPC_URL: {{ required "castai.grpcURL must be provided" (coalesce (dig "castai" "grpcURL" "" (.Values.global | default dict)) .Values.castai.grpcURL) | quote }}
+  GRPC_DISABLE_TLS: {{ .Values.castai.grpcDisableTLS | default "false" | quote }}
+  # AWS Pricing API has a single global endpoint in us-east-1; region must be set for endpoint resolution.
+  AWS_DEFAULT_REGION: "us-east-1"
+  OTEL_METRICS_ENABLED: {{ .Values.castai.otelMetrics.enabled | quote }}
+  {{- if .Values.castai.otelMetrics.endpoint }}
+  OTEL_METRICS_ENDPOINT: {{ .Values.castai.otelMetrics.endpoint | quote }}
+  {{- end }}

@@ -1,17 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "name" . }}
+  name: {{ include "castai-db-proxy.name" . }}
   labels:
-    {{- include "labels" . | nindent 4 }}
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
   annotations:
-    {{- include "annotations" . | nindent 4 }}
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicas }}
   revisionHistoryLimit: 0
   selector:
     matchLabels:
-      {{- include "selectorLabels" . | nindent 6 }}
+      {{- include "castai-db-proxy.selectorLabels" . | nindent 6 }}
   strategy:
     rollingUpdate:
       maxSurge: {{ .Values.rollingUpdate.maxSurge }}
@@ -25,7 +25,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "selectorLabels" . | nindent 8 }}
+        {{- include "castai-db-proxy.selectorLabels" . | nindent 8 }}
       {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -33,7 +33,10 @@ spec:
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
-      terminationGracePeriodSeconds: 60
+      {{- if or (lt (int .Values.connection_draining.grace_period_seconds) 1) (lt (int .Values.connection_draining.graceful_shutdown_timeout_seconds) 1) }}
+        {{- fail "connection_draining.grace_period_seconds and graceful_shutdown_timeout_seconds must be positive integers" }}
+      {{- end }}
+      terminationGracePeriodSeconds: {{ add .Values.connection_draining.grace_period_seconds .Values.connection_draining.graceful_shutdown_timeout_seconds 5 }}
       {{- with .Values.dnsPolicy }}
       dnsPolicy: {{ . }}
       {{- end }}
@@ -62,11 +65,11 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ include "name" . }}-config
+            name: {{ include "castai-db-proxy.name" . }}-config
 
       containers:
         - name: proxy
-          image: "{{ .Values.image.repository }}:{{ include "proxyImage" . }}"
+          image: "{{ .Values.image.repository }}:{{ include "castai-db-proxy.proxyImage" . }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           args:
             - --config
@@ -76,7 +79,7 @@ spec:
           envFrom:
             - secretRef:
               {{- if .Values.apiKey }}
-                name: {{ include "name" . }}
+                name: {{ include "castai-db-proxy.name" . }}
               {{- else }}
                 name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef }}
               {{- end }}
@@ -88,7 +91,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: K8S_DEPLOYMENT
-              value: {{ include "name" . }}
+              value: {{ include "castai-db-proxy.name" . }}
           securityContext:
             capabilities:
               drop:

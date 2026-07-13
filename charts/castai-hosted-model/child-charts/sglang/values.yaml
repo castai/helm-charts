@@ -31,6 +31,9 @@ container:
 service:
   type: ClusterIP
   port: 8000
+  # -- Extra annotations for the model Service. Merged with the router sync-wave
+  # annotation (see router.syncWaves) when the router is enabled.
+  annotations: {}
 
 # -- SGLang Model Gateway (cache-aware router) placed IN FRONT of the worker pods.
 # When enabled: the model Service targets the ROUTER pod instead of the
@@ -41,6 +44,19 @@ service:
 router:
   # -- Deploy the cache-aware router in front of the workers.
   enabled: false
+  # -- Zero-downtime cutover ordering (ArgoCD sync-waves). When enabled, the router's
+  # RBAC/ServiceAccount and Deployment are applied in EARLIER waves than the model
+  # Service, so Argo waits for the router pod to reach Ready health before the Service
+  # selector flips from the workers to the router. This prevents the brief empty-
+  # endpoint window that an atomic selector switch would otherwise cause. The workers
+  # keep serving the whole time (their Deployment is untouched by enabling the router).
+  # Only emitted when router.enabled=true; a router-less model's Service is unchanged.
+  # Requires an ArgoCD-managed rollout with automated sync.
+  syncWaves:
+    enabled: true
+    rbac: "-2"     # ServiceAccount/Role/RoleBinding first (router pod depends on them)
+    router: "-1"   # router Deployment next; Argo blocks on its Ready health
+    service: "0"   # Service selector flips last, after the router is Ready
   image:
     # -- Router image. Defaults to the same SGLang image (it ships sglang_router).
     repository: ""
@@ -186,6 +202,21 @@ env: []
 # env:
 #   - name: MY_CUSTOM_VAR
 #     value: "my-value"
+
+# -- Init containers to run before the SGLang server (verbatim pod-spec list).
+# Used e.g. to pre-compile GPU JIT kernels once (single-writer) into a shared
+# cache so the TP ranks don't race to compile them at first forward.
+initContainers: []
+# Example:
+# initContainers:
+#   - name: warm-cache
+#     image: ...
+#     command: ["bash","-lc","..."]
+
+# -- Extra volumes appended to the pod (verbatim volume list).
+extraVolumes: []
+# -- Extra volumeMounts appended to the SGLang container (verbatim mount list).
+extraVolumeMounts: []
 
 # -- Extra arbitrary arguments passed verbatim to `sglang.launch_server`.
 # Use this for everything beyond the hardcoded --model-path/--served-model-name/--host/--port/--tp-size flags

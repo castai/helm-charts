@@ -1,0 +1,70 @@
+replicaCount: 1
+
+image:
+  repository: localhost:5000/castai-kentroller
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Metrics configuration
+metrics:
+  # Enable metrics endpoint on :8443
+  enabled: true
+  # Port for metrics endpoint
+  port: 8443
+  # Create a Service for metrics
+  service:
+    enabled: true
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: "castai-kentroller"
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 1Gi
+  limits:
+    memory: 1Gi
+
+# Pod security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext:
+  runAsNonRoot: true
+  fsGroup: 1003
+  runAsGroup: 1003
+  runAsUser: 1003
+
+additionalEnv:
+  # Add your cluster ID here for local testing
+  CLUSTER_ID: "your-cluster-id"
+  FEATURES_WATCH_NAMESPACES: "castai-kentroller"
+
+# castai -- CAST AI API configuration.
+castai:
+  # castai.apiKey -- Token to be used for authorizing agent access to the CASTAI API.
+  apiKey: "your-api-key"
+
+  # castai.apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"].
+  apiKeySecretRef: ""
+
+  # castai.apiURL -- CASTAI public api url.
+  apiURL: "https://api--xxx.local.cast.ai"
+  grpcURL: "kent-server.kent.svc.cluster.local:8080"
+  grpcDisableTLS: true
+
+  # clusterIdSecretKeyRef -- Name and Key of secret with ClusterID
+  # The referenced secret must provide the ClusterID in .data[<<.Values.castai.clusterIdSecretKeyRef.key>>]
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
+  # castai.rebalance - enable rebalance feature
+  rebalance:
+    enabled: true
+  # castai.spotinterruptionprediction - enable CAST AI Spot prediction feature
+  spotinterruptionprediction:
+    enabled: true
+  clm:
+    enabled: true

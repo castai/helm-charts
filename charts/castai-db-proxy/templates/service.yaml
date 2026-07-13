@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "name" . }}
+  name: {{ include "castai-db-proxy.name" . }}
   labels:
-    {{- include "labels" . | nindent 4 }}
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
   annotations:
-    {{- include "annotations" . | nindent 4 }}
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
 spec:
   {{- with .Values.service.trafficDistribution }}
   trafficDistribution: {{ . }}
@@ -24,4 +24,4 @@ spec:
       targetPort: metrics
       protocol: TCP
   selector:
-    {{- include "selectorLabels" . | nindent 4 }}
+    {{- include "castai-db-proxy.selectorLabels" . | nindent 4 }}

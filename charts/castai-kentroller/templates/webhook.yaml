@@ -1,0 +1,33 @@
+{{- if .Values.webhook.enabled }}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "castai-kentroller.fullname" . }}-pod-tsc
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+webhooks:
+  - name: mpod.castai.kb.io
+    admissionReviewVersions: ["v1"]
+    clientConfig:
+      # caBundle is intentionally omitted: the in-process cert-controller (see
+      # setupCertRotator in cmd/main.go) generates a self-signed CA at startup
+      # and patches this field on every rotation. Setting it here would cause
+      # the rotator to overwrite it on the first reconcile anyway.
+      service:
+        name: {{ include "castai-kentroller.fullname" . }}-webhook
+        namespace: {{ .Release.Namespace }}
+        path: /mutate-v1-pod
+        port: 443
+    rules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+        scope: Namespaced
+    namespaceSelector:
+      matchLabels:
+        rebalancing.cast.ai/active: "true"
+    failurePolicy: Ignore
+    sideEffects: None
+    timeoutSeconds: 3
+{{- end }}

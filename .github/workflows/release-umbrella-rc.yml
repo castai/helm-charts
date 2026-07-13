@@ -103,6 +103,18 @@ jobs:
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         uses: mikefarah/yq@v4.44.3
 
+      - name: Install Helm
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        uses: azure/setup-helm@v4.3.1
+        with:
+          version: v3.17.0
+
+      - name: Set up Go
+        if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
       - name: Checkout helm-charts at release tag
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
         uses: actions/checkout@v4
@@ -316,6 +328,51 @@ jobs:
           echo "Bumped umbrella version: ${CURRENT} -> ${NEW_VERSION}"
           echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
           echo "tag=castai-${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Refresh subchart Chart.lock files
+        if: steps.changed.outputs.any == 'true' && steps.bump_deps.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          helm repo add castai-helm https://castai.github.io/helm-charts
+          helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/
+          helm repo update
+
+          # Retry helper — the newly released chart version can take a few minutes
+          # to propagate to the Helm repo index after the GitHub release publishes.
+          helm_dep_update_with_retry() {
+          local path="$1"
+          local max_attempts=5
+          local delay=90  # seconds between attempts
+
+          for attempt in $(seq 1 "$max_attempts"); do
+            echo "==> helm dependency update ${path} (attempt ${attempt}/${max_attempts})"
+            if helm dependency update "$path"; then
+              return 0
+            fi
+            if [ "$attempt" -lt "$max_attempts" ]; then
+              echo "    Failed — chart version may not be indexed yet. Retrying in ${delay}s..."
+              helm repo update
+              sleep "$delay"
+            fi
+          done
+
+          echo "ERROR: helm dependency update ${path} failed after ${max_attempts} attempts."
+          return 1
+          }
+
+          for sub in kent autoscaler-anywhere autoscaler-openshift; do
+            path="kubecast/castai-umbrella/chart/charts/${sub}"
+            if [ -d "$path" ]; then
+              helm_dep_update_with_retry "$path"
+            fi
+          done
+
+          helm_dep_update_with_retry "kubecast/castai-umbrella/chart"
+
+      - name: Regenerate helm-docs README.md files
+        if: steps.changed.outputs.any == 'true'
+        working-directory: kubecast/castai-umbrella
+        run: make helm-docs
 
       - name: Check template drift between component and umbrella
         id: drift

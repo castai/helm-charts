@@ -1,0 +1,283 @@
+fullnameOverride: castai-kentroller
+
+global:
+  # registry -- Optional private registry prefix applied to all image repositories.
+  # When set, images are resolved as "<registry>/<original-repository>".
+  # Example: registry: "my-registry.example.com"
+  registry: ""
+  castai:
+    # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API.
+    # Can be set at the umbrella chart level to share a single secret across subcharts.
+    # Overridden by castai.apiKeySecretRef if both are set. Mutually exclusive with castai.apiKey.
+    apiKeySecretRef: ""
+  # tolerations -- Global tolerations merged with chart-level tolerations.
+  tolerations: []
+  # imagePullSecrets -- Global list of image pull secrets merged with chart-level imagePullSecrets.
+  imagePullSecrets: []
+
+# crds -- CRDs subchart configuration
+crds:
+  # crds.enabled -- Install CRDs as a dependency subchart
+  enabled: true
+
+# provider -- Cloud provider for this cluster, selecting the cloud-provider
+# implementation used by the rebalancer. One of: aws, azure, gcp.
+provider: aws
+
+# azure -- Azure-specific configuration. Required when provider is "azure".
+azure:
+  # azure.subscriptionID -- Azure subscription ID used for Azure inventory lookups.
+  subscriptionID: ""
+
+replicaCount: 2
+
+resources:
+  requests:
+    cpu: 1
+    memory: 2Gi
+  limits:
+    memory: 2Gi
+
+image:
+  repository: us-docker.pkg.dev/castai-hub/library/kentroller
+  pullPolicy: IfNotPresent
+  tag: ""
+
+# metrics -- Metrics endpoint configuration
+metrics:
+  # metrics.enabled -- Enable metrics endpoint on :8443
+  enabled: true
+  # metrics.port -- Port for the metrics endpoint
+  port: 8443
+  # metrics.service -- Create a Service for metrics
+  service:
+    enabled: true
+
+serviceAccount:
+  create: true
+  annotations: {}
+
+# castai -- CAST AI API configuration
+castai:
+  # castai.apiURL -- CAST AI public API URL
+  apiURL: "https://api.cast.ai"
+  grpcURL: "grpc.prod-master.cast.ai:443"
+
+  # castai.apiKey -- Token for authorizing agent access to the CAST AI API
+  apiKey: ""
+
+  audit:
+    enabled: true
+    createNamespace: true
+    namespace: castai-audit
+
+  # castai.otelMetrics -- OpenTelemetry metrics export configuration
+  otelMetrics:
+    # castai.otelMetrics.enabled -- Enable OTel metrics export via OTLP gRPC
+    enabled: true
+    # castai.otelMetrics.endpoint -- OTLP gRPC endpoint. Defaults to grpc.cast.ai:443 when empty.
+    endpoint: ""
+
+  # castai.apiKeySecretRef -- Name of secret with token for authorizing agent access to the API.
+  # apiKey and apiKeySecretRef are mutually exclusive.
+  # The referenced secret must provide the token in .data["API_KEY"].
+  apiKeySecretRef: ""
+  # castai.clusterIdConfigMapKeyRef -- Name and key of ConfigMap with cluster ID.
+  # The referenced ConfigMap must provide the cluster ID in .data[<<.Values.castai.clusterIdConfigMapKeyRef.key>>].
+  clusterIdConfigMapKeyRef:
+    name: ""
+    key: "CLUSTER_ID"
+  # castai.organizationIdConfigMapKeyRef -- Name and key of ConfigMap with organization ID.
+  # The referenced ConfigMap must provide the organization ID in .data[<<.Values.castai.organizationIdConfigMapKeyRef.key>>].
+  organizationIdConfigMapKeyRef:
+    name: ""
+    key: "ORGANIZATION_ID"
+  # castai.rebalance -- Enable rebalance feature
+  rebalance:
+    enabled: true
+    # castai.rebalance.preferenceWeightedPacking -- Enable preference-weighted packing in the
+    # rebalance plan generator. Scores candidate nodes by cost + reliability + preference
+    # penalties (PodAffinity, TopologySpread, VolumeZone) instead of pure cheapest-fit.
+    # Hot-reloadable via kubectl-edit on the dynamic config ConfigMap. Default: true.
+    preferenceWeightedPacking: true
+    # castai.rebalance.namespaceLabeling -- Enable applying the rebalancing.cast.ai/active
+    # label to namespaces during rebalancing. The label drives the TSC mutating webhook, but
+    # it also causes Cilium to recompute security identities for every pod in those
+    # namespaces. Disable this if you do not use hard hostname/zone TopologySpreadConstraints
+    # and want to avoid transient identity churn. Default: true.
+    namespaceLabeling: true
+  # castai.spotInterruptionPrediction -- Enable CAST AI Spot prediction feature
+  spotInterruptionPrediction:
+    enabled: true
+  # castai.clm -- Enable CLM node labeling feature
+  clm:
+    enabled: false
+  # castai.commitmentBudgets -- CommitmentBudgets controller configuration.
+  commitmentBudgets:
+    # castai.commitmentBudgets.enabled -- Enable the CommitmentBudgets controller.
+    # When disabled, kentroller will not reconcile CommitmentBudget CRDs into Karpenter NodePools.
+    enabled: true
+  # castai.continuousRebalancing -- Continuous rebalancing feature configuration
+  continuousRebalancing:
+    # castai.continuousRebalancing.enabled -- Whether continuous rebalancing is enabled
+    enabled: false
+    # castai.continuousRebalancing.cycleIntervalSeconds -- Interval in seconds between rebalancing cycles.
+    # Mutually exclusive with the mode-specific interval fields (fullModeCycleIntervalSeconds, drainOnlyCycleIntervalSeconds, deleteEmptyCycleIntervalSeconds).
+    # When set to a non-default value and no mode-specific intervals are configured, this value is used for all modes.
+    # If any mode-specific interval is set, this field is ignored for mode scheduling.
+    cycleIntervalSeconds: 60
+    # castai.continuousRebalancing.savingsThresholdPercentage -- Minimum cost savings percentage for performing a rebalance action. Relevant only for modes that can replace nodes (full mode).
+    savingsThresholdPercentage: 15
+    # castai.continuousRebalancing.mode -- Mode of continuous rebalancing. Available values:
+    # - delete-empty: Only delete empty nodes.
+    # - drain-only: Bin-pack nodes by draining into existing spare capacity.
+    # - full: Replace inefficient nodes with better-fit ones. Maximum savings, but most churn.
+    mode: full
+    # castai.continuousRebalancing.fullModeCycleIntervalSeconds -- Interval between full continuous rebalancing cycles (expensive, default 30m).
+    # When set, cycleIntervalSeconds is ignored for mode scheduling.
+    fullModeCycleIntervalSeconds: 1800
+    # castai.continuousRebalancing.drainOnlyCycleIntervalSeconds -- Interval between drain-only rebalancing cycles (default 1m).
+    # When set, cycleIntervalSeconds is ignored for mode scheduling.
+    drainOnlyCycleIntervalSeconds: 60
+    # castai.continuousRebalancing.deleteEmptyCycleIntervalSeconds -- Interval between delete-empty rebalancing cycles (default 1m).
+    # When set, cycleIntervalSeconds is ignored for mode scheduling.
+    deleteEmptyCycleIntervalSeconds: 60
+    # castai.continuousRebalancing.minNodeAgeSeconds -- Minimum time in seconds a node must exist before it is considered for replacement. Avoids churning nodes that just started up.
+    minNodeAgeSeconds: 300
+    # castai.continuousRebalancing.evictionConfig -- Fine-grained control over which pods and nodes
+    # may be touched during rebalancing. Each entry targets either pods or nodes (not both).
+    #
+    # removalDisabled — pods/nodes matching this selector are never evicted or drained,
+    # regardless of any other settings.
+    #   evictionConfig:
+    #     - nodeSelectorTerm:
+    #         labelSelector:
+    #           matchLabels:
+    #             dedicated: gpu
+    #       settings:
+    #         removalDisabled:
+    #           enabled: true
+    #
+    # aggressive — allows evicting single-replica pods and pods protected by a PodDisruptionBudget.
+    #   evictionConfig:
+    #     - podSelector:
+    #         labelSelector:
+    #           matchLabels:
+    #             cast.ai/eviction-policy: aggressive
+    #       settings:
+    #         aggressive:
+    #           enabled: true
+    #
+    # disposable — pods matching this selector pass all eviction checks as long as they can be
+    # rescheduled elsewhere (or are inherently non-reschedulable, like Jobs); PDDs and
+    # replica guards are ignored.
+    #   evictionConfig:
+    #     - podSelector:
+    #         kind: Job
+    #         namespace: batch
+    #       settings:
+    #         disposable:
+    #           enabled: true
+    evictionConfig: []
+    # castai.continuousRebalancing.aggressiveModeConfig -- Bypass safety checks globally during rebalancing.
+    # When set, these flags apply to all nodes and pods in every rebalancing cycle.
+    # Use evictionConfig for per-pod/per-node granularity instead.
+    #
+    # aggressiveModeConfig:
+    #   ignoreLocalPersistentVolumes: false
+    #   ignoreProblemRemovalDisabledPods: false
+    #   ignoreProblemJobPods: false
+    #   ignoreProblemPodsWithoutController: false
+    #   ignoreInstanceCriteria: false
+    #   ignoreBlockingPDB: false
+    #   aggressiveEviction: false
+    #   drainTimeout: 10m
+    aggressiveModeConfig: {}
+
+# dynamicConfig -- Settings for the dynamic config ConfigMap managed at runtime by kentroller.
+dynamicConfig:
+  # dynamicConfig.annotations -- Annotations applied to the dynamic config ConfigMap.
+  annotations:
+    argocd.argoproj.io/compare-options: IgnoreExtraneous
+
+# envFrom -- Additional environment sources (ConfigMaps/Secrets) for runtime config.
+envFrom: []
+
+# securityContext -- Pod security context.
+# Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext:
+  runAsNonRoot: true
+  fsGroup: 1003
+  runAsGroup: 1003
+  runAsUser: 1003
+
+# enableTopologySpreadConstraints -- Use topologySpreadConstraints instead of podAntiAffinity.
+enableTopologySpreadConstraints: false
+
+# topologySpreadConstraints -- Topology spread constraints for pod scheduling.
+# Used when enableTopologySpreadConstraints is true.
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: kubernetes.io/hostname
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app.kubernetes.io/name: castai-kentroller
+
+# affinity -- Pod affinity/anti-affinity rules.
+# podAntiAffinity is used when enableTopologySpreadConstraints is false.
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+            - key: app.kubernetes.io/name
+              operator: In
+              values:
+                - castai-kentroller
+        topologyKey: kubernetes.io/hostname
+
+# nodeSelector -- Node selector for pod scheduling.
+nodeSelector: {}
+
+# tolerations -- Tolerations for pod scheduling.
+tolerations: []
+
+# podAnnotations -- Annotations applied to the pod template.
+podAnnotations: {}
+
+# deploymentAnnotations -- Annotations applied to the Deployment resource itself.
+# The workloads.cast.ai/configuration annotation enables CAST AI Vertical Pod Autoscaler (VPA)
+# and must be on the Deployment, not the pod template.
+# with P75 CPU target, MAX memory target, and the longest supported look-back period (168h).
+deploymentAnnotations:
+  workloads.cast.ai/configuration: |
+    horizontal:
+       optimization: off
+    vertical:
+      optimization: on
+      cpu:
+        target: p75
+        lookBackPeriod: 168h
+      memory:
+        target: max
+        lookBackPeriod: 168h
+
+# webhook -- Pod TopologySpreadConstraints mutating webhook configuration.
+#
+# TLS material is provisioned and rotated in-process by open-policy-agent
+# cert-controller (see setupCertRotator in cmd/main.go), so cert-manager and a
+# pre-supplied caBundle are not required. The chart only needs to render the
+# MutatingWebhookConfiguration, the Service, an empty Secret rendezvous point,
+# and the RBAC the rotator uses to patch them.
+webhook:
+  # webhook.enabled -- Whether to render the MutatingWebhookConfiguration,
+  # webhook Service, certs Secret, and pass --webhook-cert-path to kentroller.
+  enabled: true
+  # webhook.certPath -- Filesystem directory inside the pod where the
+  # cert-rotator writes the serving cert/key/ca files. Mounted as an emptyDir.
+  certPath: "/tmp/k8s-webhook-server/serving-certs"
+  # webhook.certsSecretName -- Override for the Secret that cert-controller
+  # uses as its rotation rendezvous point. Defaults to
+  # "<fullname>-webhook-certs" if empty.
+  certsSecretName: ""

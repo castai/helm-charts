@@ -7,20 +7,21 @@
 #   diff the component between its previous and current release tags first.
 #   - If only README / Chart.yaml-version-only / non-template files changed,
 #     we emit "no template changes" and skip the AI call entirely.
-#   - If template files DID change, we send the AI a unified diff per changed
-#     file together with the current umbrella file, and ask whether the
-#     umbrella reflects the component-side change.
+#   - If template files DID change, we send the AI a unified diff for all
+#     changed files together with the entire umbrella component directory,
+#     and ask whether the umbrella reflects the component-side changes.
+#     The AI resolves filename mapping itself (e.g. cluster-role.yaml → rbac.yaml).
 #
 # Required env vars:
 #   CHART_NAME        — e.g. castai-agent, castai-pod-pinner, castai-live
 #   CHART_VERSION     — e.g. 0.35.103 (used to assemble the current tag)
 #   KIMCHI_API_KEY    — Kimchi Inference API key
-#   GITLAB_TOKEN      — required only for castai-live (to clone gitlab.com/castai/live/clm)
+#   GITLAB_TOKEN      — required only for castai-live (to clone gitlab.com/castai/*)
 #
 # Paths expected to exist at call time (created by release-umbrella-rc.yml):
 #   helm-charts/      — full clone of helm-charts at the release tag (fetch-depth:0)
 #   kubecast/         — full clone of the kubecast repo (no --depth)
-#   For castai-live the script clones gitlab.com/castai/live/clm itself.
+#   For castai-live the script clones gitlab.com/castai/* itself.
 #
 # Writes markdown to stdout and, when GITHUB_OUTPUT is set, appends:
 #   drift_report<<DELIMITER / ... / DELIMITER
@@ -69,32 +70,32 @@ configure_component() {
       ;;
     castai-agent)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/castai-agent"
+      COMPONENT_PATH="services/castai-agent/chart"
       TAG_PREFIX="castai-agent/v"
       ;;
     castai-pod-pinner)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/castai-pod-pinner"
+      COMPONENT_PATH="services/castai-pod-pinner/chart"
       TAG_PREFIX="castai-pod-pinner/v"
       ;;
     castai-cluster-controller)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/cluster-controller"
+      COMPONENT_PATH="services/cluster-controller/charts/castai-cluster-controller"
       TAG_PREFIX="cluster-controller/v"
       ;;
     castai-kvisor)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/kvisor"
+      COMPONENT_PATH="services/kvisor/chart"
       TAG_PREFIX="kvisor/v"
       ;;
     castai-pod-mutator)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/pod-mutator"
+      COMPONENT_PATH="services/pod-mutator/chart"
       TAG_PREFIX="pod-mutator/v"
       ;;
     castai-spot-handler)
       REPO_CLONE_DIR="kubecast"
-      COMPONENT_PATH="services/spot-handler"
+      COMPONENT_PATH="services/spot-handler/charts/castai-spot-handler"
       TAG_PREFIX="spot-handler/v"
       ;;
     castai-workload-autoscaler)
@@ -105,12 +106,11 @@ configure_component() {
     castai-workload-autoscaler-exporter)
       REPO_CLONE_DIR="kubecast"
       COMPONENT_PATH="services/workload-autoscaler/charts/castai-workload-autoscaler-exporter"
-      # Shares the same release tag as castai-workload-autoscaler.
       TAG_PREFIX="workload-autoscaler/v"
       ;;
     castai-live)
-      REPO_CLONE_DIR="clm"   # cloned below
-      COMPONENT_PATH="helm"  # diff scope: helm/ subtree (templates + dependencies)
+      REPO_CLONE_DIR="clm"
+      COMPONENT_PATH="helm"
       TAG_PREFIX="v"
       ;;
     *)
@@ -320,7 +320,7 @@ if [ ${#TEMPLATE_FILES[@]} -eq 0 ]; then
   exit 0
 fi
 
-# ── Kimchi API call helper (unchanged from previous revision) ─────────────────
+# ── Kimchi API call helper ────────────────────────────────────────────────────
 
 call_kimchi() {
   local prompt="$1"
@@ -378,145 +378,67 @@ EOF
   fi
 }
 
-# ── Map a changed component-side path to the matching umbrella file ───────────
-#
-# For non-live components, umbrella filenames match the component-side basename
-# 1:1 (e.g. templates/deployment.yaml ↔ umbrella/deployment.yaml). Chart.yaml
-# has no umbrella counterpart and is reported on its own.
-#
-# For castai-live the umbrella collapses each subdir / dependency into a single
-# file:
-#   helm/templates/<subdir>/foo.yaml       → <subdir>.yaml
-#   helm/templates/<name>.yaml             → <name>.yaml
-#   helm/dependencies/<dep>/templates/*    → <dep>.yaml (or fuzzy variants)
+# ── Collect full diff for all changed template files ──────────────────────────
 
-umbrella_file_for_component_path() {
-  local comp_rel="$1"   # relative to COMPONENT_PATH, e.g. "templates/deployment.yaml"
-  local base
-  base=$(basename "$comp_rel")
+FULL_DIFF=""
+for comp_path in "${TEMPLATE_FILES[@]}"; do
+  rel="${comp_path#${COMPONENT_PATH}/}"
+  file_diff=$(git -C "$REPO_CLONE_DIR" diff --no-color "${PREV_TAG}..${CURRENT_TAG}" -- "${comp_path}")
+  [ -z "$file_diff" ] && continue
+  FULL_DIFF+="### ${rel}
+\`\`\`diff
+${file_diff}
+\`\`\`
 
-  if [ "$CHART_NAME" = "castai-live" ]; then
-    # helm/templates/<subdir>/foo.yaml → <subdir>.yaml
-    if [[ "$comp_rel" == templates/*/* ]]; then
-      local subdir
-      subdir=$(echo "$comp_rel" | awk -F/ '{print $2}')
-      echo "${UMB_TEMPLATES}/${subdir}.yaml"
-      return 0
-    fi
-    # helm/templates/<file>.yaml → <file>.yaml
-    if [[ "$comp_rel" == templates/* ]]; then
-      echo "${UMB_TEMPLATES}/${base}"
-      return 0
-    fi
-    # helm/dependencies/<dep>/templates/*.yaml → <dep>.yaml (or crds → crd.yaml)
-    if [[ "$comp_rel" == dependencies/*/templates/* ]]; then
-      local dep
-      dep=$(echo "$comp_rel" | awk -F/ '{print $2}')
-      # crds → crd.yaml special-case (matches existing matcher)
-      [ "$dep" = "crds" ] && dep="crd"
-      echo "${UMB_TEMPLATES}/${dep}.yaml"
-      return 0
-    fi
-    # Anything else has no umbrella counterpart
-    echo ""
-    return 0
-  fi
+"
+done
 
-  # Non-live: 1:1 by basename, but only for files under templates/.
-  if [[ "$comp_rel" == templates/* ]]; then
-    echo "${UMB_TEMPLATES}/${base}"
-    return 0
-  fi
+# ── Collect all umbrella files for this component ─────────────────────────────
 
-  # Chart.yaml or other component-root file: no umbrella counterpart.
-  echo ""
-  return 0
-}
+UMB_CONTENTS=""
+for umb_file in "${UMB_TEMPLATES}"/*.yaml; do
+  [ -f "$umb_file" ] || continue
+  fname=$(basename "$umb_file")
+  UMB_CONTENTS+="### ${fname}
+\`\`\`yaml
+$(cat "$umb_file")
+\`\`\`
 
-# ── Per-file AI calls ─────────────────────────────────────────────────────────
+"
+done
+
+# ── Build and fire the single AI call ────────────────────────────────────────
 
 CASTAI_LIVE_NOTE=""
 if [ "$CHART_NAME" = "castai-live" ]; then
   CASTAI_LIVE_NOTE="NOTE: castai-live's component templates live in subdirectories (controller/, daemon/, tc/) and dependency charts (aws-vpc-cni/, crds/, …) which are all flattened into single files in the umbrella (controller.yaml, daemon.yaml, tc.yaml, aws-vpc-cni.yaml, crd.yaml, …). Match resources by kind and name pattern, not by file path."
 fi
 
-AI_REPORT=""
-
-for comp_path in "${TEMPLATE_FILES[@]}"; do
-  rel="${comp_path#${COMPONENT_PATH}/}"
-  echo "DEBUG: processing changed component file ${rel}" >&2
-
-  # Compute the unified diff between the two tags for this file.
-  file_diff=$(git -C "$REPO_CLONE_DIR" diff --no-color "${PREV_TAG}..${CURRENT_TAG}" -- "${comp_path}")
-  if [ -z "$file_diff" ]; then
-    # Shouldn't happen — git already told us this file changed.
-    echo "DEBUG: empty diff for ${rel} — skipping" >&2
-    continue
-  fi
-
-  # Chart.yaml drift is reported standalone (no umbrella counterpart).
-  if [ "$(basename "$rel")" = "Chart.yaml" ]; then
-    AI_REPORT+="### ${rel}
-
-> ℹ️ Chart.yaml changed between \`${PREV_TAG}\` and \`${CURRENT_TAG}\` beyond the version/appVersion bump. Review manually — no umbrella counterpart exists for this file.
-
-\`\`\`diff
-${file_diff}
-\`\`\`
-
-"
-    continue
-  fi
-
-  # Find the matching umbrella file.
-  umb_path=$(umbrella_file_for_component_path "$rel")
-  umb_fname=""
-  umb_content=""
-  if [ -n "$umb_path" ] && [ -f "$umb_path" ]; then
-    umb_fname=$(basename "$umb_path")
-    umb_content=$(cat "$umb_path")
-  fi
-
-  if [ -z "$umb_content" ]; then
-    AI_REPORT+="### ${rel}
-
-> ⚠️ Component file changed but no matching umbrella file was found (expected at \`${umb_path:-unknown}\`). Manual review required.
-
-\`\`\`diff
-${file_diff}
-\`\`\`
-
-"
-    continue
-  fi
-
-  per_file_prompt="You are a Helm chart reviewer detecting structural drift.
+PROMPT="You are a Helm chart reviewer detecting structural drift.
 
 CONTEXT:
 - The umbrella chart is a near-verbatim copy of component templates, adapted with different .Values paths (e.g. \$pp.image.tag), different helper names, and an outer {{- \$pp := index .Values... }} binding. These are EXPECTED and should NOT be reported.
+- The umbrella may consolidate multiple component files into fewer files (e.g. cluster-role.yaml + role.yaml → rbac.yaml). Match resources by kind and name pattern, not by filename.
 - ${CASTAI_LIVE_NOTE}
-- The component file \`${rel}\` changed between tags \`${PREV_TAG}\` and \`${CURRENT_TAG}\`. The unified diff is below. Your job is to determine whether the CURRENT umbrella file already reflects each component-side change. If it does, the umbrella is in sync for that change. If it does not, that is drift.
+- The component changed between tags \`${PREV_TAG}\` and \`${CURRENT_TAG}\`. The diffs for all changed template files are below.
 
-COMPONENT DIFF (${rel}, ${PREV_TAG} → ${CURRENT_TAG}):
-\`\`\`diff
-${file_diff}
-\`\`\`
+COMPONENT DIFFS (${PREV_TAG} → ${CURRENT_TAG}):
+${FULL_DIFF}
 
-CURRENT UMBRELLA FILE (${umb_fname}):
-\`\`\`yaml
-${umb_content}
-\`\`\`
+CURRENT UMBRELLA FILES (${UMB_TEMPLATES}/):
+${UMB_CONTENTS}
 
 YOUR TASK:
-For every semantic change visible in the component diff (additions, deletions, modifications to env, volumes, probes, ports, securityContext, resources, tolerations, affinity, nodeSelector, RBAC rules, initContainers, args, command, imagePullPolicy, serviceAccountName, hostNetwork, dnsPolicy, or any other spec field), check whether the current umbrella file already contains the equivalent value. Ignore expected adaptations (helper names, .Values paths, \$pp variable). Use this format per finding:
+For every semantic change visible in the component diffs (additions, deletions, modifications to env, volumes, probes, ports, securityContext, resources, tolerations, affinity, nodeSelector, RBAC rules, initContainers, args, command, imagePullPolicy, serviceAccountName, hostNetwork, dnsPolicy, or any other spec field), locate the equivalent resource across any of the umbrella files and check whether it already reflects the change. Use this format per finding:
 ---
-**Change in component:** <one-line summary of what changed in the diff>
+**Change in component:** <one-line summary>
 **Resource:** \`<kind>/<name-pattern>\`
 **Field:** \`<field path>\`
 **Component (new value):**
 \`\`\`yaml
 <value or \"(absent)\">
 \`\`\`
+**Umbrella file:** \`<filename>\`
 **Umbrella:**
 \`\`\`yaml
 <value or \"(absent)\">
@@ -530,39 +452,27 @@ Rules:
 - IN SYNC: the umbrella already reflects this component change (modulo expected adaptations).
 - DRIFT: the umbrella is missing this change or has a different value.
 - One finding block per distinct semantic change.
-- If every component-side change is already reflected in the umbrella, output EXACTLY this single line and nothing else: ✅ Umbrella in sync with ${rel} between ${PREV_TAG} and ${CURRENT_TAG}.
+- If every component-side change is already reflected in the umbrella, output EXACTLY this single line and nothing else: ✅ Umbrella in sync with all changed files between \`${PREV_TAG}\` and \`${CURRENT_TAG}\`.
 - Do NOT output the word \"None\", \"N/A\", an empty string, or any other placeholder.
 - Use real markdown formatting (newlines, headings, fenced code blocks). Do NOT emit literal backslash-n escape sequences."
 
-  file_report=$(call_kimchi "$per_file_prompt") || {
-    AI_REPORT+="### ${rel}
+AI_REPORT=$(call_kimchi "$PROMPT") || {
+  AI_REPORT="> ❌ API call failed — skipped. See workflow logs for the HTTP status and error body."
+}
 
-> ❌ API call failed — skipped. See workflow logs for the HTTP status and error body.
+# Normalise model output:
+#  - strip surrounding whitespace
+#  - convert literal backslash-n sequences to real newlines
+#  - collapse degenerate "None" / "N/A" / empty replies to the no-drift line
+AI_REPORT=$(printf '%s' "$AI_REPORT" \
+  | python3 -c "import sys; s=sys.stdin.read().strip(); s=s.replace('\\\\n','\n'); print(s)")
 
-"
-    continue
-  }
-
-  # Normalise model output:
-  #  - strip surrounding whitespace
-  #  - convert literal backslash-n sequences to real newlines
-  #  - collapse degenerate "None" / "N/A" / empty replies to the no-drift line
-  file_report=$(printf '%s' "$file_report" \
-    | python3 -c "import sys; s=sys.stdin.read().strip(); s=s.replace('\\\\n','\n'); print(s)")
-
-  normalised=$(printf '%s' "$file_report" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]./\\"'\''`')
-  case "$normalised" in
-    ''|none|na|nodrift|null|nil|empty|nochanges|nochange|nodifference|nodifferences|insync|umbrellainsync*)
-      file_report="✅ Umbrella in sync with ${rel} between \`${PREV_TAG}\` and \`${CURRENT_TAG}\`."
-      ;;
-  esac
-
-  AI_REPORT+="### ${rel}
-
-${file_report}
-
-"
-done
+normalised=$(printf '%s' "$AI_REPORT" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]./\\"'\''`')
+case "$normalised" in
+  ''|none|na|nodrift|null|nil|empty|nochanges|nochange|nodifference|nodifferences|insync|umbrellainsync*)
+    AI_REPORT="✅ Umbrella in sync with all changed files between \`${PREV_TAG}\` and \`${CURRENT_TAG}\`."
+    ;;
+esac
 
 # ── Build the ignored-files appendix ──────────────────────────────────────────
 
@@ -588,7 +498,8 @@ _Compared component tags \`${PREV_TAG}\` → \`${CURRENT_TAG}\` against umbrella
 
 **Changed template files:**
 ${CHANGED_LIST}
-${AI_REPORT}${IGNORED_BLOCK}"
+${AI_REPORT}
+${IGNORED_BLOCK}"
 
 echo "$REPORT"
 
