@@ -133,7 +133,7 @@ spec:
               readOnly: true
             {{- if .Values.tls.secretName }}
             - name: tls
-              mountPath: /etc/roxy/tls
+              mountPath: /etc/tls
               readOnly: true
             {{- end }}
           resources:
