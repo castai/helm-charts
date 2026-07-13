@@ -1,3 +1,4 @@
+{{- if or .Values.crdUpgrade.enabled (.Capabilities.APIVersions.Has "autoscaling.cast.ai/v1alpha1") }}
 apiVersion: autoscaling.cast.ai/v1alpha1
 kind: EvictorConfig
 metadata:
@@ -65,3 +66,4 @@ spec:
   {{- end }}
   {{- end }}
   {{- end }}
+{{- end }}
