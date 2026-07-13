@@ -41,9 +41,7 @@ data:
     [server]
     grace_period_seconds = {{ .Values.connection_draining.grace_period_seconds }}
     graceful_shutdown_timeout_seconds = {{ .Values.connection_draining.graceful_shutdown_timeout_seconds }}
-    {{- if .Values.tls.enabled }}
 
     [tls]
     cert = "/etc/roxy/tls/tls.crt"
     key = "/etc/roxy/tls/tls.key"
-    {{- end }}
