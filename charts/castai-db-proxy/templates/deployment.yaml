@@ -66,6 +66,11 @@ spec:
         - name: config
           configMap:
             name: {{ include "castai-db-proxy.name" . }}-config
+        {{- if .Values.tls.enabled }}
+        - name: tls
+          secret:
+            secretName: {{ required "tls.secretName must be provided when tls.enabled is true" .Values.tls.secretName }}
+        {{- end }}
 
       containers:
         - name: proxy
@@ -128,6 +133,11 @@ spec:
             - name: config
               mountPath: /etc/roxy
               readOnly: true
+            {{- if .Values.tls.enabled }}
+            - name: tls
+              mountPath: /etc/roxy/tls
+              readOnly: true
+            {{- end }}
           resources:
             requests:
               cpu: {{ .Values.resources.cpu }}
