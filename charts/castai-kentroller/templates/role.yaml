@@ -30,6 +30,12 @@ rules:
   - watch
 - apiGroups:
   - ""
+  resources:
+  - pods/eviction
+  verbs:
+  - create
+- apiGroups:
+  - ""
   - events.k8s.io
   resources:
   - events
@@ -125,24 +131,6 @@ rules:
   - karpenter.sh
   resources:
   - nodeclaims
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - watch
-- apiGroups:
-  - karpenter.sh
-  resources:
-  - nodeclaims/status
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - karpenter.sh
-  resources:
   - nodeoverlays
   verbs:
   - create
@@ -151,6 +139,14 @@ rules:
   - list
   - patch
   - update
+  - watch
+- apiGroups:
+  - karpenter.sh
+  resources:
+  - nodeclaims/status
+  verbs:
+  - get
+  - list
   - watch
 - apiGroups:
   - karpenter.sh
