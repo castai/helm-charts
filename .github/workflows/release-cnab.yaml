@@ -6,7 +6,7 @@ on:
     - 'castai*'
 
 jobs:
-  release:
+  release-cnab:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
