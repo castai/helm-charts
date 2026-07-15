@@ -68,7 +68,7 @@ metadata:
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
 data:
   crds.yaml: |
-{{ .Files.Get "crds/evictorconfigs.autoscaling.cast.ai.yaml" | indent 4 }}
+{{ .Files.Get "crd-files/evictorconfigs.autoscaling.cast.ai.yaml" | indent 4 }}
 ---
 apiVersion: batch/v1
 kind: Job
