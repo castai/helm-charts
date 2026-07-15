@@ -41,3 +41,7 @@ data:
     [server]
     grace_period_seconds = {{ .Values.connection_draining.grace_period_seconds }}
     graceful_shutdown_timeout_seconds = {{ .Values.connection_draining.graceful_shutdown_timeout_seconds }}
+
+    [tls]
+    cert = "/etc/tls/tls.crt"
+    key = "/etc/tls/tls.key"

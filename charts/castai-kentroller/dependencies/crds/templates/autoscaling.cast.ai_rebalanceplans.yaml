@@ -349,7 +349,7 @@ spec:
                 achievedOutcome:
                   description: |-
                     AchievedOutcome captures the actual execution result once a plan reaches a terminal state
-                    (Done, DoneWithWarnings, or Failed). Computed by kentroller after all NodeClaims settle;
+                    (Done or Failed). Computed by kentroller after all NodeClaims settle;
                     kent reads this field verbatim without re-computing arithmetic.
                     Nil while the plan is still running, pending, or for deletion-only plans with no new nodes.
                   properties:
