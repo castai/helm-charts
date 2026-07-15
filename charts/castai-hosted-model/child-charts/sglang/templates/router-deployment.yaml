@@ -46,17 +46,11 @@ metadata:
 spec:
   replicas: {{ .Values.router.replicaCount }}
   strategy:
-    {{- if gt (int .Values.router.replicaCount) 1 }}
-    {{- /* HA: roll one at a time so the LB always has a router available. */}}
     type: {{ .Values.router.strategy.type }}
     {{- if eq .Values.router.strategy.type "RollingUpdate" }}
     rollingUpdate:
       maxSurge: {{ .Values.router.strategy.rollingUpdate.maxSurge }}
       maxUnavailable: {{ .Values.router.strategy.rollingUpdate.maxUnavailable }}
-    {{- end }}
-    {{- else }}
-    {{- /* Single router holds in-memory routing state; replace cleanly, never two at once. */}}
-    type: Recreate
     {{- end }}
   selector:
     matchLabels:
@@ -172,7 +166,23 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.router.affinity }}
+      {{- $affinity := deepCopy (.Values.router.affinity | default dict) }}
+      {{- if and (gt (int .Values.router.replicaCount) 1) .Values.router.podAntiAffinity.enabled }}
+      {{- $term := dict
+            "labelSelector" (dict "matchLabels" (dict "app.kubernetes.io/name" (include "sglang.router.fullname" .) "app.kubernetes.io/instance" .Release.Name))
+            "topologyKey" .Values.router.podAntiAffinity.topologyKey }}
+      {{- $paa := dict }}
+      {{- if eq .Values.router.podAntiAffinity.type "required" }}
+      {{- $paa = dict "requiredDuringSchedulingIgnoredDuringExecution" (list $term) }}
+      {{- else }}
+      {{- $paa = dict "preferredDuringSchedulingIgnoredDuringExecution" (list (dict "weight" 100 "podAffinityTerm" $term)) }}
+      {{- end }}
+      {{- /* don't stomp an operator-provided podAntiAffinity */}}
+      {{- if not (hasKey $affinity "podAntiAffinity") }}
+      {{- $_ := set $affinity "podAntiAffinity" $paa }}
+      {{- end }}
+      {{- end }}
+      {{- with $affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
