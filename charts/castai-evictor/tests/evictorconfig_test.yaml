@@ -6,6 +6,70 @@ capabilities:
     - autoscaling.cast.ai/v1alpha1/EvictorConfig
 
 tests:
+  # ── Rendering paths ─────────────────────────────────────────────────────────
+
+  - it: does not render when crdUpgrade is disabled and CRD does not exist
+    capabilities:
+      apiVersions:
+    set:
+      crdUpgrade:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders as regular resource when CRD exists (no hook annotations)
+    asserts:
+      - isNull:
+          path: metadata.annotations
+
+  - it: renders as post-install hook when crdUpgrade enabled and CRD does not exist
+    capabilities:
+      apiVersions:
+    set:
+      crdUpgrade:
+        enabled: true
+    asserts:
+      - equal:
+          path: metadata.annotations["helm.sh/hook"]
+          value: post-install,post-upgrade
+      - equal:
+          path: metadata.annotations["helm.sh/hook-weight"]
+          value: "10"
+      - equal:
+          path: metadata.annotations["helm.sh/hook-delete-policy"]
+          value: before-hook-creation
+      - exists:
+          path: metadata.annotations["meta.helm.sh/release-name"]
+      - exists:
+          path: metadata.annotations["meta.helm.sh/release-namespace"]
+
+  - it: hook path renders same spec as regular path
+    capabilities:
+      apiVersions:
+    set:
+      crdUpgrade:
+        enabled: true
+    asserts:
+      - equal:
+          path: apiVersion
+          value: autoscaling.cast.ai/v1alpha1
+      - equal:
+          path: kind
+          value: EvictorConfig
+      - equal:
+          path: metadata.name
+          value: evictor-config
+      - equal:
+          path: spec.managementMode
+          value: castai
+      - equal:
+          path: spec.enabled
+          value: true
+      - equal:
+          path: spec.config.dryRun
+          value: false
+
   # ── Metadata ────────────────────────────────────────────────────────────────
 
   - it: has correct apiVersion and kind
