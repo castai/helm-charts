@@ -99,13 +99,28 @@ router:
   # share their cache-aware radix tree (no cross-replica sync), so >1 replica trades ~10-20%
   # cache-hit rate for availability. Set to 1 for maximum cache locality (single coherent tree).
   replicaCount: 2
-  # -- Deployment strategy. Use RollingUpdate when replicaCount > 1; the chart forces
-  # Recreate when replicaCount == 1 (single in-memory router, avoid two competing instances).
+  # -- Deployment strategy. Use RollingUpdate when replicaCount > 1; when replicaCount == 1
+  # the chart picks the single-replica strategy based on zeroDowntimeSingleReplica below.
   strategy:
     type: RollingUpdate
     rollingUpdate:
       maxSurge: 1
       maxUnavailable: 0
+  # Single-replica (replicaCount==1) rollout behaviour:
+  #   true (default): surge the NEW router
+  #   false: Recreate
+  zeroDowntimeSingleReplica: true
+  # -- Spread router replicas across nodes. Only takes effect when replicaCount > 1 (a single
+  # router has nothing to separate from). Keeps the replicas off the same node so one node
+  podAntiAffinity:
+    # Auto-add podAntiAffinity when replicaCount > 1
+    enabled: true
+    type: required
+    topologyKey: kubernetes.io/hostname
+  pdb:
+    enabled: false
+    minAvailable: 1
+    maxUnavailable: null
   # -- Production resilience flags (sgl_model_gateway production recommendations).
   production:
     maxConcurrentRequests: 512

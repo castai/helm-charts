@@ -1,0 +1,41 @@
+{{- if and .Values.router.enabled .Values.router.pdb.enabled }}
+{{- /*
+PodDisruptionBudget for the cache-aware SGLang router.
+
+The router is the single entry point the model Service targets, run at low replica
+count (the cache-aware radix tree is not synced across replicas see router-deployment.yaml).
+A voluntary disruption (node drain, cluster autoscaler / CAST scale-down, node-pool
+rollout) that evicts the router blackholes the whole model until it reschedules. This
+PDB blocks such voluntary evictions unless the budget is met. It does NOT protect against
+involuntary loss (node crash, OOM, kubectl delete).
+
+minAvailable and maxUnavailable are mutually exclusive set exactly one in values.
+Defaults to minAvailable (protect the router); with replicaCount=1 this makes drains
+block until handled, which is the intended protection for the sole router.
+*/}}
+{{- if and (not (kindIs "invalid" .Values.router.pdb.minAvailable)) (not (kindIs "invalid" .Values.router.pdb.maxUnavailable)) -}}
+{{- fail "router.pdb: set only ONE of minAvailable or maxUnavailable (the other must be null)." -}}
+{{- end -}}
+{{- if and (kindIs "invalid" .Values.router.pdb.minAvailable) (kindIs "invalid" .Values.router.pdb.maxUnavailable) -}}
+{{- fail "router.pdb: set one of minAvailable or maxUnavailable." -}}
+{{- end -}}
+{{- if and (.Capabilities.APIVersions.Has "policy/v1") (semverCompare ">= 1.21-0" .Capabilities.KubeVersion.Version) -}}
+apiVersion: policy/v1
+{{- else -}}
+apiVersion: policy/v1beta1
+{{- end }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "sglang.router.fullname" . }}
+  labels:
+    {{- include "sglang.router.labels" . | nindent 4 }}
+spec:
+  {{- if not (kindIs "invalid" .Values.router.pdb.minAvailable) }}
+  minAvailable: {{ .Values.router.pdb.minAvailable }}
+  {{- else }}
+  maxUnavailable: {{ .Values.router.pdb.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "sglang.router.selectorLabels" . | nindent 6 }}
+{{- end }}

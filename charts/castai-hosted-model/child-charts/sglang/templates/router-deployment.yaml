@@ -54,8 +54,20 @@ spec:
       maxSurge: {{ .Values.router.strategy.rollingUpdate.maxSurge }}
       maxUnavailable: {{ .Values.router.strategy.rollingUpdate.maxUnavailable }}
     {{- end }}
+    {{- else if .Values.router.zeroDowntimeSingleReplica }}
+    {{- /* Single replica, ZERO-DOWNTIME replace: surge the NEW router up and wait for it to
+       become Ready BEFORE the old one is torn down (maxSurge:1 + maxUnavailable:0). This
+       briefly runs TWO routers during a rollout — they do NOT share the cache-aware radix
+       tree, so cache-hit rate dips for the few seconds of overlap. Chosen to avoid the
+       serving gap that Recreate would otherwise cause on the sole router. */}}
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
     {{- else }}
-    {{- /* Single router holds in-memory routing state; replace cleanly, never two at once. */}}
+    {{- /* Single router holds in-memory routing state; replace cleanly, never two at once.
+       Brief serving gap on deploy (old torn down before new is Ready). Set
+       router.zeroDowntimeSingleReplica=true to surge instead (no gap, ~seconds of 2 routers). */}}
     type: Recreate
     {{- end }}
   selector:
@@ -172,7 +184,23 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.router.affinity }}
+      {{- $affinity := deepCopy (.Values.router.affinity | default dict) }}
+      {{- if and (gt (int .Values.router.replicaCount) 1) .Values.router.podAntiAffinity.enabled }}
+      {{- $term := dict
+            "labelSelector" (dict "matchLabels" (dict "app.kubernetes.io/name" (include "sglang.router.fullname" .) "app.kubernetes.io/instance" .Release.Name))
+            "topologyKey" .Values.router.podAntiAffinity.topologyKey }}
+      {{- $paa := dict }}
+      {{- if eq .Values.router.podAntiAffinity.type "required" }}
+      {{- $paa = dict "requiredDuringSchedulingIgnoredDuringExecution" (list $term) }}
+      {{- else }}
+      {{- $paa = dict "preferredDuringSchedulingIgnoredDuringExecution" (list (dict "weight" 100 "podAffinityTerm" $term)) }}
+      {{- end }}
+      {{- /* don't stomp an operator-provided podAntiAffinity */}}
+      {{- if not (hasKey $affinity "podAntiAffinity") }}
+      {{- $_ := set $affinity "podAntiAffinity" $paa }}
+      {{- end }}
+      {{- end }}
+      {{- with $affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
