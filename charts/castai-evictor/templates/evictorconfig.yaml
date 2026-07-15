@@ -1,10 +1,31 @@
-{{- if .Capabilities.APIVersions.Has "autoscaling.cast.ai/v1alpha1/EvictorConfig" }}
+{{/*
+  Two rendering paths for the EvictorConfig CR:
+
+  1. CRD already exists (.Capabilities check) → render as regular template resource.
+  2. First install with crdUpgrade.enabled=true → render as post-install hook.
+     The pre-install crd-upgrade-job creates the CRD first, then this hook
+     applies the CR after all regular resources are loaded.
+
+  The guards are mutually exclusive: when the CRD exists, path 1 fires and
+  path 2 is suppressed (and vice versa).
+*/}}
+{{- $crdExists := .Capabilities.APIVersions.Has "autoscaling.cast.ai/v1alpha1/EvictorConfig" -}}
+{{- $hookInstall := and .Values.crdUpgrade.enabled (not $crdExists) -}}
+{{- if or $crdExists $hookInstall }}
 apiVersion: autoscaling.cast.ai/v1alpha1
 kind: EvictorConfig
 metadata:
   name: evictor-config
   labels:
     {{- include "evictor.labels" . | nindent 4 }}
+  {{- if $hookInstall }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "10"
+    helm.sh/hook-delete-policy: before-hook-creation
+    meta.helm.sh/release-name: {{ .Release.Name }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
+  {{- end }}
 spec:
   managementMode: {{ .Values.managedByCASTAI | ternary "castai" "self-managed" }}
   enabled: {{ .Values.evictorEnabled }}
