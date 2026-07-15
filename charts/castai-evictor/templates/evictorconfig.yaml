@@ -1,4 +1,4 @@
-{{- if .Capabilities.APIVersions.Has "autoscaling.cast.ai/v1alpha1" }}
+{{- if .Capabilities.APIVersions.Has "autoscaling.cast.ai/v1alpha1/EvictorConfig" }}
 apiVersion: autoscaling.cast.ai/v1alpha1
 kind: EvictorConfig
 metadata:

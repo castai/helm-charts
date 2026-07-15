@@ -1,6 +1,9 @@
 suite: EvictorConfig CR rendering
 templates:
   - evictorconfig.yaml
+capabilities:
+  apiVersions:
+    - autoscaling.cast.ai/v1alpha1/EvictorConfig
 
 tests:
   # ── Metadata ────────────────────────────────────────────────────────────────
