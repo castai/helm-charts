@@ -69,7 +69,7 @@ namespacesToKeep: ""
 # -- This looks for the autoscaling.cast.ai/removal-disabled="true" label on a node and if it exists excludes it from being cordoned and deleted.
 protectRemovalDisabled: "false"
 
-configMapName: castai-cluster-controller
+configMapName: castai-agent-metadata
 
 restartPolicy: "OnFailure"
 backoffLimit: 0
