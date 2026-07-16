@@ -250,7 +250,8 @@ spec:
                   EvictionRules holds advanced per-workload and per-node eviction rules
                   ("Advanced configuration" in the CAST AI UI).
                   Each rule targets either pods (via podSelector) or nodes (via nodeSelector) — exactly one must be set.
-                  These rules are always customer-managed regardless of managementMode.
+                  Ownership follows managementMode: in "castai" mode the platform reconciles these
+                  from the UI; in "self-managed" mode the cluster operator owns them.
                 items:
                   description: EvictionRule is one advanced eviction rule that pairs
                     a selector with behavioral overrides.
