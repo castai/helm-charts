@@ -55,6 +55,8 @@ podSecurityContext:
   fsGroup: 1006
   runAsGroup: 1006
   runAsUser: 1006
+  seccompProfile:
+    type: RuntimeDefault
 
 # Container security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
