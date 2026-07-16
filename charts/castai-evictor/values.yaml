@@ -167,6 +167,8 @@ securityContext:
   fsGroup: 1004
   runAsGroup: 1004
   runAsUser: 1004
+  seccompProfile:
+    type: RuntimeDefault
 
 service:
   type: ClusterIP
@@ -251,6 +253,8 @@ containerSecurityContext:
   capabilities:
     drop:
       - ALL
+  seccompProfile:
+    type: RuntimeDefault
 
 # The referenced ConfigMap must provide the ClusterID in .data[<<.Values.clusterIdConfigMapKeyRef.key>>]
 clusterIdConfigMapKeyRef:
