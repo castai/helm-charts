@@ -16,7 +16,8 @@ CAST AI hibernate CronJobs used to pause and resume Kubernetes cluster on a defi
 | clusterRoleBindingName | string | `"hibernate"` |  |
 | clusterRoleName | string | `"hibernate"` |  |
 | concurrencyPolicy | string | `"Forbid"` |  |
-| configMapName | string | `"castai-agent-metadata"` |  |
+| configMapNameFallback | string | `"castai-cluster-controller"` | Name of the fallback ConfigMap (legacy) for backwards compatibility. |
+| configMapNamePrimary | string | `"castai-agent-metadata"` | Name of the primary ConfigMap (created by CAST AI agent v0.22.0+) that holds cluster metadata. |
 | hibernateNode | string | `""` | Set the HIBERNATE_NODE environment variable to override the default node sizing selections. Make sure the size selected is appropriate for your cloud. |
 | hibernateNodeLabels | string | `""` |  |
 | image.pullPolicy | string | `"Always"` |  |
@@ -44,11 +45,11 @@ CAST AI hibernate CronJobs used to pause and resume Kubernetes cluster on a defi
 
 ### v0.2.11 - ConfigMap Name Change
 
-The default `configMapName` has been changed from `castai-cluster-controller` to `castai-agent-metadata` to align with the new CAST AI agent metadata ConfigMap.
+The default ConfigMap reference has been changed from `castai-cluster-controller` to `castai-agent-metadata` to align with the new CAST AI agent metadata ConfigMap.
 
 **Action required when upgrading:**
 
-- If you are upgrading from v0.2.10 or earlier and have not overridden `configMapName`, the hibernate CronJobs will now reference the `castai-agent-metadata` ConfigMap for the `CLUSTER_ID` value.
+- If you are upgrading from v0.2.10 or earlier and have not overridden `configMapNamePrimary`/`configMapNameFallback`, the hibernate CronJobs will now reference the `castai-agent-metadata` ConfigMap (primary) with fallback to `castai-cluster-controller` for the `CLUSTER_ID` value.
 - Ensure the `castai-agent-metadata` ConfigMap exists in the target namespace (typically `castai-agent`) and contains the `CLUSTER_ID` key.
 - This ConfigMap is created automatically by the CAST AI agent (castai-agent chart) v0.22.0+.
-- If you are using an older agent version or a custom setup, you may need to create this ConfigMap manually or override `configMapName` to point to your existing ConfigMap.
+- If you are using an older agent version or a custom setup, you may need to create this ConfigMap manually or override `configMapNamePrimary`/`configMapNameFallback` to point to your existing ConfigMap.
