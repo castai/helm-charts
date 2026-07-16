@@ -12,3 +12,16 @@
 {{ template "chart.requirementsSection" . }}
 
 {{ template "chart.valuesSection" . }}
+
+## Migration Guide
+
+### v0.2.11 - ConfigMap Name Change
+
+The default ConfigMap reference has been changed from `castai-cluster-controller` to `castai-agent-metadata` to align with the new CAST AI agent metadata ConfigMap.
+
+**Action required when upgrading:**
+
+- If you are upgrading from v0.2.10 or earlier and have not overridden `configMapNamePrimary`/`configMapNameFallback`, the hibernate CronJobs will now reference the `castai-agent-metadata` ConfigMap (primary) with fallback to `castai-cluster-controller` for the `CLUSTER_ID` value.
+- Ensure the `castai-agent-metadata` ConfigMap exists in the target namespace (typically `castai-agent`) and contains the `CLUSTER_ID` key.
+- This ConfigMap is created automatically by the CAST AI agent (castai-agent chart) v0.22.0+.
+- If you are using an older agent version or a custom setup, you may need to create this ConfigMap manually or override `configMapNamePrimary`/`configMapNameFallback` to point to your existing ConfigMap.
