@@ -69,8 +69,10 @@ namespacesToKeep: ""
 # -- This looks for the autoscaling.cast.ai/removal-disabled="true" label on a node and if it exists excludes it from being cordoned and deleted.
 protectRemovalDisabled: "false"
 
-# -- Name of the ConfigMap created by the CAST AI agent that holds cluster metadata used during hibernation.
-configMapName: castai-agent-metadata
+# -- Name of the primary ConfigMap (created by CAST AI agent v0.22.0+) that holds cluster metadata.
+configMapNamePrimary: castai-agent-metadata
+# -- Name of the fallback ConfigMap (legacy) for backwards compatibility.
+configMapNameFallback: castai-cluster-controller
 
 restartPolicy: "OnFailure"
 backoffLimit: 0
