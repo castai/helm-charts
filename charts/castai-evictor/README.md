@@ -30,6 +30,7 @@ Cluster utilization defragmentation tool
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
+| containerSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | crdUpgrade | object | `{"enabled":true,"image":{"digest":"","pullPolicy":"IfNotPresent","repository":"rancher/kubectl","tag":"v1.35.6"},"imagePullSecrets":[],"resources":{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}}` | CRD upgrade configuration. Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job. |
 | crdUpgrade.image.digest | string | `""` | Image digest for pinning (e.g. sha256:abc...). When set, appended to the image reference. |
 | crdUpgrade.imagePullSecrets | list | `[]` | Image pull secrets for the CRD upgrade Job. Use when crdUpgrade.image.repository points to a private registry that requires authentication. Independent of the evictor imagePullSecrets. |
@@ -93,6 +94,7 @@ Cluster utilization defragmentation tool
 | securityContext.runAsGroup | int | `1004` |  |
 | securityContext.runAsNonRoot | bool | `true` |  |
 | securityContext.runAsUser | int | `1004` |  |
+| securityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | service.port | int | `8080` |  |
 | service.type | string | `"ClusterIP"` |  |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account. |
