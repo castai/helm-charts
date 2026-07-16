@@ -28180,6 +28180,28 @@ entries:
       artifacthub.io/changes: |
         - kind: added
           description: |
+            Set seccompProfile.type=RuntimeDefault on both the pod and container securityContext
+            so the evictor no longer runs with an unconfined seccomp profile.
+      release-date: 2026-07-16T12:31:39
+    apiVersion: v2
+    appVersion: 0f62b65bea62ef2692285704bc5bc170d5795c45
+    created: "2026-07-16T13:26:10.502246364Z"
+    dependencies:
+    - condition: castai-evictor-ext.enabled
+      name: castai-evictor-ext
+      repository: file://child-charts/castai-evictor-ext
+      version: 0.5.0
+    description: Cluster utilization defragmentation tool
+    digest: fb971e5e2ef2b27205d1082e041d672ba42821e140bcae5bdb86c38142f45e62
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.35.126/castai-evictor-0.35.126.tgz
+    version: 0.35.126
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: |
             Added global.rbac.clusterScoped.enabled toggle for cluster-scoped RBAC resources.
             Set to false to disable ClusterRole and ClusterRoleBinding creation.
       release-date: 2026-07-16T12:31:39
@@ -69166,4 +69188,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-07-16T13:10:42.446651007Z"
+generated: "2026-07-16T13:26:10.509579803Z"
