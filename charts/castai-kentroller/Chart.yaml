@@ -3,8 +3,8 @@ name: castai-kentroller
 description: Deploys the CAST AI kentroller — the in-cluster controller for KENT (Karpenter Enterprise by CAST AI), responsible for automated Kubernetes cluster management.
 type: application
 # version & appVersion are set to a kentroller/{tagValue} (gitlab/remote-release-template.yml > chart_version_from_tag.py)
-version: 0.1.176
-appVersion: "v0.1.176"
+version: 0.1.177
+appVersion: "v0.1.177"
 dependencies:
   - name: castai-kentroller-crds
     version: "0.0.1"
