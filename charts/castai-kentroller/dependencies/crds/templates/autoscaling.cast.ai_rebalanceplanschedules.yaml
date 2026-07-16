@@ -521,6 +521,14 @@ spec:
                 description: NextScheduleTime is the next time the schedule will trigger
                 format: date-time
                 type: string
+              observedGeneration:
+                description: |-
+                  ObservedGeneration is the most recent generation observed for this schedule.
+                  When metadata.generation changes (a spec edit) the controller resets
+                  LastScheduleTime to now so the new schedule does not fire catch-up claims
+                  for slots that elapsed under the previous spec.
+                format: int64
+                type: integer
             type: object
         required:
         - spec
