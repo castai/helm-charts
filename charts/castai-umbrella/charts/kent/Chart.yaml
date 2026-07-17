@@ -2,10 +2,10 @@ apiVersion: v2
 name: kent
 description: Wrapper chart for CAST AI Kent profile.
 type: application
-version: 0.15.0
+version: 0.16.0
 dependencies:
   - name: castai-agent
-    version: "0.159.2"
+    version: "0.159.4"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-agent.enabled
   - name: castai-cluster-controller

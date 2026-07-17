@@ -8,7 +8,7 @@ Wrapper chart for CAST AI Kent profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.159.2 |
+| https://castai.github.io/helm-charts | castai-agent | 0.159.4 |
 | https://castai.github.io/helm-charts | castai-chart-upgrader | 0.2.0 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.7 |
 | https://castai.github.io/helm-charts | castai-kentroller | 0.1.172 |

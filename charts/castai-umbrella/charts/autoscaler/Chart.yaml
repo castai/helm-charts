@@ -2,11 +2,11 @@ apiVersion: v2
 name: autoscaler
 description: CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, full.
 type: application
-version: 0.2.0
+version: 0.2.1
 dependencies:
   # ── readonly components ───────────────────────────────────────────────────────
   - name: castai-agent
-    version: "0.159.2"
+    version: "0.159.4"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-agent.enabled
     tags:
