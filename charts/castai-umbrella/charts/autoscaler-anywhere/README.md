@@ -8,12 +8,12 @@ Wrapper chart for CAST AI Autoscaler Anywhere profile (non-managed clusters).
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.158.0 |
-| https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.7 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.103 |
-| https://castai.github.io/helm-charts | castai-pod-mutator | 0.16.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.3.2 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.3.2 |
+| https://castai.github.io/helm-charts | castai-agent | 0.159.4 |
+| https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.9 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.127 |
+| https://castai.github.io/helm-charts | castai-pod-mutator | 0.17.4 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.5.6 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.5.6 |
 
 ## Values
 
