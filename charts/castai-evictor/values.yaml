@@ -207,6 +207,18 @@ affinity:
 
 # customConfig - settings for advanced configuration
 # Ref: https://docs.cast.ai/docs/evictor#advanced-configuration
+# Supports three input formats:
+#   1. String (legacy) — passed through to ConfigMap as-is, CR evictionRules not populated.
+#      customConfig: |
+#        evictionConfig:
+#          - nodeSelector: ...
+#   2. List — rendered into both ConfigMap (wrapped with evictionConfig:) and CR evictionRules.
+#      customConfig:
+#        - nodeSelector: ...
+#   3. Object with evictionRules key — same as list but nested under evictionRules.
+#      customConfig:
+#        evictionRules:
+#          - nodeSelector: ...
 customConfig: {}
 configMapLabels: {}
 
@@ -302,3 +314,78 @@ openshift:
     # This makes the SCC less restrictive, preventing it from being selected for other workloads.
     # WARNING: Only enable if CAST AI container images support running as arbitrary UIDs.
     useRestrictedProfile: false
+
+# -- CRD upgrade configuration.
+# Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job.
+crdUpgrade:
+  enabled: true
+  image:
+    repository: rancher/kubectl
+    tag: "v1.35.6"
+    # crdUpgrade.image.digest -- Image digest for pinning (e.g. sha256:abc...). When set, appended to the image reference.
+    digest: ""
+    pullPolicy: IfNotPresent
+  # crdUpgrade.imagePullSecrets -- Image pull secrets for the CRD upgrade Job. Use when crdUpgrade.image.repository
+  # points to a private registry that requires authentication. Independent of the evictor imagePullSecrets.
+  imagePullSecrets: []
+  # crdUpgrade.resources -- Resource requests/limits for the CRD upgrade Job container.
+  resources:
+    requests:
+      cpu: 50m
+      memory: 64Mi
+    limits:
+      cpu: 100m
+      memory: 128Mi
+
+# ──────────────────────────────────────────────────────────────────────────────
+# EvictorConfig CR fields — not yet read by the evictor.
+#
+# These values are rendered into the EvictorConfig custom resource but the
+# evictor does not yet consume them from the CR. They are defined here so the
+# CR schema is fully populated; changing them has no effect until the evictor
+# is updated to read them.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# evictorEnabled -- Top-level kill-switch for the evictor. (CR field, not yet read by evictor)
+# When false, no evictions or node drains are performed regardless of other settings.
+evictorEnabled: true
+
+# minNodesToEvictPerCycle -- Minimum number of nodes to consider per eviction cycle. (CR field, not yet read by evictor)
+minNodesToEvictPerCycle: 5
+
+# targetNodePercentage -- Percentage of eligible nodes to consider per cycle, (CR field, not yet read by evictor)
+# applied after min/max target node bounds.
+targetNodePercentage: 10
+
+# drainTimeout -- Maximum time the evictor waits for a node to fully drain before giving up. (CR field, not yet read by evictor)
+drainTimeout: 10m
+
+# drainRollbackTimeout -- How long the evictor waits before rolling back a cordon when a drain attempt fails. (CR field, not yet read by evictor)
+drainRollbackTimeout: 1m
+
+# podEvictionFailureBackOff -- Wait time before retrying after a pod eviction request fails. (CR field, not yet read by evictor)
+podEvictionFailureBackOff: 5s
+
+# forceDisableKarpenterMode -- Disables Karpenter-aware scheduling simulation (CR field, not yet read by evictor)
+# even when Karpenter is detected on the cluster. Capability-detected by the evictor.
+forceDisableKarpenterMode: true
+
+# emitNodeRelatedPodEvents -- Emit Kubernetes events on pods when they are evicted as part of a node drain. (CR field, not yet read by evictor)
+emitNodeRelatedPodEvents: false
+
+# arm64Supported -- Indicates arm64 nodes are present so the scheduling simulation includes them as valid targets. (CR field, not yet read by evictor)
+arm64Supported: true
+
+# windows -- Enable eviction of pods and nodes running Windows workloads. (CR field, not yet read by evictor)
+windows: false
+
+# pricingModel -- Cost coefficients used when pricingAwareness is enabled. (CR field, not yet read by evictor)
+pricingModel:
+  # pricingModel.enabled -- Enable pricing-aware drain candidate selection (prefer draining more expensive nodes first).
+  enabled: false
+  # pricingModel.baseCPUCost -- Cost coefficient per CPU core.
+  baseCPUCost: "7.0"
+  # pricingModel.baseMemCost -- Cost coefficient per GiB of memory.
+  baseMemCost: "1.0"
+  # pricingModel.spotDiscount -- Fractional discount applied to spot instance price relative to on-demand.
+  spotDiscount: "0.5"
