@@ -1,7 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "sglang.fullname" . }}
+  {{- /* Service object name may be overridden via service.publicName (decoupled from
+     sglang.fullname) so the public/DNS name can differ from the workload names WITHOUT
+     redeploying workers/router. Selectors below still use the workload helpers. */}}
+  name: {{ include "sglang.serviceName" . }}
   labels:
     {{- include "sglang.labels" . | nindent 4 }}
   {{- /*

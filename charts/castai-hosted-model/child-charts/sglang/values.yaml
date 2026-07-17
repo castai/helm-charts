@@ -31,6 +31,9 @@ container:
 service:
   type: ClusterIP
   port: 8000
+  # Public service that clients resolve, we need this to be decoupled from naming the workers as
+  # we want to have ability to switch underlying model serving tech without downtime
+  publicName: ""
   # -- Extra annotations for the model Service. Merged with the router sync-wave
   # annotation (see router.syncWaves) when the router is enabled.
   annotations: {}

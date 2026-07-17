@@ -1,6 +1,6 @@
 # sglang
 
-![Version: 0.2.0](https://img.shields.io/badge/Version-0.2.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
+![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
 
 CAST AI hosted model deployment chart for SGLang.
 
@@ -55,6 +55,7 @@ CAST AI hosted model deployment chart for SGLang.
 | router.workerProtocol | string | `"http"` | Protocol the router uses to reach the WORKERS. Clients always talk HTTP/OpenAI to the router regardless. "http" = current path (workers run sglang.launch_server, no boot change). "grpc" = the Rust fast-path (router tokenizes, streams token-ids to SRT gRPC workers) — this REQUIRES the workers to be launched as SRT gRPC workers (--grpc-mode, gRPC port) and HiCache re-validated under that mode. Not a free flag flip on the worker side. |
 | service.annotations | object | `{}` | Extra annotations for the model Service. Merged with the router sync-wave annotation (see router.syncWaves) when the router is enabled. |
 | service.port | int | `8000` |  |
+| service.publicName | string | `""` |  |
 | service.type | string | `"ClusterIP"` |  |
 | shm.sizeLimit | string | `"10Gi"` | Size limit of the shared-memory (/dev/shm) emptyDir used for tensor-parallel inference. Increase for large models / high tensor-parallel degrees; decrease to save node RAM. |
 | startupProbe | object | `{"enabled":true,"failureThreshold":600,"httpGet":{"path":"/health"},"initialDelaySeconds":20,"periodSeconds":6,"successThreshold":1,"timeoutSeconds":1}` | Startup probe configuration |
