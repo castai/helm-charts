@@ -33,6 +33,12 @@ spec:
                   name: {{ .Values.secretName }}
                   {{- end }}
                   optional: false
+              - configMapRef:
+                  name: {{ .Values.configMapNameFallback }}
+                  optional: true
+              - configMapRef:
+                  name: {{ .Values.configMapNamePrimary }}
+                  optional: true
             securityContext:
               readOnlyRootFilesystem: true       
             env:
@@ -52,11 +58,6 @@ spec:
                 value: "{{ .Values.protectRemovalDisabled }}"
               - name: ACTION
                 value: "pause"
-              - name: CLUSTER_ID
-                valueFrom:
-                  configMapKeyRef:
-                    name: {{ .Values.configMapName }}
-                    key: CLUSTER_ID
               - name: API_URL
                 value: {{ .Values.apiUrl }}
           restartPolicy: {{ .Values.restartPolicy }}
