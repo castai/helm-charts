@@ -8,6 +8,20 @@ back to a Release-derived name so resources never render with an empty name.
 {{- end }}
 
 {{/*
+Public Service object name — the DNS name clients/gateway resolve.
+Defaults to sglang.fullname (the workload identity), but can be overridden with
+service.publicName WITHOUT touching sglang.fullname. This decouples the *public
+Service name* from the *worker/router Deployment names + selector labels*, so a
+model can adopt a stable public name (e.g. front an existing vLLM Service name
+during a cutover) WITHOUT renaming — and thus redeploying — the SGLang workers
+or router (their selectorLabels are immutable; renaming forces a recreate).
+Only the Service metadata.name uses this; selectors still use sglang.fullname.
+*/}}
+{{- define "sglang.serviceName" -}}
+{{ .Values.service.publicName | default (include "sglang.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
 Create chart name and version as used by the chart label.
 */}}
 {{- define "sglang.chart" -}}
