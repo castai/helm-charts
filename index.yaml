@@ -42977,6 +42977,26 @@ entries:
   castai-hosted-model:
   - apiVersion: v2
     appVersion: v0.0.1
+    created: "2026-07-17T11:12:10.485713861Z"
+    dependencies:
+    - condition: vllm.enabled
+      name: vllm
+      repository: file://child-charts/vllm
+      version: 0.0.46
+    - condition: sglang.enabled
+      name: sglang
+      repository: file://child-charts/sglang
+      version: 0.2.1
+    description: CAST AI hosted model deployment chart with PVC support for compilation
+      caches.
+    digest: 98906f22dd1e135c216c7ec636b220d16d525f247d27383b9c682441460f5693
+    name: castai-hosted-model
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-hosted-model-0.0.61/castai-hosted-model-0.0.61.tgz
+    version: 0.0.61
+  - apiVersion: v2
+    appVersion: v0.0.1
     created: "2026-07-15T12:10:58.30519053Z"
     dependencies:
     - condition: vllm.enabled
@@ -69354,4 +69374,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-07-16T21:34:46.537838069Z"
+generated: "2026-07-17T11:12:10.491152286Z"
