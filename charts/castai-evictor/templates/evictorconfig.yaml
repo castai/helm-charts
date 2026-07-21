@@ -1,75 +1,73 @@
 {{/*
-  Two rendering paths for the EvictorConfig CR:
+  EvictorConfig CR manifest and spec, defined as reusable blocks.
 
-  1. CRD already exists (.Capabilities check) → render as regular template resource.
-  2. First install with crdUpgrade.enabled=true → render as post-install hook.
-     The pre-install crd-upgrade-job creates the CRD first, then this hook
-     applies the CR after all regular resources are loaded.
+  Two rendering paths:
 
-  The guards are mutually exclusive: when the CRD exists, path 1 fires and
-  path 2 is suppressed (and vice versa).
+  1. crdUpgrade.enabled=true (default): The CR is NOT rendered as a
+     standalone resource. It is embedded in the crd-upgrade-job's
+     ConfigMap and applied via kubectl by the Job, alongside the CRD.
+
+  2. crdUpgrade.enabled=false (Cast auto-upgrade, or users who manage
+     the CRD separately): The CR is rendered as a post-install/
+     post-upgrade hook. If the CRD exists, the hook creates/updates the
+     CR. If not, the hook fails gracefully — regular resources are
+     still applied.
 */}}
-{{- $crdExists := .Capabilities.APIVersions.Has "autoscaling.cast.ai/v1alpha1/EvictorConfig" -}}
-{{- $hookInstall := and .Values.crdUpgrade.enabled (not $crdExists) -}}
-{{- if or $crdExists $hookInstall }}
+{{- define "evictor.evictorconfig" -}}
 apiVersion: autoscaling.cast.ai/v1alpha1
 kind: EvictorConfig
 metadata:
   name: evictor-config
   labels:
     {{- include "evictor.labels" . | nindent 4 }}
-  {{- if $hookInstall }}
-  annotations:
-    helm.sh/hook: post-install,post-upgrade
-    helm.sh/hook-weight: "10"
-    helm.sh/hook-delete-policy: before-hook-creation
-    meta.helm.sh/release-name: {{ .Release.Name }}
-    meta.helm.sh/release-namespace: {{ .Release.Namespace }}
-  {{- end }}
 spec:
-  managementMode: {{ .Values.managedByCASTAI | ternary "castai" "self-managed" }}
-  enabled: {{ .Values.evictorEnabled }}
-  config:
-    aggressiveMode: {{ .Values.aggressiveMode }}
-    arm64Supported: {{ .Values.arm64Supported }}
-    cycleInterval: {{ .Values.cycleInterval | quote }}
-    drainRollbackTimeout: {{ .Values.drainRollbackTimeout | quote }}
-    drainTimeout: {{ .Values.drainTimeout | quote }}
-    dryRun: {{ .Values.dryRun }}
-    emitNodeRelatedPodEvents: {{ .Values.emitNodeRelatedPodEvents }}
-    forceDisableKarpenterMode: {{ .Values.forceDisableKarpenterMode }}
-    forceDisableLiveMigration: {{ not .Values.liveMigration.enabled }}
-    forceDisablePodMutations: {{ not .Values.podMutations.enabled }}
-    forceDisableWOOP: {{ not .Values.woop.enabled }}
-    ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
-    maxTargetNodesPerCycle: {{ .Values.maxNodesToEvictPerCycle }}
-    minTargetNodesPerCycle: {{ .Values.minNodesToEvictPerCycle }}
-    nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
-    podEvictionFailureBackOff: {{ .Values.podEvictionFailureBackOff | quote }}
-    pricingAwarenessEnabled: {{ .Values.pricingModel.enabled }}
-    pricingModel:
-      baseCPUCost: {{ .Values.pricingModel.baseCPUCost | quote }}
-      baseMemCost: {{ .Values.pricingModel.baseMemCost | quote }}
-      spotDiscount: {{ .Values.pricingModel.spotDiscount | quote }}
-    scopedMode: {{ .Values.scopedMode }}
-    softTainting: {{ .Values.softTainting.enabled }}
-    targetNodePercentage: {{ .Values.targetNodePercentage }}
-    windows: {{ .Values.windows }}
-  {{- if .Values.customConfig }}
-  {{- if not (kindIs "string" .Values.customConfig) }}
-  {{- $rules := list }}
-  {{- if kindIs "slice" .Values.customConfig }}
-    {{- $rules = .Values.customConfig }}
-  {{- else if kindIs "map" .Values.customConfig }}
-    {{- if .Values.customConfig.evictionRules }}
-      {{- $rules = .Values.customConfig.evictionRules }}
-    {{- else }}
-      {{- fail "customConfig map must contain an 'evictionRules' key" }}
-    {{- end }}
+{{ include "evictor.evictorconfig.spec" . | indent 2 }}
+{{- end -}}
+
+{{- define "evictor.evictorconfig.spec" -}}
+managementMode: {{ .Values.managedByCASTAI | ternary "castai" "self-managed" }}
+enabled: {{ .Values.evictorEnabled }}
+config:
+  aggressiveMode: {{ .Values.aggressiveMode }}
+  arm64Supported: {{ .Values.arm64Supported }}
+  cycleInterval: {{ .Values.cycleInterval | quote }}
+  drainRollbackTimeout: {{ .Values.drainRollbackTimeout | quote }}
+  drainTimeout: {{ .Values.drainTimeout | quote }}
+  dryRun: {{ .Values.dryRun }}
+  emitNodeRelatedPodEvents: {{ .Values.emitNodeRelatedPodEvents }}
+  forceDisableKarpenterMode: {{ .Values.forceDisableKarpenterMode }}
+  forceDisableLiveMigration: {{ not .Values.liveMigration.enabled }}
+  forceDisablePodMutations: {{ not .Values.podMutations.enabled }}
+  forceDisableWOOP: {{ not .Values.woop.enabled }}
+  ignorePodDisruptionBudgets: {{ .Values.ignorePodDisruptionBudgets }}
+  maxTargetNodesPerCycle: {{ .Values.maxNodesToEvictPerCycle }}
+  minTargetNodesPerCycle: {{ .Values.minNodesToEvictPerCycle }}
+  nodeGracePeriodMinutes: {{ .Values.nodeGracePeriodMinutes }}
+  podEvictionFailureBackOff: {{ .Values.podEvictionFailureBackOff | quote }}
+  pricingAwarenessEnabled: {{ .Values.pricingModel.enabled }}
+  pricingModel:
+    baseCPUCost: {{ .Values.pricingModel.baseCPUCost | quote }}
+    baseMemCost: {{ .Values.pricingModel.baseMemCost | quote }}
+    spotDiscount: {{ .Values.pricingModel.spotDiscount | quote }}
+  scopedMode: {{ .Values.scopedMode }}
+  softTainting: {{ .Values.softTainting.enabled }}
+  targetNodePercentage: {{ .Values.targetNodePercentage }}
+  windows: {{ .Values.windows }}
+{{- if .Values.customConfig }}
+{{- if not (kindIs "string" .Values.customConfig) }}
+{{- $rules := list }}
+{{- if kindIs "slice" .Values.customConfig }}
+  {{- $rules = .Values.customConfig }}
+{{- else if kindIs "map" .Values.customConfig }}
+  {{- if .Values.customConfig.evictionRules }}
+    {{- $rules = .Values.customConfig.evictionRules }}
+  {{- else }}
+    {{- fail "customConfig map must contain an 'evictionRules' key" }}
   {{- end }}
-  {{- if $rules }}
+{{- end }}
+{{- if $rules }}
   evictionRules:
-    {{- range $rules }}
+  {{- range $rules }}
     {{- $rule := omit . "settings" }}
     {{- if .settings }}
       {{- $crSettings := dict }}
@@ -83,8 +81,24 @@ spec:
       {{- $rule = set $rule "settings" $crSettings }}
     {{- end }}
     - {{ $rule | toYaml | nindent 6 | trim }}
-    {{- end }}
   {{- end }}
-  {{- end }}
-  {{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end -}}
+
+{{- if not .Values.crdUpgrade.enabled }}
+---
+apiVersion: autoscaling.cast.ai/v1alpha1
+kind: EvictorConfig
+metadata:
+  name: evictor-config
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/hook: post-install,post-upgrade
+    helm.sh/hook-weight: "0"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+{{ include "evictor.evictorconfig.spec" . | indent 2 }}
 {{- end }}
