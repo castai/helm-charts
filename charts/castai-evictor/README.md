@@ -31,10 +31,10 @@ Cluster utilization defragmentation tool
 | containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | containerSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
-| crdUpgrade | object | `{"enabled":true,"image":{"digest":"","pullPolicy":"IfNotPresent","repository":"rancher/kubectl","tag":"v1.35.6"},"imagePullSecrets":[],"resources":{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}}` | CRD upgrade configuration. Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job. |
+| crdUpgrade | object | `{"enabled":true,"image":{"digest":"","pullPolicy":"IfNotPresent","repository":"rancher/kubectl","tag":"v1.35.6"},"imagePullSecrets":[],"resources":{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}}` | CRD upgrade configuration. Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job. |
 | crdUpgrade.image.digest | string | `""` | Image digest for pinning (e.g. sha256:abc...). When set, appended to the image reference. |
 | crdUpgrade.imagePullSecrets | list | `[]` | Image pull secrets for the CRD upgrade Job. Use when crdUpgrade.image.repository points to a private registry that requires authentication. Independent of the evictor imagePullSecrets. |
-| crdUpgrade.resources | object | `{"limits":{"cpu":"100m","memory":"128Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}` | Resource requests/limits for the CRD upgrade Job container. |
+| crdUpgrade.resources | object | `{"limits":{"cpu":"200m","memory":"256Mi"},"requests":{"cpu":"50m","memory":"64Mi"}}` | Resource requests/limits for the CRD upgrade Job container. |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
