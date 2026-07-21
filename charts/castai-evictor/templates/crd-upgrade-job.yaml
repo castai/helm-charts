@@ -35,6 +35,16 @@ rules:
   - list
   - patch
   - update
+- apiGroups:
+  - autoscaling.cast.ai
+  resources:
+  - evictorconfigs
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
@@ -69,6 +79,8 @@ metadata:
 data:
   crds.yaml: |
 {{ .Files.Get "crd-files/evictorconfigs.autoscaling.cast.ai.yaml" | indent 4 }}
+  evictorconfig.yaml: |
+{{ include "evictor.evictorconfig" . | indent 4 }}
 ---
 apiVersion: batch/v1
 kind: Job
@@ -125,7 +137,7 @@ spec:
         - --server-side
         - --force-conflicts
         - -f
-        - /crds/crds.yaml
+        - /crds/
         volumeMounts:
         - name: crds
           mountPath: /crds
