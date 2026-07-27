@@ -28633,6 +28633,28 @@ entries:
       release-date: 2026-07-16T12:31:39
     apiVersion: v2
     appVersion: 0f62b65bea62ef2692285704bc5bc170d5795c45
+    created: "2026-07-27T07:52:33.098672755Z"
+    dependencies:
+    - condition: castai-evictor-ext.enabled
+      name: castai-evictor-ext
+      repository: file://child-charts/castai-evictor-ext
+      version: 0.5.0
+    description: Cluster utilization defragmentation tool
+    digest: 60e5e80e0cb001a69c4d645f657698bd88364440a123c0695c6a40b918402919
+    name: castai-evictor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-evictor-0.35.130/castai-evictor-0.35.130.tgz
+    version: 0.35.130
+  - annotations:
+      artifacthub.io/changes: |
+        - kind: added
+          description: |
+            Set seccompProfile.type=RuntimeDefault on both the pod and container securityContext
+            so the evictor no longer runs with an unconfined seccomp profile.
+      release-date: 2026-07-16T12:31:39
+    apiVersion: v2
+    appVersion: 0f62b65bea62ef2692285704bc5bc170d5795c45
     created: "2026-07-21T17:36:12.470216402Z"
     dependencies:
     - condition: castai-evictor-ext.enabled
@@ -69847,4 +69869,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-07-23T14:50:37.476189266Z"
+generated: "2026-07-27T07:52:33.104804806Z"
