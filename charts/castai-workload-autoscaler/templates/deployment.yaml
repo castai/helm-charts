@@ -145,9 +145,9 @@ spec:
             - name: CLUSTER_AUTOSCALER_ARGS
               value: {{ include "workload-autoscaler.clusterAutoscalerArgs" . | quote }}
             {{- end }}
-            {{- if .Values.jmxExporter.enabled }}
             - name: JMX_EXPORTER_ENABLED
-              value: "true"
+              value: {{ .Values.jmxExporter.enabled | quote }}
+            {{- if .Values.jmxExporter.enabled }}
             - name: JMX_EXPORTER_INIT_IMAGE
               value: "{{ .Values.jmxExporter.initImage.repository }}:{{ .Values.jmxExporter.initImage.tag }}"
             - name: JMX_EXPORTER_BASE_PORT
