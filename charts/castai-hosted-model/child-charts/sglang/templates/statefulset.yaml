@@ -1,9 +1,23 @@
-{{- /* Single-node path only. When multiNode.enabled=true the workload is a
-   StatefulSet (templates/statefulset.yaml) instead, so this Deployment is
-   suppressed. Everything below is unchanged from the single-node original. */}}
-{{- if not .Values.multiNode.enabled }}
+{{- /*
+Multi-node path ONLY (multiNode.enabled=true). One serving engine spans
+multiNode.nnodes pods (one per node, each claiming its full GPU count) joined by
+torch/NCCL into a single tensor-parallel engine. Requires the headless Service
+(statefulset-headless-service.yaml) for stable rank DNS.
+
+  - replicas          = multiNode.nnodes            (rank count, NOT model copies)
+  - --node-rank       = pod ordinal (…-0 -> 0, …-1 -> 1, …)
+  - --dist-init-addr  = <rank-0 FQDN>:<distInitPort> (leader rendezvous)
+  - --nnodes          = multiNode.nnodes
+  - --tp-size         = tensorParallelSize (should equal nnodes * gpusPerNode)
+
+Only rank 0 serves HTTP; the router (router.enabled) discovers rank 0 only via
+router.serviceDiscovery.extraSelector (see values). Everything except kind,
+serviceName, the command wrapper, and the dist flags mirrors deployment.yaml so
+the two paths stay behaviourally identical per-pod.
+*/}}
+{{- if .Values.multiNode.enabled }}
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "sglang.fullname" . }}
   labels:
@@ -19,14 +33,11 @@ metadata:
       horizontal:
         optimization: off
 spec:
-  replicas: {{ .Values.replicaCount }}
-  strategy:
-    type: {{ .Values.deployment.strategy.type }}
-    {{- if eq .Values.deployment.strategy.type "RollingUpdate" }}
-    rollingUpdate:
-      maxSurge: {{ .Values.deployment.strategy.rollingUpdate.maxSurge }}
-      maxUnavailable: {{ .Values.deployment.strategy.rollingUpdate.maxUnavailable }}
-    {{- end }}
+  serviceName: {{ include "sglang.headlessName" . }}
+  replicas: {{ .Values.multiNode.nnodes }}
+  podManagementPolicy: Parallel      # bring all ranks up together; workers wait on rank-0 DNS
+  updateStrategy:
+    type: RollingUpdate
   selector:
     matchLabels:
       {{- include "sglang.selectorLabels" . | nindent 6 }}
@@ -71,19 +82,31 @@ spec:
         - name: "sglang"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
-          command: ["python3", "-m", "sglang.launch_server"]
+          {{- /* node-rank is derived from the StatefulSet pod ordinal via HOSTNAME.
+             bash (NOT /bin/sh) because the wrapper uses `set -o pipefail`. */}}
+          command: ["/bin/bash", "-c"]
           args:
-            - "--model-path={{ required "Required value 'model.name' must be defined" .Values.model.name }}"
-            - "--served-model-name={{ .Values.model.servedName | default .Values.model.name }}"
-            - "--host=0.0.0.0"
-            - "--port={{ .Values.container.port }}"
-            - "--download-dir=/models"
-            {{- if .Values.tensorParallelSize }}
-            - "--tp-size={{ .Values.tensorParallelSize }}"
-            {{- end }}
-            {{- range .Values.extraArgs }}
-            - {{ . | quote }}
-            {{- end }}
+            - |
+              set -euo pipefail
+              ORDINAL="${HOSTNAME##*-}"
+              LEADER="{{ include "sglang.leaderFqdn" . }}"
+              echo "[entrypoint] HOSTNAME=$HOSTNAME node-rank=$ORDINAL leader=$LEADER"
+              exec python3 -m sglang.launch_server \
+                --model-path={{ required "Required value 'model.name' must be defined" .Values.model.name }} \
+                --served-model-name={{ .Values.model.servedName | default .Values.model.name }} \
+                --host=0.0.0.0 \
+                --port={{ .Values.container.port }} \
+                --download-dir=/models \
+                --dist-init-addr="${LEADER}:{{ .Values.multiNode.distInitPort }}" \
+                --nnodes={{ .Values.multiNode.nnodes }} \
+                --node-rank="${ORDINAL}" \
+                {{- if .Values.tensorParallelSize }}
+                --tp-size={{ .Values.tensorParallelSize }} \
+                {{- end }}
+                {{- range .Values.extraArgs }}
+                {{ . }} \
+                {{- end }}
+                ;
           env:
             - name: HF_HOME # Co-locate the HuggingFace cache with the download dir
               value: /models
@@ -106,8 +129,16 @@ spec:
             - name: http
               containerPort: {{ .Values.container.port }}
               protocol: TCP
+            - name: dist
+              containerPort: {{ .Values.multiNode.distInitPort }}
+              protocol: TCP
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          {{- /* Probes hit /health, which only rank-0 serves. Worker ranks (>0)
+             have no HTTP server, so HTTP probes would fail-loop and restart them.
+             Emit probes ONLY when multiNode.probeAllRanks=true (rare); by default
+             workers rely on the process staying alive + NCCL liveness. */}}
+          {{- if .Values.multiNode.probeAllRanks }}
           {{- if .Values.startupProbe.enabled }}
           startupProbe:
             httpGet:
@@ -141,6 +172,24 @@ spec:
             timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.readinessProbe.successThreshold }}
           {{- end }}
+          {{- else }}
+          {{- /* rank-0-only probes: gate the leader on /health; workers unprobed.
+             The StatefulSet can't do per-ordinal probes, so we apply the leader's
+             probes to all pods ONLY when it's a single-rank (nnodes=1) edge case;
+             for nnodes>1 we omit HTTP probes to avoid killing workers. The router's
+             own readiness + rank-0 discovery is what gates client traffic. */}}
+          {{- if and .Values.startupProbe.enabled (eq (int .Values.multiNode.nnodes) 1) }}
+          startupProbe:
+            httpGet:
+              path: {{ .Values.startupProbe.httpGet.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.startupProbe.periodSeconds }}
+            failureThreshold: {{ .Values.startupProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.startupProbe.successThreshold }}
+          {{- end }}
+          {{- end }}
           volumeMounts:
           {{- if .Values.tensorParallelSize }}
             - name: shm
@@ -159,8 +208,23 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- /* Merge one-rank-per-node podAntiAffinity with any user affinity. The
+         two ranks MUST land on different nodes (each claims a full GPU node). */}}
       affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  {{- include "sglang.selectorLabels" . | nindent 18 }}
+              topologyKey: kubernetes.io/hostname
+        {{- with .Values.affinity }}
+        {{- if .nodeAffinity }}
+        nodeAffinity:
+          {{- toYaml .nodeAffinity | nindent 10 }}
+        {{- end }}
+        {{- if .podAffinity }}
+        podAffinity:
+          {{- toYaml .podAffinity | nindent 10 }}
+        {{- end }}
+        {{- end }}
 {{- end }}

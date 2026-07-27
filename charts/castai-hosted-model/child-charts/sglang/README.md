@@ -1,6 +1,6 @@
 # sglang
 
-![Version: 0.2.1](https://img.shields.io/badge/Version-0.2.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
+![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
 
 CAST AI hosted model deployment chart for SGLang.
 
@@ -26,6 +26,11 @@ CAST AI hosted model deployment chart for SGLang.
 | model.hfToken | string | `nil` | HuggingFace token used to pull gated/private models. |
 | model.name | string | `nil` | HF model name or repo id (e.g. "meta-llama/Llama-3.1-8B-Instruct"). Only the HuggingFace source is supported. |
 | model.servedName | string | `nil` | Optional override for the served model name. If not set, defaults to model.name. |
+| multiNode | object | `{"distInitPort":20000,"enabled":false,"nnodes":2,"probeAllRanks":false}` | Multi-node (distributed) serving. When enabled, ONE serving engine spans `nnodes` pods (one per GPU node), joined over torch/NCCL into a single tensor-parallel engine. The workload becomes a StatefulSet (stable rank DNS) with a headless Service instead of the default single-node Deployment. Use for models too large for one node (e.g. TP=16 across 2x 8-GPU nodes).  Requirements when enabled:   - nnodes >= 2, and tensorParallelSize should equal nnodes * (GPUs per node)   - resources.limits."nvidia.com/gpu" set to the per-NODE GPU count (e.g. 8)   - the image must support the model architecture   - nodeSelector/affinity must target `nnodes` schedulable same-DC GPU nodes   - router.serviceDiscovery.extraSelector should pin discovery to rank-0 (only     rank-0 serves HTTP) — see the router notes in the parent values. |
+| multiNode.distInitPort | int | `20000` | TCP port used for torch/NCCL distributed init (rendezvous on rank-0). |
+| multiNode.enabled | bool | `false` | Turn on the multi-node StatefulSet path. Default false = unchanged single-node Deployment. |
+| multiNode.nnodes | int | `2` | Number of nodes/pods the single engine spans (StatefulSet replicas = rank count). |
+| multiNode.probeAllRanks | bool | `false` | Apply the configured HTTP probes to ALL ranks. Default false: only rank-0 serves /health, so worker ranks (>0) are left unprobed to avoid restart loops. |
 | nodeSelector | object | `{}` |  |
 | persistence | object | `{"hostPath":{"enabled":false,"path":"","type":"DirectoryOrCreate"}}` | Model weight storage. When hostPath is enabled, weights are saved to a node-local directory (e.g. /mnt/models/<model>) so they survive pod restarts on the same node. When disabled, an emptyDir is used and weights are re-downloaded on every pod start. |
 | podAnnotations | object | `{}` | Additional pod annotations to set for the SGLang pod |

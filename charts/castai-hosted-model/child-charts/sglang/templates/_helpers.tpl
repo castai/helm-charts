@@ -97,3 +97,20 @@ Rendered as space-separated key=value pairs.
 {{- end -}}
 {{- join " " $pairs -}}
 {{- end }}
+
+{{/*
+Headless Service name for multi-node (StatefulSet) deployments. Gives each rank
+pod stable DNS: <fullname>-<ordinal>.<headless>.<ns>.svc.cluster.local. Used as
+the StatefulSet's serviceName and as the base for the leader (rank-0) FQDN.
+*/}}
+{{- define "sglang.headlessName" -}}
+{{- printf "%s-headless" (include "sglang.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end }}
+
+{{/*
+Fully-qualified DNS name of the leader (rank-0) pod, used for --dist-init-addr so
+the worker ranks can rendezvous with rank 0 for torch/NCCL distributed init.
+*/}}
+{{- define "sglang.leaderFqdn" -}}
+{{- printf "%s-0.%s.%s.svc.cluster.local" (include "sglang.fullname" .) (include "sglang.headlessName" .) .Release.Namespace -}}
+{{- end }}

@@ -1,0 +1,26 @@
+{{- /*
+Headless Service for the multi-node (StatefulSet) path ONLY. Provides stable
+per-pod DNS so worker ranks can resolve the leader (rank-0) for distributed init
+BEFORE any pod is Ready (publishNotReadyAddresses). Not rendered for single-node
+models, so their networking is unchanged.
+*/}}
+{{- if .Values.multiNode.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "sglang.headlessName" . }}
+  labels:
+    {{- include "sglang.labels" . | nindent 4 }}
+spec:
+  clusterIP: None                    # headless -> per-pod DNS A records
+  publishNotReadyAddresses: true     # ranks must resolve rank-0 before it is Ready
+  selector:
+    {{- include "sglang.selectorLabels" . | nindent 4 }}
+  ports:
+    - name: dist                     # torch/NCCL distributed init rendezvous
+      port: {{ .Values.multiNode.distInitPort }}
+      protocol: TCP
+    - name: http
+      port: {{ .Values.container.port }}
+      protocol: TCP
+{{- end }}
