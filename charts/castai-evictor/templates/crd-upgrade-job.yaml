@@ -88,18 +88,28 @@ metadata:
   name: {{ include "evictor.fullname" . }}-crd-upgrade-{{ .Release.Revision }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "evictor.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "evictor.fullname" . }}-crd-upgrade
+    app.kubernetes.io/instance: {{ include "evictor.fullname" . }}-crd-upgrade
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "0"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- include "evictor.annotations" . | nindent 4 }}
 spec:
   backoffLimit: 3
   template:
     metadata:
       name: {{ include "evictor.fullname" . }}-crd-upgrade
       labels:
-        {{- include "evictor.labels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ include "evictor.fullname" . }}-crd-upgrade
+        app.kubernetes.io/instance: {{ include "evictor.fullname" . }}-crd-upgrade
+        {{- with .Values.crdUpgrade.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.crdUpgrade.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       restartPolicy: Never
       serviceAccountName: {{ include "evictor.fullname" . }}-crd-upgrade
