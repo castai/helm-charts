@@ -99,7 +99,14 @@ spec:
     metadata:
       name: {{ include "evictor.fullname" . }}-crd-upgrade
       labels:
-        {{- include "evictor.labels" . | nindent 8 }}
+        {{- include "evictor.selectorLabels" . | nindent 8 }}
+        {{- with .Values.crdUpgrade.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.crdUpgrade.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       restartPolicy: Never
       serviceAccountName: {{ include "evictor.fullname" . }}-crd-upgrade
