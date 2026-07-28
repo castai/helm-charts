@@ -1,0 +1,154 @@
+suite: CRD upgrade Job rendering
+templates:
+  - crd-upgrade-job.yaml
+  - evictorconfig.yaml
+capabilities:
+  apiVersions:
+    - autoscaling.cast.ai/v1alpha1/EvictorConfig
+
+tests:
+  # ── Rendering gate ──────────────────────────────────────────────────────────
+
+  - it: does not render when crdUpgrade is disabled
+    set:
+      crdUpgrade:
+        enabled: false
+    template: crd-upgrade-job.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # ── Pod security context (default) ──────────────────────────────────────────
+
+  - it: renders full pod security context by default
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 1000
+      - equal:
+          path: spec.template.spec.securityContext.runAsGroup
+          value: 1000
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1000
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+
+  # ── Pod security context (OpenShift restricted profile) ─────────────────────
+
+  - it: strips UID fields on OpenShift with restricted profile
+    capabilities:
+      apiVersions:
+        - security.openshift.io/v1
+        - autoscaling.cast.ai/v1alpha1/EvictorConfig
+    set:
+      crdUpgrade:
+        enabled: true
+      openshift:
+        scc:
+          useRestrictedProfile: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+      - notExists:
+          path: spec.template.spec.securityContext.runAsUser
+      - notExists:
+          path: spec.template.spec.securityContext.runAsGroup
+      - notExists:
+          path: spec.template.spec.securityContext.fsGroup
+
+  - it: keeps UID fields on OpenShift without restricted profile
+    capabilities:
+      apiVersions:
+        - security.openshift.io/v1
+        - autoscaling.cast.ai/v1alpha1/EvictorConfig
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 1000
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1000
+
+  # ── Container security context ─────────────────────────────────────────────
+
+  - it: applies container security context without seccompProfile (inherited from pod)
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.allowPrivilegeEscalation
+          value: false
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.readOnlyRootFilesystem
+          value: true
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.capabilities.drop[0]
+          value: ALL
+      - notExists:
+          path: spec.template.spec.initContainers[0].securityContext.seccompProfile
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.seccompProfile
+
+  # ── Overridable security context ────────────────────────────────────────────
+
+  - it: reflects overridden crdUpgrade.securityContext values
+    set:
+      crdUpgrade:
+        enabled: true
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 2000
+          runAsGroup: 2000
+          fsGroup: 2000
+          seccompProfile:
+            type: RuntimeDefault
+        containerSecurityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 2000
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 2000
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 2000
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.runAsUser
+          value: 2000
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+          value: 2000
