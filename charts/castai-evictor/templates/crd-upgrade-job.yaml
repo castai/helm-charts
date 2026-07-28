@@ -88,7 +88,8 @@ metadata:
   name: {{ include "evictor.fullname" . }}-crd-upgrade-{{ .Release.Revision }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "evictor.labels" . | nindent 4 }}
+    app.kubernetes.io/name: {{ include "evictor.fullname" . }}-crd-upgrade
+    app.kubernetes.io/instance: {{ include "evictor.fullname" . }}-crd-upgrade
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
     "helm.sh/hook-weight": "0"
@@ -100,7 +101,8 @@ spec:
     metadata:
       name: {{ include "evictor.fullname" . }}-crd-upgrade
       labels:
-        {{- include "evictor.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/name: {{ include "evictor.fullname" . }}-crd-upgrade
+        app.kubernetes.io/instance: {{ include "evictor.fullname" . }}-crd-upgrade
         {{- with .Values.crdUpgrade.podLabels }}
           {{- toYaml . | nindent 8 }}
         {{- end }}
