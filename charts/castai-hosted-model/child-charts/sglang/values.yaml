@@ -186,6 +186,11 @@ multiNode:
   nnodes: 2
   # -- TCP port used for torch/NCCL distributed init (rendezvous on rank-0).
   distInitPort: 20000
+  # StatefulSet updateStrategy. Default OnDelete: the ranks are ONE NCCL group,
+  # so a rolling replace of a single rank aborts the engine. OnDelete requires the
+  # operator to recreate the whole group (delete rank pods, or scale 0->N). Set to
+  # RollingUpdate only if a coordinated rolling upgrade is genuinely wanted.
+  updateStrategy: OnDelete
   # -- Apply the configured HTTP probes to ALL ranks. Default false: only rank-0
   # serves /health, so worker ranks (>0) are left unprobed to avoid restart loops.
   probeAllRanks: false

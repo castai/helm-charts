@@ -114,3 +114,33 @@ the worker ranks can rendezvous with rank 0 for torch/NCCL distributed init.
 {{- define "sglang.leaderFqdn" -}}
 {{- printf "%s-0.%s.%s.svc.cluster.local" (include "sglang.fullname" .) (include "sglang.headlessName" .) .Release.Namespace -}}
 {{- end }}
+
+{{/*
+Fail-fast validation for the multi-node path. Called from statefulset.yaml so a
+misconfigured multiNode block errors at `helm template`/install time with a clear
+message, instead of rendering a StatefulSet that crash-loops at runtime.
+Checks:
+  - tensorParallelSize is set (required for --tp-size across ranks)
+  - nnodes >= 2 (a "multi-node" engine spanning 1 node is a config error; use the
+    single-node Deployment path instead)
+  - a per-node GPU limit is set (resources.limits."nvidia.com/gpu")
+  - fullname leaves room for the "-headless" suffix within the 63-char DNS limit
+*/}}
+{{- define "sglang.multiNode.validate" -}}
+{{- if .Values.multiNode.enabled -}}
+{{-   if not .Values.tensorParallelSize -}}
+{{-     fail "multiNode.enabled=true requires tensorParallelSize to be set (should equal nnodes * gpusPerNode)." -}}
+{{-   end -}}
+{{-   if lt (int .Values.multiNode.nnodes) 2 -}}
+{{-     fail (printf "multiNode.enabled=true requires multiNode.nnodes >= 2 (got %v). For a single node use the default single-node Deployment path." .Values.multiNode.nnodes) -}}
+{{-   end -}}
+{{-   $gpu := "" -}}
+{{-   with .Values.resources -}}{{- with .limits -}}{{- $gpu = index . "nvidia.com/gpu" | default "" -}}{{- end -}}{{- end -}}
+{{-   if not $gpu -}}
+{{-     fail "multiNode.enabled=true requires resources.limits.\"nvidia.com/gpu\" to be set to the PER-NODE GPU count (e.g. 8)." -}}
+{{-   end -}}
+{{-   if gt (len (include "sglang.fullname" .)) 54 -}}
+{{-     fail (printf "multiNode: service.name/fullname %q is too long; leave <=54 chars so the \"-headless\" Service name stays within the 63-char DNS limit." (include "sglang.fullname" .)) -}}
+{{-   end -}}
+{{- end -}}
+{{- end }}

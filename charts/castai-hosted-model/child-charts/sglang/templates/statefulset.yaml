@@ -16,6 +16,7 @@ serviceName, the command wrapper, and the dist flags mirrors deployment.yaml so
 the two paths stay behaviourally identical per-pod.
 */}}
 {{- if .Values.multiNode.enabled }}
+{{- include "sglang.multiNode.validate" . }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -37,7 +38,7 @@ spec:
   replicas: {{ .Values.multiNode.nnodes }}
   podManagementPolicy: Parallel      # bring all ranks up together; workers wait on rank-0 DNS
   updateStrategy:
-    type: RollingUpdate
+    type: {{ .Values.multiNode.updateStrategy | default "OnDelete" }}
   selector:
     matchLabels:
       {{- include "sglang.selectorLabels" . | nindent 6 }}
@@ -91,6 +92,14 @@ spec:
               ORDINAL="${HOSTNAME##*-}"
               LEADER="{{ include "sglang.leaderFqdn" . }}"
               echo "[entrypoint] HOSTNAME=$HOSTNAME node-rank=$ORDINAL leader=$LEADER"
+              # With podManagementPolicy: Parallel the workers (rank>0) can start
+              # before rank-0 has a DNS record, so torch/NCCL dist-init would fail
+              # immediately. Block until the leader FQDN resolves before launching.
+              if [ "${ORDINAL}" != "0" ]; then
+                echo "[entrypoint] rank ${ORDINAL} waiting for leader DNS ${LEADER} ..."
+                until getent hosts "${LEADER}" >/dev/null 2>&1; do sleep 2; done
+                echo "[entrypoint] leader ${LEADER} resolved; starting."
+              fi
               exec python3 -m sglang.launch_server \
                 --model-path={{ required "Required value 'model.name' must be defined" .Values.model.name }} \
                 --served-model-name={{ .Values.model.servedName | default .Values.model.name }} \
@@ -173,11 +182,16 @@ spec:
             successThreshold: {{ .Values.readinessProbe.successThreshold }}
           {{- end }}
           {{- else }}
-          {{- /* rank-0-only probes: gate the leader on /health; workers unprobed.
-             The StatefulSet can't do per-ordinal probes, so we apply the leader's
-             probes to all pods ONLY when it's a single-rank (nnodes=1) edge case;
-             for nnodes>1 we omit HTTP probes to avoid killing workers. The router's
-             own readiness + rank-0 discovery is what gates client traffic. */}}
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              command: ["/bin/sh", "-c", "pgrep -f 'sglang.launch_server' >/dev/null"]
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+          {{- end }}
           {{- if and .Values.startupProbe.enabled (eq (int .Values.multiNode.nnodes) 1) }}
           startupProbe:
             httpGet:
@@ -208,23 +222,32 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- /* Merge one-rank-per-node podAntiAffinity with any user affinity. The
-         two ranks MUST land on different nodes (each claims a full GPU node). */}}
+      {{- /* Affinity for multi-node. The one-rank-per-node hostname podAntiAffinity
+         is MANDATORY (each rank claims a full GPU node) and is always injected.
+         User-supplied affinity is preserved and MERGED, not dropped:
+           - nodeAffinity / podAffinity: passed through verbatim.
+           - podAntiAffinity: the mandatory hostname rule is PREPENDED to the
+             user's own required rules; user preferred rules pass through too.
+         This lets operators add extra scheduling constraints without losing the
+         invariant that ranks never co-locate. */}}
+      {{- $userAff := .Values.affinity | default dict }}
+      {{- $userPAA := $userAff.podAntiAffinity | default dict }}
+      {{- $hostnameRule := list (dict "labelSelector" (dict "matchLabels" (dict "app.kubernetes.io/name" (include "sglang.fullname" .) "app.kubernetes.io/instance" .Release.Name)) "topologyKey" "kubernetes.io/hostname") }}
+      {{- $requiredPAA := concat $hostnameRule ($userPAA.requiredDuringSchedulingIgnoredDuringExecution | default list) }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchLabels:
-                  {{- include "sglang.selectorLabels" . | nindent 18 }}
-              topologyKey: kubernetes.io/hostname
-        {{- with .Values.affinity }}
-        {{- if .nodeAffinity }}
+            {{- toYaml $requiredPAA | nindent 12 }}
+          {{- with $userPAA.preferredDuringSchedulingIgnoredDuringExecution }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        {{- if $userAff.nodeAffinity }}
         nodeAffinity:
-          {{- toYaml .nodeAffinity | nindent 10 }}
+          {{- toYaml $userAff.nodeAffinity | nindent 10 }}
         {{- end }}
-        {{- if .podAffinity }}
+        {{- if $userAff.podAffinity }}
         podAffinity:
-          {{- toYaml .podAffinity | nindent 10 }}
-        {{- end }}
+          {{- toYaml $userAff.podAffinity | nindent 10 }}
         {{- end }}
 {{- end }}
