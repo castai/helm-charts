@@ -35,7 +35,7 @@ Cluster utilization defragmentation tool
 | crdUpgrade.image.digest | string | `""` | Image digest for pinning (e.g. sha256:abc...). When set, appended to the image reference. |
 | crdUpgrade.imagePullSecrets | list | `[]` | Image pull secrets for the CRD upgrade Job. Use when crdUpgrade.image.repository points to a private registry that requires authentication. Independent of the evictor imagePullSecrets. |
 | crdUpgrade.podAnnotations | object | `{}` | Additional annotations applied to the CRD upgrade Job pod. |
-| crdUpgrade.podLabels | object | `{}` | Additional labels applied to the CRD upgrade Job pod. These are merged with the global podLabels. Use to match network policies that grant the Job pod access to the Kubernetes API. |
+| crdUpgrade.podLabels | object | `{}` | Additional labels applied to the CRD upgrade Job pod. |
 | crdUpgrade.resources | object | `{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource requests/limits for the CRD upgrade Job container. |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |

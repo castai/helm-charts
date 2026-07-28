@@ -329,8 +329,6 @@ crdUpgrade:
   # points to a private registry that requires authentication. Independent of the evictor imagePullSecrets.
   imagePullSecrets: []
   # crdUpgrade.podLabels -- Additional labels applied to the CRD upgrade Job pod.
-  # These are merged with the global podLabels. Use to match network policies
-  # that grant the Job pod access to the Kubernetes API.
   podLabels: {}
   # crdUpgrade.podAnnotations -- Additional annotations applied to the CRD upgrade Job pod.
   podAnnotations: {}
