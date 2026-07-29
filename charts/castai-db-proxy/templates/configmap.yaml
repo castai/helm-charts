@@ -9,13 +9,19 @@ metadata:
 data:
   config.toml: |
     protocol = {{ .Values.protocol | quote }}
-    rw_listen_port = {{ .Values.ports.readWrite }}
-    ro_listen_port = {{ .Values.ports.readOnly }}
-    metrics_port = {{ .Values.ports.metrics }}
+    databases_resolver = "api"
+
+    [environment.k8s]
+
+    [ports]
+    read_write = {{ .Values.ports.readWrite }}
+    readonly = {{ .Values.ports.readOnly }}
+    metrics = {{ .Values.ports.metrics }}
 
     {{- if not .Values.endpoints }}{{ fail "endpoints must contain at least one endpoint" }}{{ end }}
     {{- range .Values.endpoints }}
-    [[fallback_endpoints]]
+
+    [[endpoints]]
     address = {{ .address | quote }}
     readonly = {{ .readonly }}
     {{- end }}
