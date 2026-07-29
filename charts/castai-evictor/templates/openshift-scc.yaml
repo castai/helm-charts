@@ -14,10 +14,13 @@ metadata:
   name: {{ include "evictor.sccName" . }}
   labels:
     {{- include "evictor.labels" . | nindent 4 }}
-# Explicitly scope this SCC to only the CAST AI service account.
+# Explicitly scope this SCC to only the CAST AI service accounts.
 # This prevents the SCC from being inadvertently applied to other workloads.
 users:
   - system:serviceaccount:{{ .Release.Namespace }}:{{ include "evictor.serviceAccountName" . }}
+{{- if .Values.crdUpgrade.enabled }}
+  - system:serviceaccount:{{ .Release.Namespace }}:{{ include "evictor.fullname" . }}-crd-upgrade
+{{- end }}
 groups: []
 allowHostDirVolumePlugin: false
 allowHostIPC: false

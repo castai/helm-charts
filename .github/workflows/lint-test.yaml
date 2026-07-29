@@ -16,6 +16,9 @@ jobs:
         with:
           version: v3.17.0
 
+      - name: Install helm-unittest
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest
+
       # Python is required because `ct lint` runs Yamale (https://github.com/23andMe/Yamale) and
       # yamllint (https://github.com/adrienverge/yamllint) which require Python
       - name: Set up Python
@@ -44,6 +47,18 @@ jobs:
 
       - name: Run chart-testing (lint)
         run: ct lint --debug --config ct.yaml
+
+      - name: Run helm unittest
+        if: steps.list-changed.outputs.changed == 'true'
+        run: |
+          charts=$(ct list-changed --config ct.yaml)
+          while IFS= read -r c; do
+            [ -z "$c" ] && continue
+            if [ -d "$c/tests" ]; then
+              helm dependency build "$c"
+              helm unittest "$c"
+            fi
+          done <<< "$charts"
 
       - name: Check for merge conflict markers
         uses: olivernybroe/action-conflict-finder@v4.1

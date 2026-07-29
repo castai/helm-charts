@@ -332,7 +332,24 @@ crdUpgrade:
   podLabels: {}
   # crdUpgrade.podAnnotations -- Additional annotations applied to the CRD upgrade Job pod.
   podAnnotations: {}
-  # crdUpgrade.resources -- Resource requests/limits for the CRD upgrade Job container.
+  # crdUpgrade.securityContext -- Pod security context. On OpenShift with useRestrictedProfile, UID fields are stripped automatically.
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    runAsGroup: 1000
+    fsGroup: 1000
+    seccompProfile:
+      type: RuntimeDefault
+  # crdUpgrade.containerSecurityContext -- Container security context (applied to all init + main containers). seccompProfile inherited from pod-level.
+  containerSecurityContext:
+    allowPrivilegeEscalation: false
+    runAsNonRoot: true
+    runAsUser: 1000
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+        - ALL
+  # crdUpgrade.resources -- Resources for all containers (init + main) in the Job.
   resources:
     requests:
       cpu: 100m

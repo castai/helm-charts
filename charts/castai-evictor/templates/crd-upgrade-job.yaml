@@ -113,13 +113,20 @@ spec:
     spec:
       restartPolicy: Never
       serviceAccountName: {{ include "evictor.fullname" . }}-crd-upgrade
+      {{- if .Values.crdUpgrade.securityContext }}
+      {{- $isOpenShift := .Capabilities.APIVersions.Has "security.openshift.io/v1" }}
+      {{- $useRestrictedProfile := and $isOpenShift (.Values.openshift.scc.useRestrictedProfile | default false) }}
       securityContext:
-        runAsNonRoot: true
-        runAsUser: 1000
-        runAsGroup: 1000
-        fsGroup: 1000
+        {{- if $useRestrictedProfile }}
+        runAsNonRoot: {{ .Values.crdUpgrade.securityContext.runAsNonRoot | default true }}
+        {{- with .Values.crdUpgrade.securityContext.seccompProfile }}
         seccompProfile:
-          type: RuntimeDefault
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- else }}
+        {{- toYaml .Values.crdUpgrade.securityContext | nindent 8 }}
+        {{- end }}
+      {{- end }}
       {{- with .Values.crdUpgrade.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -136,8 +143,8 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      containers:
-      - name: crd-upgrade
+      initContainers:
+      - name: apply-crd
         image: {{ .Values.crdUpgrade.image.repository }}:{{ .Values.crdUpgrade.image.tag }}{{ with .Values.crdUpgrade.image.digest }}@{{ . }}{{ end }}
         imagePullPolicy: {{ .Values.crdUpgrade.image.pullPolicy }}
         command:
@@ -147,7 +154,7 @@ spec:
         - --server-side
         - --force-conflicts
         - -f
-        - /crds/
+        - /crds/crds.yaml
         volumeMounts:
         - name: crds
           mountPath: /crds
@@ -156,16 +163,52 @@ spec:
         resources:
           {{- toYaml . | nindent 10 }}
         {{- end }}
+        {{- with .Values.crdUpgrade.containerSecurityContext }}
         securityContext:
-          allowPrivilegeEscalation: false
-          runAsNonRoot: true
-          runAsUser: 1000
-          readOnlyRootFilesystem: true
-          capabilities:
-            drop:
-            - ALL
-          seccompProfile:
-            type: RuntimeDefault
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      - name: wait-crd
+        image: {{ .Values.crdUpgrade.image.repository }}:{{ .Values.crdUpgrade.image.tag }}{{ with .Values.crdUpgrade.image.digest }}@{{ . }}{{ end }}
+        imagePullPolicy: {{ .Values.crdUpgrade.image.pullPolicy }}
+        command:
+        - /bin/kubectl
+        args:
+        - wait
+        - --for=condition=Established
+        - crd/evictorconfigs.autoscaling.cast.ai
+        - --timeout=60s
+        {{- with .Values.crdUpgrade.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.crdUpgrade.containerSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      containers:
+      - name: apply-cr
+        image: {{ .Values.crdUpgrade.image.repository }}:{{ .Values.crdUpgrade.image.tag }}{{ with .Values.crdUpgrade.image.digest }}@{{ . }}{{ end }}
+        imagePullPolicy: {{ .Values.crdUpgrade.image.pullPolicy }}
+        command:
+        - /bin/kubectl
+        args:
+        - apply
+        - --server-side
+        - --force-conflicts
+        - -f
+        - /crds/evictorconfig.yaml
+        volumeMounts:
+        - name: crds
+          mountPath: /crds
+          readOnly: true
+        {{- with .Values.crdUpgrade.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.crdUpgrade.containerSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
       volumes:
       - name: crds
         configMap:

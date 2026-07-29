@@ -31,12 +31,14 @@ Cluster utilization defragmentation tool
 | containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
 | containerSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
-| crdUpgrade | object | `{"enabled":true,"image":{"digest":"","pullPolicy":"IfNotPresent","repository":"rancher/kubectl","tag":"v1.35.6"},"imagePullSecrets":[],"podAnnotations":{},"podLabels":{},"resources":{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}}` | CRD upgrade configuration. Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job. |
+| crdUpgrade | object | `{"containerSecurityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":1000},"enabled":true,"image":{"digest":"","pullPolicy":"IfNotPresent","repository":"rancher/kubectl","tag":"v1.35.6"},"imagePullSecrets":[],"podAnnotations":{},"podLabels":{},"resources":{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}},"securityContext":{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000,"seccompProfile":{"type":"RuntimeDefault"}}}` | CRD upgrade configuration. Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job. |
+| crdUpgrade.containerSecurityContext | object | `{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true,"runAsNonRoot":true,"runAsUser":1000}` | Container security context (applied to all init + main containers). seccompProfile inherited from pod-level. |
 | crdUpgrade.image.digest | string | `""` | Image digest for pinning (e.g. sha256:abc...). When set, appended to the image reference. |
 | crdUpgrade.imagePullSecrets | list | `[]` | Image pull secrets for the CRD upgrade Job. Use when crdUpgrade.image.repository points to a private registry that requires authentication. Independent of the evictor imagePullSecrets. |
 | crdUpgrade.podAnnotations | object | `{}` | Additional annotations applied to the CRD upgrade Job pod. |
 | crdUpgrade.podLabels | object | `{}` | Additional labels applied to the CRD upgrade Job pod. |
-| crdUpgrade.resources | object | `{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resource requests/limits for the CRD upgrade Job container. |
+| crdUpgrade.resources | object | `{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resources for all containers (init + main) in the Job. |
+| crdUpgrade.securityContext | object | `{"fsGroup":1000,"runAsGroup":1000,"runAsNonRoot":true,"runAsUser":1000,"seccompProfile":{"type":"RuntimeDefault"}}` | Pod security context. On OpenShift with useRestrictedProfile, UID fields are stripped automatically. |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |

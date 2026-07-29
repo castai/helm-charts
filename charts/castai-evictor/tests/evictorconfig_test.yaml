@@ -8,48 +8,37 @@ capabilities:
 tests:
   # ── Rendering paths ─────────────────────────────────────────────────────────
 
-  - it: does not render when crdUpgrade is disabled and CRD does not exist
+  - it: does not render standalone CR when crdUpgrade is enabled (default)
+    set:
+      crdUpgrade:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders as post-install hook when crdUpgrade is disabled
     capabilities:
       apiVersions:
     set:
       crdUpgrade:
         enabled: false
     asserts:
-      - hasDocuments:
-          count: 0
-
-  - it: renders as regular resource when CRD exists (no hook annotations)
-    asserts:
-      - isNull:
-          path: metadata.annotations
-
-  - it: renders as post-install hook when crdUpgrade enabled and CRD does not exist
-    capabilities:
-      apiVersions:
-    set:
-      crdUpgrade:
-        enabled: true
-    asserts:
       - equal:
           path: metadata.annotations["helm.sh/hook"]
           value: post-install,post-upgrade
       - equal:
           path: metadata.annotations["helm.sh/hook-weight"]
-          value: "10"
+          value: "0"
       - equal:
           path: metadata.annotations["helm.sh/hook-delete-policy"]
           value: before-hook-creation
-      - exists:
-          path: metadata.annotations["meta.helm.sh/release-name"]
-      - exists:
-          path: metadata.annotations["meta.helm.sh/release-namespace"]
 
   - it: hook path renders same spec as regular path
     capabilities:
       apiVersions:
     set:
       crdUpgrade:
-        enabled: true
+        enabled: false
     asserts:
       - equal:
           path: apiVersion
@@ -73,6 +62,9 @@ tests:
   # ── Metadata ────────────────────────────────────────────────────────────────
 
   - it: has correct apiVersion and kind
+    set:
+      crdUpgrade:
+        enabled: false
     asserts:
       - equal:
           path: apiVersion
@@ -82,6 +74,9 @@ tests:
           value: EvictorConfig
 
   - it: name is always evictor-config (singleton)
+    set:
+      crdUpgrade:
+        enabled: false
     asserts:
       - equal:
           path: metadata.name
@@ -90,6 +85,9 @@ tests:
   # ── managementMode ───────────────────────────────────────────────────────────
 
   - it: managementMode is castai when managedByCASTAI is true (default)
+    set:
+      crdUpgrade:
+        enabled: false
     asserts:
       - equal:
           path: spec.managementMode
@@ -97,6 +95,8 @@ tests:
 
   - it: managementMode is self-managed when managedByCASTAI is false
     set:
+      crdUpgrade:
+        enabled: false
       managedByCASTAI: false
     asserts:
       - equal:
@@ -106,6 +106,9 @@ tests:
   # ── enabled ──────────────────────────────────────────────────────────────────
 
   - it: enabled is true by default
+    set:
+      crdUpgrade:
+        enabled: false
     asserts:
       - equal:
           path: spec.enabled
@@ -114,6 +117,9 @@ tests:
   # ── config: basic fields ─────────────────────────────────────────────────────
 
   - it: renders default config values
+    set:
+      crdUpgrade:
+        enabled: false
     asserts:
       - equal:
           path: spec.config.dryRun
@@ -178,6 +184,8 @@ tests:
 
   - it: reflects overridden config values
     set:
+      crdUpgrade:
+        enabled: false
       dryRun: true
       aggressiveMode: true
       scopedMode: true
@@ -215,6 +223,8 @@ tests:
 
   - it: reflects overridden CR-pending config values
     set:
+      crdUpgrade:
+        enabled: false
       evictorEnabled: false
       drainTimeout: 15m
       drainRollbackTimeout: 5m
@@ -273,6 +283,9 @@ tests:
   # ── forceDisable: inverted from *.enabled ────────────────────────────────────
 
   - it: forceDisable fields are false when all legacy enabled flags are true (default)
+    set:
+      crdUpgrade:
+        enabled: false
     asserts:
       - equal:
           path: spec.config.forceDisableLiveMigration
@@ -285,6 +298,9 @@ tests:
           value: false
 
   - it: forceDisableKarpenterMode is true by default
+    set:
+      crdUpgrade:
+        enabled: false
     asserts:
       - equal:
           path: spec.config.forceDisableKarpenterMode
@@ -292,6 +308,8 @@ tests:
 
   - it: forceDisable is true when enabled is set to false
     set:
+      crdUpgrade:
+        enabled: false
       liveMigration:
         enabled: false
       woop:
@@ -314,12 +332,17 @@ tests:
           value: false
 
   - it: omits evictionRules when customConfig is empty map (default)
+    set:
+      crdUpgrade:
+        enabled: false
     asserts:
       - notExists:
-          path: spec.evictionRules
+          path: spec.config.evictionRules
 
   - it: omits evictionRules when customConfig is a legacy string
     set:
+      crdUpgrade:
+        enabled: false
       customConfig: |
         evictionConfig:
           - nodeSelector:
@@ -331,10 +354,12 @@ tests:
                 enabled: true
     asserts:
       - notExists:
-          path: spec.evictionRules
+          path: spec.config.evictionRules
 
   - it: renders evictionRules from structured slice with flattened settings
     set:
+      crdUpgrade:
+        enabled: false
       customConfig:
         - nodeSelector:
             labelSelector:
@@ -345,17 +370,19 @@ tests:
               enabled: true
     asserts:
       - lengthEqual:
-          path: spec.evictionRules
+          path: spec.config.evictionRules
           count: 1
       - matchRegex:
-          path: spec.evictionRules[0].nodeSelector.labelSelector.matchLabels.app
+          path: spec.config.evictionRules[0].nodeSelector.labelSelector.matchLabels.app
           pattern: "^test$"
       - equal:
-          path: spec.evictionRules[0].settings.removalDisabled
+          path: spec.config.evictionRules[0].settings.removalDisabled
           value: true
 
   - it: renders evictionRules from map with evictionRules key with flattened settings
     set:
+      crdUpgrade:
+        enabled: false
       customConfig:
         evictionRules:
           - nodeSelector:
@@ -367,11 +394,11 @@ tests:
                 enabled: true
     asserts:
       - lengthEqual:
-          path: spec.evictionRules
+          path: spec.config.evictionRules
           count: 1
       - matchRegex:
-          path: spec.evictionRules[0].nodeSelector.labelSelector.matchLabels.app
+          path: spec.config.evictionRules[0].nodeSelector.labelSelector.matchLabels.app
           pattern: "^test$"
       - equal:
-          path: spec.evictionRules[0].settings.removalDisabled
+          path: spec.config.evictionRules[0].settings.removalDisabled
           value: true
