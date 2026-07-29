@@ -1,3 +1,7 @@
+{{- /* Single-node path only. When multiNode.enabled=true the workload is a
+   StatefulSet (templates/statefulset.yaml) instead, so this Deployment is
+   suppressed. Everything below is unchanged from the single-node original. */}}
+{{- if not .Values.multiNode.enabled }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -67,6 +71,10 @@ spec:
         - name: "sglang"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command: ["python3", "-m", "sglang.launch_server"]
           args:
             - "--model-path={{ required "Required value 'model.name' must be defined" .Values.model.name }}"
@@ -159,3 +167,4 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+{{- end }}
