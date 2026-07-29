@@ -111,6 +111,12 @@ spec:
                       IgnoreProblemPodsWithoutController allows rebalancing bare pods without controller.
                       WARNING: These pods will not be rescheduled automatically.
                     type: boolean
+                  ignoreProblemRemovalDisabledNodes:
+                    description: |-
+                      IgnoreProblemRemovalDisabledNodes allows rebalancing nodes marked with removal-disabled
+                      or do-not-disrupt annotations/labels.
+                      WARNING: When true, such nodes will be disrupted despite their protection annotations.
+                    type: boolean
                   ignoreProblemRemovalDisabledPods:
                     description: IgnoreProblemRemovalDisabledPods allows rebalancing
                       pods marked with removal-disabled annotation.
@@ -446,6 +452,7 @@ spec:
                 - Executing
                 - Completed
                 - Failed
+                - Canceled
                 type: string
               warnings:
                 description: |-

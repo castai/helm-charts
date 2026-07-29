@@ -115,6 +115,69 @@ spec:
                 nodeClaimsToAdd:
                   items:
                     properties:
+                      alternatives:
+                        description: |-
+                          Alternatives lists all candidate offerings for this NodeClaim, ordered by preference.
+                          The first entry (index 0) is the "best" alternative used for initial creation.
+                          On failure (ICE, spot interruption), the execution controller iterates subsequent
+                          alternatives, which may have different zones and/or capacity types.
+                        items:
+                          description: |-
+                            Alternative describes a single candidate offering for a NodeClaimToCreate: a set of
+                            Karpenter scheduling requirements (typically instance type, zone name, zone ID, and
+                            capacity type) together with the hourly price for that specific combination.
+                            Alternatives are populated by the placer and iterated by the execution controller on
+                            provisioning failure (e.g. InsufficientCapacityError) to fail over across zones/capacities.
+                          properties:
+                            priceHourly:
+                              description: PriceHourly is the hourly price for this specific alternative as a decimal string.
+                              type: string
+                            requirements:
+                              description: |-
+                                Requirements defines the Karpenter scheduling requirements for this alternative.
+                                Typically includes: instance type, zone name, zone ID, capacity type.
+                                Extensible for any future label (GPU type, architecture, etc.).
+                              items:
+                                description: |-
+                                  A node selector requirement is a selector that contains values, a key, an operator that relates the key and values
+                                  and minValues that represent the requirement to have at least that many values.
+                                properties:
+                                  key:
+                                    description: The label key that the selector applies to.
+                                    type: string
+                                  minValues:
+                                    description: |-
+                                      This field is ALPHA and can be dropped or replaced at any time
+                                      MinValues is the minimum number of unique values required to define the flexibility of the specific requirement.
+                                    maximum: 50
+                                    minimum: 1
+                                    type: integer
+                                  operator:
+                                    description: |-
+                                      Represents a key's relationship to a set of values.
+                                      Valid operators are In, NotIn, Exists, DoesNotExist. Gt, Lt, Gte, and Lte.
+                                    enum:
+                                      - Gte
+                                      - Lte
+                                    type: string
+                                  values:
+                                    description: |-
+                                      An array of string values. If the operator is In or NotIn,
+                                      the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                      the values array must be empty. If the operator is Gt, Lt, Gte, or Lte, the values
+                                      array must have a single element, which will be interpreted as an integer.
+                                      This array is replaced during a strategic merge patch.
+                                    items:
+                                      type: string
+                                    type: array
+                                    x-kubernetes-list-type: atomic
+                                required:
+                                  - key
+                                  - operator
+                                type: object
+                              type: array
+                          type: object
+                        type: array
                       metadata:
                         properties:
                           annotations:
@@ -548,6 +611,79 @@ spec:
                   x-kubernetes-list-map-keys:
                     - type
                   x-kubernetes-list-type: map
+                consolidationStability:
+                  description: |-
+                    ConsolidationStability holds the results of Karpenter Balanced consolidation
+                    stability scoring for green nodes in this plan.
+                  properties:
+                    enabled:
+                      description: Enabled reflects whether the validation ran for this plan.
+                      type: boolean
+                    poolResults:
+                      description: PoolResults holds per-NodePool scoring details.
+                      items:
+                        description: ConsolidationStabilityPoolResult holds the scoring results for a single NodePool.
+                        properties:
+                          nodePoolName:
+                            description: NodePoolName is the name of the NodePool.
+                            type: string
+                          nodes:
+                            description: Nodes holds per-green-node scoring details.
+                            items:
+                              description: ConsolidationStabilityNodeScore holds the Balanced consolidation score for a single green node.
+                              properties:
+                                consolidatable:
+                                  description: |-
+                                    Consolidatable is true when Karpenter would consolidate (delete) this node.
+                                    Score >= threshold (1/k where k=2, so >= 0.5).
+                                  type: boolean
+                                disruptionCost:
+                                  description: DisruptionCost is the disruption cost (1.0 + pod eviction costs).
+                                  type: string
+                                instanceType:
+                                  description: InstanceType is the instance type of the node.
+                                  type: string
+                                nodeName:
+                                  description: NodeName is the name of the green NodeClaim.
+                                  type: string
+                                priceHourly:
+                                  description: PriceHourly is the hourly price of the node.
+                                  type: string
+                                score:
+                                  description: Score is the Balanced consolidation score (savings_fraction / disruption_fraction).
+                                  type: string
+                              required:
+                                - consolidatable
+                                - disruptionCost
+                                - instanceType
+                                - nodeName
+                                - priceHourly
+                                - score
+                              type: object
+                            type: array
+                            x-kubernetes-list-type: atomic
+                          totalCost:
+                            description: TotalCost is the total hourly cost of all nodes in the pool (surviving + green).
+                            type: string
+                          totalDisruptionCost:
+                            description: TotalDisruptionCost is the total disruption cost of all nodes in the pool.
+                            type: string
+                        required:
+                          - nodePoolName
+                          - totalCost
+                          - totalDisruptionCost
+                        type: object
+                      type: array
+                      x-kubernetes-list-type: atomic
+                    revised:
+                      description: Revised indicates the planner modified the candidate set to reach stability.
+                      type: boolean
+                    revisionReason:
+                      description: RevisionReason is set when Revised=true or when candidates could not be stabilized.
+                      type: string
+                  required:
+                    - enabled
+                  type: object
                 failurePhase:
                   description: |-
                     FailurePhase records which phase of rebalancing caused a transition to Failed state.
@@ -557,6 +693,49 @@ spec:
                     - Creation
                     - Deletion
                   type: string
+                nodePoolBudgets:
+                  description: |-
+                    NodePoolBudgets captures the NPDB budget state for NodePools that have
+                    nodes in this plan's NodeClaimsToDelete. Written on every reconcile
+                    during the deletion phase. Nil during creation, pending, and terminal states.
+                  items:
+                    description: |-
+                      NodePoolBudgetInfo captures the NPDB budget state for a single NodePool
+                      during rebalancing plan deletion phase. Written on every reconcile during
+                      deletion to provide visibility into why deletions may be deferred.
+                    properties:
+                      allowedDisruptions:
+                        description: |-
+                          AllowedDisruptions is the NPDB budget limit for this pool (from
+                          NodePool.MustGetAllowedDisruptions). When aggressive mode
+                          IgnoreZeroNodePoolDisruptionBudgets is enabled and the budget allows 0,
+                          this reflects the overridden value (10% of TotalNodes, min 1).
+                        type: integer
+                      disruptingCount:
+                        description: |-
+                          DisruptingCount is the number of nodes already being disrupted
+                          (NotReady, DeletionTimestamp set, or InstanceTerminating condition true).
+                        type: integer
+                      nodePoolName:
+                        description: NodePoolName is the metadata.name of the Karpenter NodePool.
+                        type: string
+                      remaining:
+                        description: |-
+                          Remaining is AllowedDisruptions - DisruptingCount, clamped to >= 0.
+                          When 0, the pool's budget is exhausted and deletions are deferred.
+                        type: integer
+                      totalNodes:
+                        description: TotalNodes is the count of initialized, non-terminating nodes in the pool.
+                        type: integer
+                    required:
+                      - allowedDisruptions
+                      - disruptingCount
+                      - nodePoolName
+                      - remaining
+                      - totalNodes
+                    type: object
+                  type: array
+                  x-kubernetes-list-type: atomic
                 nodesCreation:
                   additionalProperties:
                     description: NodeCreationStatus tracks the status of a single node being added during rebalance
@@ -830,6 +1009,7 @@ spec:
                     - Done
                     - Failed
                     - Created
+                    - Canceled
                   type: string
                 validatedSavings:
                   description: |-
