@@ -10,6 +10,7 @@ CAST AI hosted model deployment chart for SGLang.
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
 | container.port | int | `8000` |  |
+| containerSecurityContext | object | `{}` | Container-level securityContext (verbatim). Default empty = unchanged. Multi-node RDMA (multiNode.enabled) needs `capabilities.add: ["IPC_LOCK"]` so NCCL can lock unlimited memory for RDMA queue-pair creation (otherwise NCCL fails with "ibv_create_qp: Cannot allocate memory" once the 8MB default memlock is exhausted). Single-node models can leave this empty. |
 | deployment.labels | string | `nil` |  |
 | deployment.strategy | object | `{"rollingUpdate":{"maxSurge":"25%","maxUnavailable":"25%"},"type":"RollingUpdate"}` | Deployment strategy configuration |
 | deployment.strategy.type | string | `"RollingUpdate"` | Deployment strategy type (RollingUpdate or Recreate) |

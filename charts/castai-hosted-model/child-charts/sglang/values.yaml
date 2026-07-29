@@ -280,6 +280,12 @@ nodeSelector: {}
 tolerations: []
 affinity: {}
 
+containerSecurityContext: {}
+# Example (multi-node RDMA):
+# containerSecurityContext:
+#   capabilities:
+#     add: ["IPC_LOCK"]
+
 deployment:
   labels:
   # -- Deployment strategy configuration

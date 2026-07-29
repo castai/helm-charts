@@ -83,6 +83,12 @@ spec:
         - name: "sglang"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
+          {{- with .Values.containerSecurityContext }}
+          {{- /* Multi-node RDMA needs capabilities: add: ["IPC_LOCK"] so NCCL can
+             lock unlimited memory for ibv_create_qp (else "Cannot allocate memory"). */}}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           {{- /* node-rank is derived from the StatefulSet pod ordinal via HOSTNAME.
              bash (NOT /bin/sh) because the wrapper uses `set -o pipefail`. */}}
           command: ["/bin/bash", "-c"]

@@ -71,6 +71,10 @@ spec:
         - name: "sglang"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
+          {{- with .Values.containerSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           command: ["python3", "-m", "sglang.launch_server"]
           args:
             - "--model-path={{ required "Required value 'model.name' must be defined" .Values.model.name }}"
