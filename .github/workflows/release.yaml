@@ -12,7 +12,6 @@ jobs:
       matrix:
         charts_dir:
           - charts
-          - charts/castai-evictor/child-charts
           - charts/castai-cluster-controller/child-charts
           - charts/castai-pod-pinner/child-charts
     steps:
