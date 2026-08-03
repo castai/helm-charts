@@ -126,7 +126,12 @@ castai:
     # When set to a non-default value and no mode-specific intervals are configured, this value is used for all modes.
     # If any mode-specific interval is set, this field is ignored for mode scheduling.
     cycleIntervalSeconds: 60
-    # castai.continuousRebalancing.savingsThresholdPercentage -- Minimum cost savings percentage for performing a rebalance action. Relevant only for modes that can replace nodes (full mode).
+    # castai.continuousRebalancing.savingsThresholdPercent -- Minimum cluster-scoped cost savings percentage for performing a rebalance action.
+    # The value is compared against projected savings as a percentage of total cluster cost, not the cost of replaced nodes.
+    # Relevant only for modes that can replace nodes (full mode).
+    savingsThresholdPercent: 15
+    # castai.continuousRebalancing.savingsThresholdPercentage -- [OBSOLETE] Use savingsThresholdPercent instead.
+    # Kept for backward compatibility. If set, it is used as a fallback when savingsThresholdPercent is not set.
     savingsThresholdPercentage: 15
     # castai.continuousRebalancing.mode -- Mode of continuous rebalancing. Available values:
     # - delete-empty: Only delete empty nodes.
@@ -259,6 +264,7 @@ deploymentAnnotations:
       cpu:
         target: p75
         lookBackPeriod: 168h
+        min: 1000m
       memory:
         target: max
         lookBackPeriod: 168h

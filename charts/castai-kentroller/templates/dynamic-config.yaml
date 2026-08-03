@@ -36,8 +36,9 @@ data:
       {{- if .Values.castai.continuousRebalancing.deleteEmptyCycleIntervalSeconds }}
       deleteEmptyCycleIntervalSeconds: {{ .Values.castai.continuousRebalancing.deleteEmptyCycleIntervalSeconds }}
       {{- end }}
-      {{- if .Values.castai.continuousRebalancing.savingsThresholdPercentage }}
-      savingsThresholdPercentage: {{ .Values.castai.continuousRebalancing.savingsThresholdPercentage }}
+      {{- $savingsThreshold := .Values.castai.continuousRebalancing.savingsThresholdPercent | default .Values.castai.continuousRebalancing.savingsThresholdPercentage }}
+      {{- if $savingsThreshold }}
+      savingsThresholdPercent: {{ $savingsThreshold }}
       {{- end }}
       {{- if .Values.castai.continuousRebalancing.mode }}
       mode: {{ .Values.castai.continuousRebalancing.mode }}

@@ -719,9 +719,9 @@ spec:
                       nodePoolName:
                         description: NodePoolName is the metadata.name of the Karpenter NodePool.
                         type: string
-                      remaining:
+                      remainingDisruptions:
                         description: |-
-                          Remaining is AllowedDisruptions - DisruptingCount, clamped to >= 0.
+                          RemainingDisruptions is AllowedDisruptions - DisruptingCount, clamped to >= 0.
                           When 0, the pool's budget is exhausted and deletions are deferred.
                         type: integer
                       totalNodes:
@@ -731,7 +731,7 @@ spec:
                       - allowedDisruptions
                       - disruptingCount
                       - nodePoolName
-                      - remaining
+                      - remainingDisruptions
                       - totalNodes
                     type: object
                   type: array
