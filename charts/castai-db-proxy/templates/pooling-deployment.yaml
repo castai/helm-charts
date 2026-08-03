@@ -101,8 +101,9 @@ spec:
         - name: pgdog
           image: "{{ .Values.pooling.pgdog.image.repository }}:{{ include "castai-db-proxy.pgdogImage" . }}"
           imagePullPolicy: {{ .Values.pooling.pgdog.image.pullPolicy }}
+          command: ["/usr/local/bin/pgdog"]
           args:
-            - --config-file
+            - --config
             - /etc/pgdog/pgdog.toml
           env:
             - name: RUST_LOG
