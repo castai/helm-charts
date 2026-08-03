@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.6.0](https://img.shields.io/badge/Version-0.6.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -30,6 +30,19 @@ CAST AI database proxy cache deployment.
 | organizationID | string | `""` | ID of the organization. |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
+| pooling.configManager.image.pullPolicy | string | `"IfNotPresent"` |  |
+| pooling.configManager.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-pooling"` |  |
+| pooling.configManager.image.tag | string | `""` |  |
+| pooling.configManager.port | int | `50051` | gRPC listen port for the config manager. |
+| pooling.configManager.resources.cpu | string | `"10m"` |  |
+| pooling.configManager.resources.memoryLimit | string | `"32Mi"` |  |
+| pooling.configManager.resources.memoryRequest | string | `"32Mi"` |  |
+| pooling.enabled | bool | `false` | Deploy the pooling config manager. |
+| pooling.metricsPort | int | `9090` | Pooler metrics port. |
+| pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/pgdogdev/pgdog","tag":""},"logLevel":"warn","resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. |
+| pooling.pgdog.config | object | `{}` | PgDog [general] config overrides. Merged on top of template defaults (healthchecks, timeouts, passthrough_auth, log settings). Any key-value pair added here will be rendered into pgdog.toml. See https://docs.pgdog.dev/configuration/pgdog.toml/general/ |
+| pooling.port | int | `5432` | Pooler listen port. Proxy connects to the pooler on this port. |
+| pooling.replicas | int | `2` | Number of pooler replicas. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
 | ports.metrics | int | `9090` | Prometheus metrics port. |
 | ports.readOnly | int | `6142` | Listening port for read-only connections. |

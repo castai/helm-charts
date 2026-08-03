@@ -1,0 +1,145 @@
+{{- if .Values.pooling.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "castai-db-proxy.name" . }}-pooler
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pooling
+  annotations:
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.pooling.replicas }}
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/pooling-configmap.yaml") . | sha256sum }}
+      labels:
+        {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 8 }}
+    spec:
+      topologySpreadConstraints:
+        - maxSkew: 1
+          topologyKey: topology.kubernetes.io/zone
+          whenUnsatisfiable: ScheduleAnyway
+          labelSelector:
+            matchLabels:
+              {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 14 }}
+      volumes:
+        - name: pooling-config
+          configMap:
+            name: {{ include "castai-db-proxy.name" . }}-pooler-config
+        {{- if .Values.pooling.pgdog }}
+        - name: pgdog-config
+          emptyDir: {}
+        {{- end }}
+      {{- if .Values.pooling.pgdog }}
+      initContainers:
+        - name: pgdog-init
+          image: "{{ .Values.pooling.pgdog.image.repository }}:{{ include "castai-db-proxy.pgdogImage" . }}"
+          command: ["sh", "-c", "cp /etc/pgdog-static/pgdog.toml /etc/pgdog/pgdog.toml"]
+          volumeMounts:
+            - name: pooling-config
+              mountPath: /etc/pgdog-static
+              readOnly: true
+            - name: pgdog-config
+              mountPath: /etc/pgdog
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+      {{- end }}
+      containers:
+        - name: config-manager
+          image: "{{ .Values.pooling.configManager.image.repository }}:{{ include "castai-db-proxy.poolingConfigManagerImage" . }}"
+          imagePullPolicy: {{ .Values.pooling.configManager.image.pullPolicy }}
+          args:
+            - --config
+            - /etc/roxy-pooling/config.toml
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.pooling.configManager.port }}
+              protocol: TCP
+          readinessProbe:
+            grpc:
+              port: {{ .Values.pooling.configManager.port }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            grpc:
+              port: {{ .Values.pooling.configManager.port }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - name: pooling-config
+              mountPath: /etc/roxy-pooling
+              readOnly: true
+            {{- if .Values.pooling.pgdog }}
+            - name: pgdog-config
+              mountPath: /etc/pgdog
+            {{- end }}
+          resources:
+            requests:
+              cpu: {{ .Values.pooling.configManager.resources.cpu }}
+              memory: {{ .Values.pooling.configManager.resources.memoryRequest }}
+            limits:
+              memory: {{ .Values.pooling.configManager.resources.memoryLimit }}
+        {{- if .Values.pooling.pgdog }}
+        - name: pgdog
+          image: "{{ .Values.pooling.pgdog.image.repository }}:{{ include "castai-db-proxy.pgdogImage" . }}"
+          imagePullPolicy: {{ .Values.pooling.pgdog.image.pullPolicy }}
+          args:
+            - --config-file
+            - /etc/pgdog/pgdog.toml
+          env:
+            - name: RUST_LOG
+              value: {{ .Values.pooling.pgdog.logLevel }}
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+          ports:
+            - name: upstream
+              containerPort: {{ .Values.pooling.port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.pooling.metricsPort }}
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: upstream
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: upstream
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - name: pgdog-config
+              mountPath: /etc/pgdog
+              readOnly: true
+          resources:
+            requests:
+              cpu: {{ .Values.pooling.pgdog.resources.cpu }}
+              memory: {{ .Values.pooling.pgdog.resources.memoryRequest }}
+            limits:
+              memory: {{ .Values.pooling.pgdog.resources.memoryLimit }}
+        {{- end }}
+{{- end }}

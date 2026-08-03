@@ -1,0 +1,28 @@
+{{- if .Values.pooling.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "castai-db-proxy.name" . }}-pooler
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pooling
+  annotations:
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+spec:
+  ports:
+    - name: grpc
+      port: {{ .Values.pooling.configManager.port }}
+      targetPort: grpc
+      protocol: TCP
+    - name: upstream
+      port: {{ .Values.pooling.port }}
+      targetPort: upstream
+      protocol: TCP
+    - name: metrics
+      port: {{ .Values.pooling.metricsPort }}
+      targetPort: metrics
+      protocol: TCP
+  trafficDistribution: PreferClose
+  selector:
+    {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 4 }}
+{{- end }}

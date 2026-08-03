@@ -1,0 +1,62 @@
+{{- if .Values.pooling.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "castai-db-proxy.name" . }}-pooler-config
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+  annotations:
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+data:
+  config.toml: |
+    listen_port = {{ .Values.pooling.configManager.port }}
+
+    {{- if .Values.pooling.pgdog }}
+
+    [pooler.pgdog]
+    config_file = "/etc/pgdog/pgdog.toml"
+
+    [pooler.pgdog.admin_database]
+    url = "postgresql://{{ .Values.pooling.pgdog.admin.user | urlquery }}:{{ .Values.pooling.pgdog.admin.password | urlquery }}@localhost:{{ .Values.pooling.port }}/{{ .Values.pooling.pgdog.admin.name | urlquery }}"
+    {{- end }}
+
+  {{- if .Values.pooling.pgdog }}
+  {{ $defaults := dict
+    "passthrough_auth" "enabled_plain"
+    "healthcheck_interval" 30000
+    "idle_healthcheck_interval" 30000
+    "idle_healthcheck_delay" 5000
+    "healthcheck_timeout" 5000
+    "rollback_timeout" 5000
+    "connect_timeout" 5000
+    "checkout_timeout" 10000
+    "shutdown_timeout" 60000
+    "log_connections" false
+    "log_disconnections" false
+  -}}
+  {{- $userConfig := .Values.pooling.pgdog.config | default dict -}}
+  {{- $mergedConfig := merge (deepCopy $userConfig) $defaults -}}
+  {{- $_ := unset $mergedConfig "prepared_statements_limit" -}}
+  pgdog.toml: |
+    [general]
+    port = {{ .Values.pooling.port }}
+    openmetrics_port = {{ .Values.pooling.metricsPort }}
+    openmetrics_namespace = "pgdog_"
+
+    {{- range $key, $value := $mergedConfig }}
+    {{- if kindIs "string" $value }}
+    {{ $key | printf "%-25s" }} = {{ $value | quote }}
+    {{- else }}
+    {{ $key | printf "%-25s" }} = {{ $value }}
+    {{- end }}
+    {{- end }}
+    {{- with .Values.pooling.pgdog.config.prepared_statements_limit }}
+    {{ "prepared_statements_limit" | printf "%-25s" }} = {{ . }}
+    {{- end }}
+
+    [admin]
+    name = {{ .Values.pooling.pgdog.admin.name | quote }}
+    user = {{ .Values.pooling.pgdog.admin.user | quote }}
+    password = {{ .Values.pooling.pgdog.admin.password | quote }}
+  {{- end }}
+{{- end }}
