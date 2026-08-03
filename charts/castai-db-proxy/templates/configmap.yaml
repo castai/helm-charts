@@ -54,5 +54,6 @@ data:
     {{- if .Values.pooling.enabled }}
 
     [pooling]
-    url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.port }}"
+    config_manager_url = "http://{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.configManager.port }}"
+    pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.port }}"
     {{- end }}
