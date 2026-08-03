@@ -55,3 +55,16 @@ Selector labels
 {{- define "castai-db-proxy.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "castai-db-proxy.name" . }}
 {{- end }}
+
+{{- define "castai-db-proxy.poolingSelectorLabels" -}}
+app.kubernetes.io/name: {{ include "castai-db-proxy.name" . }}
+app.kubernetes.io/component: pooling
+{{- end }}
+
+{{- define "castai-db-proxy.poolingConfigManagerImage" -}}
+{{- default (include "castai-db-proxy.defaultPoolingConfigManagerVersion" .) .Values.pooling.configManager.image.tag }}
+{{- end }}
+
+{{- define "castai-db-proxy.pgdogImage" -}}
+{{- default (include "castai-db-proxy.defaultPgdogVersion" .) .Values.pooling.pgdog.image.tag }}
+{{- end }}

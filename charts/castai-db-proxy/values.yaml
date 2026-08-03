@@ -141,3 +141,46 @@ connection_draining:
 tls:
   # -- Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert.
   secretName: ""
+
+pooling:
+  # -- Deploy the pooling config manager.
+  enabled: false
+  # -- Number of pooler replicas.
+  replicas: 2
+  #-- Configuration for the pooling configuration manager.
+  configManager:
+    # -- gRPC listen port for the config manager.
+    port: 50051
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/db-pooling
+      pullPolicy: IfNotPresent
+      tag: ""
+    resources:
+      cpu: "10m"
+      memoryRequest: "32Mi"
+      memoryLimit: "32Mi"
+  # -- Pooler listen port. Proxy connects to the pooler on this port.
+  port: 5432
+  # -- Pooler metrics port.
+  metricsPort: 9090
+  # -- Configure the PgDog section to deploy PgDog as the pooler.
+  pgdog:
+    #-- Log level for PgDog.
+    logLevel: warn
+    admin:
+      name: pgdog_admin
+      user: admin
+      password: admin
+    image:
+      repository: ghcr.io/pgdogdev/pgdog
+      pullPolicy: IfNotPresent
+      tag: ""
+    resources:
+      cpu: "1"
+      memoryRequest: "1Gi"
+      memoryLimit: "1Gi"
+    # -- PgDog [general] config overrides. Merged on top of template defaults
+    # (healthchecks, timeouts, passthrough_auth, log settings). Any key-value
+    # pair added here will be rendered into pgdog.toml.
+    # See https://docs.pgdog.dev/configuration/pgdog.toml/general/
+    config: {}
