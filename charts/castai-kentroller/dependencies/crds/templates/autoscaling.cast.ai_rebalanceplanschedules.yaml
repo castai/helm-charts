@@ -117,6 +117,12 @@ spec:
                               IgnoreBlockingPDB allows rebalancing pods blocked by PodDisruptionBudgets with 0 disruptions allowed.
                               WARNING: May violate PDB guarantees during eviction.
                             type: boolean
+                          ignoreConsolidatable:
+                            description: |-
+                              IgnoreConsolidatable allows rebalancing nodes whose NodeClaim does not yet have the
+                              Karpenter Consolidatable condition set to True. By default such nodes are treated as
+                              problematic because Karpenter has not marked them eligible for consolidation.
+                            type: boolean
                           ignoreInstanceCriteria:
                             description: |-
                               IgnoreInstanceCriteria removes instance type constraints from NodePools during rebalancing.
