@@ -95,7 +95,14 @@ migrate:
     repository: alpine/k8s
     pullPolicy: IfNotPresent
     tag: 1.31.0
-    
+  tolerations:
+    - effect: "NoExecute"
+      operator: "Exists"
+    - effect: "NoSchedule"
+      operator: "Exists"
+    - effect: "PreferNoSchedule"
+      operator: "Exists"
+
 # updateStrategy -- Controls `daemonset.spec.updateStrategy` field.
 # updateStrategy:
 #   type: RollingUpdate
