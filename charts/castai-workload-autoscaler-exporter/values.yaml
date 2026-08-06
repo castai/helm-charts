@@ -344,3 +344,11 @@ additionalEnv: {}
 envFrom: []
 
 fullnameOverride: castai-workload-autoscaler-exporter
+
+# crds -- Configuration for CustomResourceDefinition resources.
+crds:
+  # keep -- When true, adds helm.sh/resource-policy: keep annotation to CRDs.
+  # This prevents Helm from deleting CRDs during helm uninstall, preserving
+  # existing CustomMetricsExporterConfig CRs. Useful for migrations
+  # where the CRDs will be adopted by another Helm release (e.g. umbrella chart).
+  keep: false
