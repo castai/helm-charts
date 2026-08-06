@@ -58,5 +58,19 @@ data:
     name = {{ .Values.pooling.pgdog.admin.name | quote }}
     user = {{ .Values.pooling.pgdog.admin.user | quote }}
     password = {{ .Values.pooling.pgdog.admin.password | quote }}
+
+    {{- $databases := .Values.pooling.databases | default (list "postgres") }}
+    {{- range $database := $databases }}
+    {{- range $.Values.endpoints }}
+
+    [[databases]]
+    name = {{ $database | quote }}
+    {{- $port := splitList ":" .address | last }}
+    {{- $host := trimSuffix (printf ":%s" $port) .address }}
+    host = {{ $host | quote }}
+    port = {{ $port }}
+    role = {{ ternary "replica" "primary" .readonly | quote }}
+    {{- end }}
+    {{- end }}
   {{- end }}
 {{- end }}
