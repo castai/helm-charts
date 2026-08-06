@@ -157,10 +157,10 @@ jmxExporter:
   # enabled -- Global feature flag. When false the webhook never attempts JMX injection.
   enabled: true
   initImage:
-    # repository -- Init container image that contains jmx_prometheus_javaagent.jar.
+    # repository -- Init container image that contains the JMX exporter isolator and javaagent jars.
     repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
-    # tag -- Image tag for the init container. Bundles jmx_prometheus_javaagent.jar.
-    tag: 1.5.0-v1
+    # tag -- Image tag for the init container. Bundles jmx_prometheus_isolator_javaagent.jar and jmx_prometheus_javaagent.jar.
+    tag: 1.6.0-v1
   # imagePullSecrets -- secret names appended to each injected pod's imagePullSecrets.
   # Use when the init image is mirrored to a private registry requiring authentication.
   # Existing pull secrets on the pod are preserved; matching names are deduped.
@@ -170,6 +170,10 @@ jmxExporter:
   # basePort -- Initial port for JMX exporter. Each container in a pod gets a unique port
   # starting from this value (default: 9404, 9405, ...).
   basePort: 9404
+  # javaAgentArgTemplate -- Go text/template for the -javaagent argument injected into the
+  # target JVM environment variable. Supports {{.MountPath}} and {{.Port}}. Leave empty to
+  # use the built-in isolator-based default.
+  javaAgentArgTemplate: ""
   # resources -- requests/limits applied to the injected castai-jmx-exporter-init container.
   # Required in clusters with ResourceQuotas that mandate CPU/memory on every container.
   # Any field left empty is omitted on the container (e.g., set requests only, no limits).
@@ -373,6 +377,14 @@ preDeleteHook:
   # uninstalled first) instead of failing with CreateContainerConfigError and hanging
   # the uninstall. Finalizer stripping still works via the hook's own RBAC.
   optionalConfig: true
+
+# crds -- Configuration for CustomResourceDefinition resources.
+crds:
+  # keep -- When true, adds helm.sh/resource-policy: keep annotation to CRDs.
+  # This prevents Helm from deleting CRDs during helm uninstall, preserving
+  # existing Recommendation and GPURecommendation CRs. Useful for migrations
+  # where the CRDs will be adopted by another Helm release (e.g. umbrella chart).
+  keep: false
 
 fullnameOverride: castai-workload-autoscaler
 

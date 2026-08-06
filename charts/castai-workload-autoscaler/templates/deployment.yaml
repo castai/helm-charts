@@ -152,6 +152,10 @@ spec:
               value: "{{ .Values.jmxExporter.initImage.repository }}:{{ .Values.jmxExporter.initImage.tag }}"
             - name: JMX_EXPORTER_BASE_PORT
               value: {{ quote .Values.jmxExporter.basePort }}
+            {{- with .Values.jmxExporter.javaAgentArgTemplate }}
+            - name: JMX_EXPORTER_JAVA_AGENT_ARG_TEMPLATE
+              value: {{ . | quote }}
+            {{- end }}
             {{- with include "workload-autoscaler.jmxExporter.imagePullSecretNames" . }}
             - name: JMX_EXPORTER_IMAGE_PULL_SECRETS
               value: {{ . | quote }}
