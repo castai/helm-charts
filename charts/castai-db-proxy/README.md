@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.8.4](https://img.shields.io/badge/Version-0.8.4-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -14,6 +14,7 @@ CAST AI database proxy cache deployment.
 | apiURL | string | `"api-grpc.cast.ai"` | URL to the CAST AI gRPC API server. |
 | cache.defaultTTLSecs | int | `300` | Default TTL for cached results in seconds. |
 | cluster.enabled | bool | `true` | Enable distributed cache cluster mode. |
+| cluster.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | connection_draining | object | `{"grace_period_seconds":55,"graceful_shutdown_timeout_seconds":5}` | Connection draining configuration |
@@ -30,6 +31,8 @@ CAST AI database proxy cache deployment.
 | organizationID | string | `""` | ID of the organization. |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
+| pooling.configManager.discovery | object | `{"refresh_interval_seconds":10}` | Peer discovery settings. |
+| pooling.configManager.discovery.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
 | pooling.configManager.image.pullPolicy | string | `"IfNotPresent"` |  |
 | pooling.configManager.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-pooling"` |  |
 | pooling.configManager.image.tag | string | `""` |  |
@@ -37,6 +40,7 @@ CAST AI database proxy cache deployment.
 | pooling.configManager.resources.cpu | string | `"10m"` |  |
 | pooling.configManager.resources.memoryLimit | string | `"32Mi"` |  |
 | pooling.configManager.resources.memoryRequest | string | `"32Mi"` |  |
+| pooling.databases | list | `["postgres"]` | Pre-configured database names. |
 | pooling.enabled | bool | `false` | Deploy the pooling config manager. |
 | pooling.metricsPort | int | `9090` | Pooler metrics port. |
 | pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/pgdogdev/pgdog","tag":""},"logLevel":"warn","resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. |

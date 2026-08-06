@@ -47,6 +47,8 @@ cache:
 cluster:
   # -- Enable distributed cache cluster mode.
   enabled: true
+  # -- Refresh interval of DNS for peer discovery in seconds.
+  refresh_interval_seconds: 10
 
 # -- Application log level. Supports "trace", "debug", "info", "warn", "error"
 logLevel: "info"
@@ -147,10 +149,17 @@ pooling:
   enabled: false
   # -- Number of pooler replicas.
   replicas: 2
+  # -- Pre-configured database names.
+  databases:
+    - postgres
   #-- Configuration for the pooling configuration manager.
   configManager:
     # -- gRPC listen port for the config manager.
     port: 50051
+    # -- Peer discovery settings.
+    discovery:
+      # -- Refresh interval of DNS for peer discovery in seconds.
+      refresh_interval_seconds: 10
     image:
       repository: us-docker.pkg.dev/castai-hub/library/db-pooling
       pullPolicy: IfNotPresent
