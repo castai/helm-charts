@@ -62,7 +62,7 @@ rbac:
 
 # Container image for the upgrade job.
 image:
-  repository: "alpine/k8s"
+  repository: "us-docker.pkg.dev/castai-hub/library/alpine/k8s"
   tag: "1.33.12"
   pullPolicy: IfNotPresent
 
