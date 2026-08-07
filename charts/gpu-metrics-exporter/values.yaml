@@ -92,7 +92,7 @@ gke:
 
 migrate:
   image:
-    repository: alpine/k8s
+    repository: us-docker.pkg.dev/castai-hub/library/alpine/k8s
     pullPolicy: IfNotPresent
     tag: 1.31.0
     
