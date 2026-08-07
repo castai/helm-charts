@@ -189,7 +189,7 @@ pooling:
       memoryRequest: "1Gi"
       memoryLimit: "1Gi"
     # -- PgDog [general] config overrides. Merged on top of template defaults
-    # (healthchecks, timeouts, passthrough_auth, log settings). Any key-value
+    # (health checks, timeouts, passthrough_auth, log settings). Any key-value
     # pair added here will be rendered into pgdog.toml.
     # See https://docs.pgdog.dev/configuration/pgdog.toml/general/
     config: {}
