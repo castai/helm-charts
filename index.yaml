@@ -24424,6 +24424,16 @@ entries:
   castai-chart-upgrader:
   - apiVersion: v2
     appVersion: 0.1.0
+    created: "2026-08-07T12:46:35.523215051Z"
+    description: Auto-updates charts via CronJob
+    digest: 881f16ebc3f82fdfb495650e2e8bff946cc0d12f4590c680592c7bbee86842b0
+    name: castai-chart-upgrader
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-chart-upgrader-0.2.1/castai-chart-upgrader-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: 0.1.0
     created: "2026-06-11T07:46:59.520829515Z"
     description: Auto-updates charts via CronJob
     digest: f74c86cb23c84c2774160784902ff105711ecd6083ca6792bf74fedb838b88c1
@@ -72119,4 +72129,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-08-07T08:40:23.369818556Z"
+generated: "2026-08-07T12:46:35.528717934Z"
