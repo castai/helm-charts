@@ -18,6 +18,11 @@ apiKey: ""
 # The referenced secret must provide the token in .data["API_KEY"].
 apiKeySecretRef: ""
 
+# -- Interval in milliseconds to flush query metrics. Must be greater than 0.
+queryMetricsFlushIntervalMs: 100
+# -- Interval in seconds to flush operational metrics. Must be greater than 0.
+operationalMetricsFlushIntervalSeconds: 15
+
 # organizationID -- ID of the organization.
 organizationID: ""
 

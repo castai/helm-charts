@@ -89,6 +89,10 @@ spec:
           env:
             - name: CHART_VERSION
               value: {{ .Chart.Version }}
+            - name: K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
             - name: K8S_NAMESPACE
               valueFrom:
                 fieldRef:
