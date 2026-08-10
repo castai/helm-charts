@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.9.0](https://img.shields.io/badge/Version-0.9.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.10.0](https://img.shields.io/badge/Version-0.10.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -28,6 +28,7 @@ CAST AI database proxy cache deployment.
 | image.tag | string | `""` | Overrides the image tag. Defaults to Chart.appVersion. |
 | logLevel | string | `"info"` | Application log level. Supports "trace", "debug", "info", "warn", "error" |
 | nodeSelector | object | `{}` | Pod node selector rules. |
+| operationalMetricsFlushIntervalSeconds | int | `15` | Interval in seconds to flush operational metrics. Must be greater than 0. |
 | organizationID | string | `""` | ID of the organization. |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
@@ -44,7 +45,7 @@ CAST AI database proxy cache deployment.
 | pooling.enabled | bool | `false` | Deploy the pooling config manager. |
 | pooling.metricsPort | int | `9090` | Pooler metrics port. |
 | pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/pgdogdev/pgdog","tag":""},"logLevel":"warn","resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. |
-| pooling.pgdog.config | object | `{}` | PgDog [general] config overrides. Merged on top of template defaults (healthchecks, timeouts, passthrough_auth, log settings). Any key-value pair added here will be rendered into pgdog.toml. See https://docs.pgdog.dev/configuration/pgdog.toml/general/ |
+| pooling.pgdog.config | object | `{}` | PgDog [general] config overrides. Merged on top of template defaults (health checks, timeouts, passthrough_auth, log settings). Any key-value pair added here will be rendered into pgdog.toml. See https://docs.pgdog.dev/configuration/pgdog.toml/general/ |
 | pooling.port | int | `5432` | Pooler listen port. Proxy connects to the pooler on this port. |
 | pooling.replicas | int | `2` | Number of pooler replicas. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
@@ -53,6 +54,7 @@ CAST AI database proxy cache deployment.
 | ports.readWrite | int | `6141` | Listening port for read-write connections. |
 | protocol | string | `"PostgreSQL"` | Database protocol. |
 | proxyID | string | `""` | ID of this proxy instance. |
+| queryMetricsFlushIntervalMs | int | `100` | Interval in milliseconds to flush query metrics. Must be greater than 0. |
 | replicas | int | `2` |  |
 | resources.cpu | string | `"2"` |  |
 | resources.memoryLimit | string | `"2Gi"` |  |
