@@ -74,18 +74,19 @@ jobs:
           # Covers both flat-template mode (image tag in values.yaml) and
           # subchart deps (kent / autoscaler-anywhere / autoscaler-openshift).
           TRACKED=(
-            castai-agent
-            castai-cluster-controller
-            castai-spot-handler
-            castai-kvisor
-            castai-evictor
-            castai-pod-pinner
+            # Temporarily disabled and will enable when unified umbrella up to date
+            # castai-agent
+            # castai-cluster-controller
+            # castai-spot-handler
+            # castai-kvisor
+            # castai-evictor
+            # castai-pod-pinner
             castai-pod-mutator
             castai-workload-autoscaler
             castai-workload-autoscaler-exporter
             castai-kentroller
             castai-chart-upgrader
-            castai-live
+            # castai-live
           )
 
           for name in "${TRACKED[@]}"; do
