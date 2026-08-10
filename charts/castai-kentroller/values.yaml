@@ -254,7 +254,7 @@ podAnnotations: {}
 # deploymentAnnotations -- Annotations applied to the Deployment resource itself.
 # The workloads.cast.ai/configuration annotation enables CAST AI Vertical Pod Autoscaler (VPA)
 # and must be on the Deployment, not the pod template.
-# with P75 CPU target, MAX memory target, and the longest supported look-back period (168h).
+# with CPU min 1000m, P75 CPU target, P90 memory target, and the longest supported look-back period (168h).
 deploymentAnnotations:
   workloads.cast.ai/configuration: |
     horizontal:
@@ -266,7 +266,7 @@ deploymentAnnotations:
         lookBackPeriod: 168h
         min: 1000m
       memory:
-        target: max
+        target: p90
         lookBackPeriod: 168h
 
 # webhook -- Pod TopologySpreadConstraints mutating webhook configuration.
