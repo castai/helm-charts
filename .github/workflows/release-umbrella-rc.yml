@@ -360,6 +360,15 @@ jobs:
         working-directory: kubecast/castai-umbrella
         run: make helm-docs
 
+      - name: Install helm-unittest plugin
+        if: steps.changed.outputs.any == 'true'
+        run: helm plugin install https://github.com/helm-unittest/helm-unittest.git --version v1.1.2
+
+      - name: Update test snapshots
+        if: steps.changed.outputs.any == 'true'
+        working-directory: kubecast/castai-umbrella
+        run: make update-snapshot
+
       - name: Check template drift between component and umbrella
         id: drift
         if: steps.changed.outputs.any == 'true'
