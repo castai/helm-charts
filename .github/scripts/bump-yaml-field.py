@@ -65,6 +65,9 @@ def replace_scalar_value(lines: list[str], line_idx: int, new_value: str) -> Non
 
     prefix, open_q, _old_val, close_q, trailing = m.groups()
 
+    # strip any trailing newline from `trailing` we add our own below so we don't double up.
+    trailing = trailing.rstrip("\n")
+
     # If original had matching quotes, preserve them; otherwise write bare.
     if open_q and open_q == close_q:
         lines[line_idx] = f"{prefix}{open_q}{new_value}{close_q}{trailing}\n"
