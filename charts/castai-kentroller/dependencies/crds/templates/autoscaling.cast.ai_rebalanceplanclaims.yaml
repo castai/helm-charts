@@ -393,6 +393,11 @@ spec:
               errorMessage:
                 description: ErrorMessage contains details if the request failed.
                 type: string
+              failureReason:
+                description: |-
+                  FailureReason is a machine-readable code describing why the plan request failed.
+                  Populated when State is Failed.
+                type: string
               operationId:
                 description: |-
                   OperationID is the Kent long-running operation ID for polling generation status.
@@ -425,6 +430,11 @@ spec:
                   SelectedNodesCount is the number of nodes in SelectedNodes.
                   This field is populated automatically and exists for display purposes.
                 type: integer
+              skippedMessage:
+                description: |-
+                  SkippedMessage contains the human-readable detail for why the plan request was skipped.
+                  Populated when State is Skipped, mirroring ErrorMessage's role for the Failed state.
+                type: string
               skippedNodes:
                 description: |-
                   SkippedNodes lists nodes that were in the rebalancing scope but could not be selected,
@@ -448,6 +458,12 @@ spec:
                   type: object
                 type: array
                 x-kubernetes-list-type: atomic
+              skippedReason:
+                description: |-
+                  SkippedReason is a machine-readable code describing why the plan request was skipped
+                  rather than failed, e.g. when no nodes match the configured scope/constraints.
+                  Populated when State is Skipped.
+                type: string
               state:
                 description: State represents the current lifecycle state of the request.
                 enum:
@@ -458,6 +474,7 @@ spec:
                 - Executing
                 - Completed
                 - Failed
+                - Skipped
                 - Canceled
                 type: string
               warnings:

@@ -681,6 +681,11 @@ spec:
                   required:
                     - enabled
                   type: object
+                failureMessage:
+                  description: |-
+                    FailureMessage is a human-readable description of why the plan failed.
+                    Populated when State is Failed.
+                  type: string
                 failurePhase:
                   description: |-
                     FailurePhase records which phase of rebalancing caused a transition to Failed state.
@@ -689,6 +694,11 @@ spec:
                   enum:
                     - Creation
                     - Deletion
+                  type: string
+                failureReason:
+                  description: |-
+                    FailureReason is a machine-readable code describing why the plan failed.
+                    Populated when State is Failed.
                   type: string
                 nodePoolBudgets:
                   description: |-
@@ -999,6 +1009,17 @@ spec:
                         Format: decimal string (e.g., "15.5" means 15.5% savings).
                       type: string
                   type: object
+                skippedMessage:
+                  description: |-
+                    SkippedMessage is a human-readable description of why the plan was skipped.
+                    Populated when State is Skipped.
+                  type: string
+                skippedReason:
+                  description: |-
+                    SkippedReason is a machine-readable code describing why the plan was skipped.
+                    Populated when State is Skipped, i.e. the plan terminates without execution for a
+                    non-error reason (e.g. no nodes matching selection).
+                  type: string
                 state:
                   enum:
                     - Pending
@@ -1006,6 +1027,7 @@ spec:
                     - Done
                     - Failed
                     - Created
+                    - Skipped
                     - Canceled
                   type: string
                 validatedSavings:
