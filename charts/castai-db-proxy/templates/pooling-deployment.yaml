@@ -83,6 +83,18 @@ spec:
               port: {{ .Values.pooling.configManager.port }}
             initialDelaySeconds: 15
             periodSeconds: 20
+          envFrom:
+            - secretRef:
+              {{- if .Values.apiKey }}
+                name: {{ include "castai-db-proxy.name" . }}
+              {{- else }}
+                name: {{ required "apiKey or apiKeySecretRef must be provided" .Values.apiKeySecretRef }}
+              {{- end }}
+          env:
+            - name: NODE_LABEL
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
           volumeMounts:
             - name: pooling-config
               mountPath: /etc/roxy-pooling

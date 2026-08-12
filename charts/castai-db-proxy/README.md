@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.10.1](https://img.shields.io/badge/Version-0.10.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.11.0](https://img.shields.io/badge/Version-0.11.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -38,6 +38,7 @@ CAST AI database proxy cache deployment.
 | pooling.configManager.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-pooling"` |  |
 | pooling.configManager.image.tag | string | `""` |  |
 | pooling.configManager.port | int | `50051` | gRPC listen port for the config manager. |
+| pooling.configManager.report_metrics_frequency_seconds | int | `15` | Frequency in which pooling metrics are reported in seconds. |
 | pooling.configManager.resources.cpu | string | `"10m"` |  |
 | pooling.configManager.resources.memoryLimit | string | `"32Mi"` |  |
 | pooling.configManager.resources.memoryRequest | string | `"32Mi"` |  |

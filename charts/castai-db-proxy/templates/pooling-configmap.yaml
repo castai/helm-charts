@@ -20,6 +20,12 @@ data:
     url = "postgresql://{{ .Values.pooling.pgdog.admin.user | urlquery }}:{{ .Values.pooling.pgdog.admin.password | urlquery }}@localhost:{{ .Values.pooling.port }}/{{ .Values.pooling.pgdog.admin.name | urlquery }}"
     {{- end }}
 
+    [api]
+    url = {{ printf "https://%s" (required "apiURL must be provided" .Values.apiURL) | quote }}
+    organization_id = {{ required "organizationID must be provided" .Values.organizationID | quote }}
+    proxy_id = {{ required "proxyID must be provided" .Values.proxyID | quote }}
+    report_metrics_frequency_seconds = 15
+
   {{- if .Values.pooling.pgdog }}
   {{ $defaults := dict
     "passthrough_auth" "enabled_plain"
