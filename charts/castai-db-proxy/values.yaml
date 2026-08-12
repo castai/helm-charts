@@ -165,6 +165,8 @@ pooling:
     discovery:
       # -- Refresh interval of DNS for peer discovery in seconds.
       refresh_interval_seconds: 10
+    # -- Frequency in which pooling metrics are reported in seconds.
+    report_metrics_frequency_seconds: 15
     image:
       repository: us-docker.pkg.dev/castai-hub/library/db-pooling
       pullPolicy: IfNotPresent
