@@ -1,0 +1,110 @@
+# Example values for using the v2 audit logs receiver (alpha).
+# The v2 receiver polls the CAST AI Audit API v2 (GET /v2/audit/events) and
+# supports the richer v2 event schema with seven filter dimensions.
+#
+# Usage:
+#   helm install logs-receiver castai-helm/castai-audit-logs-receiver \
+#     --values values.v2.yaml \
+#     --set castai.apiKey=<api_access_key>
+#
+# V2 is alpha (stability: Development). Expect breaking changes.
+
+image:
+  repository: us-docker.pkg.dev/castai-hub/library/audit-logs-receiver
+  pullPolicy: IfNotPresent
+  tag: ""
+
+imagePullSecrets: []
+
+castai:
+  apiKey: ""
+  apiKeySecretRef: ""
+  clusterID: ""
+  clusterIdSecretKeyRef:
+    name: ""
+    key: "CASTAI_CLUSTER_ID"
+  apiURL: "https://api.cast.ai"
+
+commonAnnotations: {}
+commonLabels: {}
+nameOverride: ""
+fullnameOverride: ""
+podAnnotations: {}
+podLabels: {}
+podSecurityContext: {}
+containerSecurityContext: {}
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+rollout:
+  rollingUpdate: {}
+  strategy: RollingUpdate
+
+serviceAccount:
+  create: false
+  annotations: {}
+  name: ""
+
+configMap:
+  create: true
+  configMapRef: ""
+
+hostNetwork: false
+
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 50M
+  annotations: {}
+
+statefulset:
+  podManagementPolicy: "Parallel"
+
+extraVolumes: []
+extraVolumeMounts: []
+
+## OpenTelemetry Collector configuration using the v2 receiver.
+## Ref: https://opentelemetry.io/docs/collector/configuration/
+config:
+  receivers:
+    castai_audit_logs_v2:
+      api:
+        url: ${env:CASTAI_API_URL}
+        key: ${env:CASTAI_API_KEY}
+      poll_interval: 10s
+      page_limit: 100
+      checkpoint_file: "/var/lib/otelcol/file_storage/audit_logs_v2_checkpoint.json"
+      # Optional filters — all seven v2 filter dimensions.
+      filters:
+        clusters: []
+        domains: []
+        resources: []
+        actions: []
+        sources: []
+        severity: []
+        search: ""
+
+  exporters:
+    debug:
+      verbosity: detailed
+      sampling_initial: 5
+      sampling_thereafter: 200
+
+  extensions:
+    # The health_check extension is mandatory for this chart.
+    health_check:
+      endpoint: "0.0.0.0:13133"
+
+  service:
+    extensions: [health_check]
+    telemetry:
+      logs:
+        level: "debug"
+    pipelines:
+      logs:
+        receivers: [castai_audit_logs_v2]
+        exporters: [debug]
