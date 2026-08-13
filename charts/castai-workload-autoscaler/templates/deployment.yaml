@@ -95,15 +95,15 @@ spec:
               value: {{ include "workload-autoscaler.certsSecretName" . }}
             - name: FORCE_FINALIZE_AFTER
               value: {{ quote .Values.forceFinalizeAfter }}
-            {{- if .Values.inPlaceResizeEnabled }}
+            {{- if hasKey .Values "inPlaceResizeEnabled" }}
             - name: IN_PLACE_RESIZE_ENABLED
               value: {{ quote .Values.inPlaceResizeEnabled }}
             {{- end }}
-            {{- if .Values.inPlaceResizeDeferredEnabled }}
+            {{- if hasKey .Values "inPlaceResizeDeferredEnabled" }}
             - name: IN_PLACE_RESIZE_DEFERRED_ENABLED
               value: {{ quote .Values.inPlaceResizeDeferredEnabled }}
             {{- end}}
-            {{- if .Values.workloadWhitelistingEnabled }}
+            {{- if hasKey .Values "workloadWhitelistingEnabled" }}
             - name: SAFEGUARD_WORKLOAD_WHITELISTING_ENABLED
               value: {{ quote .Values.workloadWhitelistingEnabled }}
             {{- end}}
@@ -116,6 +116,10 @@ spec:
             {{- if .Values.gpu.enabled }}
             - name: GPU_SCALING_ENABLED
               value: {{ quote .Values.gpu.enabled }}
+            {{- end}}
+            {{- if .Values.workloadClassifier.enabled }}
+            - name: WORKLOAD_CLASSIFIER_ENABLED
+              value: {{ quote .Values.workloadClassifier.enabled }}
             {{- end}}
             {{- if .Values.evictionRateLimitingEnabled}}
             - name: EVICTION_RATE_LIMITING_ENABLED

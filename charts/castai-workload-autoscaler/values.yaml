@@ -259,6 +259,12 @@ workloadPodLabeling:
   workloadId:
     enabled: false
 
+# workloadClassifier -- Classifies user workloads by inspecting their pod manifests
+# and stamps a label (e.g. workloads.cast.ai/vllm) so external systems such as a
+# Prometheus scrape job can target them. Currently recognizes vLLM serving workloads.
+workloadClassifier:
+  enabled: false
+
 # trustedCACert -- CA certificate to add to set of root certificate authorities that client will use when verifying server certificates.
 trustedCACert: ""
 
