@@ -2351,6 +2351,33 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-08-13T08:39:55.816908873Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: c05898256b9c01091c9c7943389cd2d147c200d259a4ea8c44325aea157ba700
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.43.143/castai-0.43.143.tgz
+    version: 0.43.143
+  - apiVersion: v2
     created: "2026-08-13T07:27:25.478098677Z"
     dependencies:
     - condition: kent.enabled
@@ -30334,6 +30361,15 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-db-optimizer-0.1.0/castai-db-optimizer-0.1.0.tgz
     version: 0.1.0
   castai-db-proxy:
+  - apiVersion: v2
+    created: "2026-08-13T08:39:56.027126599Z"
+    description: CAST AI database proxy cache deployment.
+    digest: 4da46b2bd324b211c94608b1f96bc276fd933abbb5876894782c8e89410fb917
+    name: castai-db-proxy
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-db-proxy-0.12.0/castai-db-proxy-0.12.0.tgz
+    version: 0.12.0
   - apiVersion: v2
     created: "2026-08-12T09:08:11.292537243Z"
     description: CAST AI database proxy cache deployment.
@@ -72980,4 +73016,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-08-13T07:34:00.298660045Z"
+generated: "2026-08-13T08:39:56.200217532Z"
