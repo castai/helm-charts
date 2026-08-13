@@ -1,6 +1,12 @@
 {{- if .Values.prometheus.enabled }}
-{{- if not (or .Values.prometheus.scrapeConfigs .Values.prometheus.scrape .Values.prometheus.scrapeJMXExporter) }}
-  {{- required "prometheus is enabled but no scrape targets configured: set at least one of prometheus.scrape, prometheus.scrapeConfigs, or prometheus.scrapeJMXExporter" nil }}
+{{- $vllmClassifier := false }}
+{{- $vllmImageMatch := false }}
+{{- if .Values.prometheus.scrapeVLLM }}
+  {{- if hasKey .Values.prometheus.scrapeVLLM "workloadClassifier" }}{{ $vllmClassifier = .Values.prometheus.scrapeVLLM.workloadClassifier }}{{ end }}
+  {{- if hasKey .Values.prometheus.scrapeVLLM "vllmImageMatch" }}{{ $vllmImageMatch = .Values.prometheus.scrapeVLLM.vllmImageMatch }}{{ end }}
+{{- end }}
+{{- if not (or .Values.prometheus.scrapeConfigs .Values.prometheus.scrape .Values.prometheus.scrapeJMXExporter $vllmClassifier $vllmImageMatch) }}
+  {{- required "prometheus is enabled but no scrape targets configured: set at least one of prometheus.scrape, prometheus.scrapeConfigs, prometheus.scrapeJMXExporter, prometheus.scrapeVLLM.workloadClassifier, or prometheus.scrapeVLLM.vllmImageMatch" nil }}
 {{- end }}
 apiVersion: v1
 kind: ConfigMap
@@ -93,4 +99,161 @@ data:
             action: keep
             regex: "jvm_.*|java_.*|jmx_scrape_.*"
       {{- end }}
+
+      {{- $vllmModes := list }}
+      {{- if $vllmClassifier }}
+        {{- $vllmModes = append $vllmModes (dict "prefix" "vllm-workload-classifier" "byLabel" true) }}
+      {{- end }}
+      {{- if $vllmImageMatch }}
+        {{- $vllmModes = append $vllmModes (dict "prefix" "vllm-image-match" "byImage" true) }}
+      {{- end }}
+      {{- range $mode := $vllmModes }}
+      - job_name: "{{ $mode.prefix }}-plain-declared-port"
+        scrape_interval: 15s
+        scrape_timeout: 15s
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          {{- if $mode.byLabel }}
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_vllm]
+            action: keep
+            regex: "true"
+          {{- else }}
+          - source_labels: [__meta_kubernetes_pod_container_image]
+            action: keep
+            regex: "(?i).*vllm.*"
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_vllm]
+            action: drop
+            regex: "true"
+          {{- end }}
+          - source_labels: [__meta_kubernetes_pod_phase]
+            action: keep
+            regex: "Running"
+          - source_labels: [__meta_kubernetes_pod_annotation_sidecar_istio_io_status]
+            action: drop
+            regex: ".+"
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: keep
+            regex: "8000"
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            action: replace
+            target_label: container
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            action: replace
+            target_label: node
+        metric_relabel_configs:
+          - source_labels: [__name__]
+            action: keep
+            regex: "vllm:.*"
+
+      - job_name: "{{ $mode.prefix }}-plain-undeclared-port"
+        scrape_interval: 15s
+        scrape_timeout: 15s
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          {{- if $mode.byLabel }}
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_vllm]
+            action: keep
+            regex: "true"
+          {{- else }}
+          - source_labels: [__meta_kubernetes_pod_container_image]
+            action: keep
+            regex: "(?i).*vllm.*"
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_vllm]
+            action: drop
+            regex: "true"
+          {{- end }}
+          - source_labels: [__meta_kubernetes_pod_phase]
+            action: keep
+            regex: "Running"
+          - source_labels: [__meta_kubernetes_pod_annotation_sidecar_istio_io_status]
+            action: drop
+            regex: ".+"
+          - source_labels: [__meta_kubernetes_pod_container_port_number]
+            action: drop
+            regex: "8000"
+          - source_labels: [__meta_kubernetes_pod_ip]
+            action: replace
+            target_label: __address__
+            regex: (.+)
+            replacement: $1:8000
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            action: replace
+            target_label: container
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            action: replace
+            target_label: node
+        metric_relabel_configs:
+          - source_labels: [__name__]
+            action: keep
+            regex: "vllm:.*"
+
+      - job_name: "{{ $mode.prefix }}-istio"
+        scrape_interval: 15s
+        scrape_timeout: 15s
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          {{- if $mode.byLabel }}
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_vllm]
+            action: keep
+            regex: "true"
+          {{- else }}
+          - source_labels: [__meta_kubernetes_pod_container_image]
+            action: keep
+            regex: "(?i).*vllm.*"
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_vllm]
+            action: drop
+            regex: "true"
+          {{- end }}
+          - source_labels: [__meta_kubernetes_pod_phase]
+            action: keep
+            regex: "Running"
+          - source_labels: [__meta_kubernetes_pod_annotation_sidecar_istio_io_status]
+            action: keep
+            regex: ".+"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            separator: ":"
+            action: replace
+            target_label: __address__
+            regex: (.+):(.+)
+            replacement: $1:$2
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: (.+)
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            action: replace
+            target_label: container
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            action: replace
+            target_label: node
+        metric_relabel_configs:
+          - source_labels: [__name__]
+            action: keep
+            regex: "vllm:.*"
+      {{- end }}
+
 {{- end }}

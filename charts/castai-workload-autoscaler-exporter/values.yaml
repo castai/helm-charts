@@ -277,6 +277,31 @@ prometheus:
   # instrumented by the JMX exporter webhook (label workloads.cast.ai/jmx-exporter-injected=true).
   # Enable alongside jmxExporter.enabled in the castai-workload-autoscaler chart.
   scrapeJMXExporter: true
+  # scrapeVLLM controls Prometheus scrape jobs that collect vLLM metrics (vllm: prefix).
+  # Two discovery modes are available and can be enabled independently or together:
+  #
+  #   workloadClassifier: targets pods stamped with workloads.cast.ai/vllm=true by the
+  #              workload classifier. Requires workloadClassifier.enabled in the
+  #              castai-workload-autoscaler chart — the workload autoscaler must be
+  #              running and mutating pods to set that label.
+  #              Jobs: vllm-workload-classifier-plain-declared-port,
+  #                    vllm-workload-classifier-plain-undeclared-port,
+  #                    vllm-workload-classifier-istio
+  #
+  #   vllmImageMatch: discovers vLLM pods by matching the container image against a
+  #              case-insensitive "vllm" substring. No workload autoscaler pod mutation
+  #              is required, so this works even without the workload classifier enabled.
+  #              Jobs: vllm-image-match-plain-declared-port,
+  #                    vllm-image-match-plain-undeclared-port,
+  #                    vllm-image-match-istio
+  #
+  # When both modes are enabled the vllmImageMatch jobs automatically drop pods that
+  # already carry the workloads.cast.ai/vllm=true label, preventing double scraping.
+  scrapeVLLM:
+    # scrapeVLLM.workloadClassifier -- Requires the workload classifier (WA mutates pods to set the vLLM label).
+    workloadClassifier: false
+    # scrapeVLLM.vllmImageMatch -- Discovers vLLM pods by container image pattern match (no WA pod mutation needed).
+    vllmImageMatch: false
   scrape: []
   #    - port: 8443
   #      path: /metrics
