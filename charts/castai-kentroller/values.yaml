@@ -243,7 +243,10 @@ affinity:
         topologyKey: kubernetes.io/hostname
 
 # nodeSelector -- Node selector for pod scheduling.
-nodeSelector: {}
+# kentroller must run on Linux nodes only — it manages Windows node rebalancing
+# but cannot run on Windows itself (no Windows build of the binary).
+nodeSelector:
+  kubernetes.io/os: linux
 
 # tolerations -- Tolerations for pod scheduling.
 tolerations: []
