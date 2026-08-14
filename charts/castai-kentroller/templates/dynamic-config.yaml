@@ -22,6 +22,8 @@ data:
       {{- end }}
     clm:
       enabled: {{ .Values.castai.clm.enabled | default false }}
+    commitmentBudgets:
+      enabled: {{ .Values.castai.commitmentBudgets.enabled | default true }}
     continuousRebalancing:
       enabled: {{ .Values.castai.continuousRebalancing.enabled | default false }}
       {{- if .Values.castai.continuousRebalancing.cycleIntervalSeconds }}
