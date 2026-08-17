@@ -57,7 +57,9 @@ jobs:
 
   update-umbrella:
     needs: wait-for-release
-    if: github.event_name == 'workflow_dispatch' || (needs.wait-for-release.result == 'success' && needs.wait-for-release.outputs.skip != 'true')
+    if: |
+      always() && 
+      (needs.wait-for-release.result == 'skipped' || (needs.wait-for-release.result == 'success' && needs.wait-for-release.outputs.skip != 'true'))
     runs-on: ubuntu-latest
     env:
       CHART_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.chart_name || needs.wait-for-release.outputs.chart_name }}
