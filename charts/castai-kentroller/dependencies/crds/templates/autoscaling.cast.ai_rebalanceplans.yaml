@@ -700,6 +700,12 @@ spec:
                     FailureReason is a machine-readable code describing why the plan failed.
                     Populated when State is Failed.
                   type: string
+                migrationPlanRetries:
+                  description: |-
+                    MigrationPlanRetries tracks how many times createRebalanceMigrationPlans
+                    has been retried via requeue. Reset to 0 on success. After maxMigrationPlanRetries,
+                    the plan is failed.
+                  type: integer
                 nodePoolBudgets:
                   description: |-
                     NodePoolBudgets captures the NPDB budget state for NodePools that have
