@@ -4,9 +4,18 @@ on:
   release:
     types:
       - published
+  workflow_dispatch:
+    inputs:
+      chart_name:
+        description: 'Chart name (e.g. castai-agent)'
+        required: true
+      version:
+        description: 'Version (e.g. 0.115.0)'
+        required: true
 
 jobs:
   wait-for-release:
+    if: github.event_name == 'release'
     runs-on: ubuntu-latest
     outputs:
       skip: ${{ steps.parse.outputs.skip }}
@@ -48,8 +57,11 @@ jobs:
 
   update-umbrella:
     needs: wait-for-release
-    if: needs.wait-for-release.outputs.skip != 'true'
+    if: github.event_name == 'workflow_dispatch' || (needs.wait-for-release.result == 'success' && needs.wait-for-release.outputs.skip != 'true')
     runs-on: ubuntu-latest
+    env:
+      CHART_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.chart_name || needs.wait-for-release.outputs.chart_name }}
+      VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || needs.wait-for-release.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -69,8 +81,6 @@ jobs:
       - name: Update umbrella subchart dependencies and bump version
         id: update
         run: |
-          CHART_NAME="${{ needs.wait-for-release.outputs.chart_name }}"
-          VERSION="${{ needs.wait-for-release.outputs.version }}"
           OUTPUT=$(.github/scripts/update-umbrella.sh "$CHART_NAME" "$VERSION" ".")
           echo "$OUTPUT"
           if echo "$OUTPUT" | grep -q "^CHANGED=true"; then
@@ -82,8 +92,6 @@ jobs:
       - name: Commit and push changes
         if: steps.update.outputs.changed == 'true'
         run: |
-          CHART_NAME="${{ needs.wait-for-release.outputs.chart_name }}"
-          VERSION="${{ needs.wait-for-release.outputs.version }}"
           git add charts/castai-umbrella/
           git commit -m "[castai-umbrella] bump ${CHART_NAME} to v.${VERSION}"
           git push
