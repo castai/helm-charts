@@ -840,9 +840,6 @@ spec:
                           Required when Type is multiplierLimits. E.g. "1500m" for 1.5x. Must be >= 1.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
-                        x-kubernetes-validations:
-                        - message: must be greater than or equal to 1
-                          rule: quantity(self).compareTo(quantity('1')) >= 0
                       onlyIfOriginalExist:
                         description: OnlyIfOriginalExist skips setting a limit when
                           the container has no current limit.
@@ -878,9 +875,6 @@ spec:
                           Required when Type is multiplierLimits. E.g. "1500m" for 1.5x. Must be >= 1.
                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                         x-kubernetes-int-or-string: true
-                        x-kubernetes-validations:
-                        - message: must be greater than or equal to 1
-                          rule: quantity(self).compareTo(quantity('1')) >= 0
                       onlyIfOriginalExist:
                         description: OnlyIfOriginalExist skips setting a limit when
                           the container has no current limit.

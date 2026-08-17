@@ -1,5 +1,7 @@
+{{- if .Values.gpu.enabled -}}
 {{- $crd := .Files.Get "files/gpurecommendations.yaml" -}}
 {{- if .Values.crds.keep -}}
 {{- $crd = replace "  annotations:\n" "  annotations:\n    helm.sh/resource-policy: keep\n" $crd -}}
 {{- end -}}
 {{ $crd }}
+{{- end -}}

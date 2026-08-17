@@ -4,7 +4,7 @@
 
 {{- if .Capabilities.APIVersions.Has "security.openshift.io/v1" -}}
 {{- if and .Values.podSecurityContext .Values.containerSecurityContext }}
-{{- $sccEnabled := .Values.openshift.scc.enabled | default true }}
+{{- $sccEnabled := (.Values.openshift | default dict) | dig "scc" "enabled" true }}
 {{- $useRestrictedProfile := .Values.openshift.scc.useRestrictedProfile | default false }}
 {{- if $sccEnabled }}
 
@@ -41,7 +41,7 @@ fsGroup:
   {{- end }}
   {{- end }}
 {{- if not $useRestrictedProfile }}
-readOnlyRootFilesystem: {{ .Values.containerSecurityContext.readOnlyRootFilesystem | default true }}
+readOnlyRootFilesystem: {{ (.Values.containerSecurityContext | default dict) | dig "readOnlyRootFilesystem" true }}
 {{- end }}
 requiredDropCapabilities:
   {{- if and .Values.containerSecurityContext.capabilities .Values.containerSecurityContext.capabilities.drop }}

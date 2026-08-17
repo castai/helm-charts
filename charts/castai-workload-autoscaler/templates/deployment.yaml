@@ -41,7 +41,7 @@ spec:
       {{- $useRestrictedProfile := and $isOpenShift (.Values.openshift.scc.useRestrictedProfile | default false) }}
       securityContext:
       {{- if $useRestrictedProfile }}
-        runAsNonRoot: {{ .Values.podSecurityContext.runAsNonRoot | default true }}
+        runAsNonRoot: {{ (.Values.podSecurityContext | default dict) | dig "runAsNonRoot" true }}
         {{- with .Values.podSecurityContext.seccompProfile }}
         seccompProfile:
           {{- toYaml . | nindent 10 }}
