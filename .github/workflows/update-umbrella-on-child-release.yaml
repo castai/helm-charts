@@ -58,7 +58,7 @@ jobs:
   update-umbrella:
     needs: wait-for-release
     if: |
-      always() && 
+      !cancelled() && 
       (needs.wait-for-release.result == 'skipped' || (needs.wait-for-release.result == 'success' && needs.wait-for-release.outputs.skip != 'true'))
     runs-on: ubuntu-latest
     env:
