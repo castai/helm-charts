@@ -160,7 +160,7 @@ jmxExporter:
     # repository -- Init container image that contains the JMX exporter isolator and javaagent jars.
     repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
     # tag -- Image tag for the init container. Bundles jmx_prometheus_isolator_javaagent.jar and jmx_prometheus_javaagent.jar.
-    tag: 1.6.0-v1
+    tag: 1.6.0-v2
   # imagePullSecrets -- secret names appended to each injected pod's imagePullSecrets.
   # Use when the init image is mirrored to a private registry requiring authentication.
   # Existing pull secrets on the pod are preserved; matching names are deduped.
