@@ -14,7 +14,7 @@ Umbrella chart for CAST AI Database Optimizer components.
 |------------|------|---------|
 | https://castai.github.io/helm-charts | db-agent(castai-db-agent) | 0.22.0 |
 | https://castai.github.io/helm-charts | db-optimizer(castai-db-optimizer) | 0.80.2 |
-| https://castai.github.io/helm-charts | db-proxy(castai-db-proxy) | 0.11.0 |
+| https://castai.github.io/helm-charts | db-proxy(castai-db-proxy) | 0.12.1 |
 
 ## Usage
 
