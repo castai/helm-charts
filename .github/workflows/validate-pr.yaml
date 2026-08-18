@@ -38,7 +38,7 @@ jobs:
           python-version: '3.12'
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.8.0
+        uses: helm/chart-testing-action@d6db0ca01d3598ea552ccf97edb5de6fe6b54ce0 # main, post-v2.8.0 (cosign-installer v4.1.1)
 
       - name: Validate PR
         run: scripts/validate-pr.sh

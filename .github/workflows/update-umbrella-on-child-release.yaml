@@ -79,7 +79,7 @@ jobs:
           git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
 
       - name: Install yq
-        uses: mikefarah/yq@v4.44.3
+        uses: mikefarah/yq@v4.52.4
 
       - name: Update umbrella subchart dependencies and bump version
         id: update
