@@ -377,3 +377,20 @@ crds:
   # existing CustomMetricsExporterConfig CRs. Useful for migrations
   # where the CRDs will be adopted by another Helm release (e.g. umbrella chart).
   keep: false
+
+# crdUpgrade -- The exporter-config hook creates a CustomMetricsExporterConfig CR during post-install.
+# Helm does not wait for the CRD to reach Established condition before running hooks, so the CR
+# creation can fail on fresh clusters where the CRD was just installed. This hook runs before
+# the exporter-config hook and waits for the CRD to be Established.
+crdUpgrade:
+  enabled: true
+  image:
+    repository: us-docker.pkg.dev/castai-hub/library/kubectl
+    tag: "v1.35.7"
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 200m
+      memory: 256Mi
