@@ -18,8 +18,8 @@ apiKey: ""
 # The referenced secret must provide the token in .data["API_KEY"].
 apiKeySecretRef: ""
 
-# -- Interval in milliseconds to flush query metrics. Must be greater than 0.
-queryMetricsFlushIntervalMs: 100
+# -- Interval in seconds to flush query metrics. Must be greater than 0.
+queryMetricsFlushIntervalSeconds: 5
 # -- Interval in seconds to flush operational metrics. Must be greater than 0.
 operationalMetricsFlushIntervalSeconds: 15
 
@@ -58,10 +58,15 @@ cluster:
 # -- Application log level. Supports "trace", "debug", "info", "warn", "error"
 logLevel: "info"
 
+# -- Worker threads for each proxy listener that serves traffic. Leave empty to derive
+# from resources.cpu, rounded up (minimum 1). Set explicitly only to override that.
+# Background services are fixed at one thread each and are unaffected.
+serverThreads: ""
+
 service:
   # -- Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic.
   # Requires Kubernetes 1.31+.
-  trafficDistribution: ""
+  trafficDistribution: "PreferClose"
 
 # commonLabels -- Labels to add to all resources.
 commonLabels: {}
