@@ -68,3 +68,26 @@ app.kubernetes.io/component: pooling
 {{- define "castai-db-proxy.pgdogImage" -}}
 {{- default (include "castai-db-proxy.defaultPgdogVersion" .) .Values.pooling.pgdog.image.tag }}
 {{- end }}
+
+{{/*
+Worker threads for each proxy listener that serves traffic.
+
+An explicit .Values.serverThreads wins; otherwise derive from the CPU request rounded
+up, with a floor of 1. Accepts both core ("2") and millicore ("1500m") notation.
+One worker per core matches the tokio runtime pingora builds on, which defaults to
+one worker thread per available core.
+*/}}
+{{- define "castai-db-proxy.workerThreads" -}}
+{{- if .Values.serverThreads -}}
+{{- .Values.serverThreads | int -}}
+{{- else -}}
+{{- $cpu := .Values.resources.cpu | toString -}}
+{{- $cores := 0.0 -}}
+{{- if hasSuffix "m" $cpu -}}
+{{- $cores = divf (float64 (trimSuffix "m" $cpu)) 1000.0 -}}
+{{- else -}}
+{{- $cores = float64 $cpu -}}
+{{- end -}}
+{{- max 1 (int (ceil $cores)) -}}
+{{- end -}}
+{{- end -}}
