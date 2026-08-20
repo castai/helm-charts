@@ -186,6 +186,17 @@ rules:
       - get
       - list
       - watch
+  # ---
+  # Read permissions for limit ranges - required for LR-aware pod mutation
+  # ---
+  - apiGroups:
+      - ""
+    resources:
+      - limitranges
+    verbs:
+      - get
+      - list
+      - watch
   {{- if .Values.resourceQuotaAwareScaling.enabled }}
   # ---
   # Read permissions for resource quotas - required for quota-aware scaling

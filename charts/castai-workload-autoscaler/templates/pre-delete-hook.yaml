@@ -106,6 +106,10 @@ spec:
       securityContext:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with include "workload-autoscaler.tolerations" . }}
+      tolerations:
+      {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: pre-delete
           image: "{{ include "workload-autoscaler.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
