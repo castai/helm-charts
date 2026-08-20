@@ -14,7 +14,7 @@ on:
         required: true
 
 jobs:
-  wait-for-release:
+  parse-release-tag:
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
     outputs:
@@ -45,26 +45,16 @@ jobs:
           echo "skip=false" >> $GITHUB_OUTPUT
           echo "Parsed chart: ${CHART_NAME}, version: ${VERSION}"
 
-      - name: Wait for Release Charts workflow to complete
-        if: steps.parse.outputs.skip != 'true'
-        uses: lewagon/wait-on-check-action@v1.9.1
-        with:
-          ref: ${{ github.event.release.tag_name }}
-          check-name: release
-          repo-token: ${{ secrets.PAT_CICD }}
-          wait-interval: 30
-          allowed-conclusions: success
-
   update-umbrella:
-    needs: wait-for-release
+    needs: parse-release-tag
     if: |
       !cancelled() &&
       (github.event_name == 'workflow_dispatch' ||
-       (needs.wait-for-release.result == 'success' && needs.wait-for-release.outputs.skip != 'true'))
+       (needs.parse-release-tag.result == 'success' && needs.parse-release-tag.outputs.skip != 'true'))
     runs-on: ubuntu-latest
     env:
-      CHART_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.chart_name || needs.wait-for-release.outputs.chart_name }}
-      VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || needs.wait-for-release.outputs.version }}
+      CHART_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.chart_name || needs.parse-release-tag.outputs.chart_name }}
+      VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || needs.parse-release-tag.outputs.version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v6
