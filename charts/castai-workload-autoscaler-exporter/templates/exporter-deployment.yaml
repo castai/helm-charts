@@ -68,7 +68,7 @@ spec:
                 fieldPath: metadata.namespace
           {{- if .Values.castai.clusterIdSecretKeyRef.name }}
           {{- if ne .Values.castai.clusterID "" }}
-          {{- fail "clusterID and clusterIdSecretKeyRef are mutually exclusive" }}
+          {{- fail "castai.clusterID and castai.clusterIdSecretKeyRef are mutually exclusive" }}
           {{- end }}
 
           {{- if ne .Values.castai.configMapRef "" }}
