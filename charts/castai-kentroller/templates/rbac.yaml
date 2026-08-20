@@ -127,11 +127,54 @@ rules:
       - mutatingwebhookconfigurations
     resourceNames:
       - {{ include "castai-kentroller.webhookConfigurationName" . }}
+      {{- if .Values.webhook.scaleDown.enabled }}
+      - {{ include "castai-kentroller.webhookScaleDownConfigurationName" . }}
+      {{- end }}
     verbs:
       - get
       - patch
       - update
   {{- end }}
+{{- if .Values.webhook.scaleDown.enabled }}
+  # The scale-down webhook reads Deployments, Pods, ReplicaSets, and Nodes
+  # from the informer cache and patches pod-deletion-cost annotations.
+  # These permissions are cluster-wide because opt-out mode operates on
+  # all namespaces.
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - replicasets
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+      - update
+      - patch
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+{{- end }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole

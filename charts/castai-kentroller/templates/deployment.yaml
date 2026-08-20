@@ -106,6 +106,12 @@ spec:
               value: {{ include "castai-kentroller.webhookCertsSecretName" . | quote }}
             - name: CERT_ROTATOR_WEBHOOK_NAME
               value: {{ include "castai-kentroller.webhookConfigurationName" . | quote }}
+            {{- if .Values.webhook.scaleDown.enabled }}
+            - name: CERT_ROTATOR_SCALE_DOWN_WEBHOOK_NAME
+              value: {{ include "castai-kentroller.webhookScaleDownConfigurationName" . | quote }}
+            - name: CERT_ROTATOR_SCALE_DOWN_WEBHOOK_ENABLED
+              value: "true"
+            {{- end }}
             - name: CERT_ROTATOR_SERVICE_NAME
               value: {{ include "castai-kentroller.webhookServiceName" . | quote }}
             {{- end }}

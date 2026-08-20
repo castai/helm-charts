@@ -290,3 +290,14 @@ webhook:
   # uses as its rotation rendezvous point. Defaults to
   # "<fullname>-webhook-certs" if empty.
   certsSecretName: ""
+  # webhook.scaleDown -- Deployments/scale downscaling webhook. Intercepts
+  # HPA-driven scale-downs to preserve Topology Spread Constraint skew.
+  scaleDown:
+    # webhook.scaleDown.enabled -- Install the MutatingWebhookConfiguration
+    # and register the handler.
+    enabled: false
+    # webhook.scaleDown.mode -- namespaceSelector strategy. "opt-in" selects
+    # only namespaces labeled tsc-scaledown.cast.ai/enabled=true; "opt-out"
+    # selects all namespaces unless labeled
+    # tsc-scaledown.cast.ai/disabled=true.
+    mode: opt-in

@@ -1,0 +1,40 @@
+{{- if and .Values.webhook.enabled .Values.webhook.scaleDown.enabled }}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "castai-kentroller.webhookScaleDownConfigurationName" . }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+webhooks:
+  - name: mscale.castai.kb.io
+    admissionReviewVersions: ["v1"]
+    clientConfig:
+      # caBundle omitted; patched by the cert-rotator at runtime.
+      service:
+        name: {{ include "castai-kentroller.webhookServiceName" . }}
+        namespace: {{ .Release.Namespace }}
+        path: /mutate-apps-v1-deployment-scale
+        port: 443
+    rules:
+      - apiGroups: ["apps"]
+        apiVersions: ["v1"]
+        operations: ["UPDATE"]
+        resources: ["deployments/scale"]
+        scope: Namespaced
+    namespaceSelector:
+      matchExpressions:
+        {{- if eq .Values.webhook.scaleDown.mode "opt-in" }}
+        - key: tsc-scaledown.cast.ai/enabled
+          operator: In
+          values:
+            - "true"
+        {{- else }}
+        - key: tsc-scaledown.cast.ai/disabled
+          operator: NotIn
+          values:
+            - "true"
+        {{- end }}
+    failurePolicy: Ignore
+    sideEffects: NoneOnDryRun
+    timeoutSeconds: 10
+{{- end }}

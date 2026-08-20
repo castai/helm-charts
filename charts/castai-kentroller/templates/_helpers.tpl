@@ -121,6 +121,13 @@ the caBundle on this object on every rotation.
 {{- end }}
 
 {{/*
+Name of the MutatingWebhookConfiguration for the scale-down webhook.
+*/}}
+{{- define "castai-kentroller.webhookScaleDownConfigurationName" -}}
+{{- printf "%s-scale-down" (include "castai-kentroller.fullname" .) | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
+{{/*
 Name of the Service in front of the webhook server.
 */}}
 {{- define "castai-kentroller.webhookServiceName" -}}

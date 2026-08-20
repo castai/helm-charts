@@ -61,3 +61,5 @@ data:
       aggressiveModeConfig:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+    tscScaleDown:
+      enabled: {{ .Values.webhook.scaleDown.enabled | default false }}
