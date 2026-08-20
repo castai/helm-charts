@@ -92,6 +92,8 @@ spec:
             {{- end }}
             - name: COMMITMENT_BUDGETS_ENABLED
               value: {{ .Values.castai.commitmentBudgets.enabled | quote }}
+            - name: COMMITMENT_BUDGETS_NODE_POOL_FILTER_MODE
+              value: {{ .Values.castai.commitmentBudgets.nodePoolFilterMode | default "opt-out" | quote }}
             {{- if .Values.webhook.enabled }}
             # cert-controller (in-process) provisions and rotates the TLS
             # material for the webhook. These env vars line the rotator up

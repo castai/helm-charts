@@ -117,6 +117,12 @@ castai:
     # castai.commitmentBudgets.enabled -- Enable the CommitmentBudgets controller.
     # When disabled, kentroller will not reconcile CommitmentBudget CRDs into Karpenter NodePools.
     enabled: true
+    # castai.commitmentBudgets.nodePoolFilterMode -- Controls which customer NodePools are
+    # considered for shadow NodePool creation. Annotate a NodePool with
+    # kentroller.cast.ai/commitment-budgets: "clone" or "ignore" to control inclusion.
+    # - opt-out (default): all NodePools are included unless annotated "ignore".
+    # - opt-in: only NodePools annotated "clone" are included.
+    nodePoolFilterMode: opt-out
   # castai.continuousRebalancing -- Continuous rebalancing feature configuration
   continuousRebalancing:
     # castai.continuousRebalancing.enabled -- Whether continuous rebalancing is enabled
