@@ -20,6 +20,10 @@ apiKeySecretRef: ""
 
 # -- Interval in seconds to flush query metrics. Must be greater than 0.
 queryMetricsFlushIntervalSeconds: 5
+# -- Maximum query metric requests in flight at once. The dial for metric throughput
+queryMetricsMaxConcurrentRequests: 4
+# -- Maximum query metrics queued before new ones are dropped
+queryMetricsBufferSize: 50000
 # -- Interval in seconds to flush operational metrics. Must be greater than 0.
 operationalMetricsFlushIntervalSeconds: 15
 
