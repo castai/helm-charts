@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.13.0](https://img.shields.io/badge/Version-0.13.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.14.0](https://img.shields.io/badge/Version-0.14.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -55,7 +55,9 @@ CAST AI database proxy cache deployment.
 | ports.readWrite | int | `6141` | Listening port for read-write connections. |
 | protocol | string | `"PostgreSQL"` | Database protocol. |
 | proxyID | string | `""` | ID of this proxy instance. |
+| queryMetricsBufferSize | int | `50000` | Maximum query metrics queued before new ones are dropped |
 | queryMetricsFlushIntervalSeconds | int | `5` | Interval in seconds to flush query metrics. Must be greater than 0. |
+| queryMetricsMaxConcurrentRequests | int | `4` | Maximum query metric requests in flight at once. The dial for metric throughput |
 | replicas | int | `2` |  |
 | resources.cpu | string | `"2"` |  |
 | resources.memoryLimit | string | `"2Gi"` |  |
