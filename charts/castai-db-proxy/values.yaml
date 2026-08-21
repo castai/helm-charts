@@ -114,6 +114,10 @@ affinity:
               operator: In
               values:
                 - APP_NAME
+            - key: app.kubernetes.io/component
+              operator: In
+              values:
+                - proxy
         topologyKey: kubernetes.io/hostname
 
   nodeAffinity:
