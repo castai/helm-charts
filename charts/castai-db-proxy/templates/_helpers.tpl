@@ -56,6 +56,11 @@ Selector labels
 app.kubernetes.io/name: {{ include "castai-db-proxy.name" . }}
 {{- end }}
 
+{{- define "castai-db-proxy.proxySelectorLabels" -}}
+app.kubernetes.io/name: {{ include "castai-db-proxy.name" . }}
+app.kubernetes.io/component: proxy
+{{- end }}
+
 {{- define "castai-db-proxy.poolingSelectorLabels" -}}
 app.kubernetes.io/name: {{ include "castai-db-proxy.name" . }}
 app.kubernetes.io/component: pooling

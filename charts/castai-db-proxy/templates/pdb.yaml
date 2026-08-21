@@ -10,4 +10,4 @@ spec:
   maxUnavailable: 1
   selector:
     matchLabels:
-      {{- include "castai-db-proxy.selectorLabels" . | nindent 6 }}
+      {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 6 }}
