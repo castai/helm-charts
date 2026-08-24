@@ -2,7 +2,7 @@ apiVersion: v2
 name: castai-dbo
 description: Umbrella chart for CAST AI Database Optimizer components.
 type: application
-version: 0.6.0
+version: 0.7.0
 maintainers:
   - name: CAST AI
     url: https://cast.ai
@@ -14,7 +14,7 @@ dependencies:
     condition: db-proxy.enabled
   - name: castai-db-agent
     alias: db-agent
-    version: "0.22.0"
+    version: "0.23.0"
     repository: "https://castai.github.io/helm-charts"
     condition: db-agent.enabled
   - name: castai-db-optimizer
