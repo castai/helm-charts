@@ -33,8 +33,8 @@ spec:
               value:  "{{ .Values.apiURL | default "https://api.cast.ai/" }}"
             - name: ORGANIZATION_ID
               value: "{{ required "organization ID must be provided" .Values.organizationID }}"
-            - name: CACHE_GROUP_ID
-              value: "{{ required "cache group ID must be provided" .Values.cacheGroupID }}"
+            - name: DATABASE_INSTANCE_ID
+              value: "{{ required "database instance ID must be provided" .Values.databaseInstanceID }}"
             - name: DATABASE_HOST
               {{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
               value: "127.0.0.1"
