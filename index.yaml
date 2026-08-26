@@ -2351,6 +2351,33 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-08-26T07:49:27.418518985Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 08bca98fd3f7b30b31330e7225502adeb5ad1beefd3db12099e9e38fcfd580f0
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.43.176/castai-0.43.176.tgz
+    version: 0.43.176
+  - apiVersion: v2
     created: "2026-08-25T08:35:38.624125436Z"
     dependencies:
     - condition: kent.enabled
@@ -28990,6 +29017,15 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-cluster-controller-ext-0.1.0/castai-cluster-controller-ext-0.1.0.tgz
     version: 0.1.0
   castai-db-agent:
+  - apiVersion: v2
+    created: "2026-08-26T07:49:27.58401797Z"
+    description: CAST AI DB agent deployment.
+    digest: 7792c712fc555cd9b7db4bbe4e25312b69e870ae7eca83ef67343080f9ca80e1
+    name: castai-db-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-db-agent-0.24.0/castai-db-agent-0.24.0.tgz
+    version: 0.24.0
   - apiVersion: v2
     created: "2026-08-24T09:30:08.577091031Z"
     description: CAST AI DB agent deployment.
@@ -74954,4 +74990,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-08-25T15:45:20.421973398Z"
+generated: "2026-08-26T07:49:27.591176573Z"
