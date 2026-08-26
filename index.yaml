@@ -58682,6 +58682,21 @@ entries:
     version: 0.15.0
   castai-pod-pinner:
   - apiVersion: v2
+    appVersion: v1.13.1
+    created: "2026-08-26T15:58:51.12663695Z"
+    dependencies:
+    - condition: castai-pod-pinner-ext.enabled
+      name: castai-pod-pinner-ext
+      repository: file://child-charts/castai-pod-pinner-ext
+      version: 1.1.0
+    description: CAST AI Pod Pinning deployment chart.
+    digest: fd225be43ad19c72bbf757a5c5bdbdaa10fe1b62b9364f41a6a17e0f2db36de9
+    name: castai-pod-pinner
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-pod-pinner-1.13.1/castai-pod-pinner-1.13.1.tgz
+    version: 1.13.1
+  - apiVersion: v2
     appVersion: v1.13.0
     created: "2026-08-13T11:40:38.216149642Z"
     dependencies:
@@ -75178,4 +75193,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-08-26T13:25:25.766414125Z"
+generated: "2026-08-26T15:58:51.167406666Z"
