@@ -162,6 +162,19 @@ tls:
   # -- Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert.
   secretName: ""
 
+# -- TCP keepalive for client and database connections. Probing is the only way to tell a
+# connection whose far end vanished *without closing* (an evicted pod, a lost node, a killed
+# database instance etc.) from one that is merely idle. Without it the proxy would wait on a read that
+# will never complete, holding the connection and the database session behind it until the pod
+# restarts.
+keepalive:
+  # -- How long a connection may sit idle before the first probe.
+  idle_seconds: 60
+  # -- Gap between probes once they start.
+  interval_seconds: 10
+  # -- Unanswered probes before the connection is dropped.
+  count: 3
+
 pooling:
   # -- Deploy the pooling config manager.
   enabled: false
