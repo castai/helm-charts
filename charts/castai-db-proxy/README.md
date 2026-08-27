@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.14.1](https://img.shields.io/badge/Version-0.14.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.15.0](https://img.shields.io/badge/Version-0.15.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -26,6 +26,10 @@ CAST AI database proxy cache deployment.
 | image.pullPolicy | string | `"IfNotPresent"` |  |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-proxy"` |  |
 | image.tag | string | `""` | Overrides the image tag. Defaults to Chart.appVersion. |
+| keepalive | object | `{"count":3,"idle_seconds":60,"interval_seconds":10}` | TCP keepalive for client and database connections. Probing is the only way to tell a connection whose far end vanished *without closing* (an evicted pod, a lost node, a killed database instance etc.) from one that is merely idle. Without it the proxy would wait on a read that will never complete, holding the connection and the database session behind it until the pod restarts. |
+| keepalive.count | int | `3` | Unanswered probes before the connection is dropped. |
+| keepalive.idle_seconds | int | `60` | How long a connection may sit idle before the first probe. |
+| keepalive.interval_seconds | int | `10` | Gap between probes once they start. |
 | logLevel | string | `"info"` | Application log level. Supports "trace", "debug", "info", "warn", "error" |
 | nodeSelector | object | `{}` | Pod node selector rules. |
 | operationalMetricsFlushIntervalSeconds | int | `15` | Interval in seconds to flush operational metrics. Must be greater than 0. |

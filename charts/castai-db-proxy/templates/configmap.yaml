@@ -53,6 +53,11 @@ data:
     grace_period_seconds = {{ .Values.connection_draining.grace_period_seconds }}
     graceful_shutdown_timeout_seconds = {{ .Values.connection_draining.graceful_shutdown_timeout_seconds }}
 
+    [keepalive]
+    idle_secs = {{ .Values.keepalive.idle_seconds }}
+    interval_secs = {{ .Values.keepalive.interval_seconds }}
+    count = {{ .Values.keepalive.count }}
+
     [tls]
     cert = "/etc/tls/tls.crt"
     key = "/etc/tls/tls.key"
