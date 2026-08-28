@@ -206,7 +206,10 @@ pooling:
   # -- Pooler metrics port.
   metricsPort: 9090
   # -- Configure the PgDog section to deploy PgDog as the pooler.
+  # Mutually exclusive with proxysql.
   pgdog:
+    # -- Enable PgDog as the pooler.
+    enabled: false
     #-- Log level for PgDog.
     logLevel: warn
     admin:
@@ -226,3 +229,53 @@ pooling:
     # pair added here will be rendered into pgdog.toml.
     # See https://docs.pgdog.dev/configuration/pgdog.toml/general/
     config: {}
+  # -- Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only).
+  # Mutually exclusive with pgdog. Requires protocol: "MySQL".
+  proxySql:
+    # -- Enable ProxySQL pooler sidecar (MySQL only)
+    enabled: false
+    admin:
+      user: admin
+      password: admin
+    image:
+      repository: docker.io/proxysql/proxysql
+      pullPolicy: IfNotPresent
+      tag: ""
+    resources:
+      cpu: "500m"
+      memoryRequest: "256Mi"
+      memoryLimit: "256Mi"
+    # -- Single ProxySQL upstream DB user (plain string). Mutually exclusive with users/usersSecretRef.
+    user: ""
+    # -- Single ProxySQL upstream DB password (plain string). Mutually exclusive with users/usersSecretRef.
+    password: ""
+    # -- Multiple ProxySQL upstream DB users (inline list). Mutually exclusive with user/usersSecretRef.
+    # Example: [{username: "u1", password: "p1"}, {username: "u2", password: "p2"}]
+    users: []
+    # -- Reference to existing secret containing a users.toml key with TOML [[users]] entries.
+    # Mutually exclusive with user/users.
+    usersSecretRef: ""
+    config:
+      # -- Number of ProxySQL threads
+      threads: 4
+      # -- Maximum client connections ProxySQL accepts
+      max_connections: 2048
+      # -- Maximum connections per backend server
+      max_backend_connections: 100
+      # -- Percentage of free connections to keep in pool
+      free_connections_pct: 5
+      # -- Enable connection multiplexing
+      multiplexing: true
+      # -- Backend connection timeout in milliseconds
+      connect_timeout_server: 5000
+      # -- Default query timeout in milliseconds
+      default_query_timeout: 36000000
+      # -- Delay multiplexing for N queries after auto-increment INSERT
+      auto_increment_delay_multiplex: 5
+      # -- Stacksize for ProxySQL threads
+      stacksize: 1048576
+      # -- Enable have_compress
+      have_compress: true
+    # -- ProxySQL image configuration (separate from pooling.configManager image).
+    # The db-pooling image is reused for the proxysql-users-init init container.
+
