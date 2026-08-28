@@ -66,6 +66,12 @@ spec:
                           - FreezeTime
                           - DumpTime
                           type: string
+                        pod_replacement_policy:
+                          enum:
+                          - SameName
+                          - EvictFirst
+                          - KeepSource
+                          type: string
                         requested_freeze_time:
                           type: string
                         with_tcp:
@@ -104,6 +110,7 @@ spec:
                       - Running
                       - Ready
                       - PodCreated
+                      - WaitingForCapacity
                       - Failed
                       - Completed
                       type: string
