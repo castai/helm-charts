@@ -242,9 +242,15 @@ pooling:
       cpu: "500m"
       memoryRequest: "256Mi"
       memoryLimit: "256Mi"
-    # -- Name of an existing Secret containing upstream DB users. Required when
-    # proxySql is enabled. The secret must contain a key named by usersSecretKey
-    # (default: users) with one "username:password" entry per line.
+    # -- Inline list of upstream DB users (raw username/password). Mutually
+    # exclusive with usersSecretRef. When set, a Secret is generated from these
+    # entries in username:password line format.
+    # Example: [{username: "u1", password: "p1"}, {username: "u2", password: "p2"}]
+    users: []
+    # -- Name of an existing Secret containing upstream DB users. The secret must
+    # contain a key named by usersSecretKey (default: users) with one
+    # "username:password" entry per line. Mutually exclusive with users.
+    # One of users or usersSecretRef must be provided when proxySql is enabled.
     usersSecretRef: ""
     # -- Key in the users Secret holding the username:password lines.
     usersSecretKey: users

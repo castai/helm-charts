@@ -3,7 +3,13 @@
 {{- $proxySqlEnabled := and .Values.pooling.proxySql .Values.pooling.proxySql.enabled -}}
 {{- $usersSecretRef := "" -}}
 {{- if $proxySqlEnabled -}}
-{{- $usersSecretRef = required "pooling.proxySql.usersSecretRef must be provided when ProxySQL is enabled" .Values.pooling.proxySql.usersSecretRef -}}
+{{- if .Values.pooling.proxySql.usersSecretRef -}}
+{{- $usersSecretRef = .Values.pooling.proxySql.usersSecretRef -}}
+{{- else if .Values.pooling.proxySql.users -}}
+{{- $usersSecretRef = printf "%s-proxysql-users" (include "castai-db-proxy.name" .) -}}
+{{- else -}}
+{{- $usersSecretRef = required "pooling.proxySql.users or usersSecretRef must be provided when ProxySQL is enabled" "" -}}
+{{- end -}}
 {{- end -}}
 apiVersion: apps/v1
 kind: Deployment
@@ -29,6 +35,7 @@ spec:
         {{- end }}
         {{- if $proxySqlEnabled }}
         checksum/proxysql-config: {{ include (print $.Template.BasePath "/proxysql-config.yaml") . | sha256sum }}
+        checksum/proxysql-users: {{ include (print $.Template.BasePath "/proxysql-users-secret.yaml") . | sha256sum }}
         {{- end }}
       labels:
         {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 8 }}
@@ -134,7 +141,7 @@ spec:
                   user="${line%%:*}"
                   pass="${line#*:}"
                   [ "$first" -eq 1 ] && first=0 || echo ","
-                  printf '  { username="%s" , password="%s" , default_hostgroup=%s , active=1 }' "$user" "$pass", "$hostgroup"
+                  printf '  { username="%s" , password="%s" , default_hostgroup=%s , active=1 }' "$user" "$pass" "$hostgroup"
 
                   hostgroup=$((hostgroup + 1))
 

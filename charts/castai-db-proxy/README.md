@@ -53,7 +53,7 @@ CAST AI database proxy cache deployment.
 | pooling.pgdog.config | object | `{}` | PgDog [general] config overrides. Merged on top of template defaults (health checks, timeouts, passthrough_auth, log settings). Any key-value pair added here will be rendered into pgdog.toml. See https://docs.pgdog.dev/configuration/pgdog.toml/general/ |
 | pooling.pgdog.enabled | bool | `false` | Enable PgDog as the pooler. |
 | pooling.port | int | `5432` | Pooler listen port. Proxy connects to the pooler on this port. |
-| pooling.proxySql | object | `{"config":{"auto_increment_delay_multiplex":5,"connect_timeout_server":5000,"default_query_timeout":36000000,"free_connections_pct":5,"have_compress":true,"max_backend_connections":100,"max_connections":2048,"multiplexing":true,"stacksize":1048576,"threads":4},"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"docker.io/proxysql/proxysql","tag":""},"resources":{"cpu":"500m","memoryLimit":"256Mi","memoryRequest":"256Mi"},"usersSecretKey":"users","usersSecretRef":""}` | Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only). Mutually exclusive with pgdog. Requires protocol: "MySQL". |
+| pooling.proxySql | object | `{"config":{"auto_increment_delay_multiplex":5,"connect_timeout_server":5000,"default_query_timeout":36000000,"free_connections_pct":5,"have_compress":true,"max_backend_connections":100,"max_connections":2048,"multiplexing":true,"stacksize":1048576,"threads":4},"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"docker.io/proxysql/proxysql","tag":""},"resources":{"cpu":"500m","memoryLimit":"256Mi","memoryRequest":"256Mi"},"users":[],"usersSecretKey":"users","usersSecretRef":""}` | Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only). Mutually exclusive with pgdog. Requires protocol: "MySQL". |
 | pooling.proxySql.config.auto_increment_delay_multiplex | int | `5` | Delay multiplexing for N queries after auto-increment INSERT |
 | pooling.proxySql.config.connect_timeout_server | int | `5000` | Backend connection timeout in milliseconds |
 | pooling.proxySql.config.default_query_timeout | int | `36000000` | Default query timeout in milliseconds |
@@ -65,8 +65,9 @@ CAST AI database proxy cache deployment.
 | pooling.proxySql.config.stacksize | int | `1048576` | Stacksize for ProxySQL threads |
 | pooling.proxySql.config.threads | int | `4` | Number of ProxySQL threads |
 | pooling.proxySql.enabled | bool | `false` | Enable ProxySQL pooler sidecar (MySQL only) |
+| pooling.proxySql.users | list | `[]` | Inline list of upstream DB users (raw username/password). Mutually exclusive with usersSecretRef. When set, a Secret is generated from these entries in username:password line format. Example: [{username: "u1", password: "p1"}, {username: "u2", password: "p2"}] |
 | pooling.proxySql.usersSecretKey | string | `"users"` | Key in the users Secret holding the username:password lines. |
-| pooling.proxySql.usersSecretRef | string | `""` | Name of an existing Secret containing upstream DB users. Required when proxySql is enabled. The secret must contain a key named by usersSecretKey (default: users) with one "username:password" entry per line. |
+| pooling.proxySql.usersSecretRef | string | `""` | Name of an existing Secret containing upstream DB users. The secret must contain a key named by usersSecretKey (default: users) with one "username:password" entry per line. Mutually exclusive with users. One of users or usersSecretRef must be provided when proxySql is enabled. |
 | pooling.replicas | int | `2` | Number of pooler replicas. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
 | ports.metrics | int | `9090` | Prometheus metrics port. |
