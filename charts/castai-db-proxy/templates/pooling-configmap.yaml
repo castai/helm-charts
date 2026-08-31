@@ -30,8 +30,6 @@ data:
 
     {{- if $proxySqlEnabled }}
     [pooler.proxy_sql]
-    config_file = "/etc/proxysql/proxysql.cnf"
-    users_file = "/etc/proxysql-users-secret/users.toml"
     metrics_url = "http://localhost:{{ .Values.pooling.metricsPort }}/metrics"
     {{- end }}
 

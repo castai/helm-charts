@@ -234,9 +234,6 @@ pooling:
   proxySql:
     # -- Enable ProxySQL pooler sidecar (MySQL only)
     enabled: false
-    admin:
-      user: admin
-      password: admin
     image:
       repository: docker.io/proxysql/proxysql
       pullPolicy: IfNotPresent
@@ -245,16 +242,12 @@ pooling:
       cpu: "500m"
       memoryRequest: "256Mi"
       memoryLimit: "256Mi"
-    # -- Single ProxySQL upstream DB user (plain string). Mutually exclusive with users/usersSecretRef.
-    user: ""
-    # -- Single ProxySQL upstream DB password (plain string). Mutually exclusive with users/usersSecretRef.
-    password: ""
-    # -- Multiple ProxySQL upstream DB users (inline list). Mutually exclusive with user/usersSecretRef.
-    # Example: [{username: "u1", password: "p1"}, {username: "u2", password: "p2"}]
-    users: []
-    # -- Reference to existing secret containing a users.toml key with TOML [[users]] entries.
-    # Mutually exclusive with user/users.
+    # -- Name of an existing Secret containing upstream DB users. Required when
+    # proxySql is enabled. The secret must contain a key named by usersSecretKey
+    # (default: users) with one "username:password" entry per line.
     usersSecretRef: ""
+    # -- Key in the users Secret holding the username:password lines.
+    usersSecretKey: users
     config:
       # -- Number of ProxySQL threads
       threads: 4

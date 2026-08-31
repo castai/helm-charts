@@ -1,6 +1,10 @@
 {{- if .Values.pooling.enabled }}
 {{- $pgdogEnabled := and .Values.pooling.pgdog .Values.pooling.pgdog.enabled -}}
 {{- $proxySqlEnabled := and .Values.pooling.proxySql .Values.pooling.proxySql.enabled -}}
+{{- $usersSecretRef := "" -}}
+{{- if $proxySqlEnabled -}}
+{{- $usersSecretRef = required "pooling.proxySql.usersSecretRef must be provided when ProxySQL is enabled" .Values.pooling.proxySql.usersSecretRef -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -25,7 +29,6 @@ spec:
         {{- end }}
         {{- if $proxySqlEnabled }}
         checksum/proxysql-config: {{ include (print $.Template.BasePath "/proxysql-config.yaml") . | sha256sum }}
-        checksum/proxysql-users: {{ include (print $.Template.BasePath "/proxysql-users-secret.yaml") . | sha256sum }}
         {{- end }}
       labels:
         {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 8 }}
@@ -58,7 +61,7 @@ spec:
           emptyDir: {}
         - name: proxysql-users-secret-volume
           secret:
-            secretName: {{ ternary .Values.pooling.proxySql.usersSecretRef (printf "%s-proxysql-users" (include "castai-db-proxy.name" .)) (ne .Values.pooling.proxySql.usersSecretRef "") }}
+            secretName: {{ $usersSecretRef }}
         {{- end }}
       {{- if or $pgdogEnabled $proxySqlEnabled }}
       initContainers:
@@ -108,27 +111,44 @@ spec:
             runAsNonRoot: true
             runAsUser: 65532
         - name: proxysql-users-init
-          image: "{{ .Values.pooling.configManager.image.repository }}:{{ include "castai-db-proxy.poolingConfigManagerImage" . }}"
-          imagePullPolicy: {{ .Values.pooling.configManager.image.pullPolicy }}
-          args:
-            - --init-proxysql-users
-            - --config
-            - /etc/roxy-pooling/config.toml
-          env:
-            - name: NODE_LABEL
-              valueFrom:
-                fieldRef:
-                  fieldPath: metadata.name
+          image: "{{ .Values.pooling.proxySql.image.repository }}:{{ include "castai-db-proxy.proxySqlImage" . }}"
+          imagePullPolicy: {{ .Values.pooling.proxySql.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              USERS_FILE="/etc/proxysql-users-secret/{{ .Values.pooling.proxySql.usersSecretKey }}"
+              CNF_FILE="/etc/proxysql/proxysql.cnf"
+              [ -f "$USERS_FILE" ] || { echo "users file not found: $USERS_FILE" >&2; exit 1; }
+              {
+                echo ""
+                echo "mysql_users="
+                echo "("
+                first=1
+                hostgroup=0
+
+                while IFS= read -r line || [ -n "$line" ]; do
+                  case "$line" in ''|\#*) continue ;; esac
+                  case "$line" in *:*) ;; *) echo "invalid line (expected username:password): $line" >&2; exit 1 ;; esac
+                  user="${line%%:*}"
+                  pass="${line#*:}"
+                  [ "$first" -eq 1 ] && first=0 || echo ","
+                  printf '  { username="%s" , password="%s" , default_hostgroup=%s , active=1 }' "$user" "$pass", "$hostgroup"
+
+                  hostgroup=$((hostgroup + 1))
+
+                done < "$USERS_FILE"
+                echo ""
+                echo ")"
+              } >> "$CNF_FILE"
           volumeMounts:
-            - name: pooling-config
-              mountPath: /etc/roxy-pooling
-              readOnly: true
-            - name: proxysql-users-secret-volume
-              mountPath: /etc/proxysql-users-secret
-              readOnly: true
             - name: proxysql-config-output
               mountPath: /etc/proxysql
               readOnly: false
+            - name: proxysql-users-secret-volume
+              mountPath: /etc/proxysql-users-secret
+              readOnly: true
           securityContext:
             capabilities:
               drop:
