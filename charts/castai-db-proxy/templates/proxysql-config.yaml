@@ -28,7 +28,7 @@ data:
 
     admin_variables=
     {
-        admin_credentials="{{ .Values.pooling.proxySql.admin.user }}:{{ .Values.pooling.proxySql.admin.password }}"
+        admin_credentials="admin:admin"
         mysql_ifaces="127.0.0.1:6032"
         restapi_enabled=true
         restapi_port={{ .Values.pooling.metricsPort }}
