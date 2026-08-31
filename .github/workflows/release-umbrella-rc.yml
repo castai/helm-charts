@@ -76,8 +76,8 @@ jobs:
           TRACKED=(
             # Temporarily disabled and will enable when unified umbrella up to date
             # castai-agent
-            # castai-cluster-controller
-            # castai-spot-handler
+            castai-cluster-controller
+            castai-spot-handler
             # castai-kvisor
             # castai-evictor
             # castai-pod-pinner
@@ -86,7 +86,7 @@ jobs:
             castai-workload-autoscaler-exporter
             castai-kentroller
             castai-chart-upgrader
-            # castai-live
+            castai-live
           )
 
           for name in "${TRACKED[@]}"; do
