@@ -239,9 +239,9 @@ pooling:
       pullPolicy: IfNotPresent
       tag: ""
     resources:
-      cpu: "500m"
-      memoryRequest: "256Mi"
-      memoryLimit: "256Mi"
+      cpu: "1"
+      memoryRequest: "1Gi"
+      memoryLimit: "1Gi"
     # -- Inline list of upstream DB users (raw username/password). Mutually
     # exclusive with usersSecretRef. When set, a Secret is generated from these
     # entries in username:password line format.
