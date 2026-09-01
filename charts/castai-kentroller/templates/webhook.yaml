@@ -24,9 +24,6 @@ webhooks:
         operations: ["CREATE"]
         resources: ["pods"]
         scope: Namespaced
-    namespaceSelector:
-      matchLabels:
-        rebalancing.cast.ai/active: "true"
     failurePolicy: Ignore
     sideEffects: None
     timeoutSeconds: 3

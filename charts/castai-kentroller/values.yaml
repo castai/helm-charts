@@ -100,12 +100,6 @@ castai:
     # penalties (PodAffinity, TopologySpread, VolumeZone) instead of pure cheapest-fit.
     # Hot-reloadable via kubectl-edit on the dynamic config ConfigMap. Default: true.
     preferenceWeightedPacking: true
-    # castai.rebalance.namespaceLabeling -- Enable applying the rebalancing.cast.ai/active
-    # label to namespaces during rebalancing. The label drives the TSC mutating webhook, but
-    # it also causes Cilium to recompute security identities for every pod in those
-    # namespaces. Disable this if you do not use hard hostname/zone TopologySpreadConstraints
-    # and want to avoid transient identity churn. Default: true.
-    namespaceLabeling: true
   # castai.spotInterruptionPrediction -- Enable CAST AI Spot prediction feature
   spotInterruptionPrediction:
     enabled: true

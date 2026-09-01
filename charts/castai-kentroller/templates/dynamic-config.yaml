@@ -17,9 +17,6 @@ data:
       {{- if hasKey .Values.castai.rebalance "preferenceWeightedPacking" }}
       preferenceWeightedPackingEnabled: {{ .Values.castai.rebalance.preferenceWeightedPacking }}
       {{- end }}
-      {{- if hasKey .Values.castai.rebalance "namespaceLabeling" }}
-      namespaceLabelingEnabled: {{ .Values.castai.rebalance.namespaceLabeling }}
-      {{- end }}
     clm:
       enabled: {{ .Values.castai.clm.enabled | default false }}
     {{- if hasKey .Values.castai "commitmentBudgets" }}
