@@ -75,12 +75,12 @@ jobs:
           # subchart deps (kent / autoscaler-anywhere / autoscaler-openshift).
           TRACKED=(
             # Temporarily disabled and will enable when unified umbrella up to date
-            # castai-agent
+            # castai-kvisor
+            castai-agent
             castai-cluster-controller
             castai-spot-handler
-            # castai-kvisor
-            # castai-evictor
-            # castai-pod-pinner
+            castai-evictor
+            castai-pod-pinner
             castai-pod-mutator
             castai-workload-autoscaler
             castai-workload-autoscaler-exporter
