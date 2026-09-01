@@ -103,6 +103,16 @@ spec:
             - name: IN_PLACE_RESIZE_DEFERRED_ENABLED
               value: {{ quote .Values.inPlaceResizeDeferredEnabled }}
             {{- end}}
+            {{- if hasKey .Values "expectations" }}
+            {{- if hasKey .Values.expectations "timeout" }}
+            - name: EXPECTATION_TIMEOUT
+              value: {{ quote .Values.expectations.timeout }}
+            {{- end }}
+            {{- if hasKey .Values.expectations "enabled" }}
+            - name: EXPECTATIONS_ENABLED
+              value: {{ quote .Values.expectations.enabled }}
+            {{- end }}
+            {{- end }}
             {{- if hasKey .Values "workloadWhitelistingEnabled" }}
             - name: SAFEGUARD_WORKLOAD_WHITELISTING_ENABLED
               value: {{ quote .Values.workloadWhitelistingEnabled }}

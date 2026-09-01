@@ -236,6 +236,12 @@ inPlaceResizeEnabled: true
 # Requires 'inPlaceResizeEnabled' to be set to true.
 inPlaceResizeDeferredEnabled: true
 
+# expectations -- Pod expectations prevent over-eviction/detach/resize by blocking duplicate
+# actions until the cache catches up to previous writes.
+expectations:
+  enabled: true
+  timeout: 5m
+
 # workloadWhitelistingEnabled -- Enable whitelisting mode for workload autoscaler. When set to true, only workloads explicitly labeled as whitelisted will be scaled.
 workloadWhitelistingEnabled: false
 
