@@ -179,6 +179,8 @@ spec:
             - name: "DCGM_EXPORTER_KUBERNETES_GPU_ID_TYPE"
               value: "device-name"
             {{- end }}
+          resources:
+            {{- toYaml .Values.dcgmExporter.resources | nindent 12 }}
           volumeMounts:
             - name: "pod-gpu-resources"
               readOnly: true
