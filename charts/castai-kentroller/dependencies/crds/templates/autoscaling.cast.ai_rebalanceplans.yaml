@@ -79,6 +79,13 @@ spec:
                         If not specified, no drain timeout is set (node drains indefinitely until complete).
                         Format: duration string (e.g., "5m", "10m", "30m")
                       type: string
+                    ignoreBlockingPDB:
+                      description: |-
+                        IgnoreBlockingPDB enables PDB-targeted force-deletion of pods blocked by
+                        PodDisruptionBudgets with 0 disruptions allowed. When set without AggressiveEviction,
+                        a deadline annotation is placed on the NodeClaim; after the deadline, only PDB-blocked
+                        pods are force-deleted (not all pods on the node).
+                      type: boolean
                     ignoreZeroNodePoolDisruptionBudgets:
                       description: |-
                         IgnoreZeroNodePoolDisruptionBudgets overrides NodePool disruption budgets that allow 0
