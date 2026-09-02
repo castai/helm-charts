@@ -49,9 +49,25 @@ CAST AI database proxy cache deployment.
 | pooling.databases | list | `["postgres"]` | Pre-configured database names. |
 | pooling.enabled | bool | `false` | Deploy the pooling config manager. |
 | pooling.metricsPort | int | `9090` | Pooler metrics port. |
-| pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/pgdogdev/pgdog","tag":""},"logLevel":"warn","resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. |
+| pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/pgdogdev/pgdog","tag":""},"logLevel":"warn","resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. Mutually exclusive with proxysql. |
 | pooling.pgdog.config | object | `{}` | PgDog [general] config overrides. Merged on top of template defaults (health checks, timeouts, passthrough_auth, log settings). Any key-value pair added here will be rendered into pgdog.toml. See https://docs.pgdog.dev/configuration/pgdog.toml/general/ |
+| pooling.pgdog.enabled | bool | `false` | Enable PgDog as the pooler. |
 | pooling.port | int | `5432` | Pooler listen port. Proxy connects to the pooler on this port. |
+| pooling.proxySql | object | `{"config":{"auto_increment_delay_multiplex":5,"connect_timeout_server":5000,"default_query_timeout":36000000,"free_connections_pct":5,"have_compress":true,"max_backend_connections":100,"max_connections":2048,"multiplexing":true,"stacksize":1048576,"threads":4},"enabled":false,"image":{"pullPolicy":"IfNotPresent","repository":"docker.io/proxysql/proxysql","tag":""},"resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"},"users":[],"usersSecretKey":"users","usersSecretRef":""}` | Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only). Mutually exclusive with pgdog. Requires protocol: "MySQL". |
+| pooling.proxySql.config.auto_increment_delay_multiplex | int | `5` | Delay multiplexing for N queries after auto-increment INSERT |
+| pooling.proxySql.config.connect_timeout_server | int | `5000` | Backend connection timeout in milliseconds |
+| pooling.proxySql.config.default_query_timeout | int | `36000000` | Default query timeout in milliseconds |
+| pooling.proxySql.config.free_connections_pct | int | `5` | Percentage of free connections to keep in pool |
+| pooling.proxySql.config.have_compress | bool | `true` | Enable have_compress |
+| pooling.proxySql.config.max_backend_connections | int | `100` | Maximum connections per backend server |
+| pooling.proxySql.config.max_connections | int | `2048` | Maximum client connections ProxySQL accepts |
+| pooling.proxySql.config.multiplexing | bool | `true` | Enable connection multiplexing |
+| pooling.proxySql.config.stacksize | int | `1048576` | Stacksize for ProxySQL threads |
+| pooling.proxySql.config.threads | int | `4` | Number of ProxySQL threads |
+| pooling.proxySql.enabled | bool | `false` | Enable ProxySQL pooler sidecar (MySQL only) |
+| pooling.proxySql.users | list | `[]` | Inline list of upstream DB users (raw username/password). Mutually exclusive with usersSecretRef. When set, a Secret is generated from these entries in username:password line format. Example: [{username: "u1", password: "p1"}, {username: "u2", password: "p2"}] |
+| pooling.proxySql.usersSecretKey | string | `"users"` | Key in the users Secret holding the username:password lines. |
+| pooling.proxySql.usersSecretRef | string | `""` | Name of an existing Secret containing upstream DB users. The secret must contain a key named by usersSecretKey (default: users) with one "username:password" entry per line. Mutually exclusive with users. One of users or usersSecretRef must be provided when proxySql is enabled. |
 | pooling.replicas | int | `2` | Number of pooler replicas. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
 | ports.metrics | int | `9090` | Prometheus metrics port. |

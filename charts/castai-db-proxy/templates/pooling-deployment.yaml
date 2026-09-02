@@ -1,4 +1,16 @@
 {{- if .Values.pooling.enabled }}
+{{- $pgdogEnabled := and .Values.pooling.pgdog .Values.pooling.pgdog.enabled -}}
+{{- $proxySqlEnabled := and .Values.pooling.proxySql .Values.pooling.proxySql.enabled -}}
+{{- $usersSecretRef := "" -}}
+{{- if $proxySqlEnabled -}}
+{{- if .Values.pooling.proxySql.usersSecretRef -}}
+{{- $usersSecretRef = .Values.pooling.proxySql.usersSecretRef -}}
+{{- else if .Values.pooling.proxySql.users -}}
+{{- $usersSecretRef = printf "%s-proxysql-users" (include "castai-db-proxy.name" .) -}}
+{{- else -}}
+{{- $usersSecretRef = required "pooling.proxySql.users or usersSecretRef must be provided when ProxySQL is enabled" "" -}}
+{{- end -}}
+{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,6 +30,13 @@ spec:
     metadata:
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/pooling-configmap.yaml") . | sha256sum }}
+        {{- if $pgdogEnabled }}
+        checksum/pgdog-config: {{ include (print $.Template.BasePath "/pgdog-config.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if $proxySqlEnabled }}
+        checksum/proxysql-config: {{ include (print $.Template.BasePath "/proxysql-config.yaml") . | sha256sum }}
+        checksum/proxysql-users: {{ include (print $.Template.BasePath "/proxysql-users-secret.yaml") . | sha256sum }}
+        {{- end }}
       labels:
         {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 8 }}
     spec:
@@ -32,17 +51,33 @@ spec:
         - name: pooling-config
           configMap:
             name: {{ include "castai-db-proxy.name" . }}-pooler-config
-        {{- if .Values.pooling.pgdog }}
+        {{- if $pgdogEnabled }}
+        - name: pgdog-config-template
+          configMap:
+            name: {{ include "castai-db-proxy.name" . }}-pgdog-config
         - name: pgdog-config
           emptyDir: {}
         {{- end }}
-      {{- if .Values.pooling.pgdog }}
+        {{- if $proxySqlEnabled }}
+        - name: proxysql-data
+          emptyDir: {}
+        - name: proxysql-config-template
+          configMap:
+            name: {{ include "castai-db-proxy.name" . }}-proxysql-config
+        - name: proxysql-config-output
+          emptyDir: {}
+        - name: proxysql-users-secret-volume
+          secret:
+            secretName: {{ $usersSecretRef }}
+        {{- end }}
+      {{- if or $pgdogEnabled $proxySqlEnabled }}
       initContainers:
+        {{- if $pgdogEnabled }}
         - name: pgdog-init
           image: "{{ .Values.pooling.pgdog.image.repository }}:{{ include "castai-db-proxy.pgdogImage" . }}"
           command: ["sh", "-c", "cp /etc/pgdog-static/pgdog.toml /etc/pgdog/pgdog.toml"]
           volumeMounts:
-            - name: pooling-config
+            - name: pgdog-config-template
               mountPath: /etc/pgdog-static
               readOnly: true
             - name: pgdog-config
@@ -54,6 +89,81 @@ spec:
             readOnlyRootFilesystem: true
             runAsNonRoot: true
             runAsUser: 65532
+        {{- end }}
+        {{- if $proxySqlEnabled }}
+        - name: proxysql-init
+          image: "{{ .Values.pooling.proxySql.image.repository }}:{{ include "castai-db-proxy.proxySqlImage" . }}"
+          imagePullPolicy: {{ .Values.pooling.proxySql.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              cp /etc/proxysql-template/proxysql.cnf /etc/proxysql/proxysql.cnf
+              chmod 755 /etc/proxysql/proxysql.cnf
+              openssl req -x509 -newkey rsa:2048 \
+                -keyout /etc/proxysql/proxysql.key \
+                -out /etc/proxysql/proxysql.crt \
+                -days 3650 -nodes -subj "/CN=proxysql"
+          volumeMounts:
+            - name: proxysql-config-template
+              mountPath: /etc/proxysql-template
+              readOnly: true
+            - name: proxysql-config-output
+              mountPath: /etc/proxysql
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+        - name: proxysql-users-init
+          image: "{{ .Values.pooling.proxySql.image.repository }}:{{ include "castai-db-proxy.proxySqlImage" . }}"
+          imagePullPolicy: {{ .Values.pooling.proxySql.image.pullPolicy }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              USERS_FILE="/etc/proxysql-users-secret/{{ .Values.pooling.proxySql.usersSecretKey }}"
+              CNF_FILE="/etc/proxysql/proxysql.cnf"
+              [ -f "$USERS_FILE" ] || { echo "users file not found: $USERS_FILE" >&2; exit 1; }
+              {
+                echo ""
+                echo "mysql_users="
+                echo "("
+                first=1
+                hostgroup=0
+
+                while IFS= read -r line || [ -n "$line" ]; do
+                  case "$line" in ''|\#*) continue ;; esac
+                  case "$line" in *:*) ;; *) echo "invalid line (expected username:password): $line" >&2; exit 1 ;; esac
+                  user="${line%%:*}"
+                  pass="${line#*:}"
+                  [ "$first" -eq 1 ] && first=0 || echo ","
+                  printf '  { username="%s" , password="%s" , default_hostgroup=%s , active=1 }' "$user" "$pass" "$hostgroup"
+
+                  hostgroup=$((hostgroup + 1))
+
+                done < "$USERS_FILE"
+                echo ""
+                echo ")"
+              } >> "$CNF_FILE"
+          volumeMounts:
+            - name: proxysql-config-output
+              mountPath: /etc/proxysql
+              readOnly: false
+            - name: proxysql-users-secret-volume
+              mountPath: /etc/proxysql-users-secret
+              readOnly: true
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            runAsUser: 65532
+        {{- end }}
       {{- end }}
       containers:
         - name: config-manager
@@ -99,9 +209,14 @@ spec:
             - name: pooling-config
               mountPath: /etc/roxy-pooling
               readOnly: true
-            {{- if .Values.pooling.pgdog }}
+            {{- if $pgdogEnabled }}
             - name: pgdog-config
               mountPath: /etc/pgdog
+            {{- end }}
+            {{- if $proxySqlEnabled }}
+            - name: proxysql-config-output
+              mountPath: /etc/proxysql
+              readOnly: true
             {{- end }}
           resources:
             requests:
@@ -109,7 +224,7 @@ spec:
               memory: {{ .Values.pooling.configManager.resources.memoryRequest }}
             limits:
               memory: {{ .Values.pooling.configManager.resources.memoryLimit }}
-        {{- if .Values.pooling.pgdog }}
+        {{- if $pgdogEnabled }}
         - name: pgdog
           image: "{{ .Values.pooling.pgdog.image.repository }}:{{ include "castai-db-proxy.pgdogImage" . }}"
           imagePullPolicy: {{ .Values.pooling.pgdog.image.pullPolicy }}
@@ -154,5 +269,61 @@ spec:
               memory: {{ .Values.pooling.pgdog.resources.memoryRequest }}
             limits:
               memory: {{ .Values.pooling.pgdog.resources.memoryLimit }}
+        {{- end }}
+        {{- if $proxySqlEnabled }}
+        - name: proxysql
+          image: "{{ .Values.pooling.proxySql.image.repository }}:{{ include "castai-db-proxy.proxySqlImage" . }}"
+          imagePullPolicy: {{ .Values.pooling.proxySql.image.pullPolicy }}
+          command:
+            - proxysql
+          args:
+            - --config
+            - /etc/proxysql/proxysql.cnf
+            - --datadir
+            - /var/lib/proxysql
+            - --reload
+            - --prometheus
+            - -f
+          securityContext:
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+            runAsUser: 999
+          ports:
+            - name: upstream
+              containerPort: {{ .Values.pooling.port }}
+              protocol: TCP
+            - name: admin
+              containerPort: 6032
+              protocol: TCP
+            - name: metrics
+              containerPort: {{ .Values.pooling.metricsPort }}
+              protocol: TCP
+          readinessProbe:
+            tcpSocket:
+              port: upstream
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            tcpSocket:
+              port: upstream
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          volumeMounts:
+            - name: proxysql-data
+              mountPath: /var/lib/proxysql
+            - name: proxysql-config-output
+              mountPath: /etc/proxysql
+              readOnly: true
+          resources:
+            requests:
+              cpu: {{ .Values.pooling.proxySql.resources.cpu }}
+              memory: {{ .Values.pooling.proxySql.resources.memoryRequest }}
+            limits:
+              memory: {{ .Values.pooling.proxySql.resources.memoryLimit }}
         {{- end }}
 {{- end }}
