@@ -32537,6 +32537,34 @@ entries:
     version: 0.1.0
   castai-dbo:
   - apiVersion: v2
+    created: "2026-09-02T10:59:24.183231023Z"
+    dependencies:
+    - alias: db-proxy
+      condition: db-proxy.enabled
+      name: castai-db-proxy
+      repository: https://castai.github.io/helm-charts
+      version: 0.16.1
+    - alias: db-agent
+      condition: db-agent.enabled
+      name: castai-db-agent
+      repository: https://castai.github.io/helm-charts
+      version: 0.23.0
+    - alias: db-optimizer
+      condition: db-optimizer.enabled
+      name: castai-db-optimizer
+      repository: https://castai.github.io/helm-charts
+      version: 0.80.2
+    description: Umbrella chart for CAST AI Database Optimizer components.
+    digest: 7a395d6855b7495f8da71e6cebf7aeb702fd5924c93ddf8d6029e3014d75de10
+    maintainers:
+    - name: CAST AI
+      url: https://cast.ai
+    name: castai-dbo
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-dbo-0.9.1/castai-dbo-0.9.1.tgz
+    version: 0.9.1
+  - apiVersion: v2
     created: "2026-09-02T08:11:02.461395619Z"
     dependencies:
     - alias: db-proxy
@@ -76031,4 +76059,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-02T10:45:12.360683973Z"
+generated: "2026-09-02T10:59:24.187221985Z"
