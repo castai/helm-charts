@@ -98,6 +98,11 @@ configure_component() {
       COMPONENT_PATH="services/spot-handler/charts/castai-spot-handler"
       TAG_PREFIX="spot-handler/v"
       ;;
+    castai-watchdog)
+      REPO_CLONE_DIR="kubecast"
+      COMPONENT_PATH="services/watchdog/charts/castai-watchdog"
+      TAG_PREFIX="watchdog/v"
+      ;;
     castai-workload-autoscaler)
       REPO_CLONE_DIR="kubecast"
       COMPONENT_PATH="services/workload-autoscaler/charts/castai-workload-autoscaler"
