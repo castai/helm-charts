@@ -35,6 +35,7 @@ $(addprefix docs-, $(CHART_NAMES)): docs-%: charts/%
 # Add documentation for the dynamic docs targets to the help.
 docs-<chart_name>: ## Generate helm docs for a specific chart, e.g., 'make docs-castai-agent'
 
+.PHONY: gen-dbo gen-db-proxy
 gen-dbo:
 	helm dependency update charts/castai-dbo
 	$(MAKE) docs-castai-dbo
