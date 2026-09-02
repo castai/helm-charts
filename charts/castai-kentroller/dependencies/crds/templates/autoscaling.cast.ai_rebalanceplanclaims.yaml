@@ -167,6 +167,15 @@ spec:
                 maximum: 100
                 minimum: 0
                 type: integer
+              mode:
+                description: |-
+                  Mode controls the rebalancing algorithm. When set to "CRB", CRB binary search
+                  is used. When set to "AgeSort", age-based node selection (oldest first) runs
+                  directly without CRB binary search. When omitted, defaults to AgeSort.
+                enum:
+                - CRB
+                - AgeSort
+                type: string
               nodeConstraints:
                 description: |-
                   NodeConstraints defines constraints for node selection during rebalancing.
