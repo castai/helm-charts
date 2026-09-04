@@ -53,11 +53,16 @@ spec:
                     options:
                       description: MigrationSpecOptions is used to set migration options.
                       properties:
+                        deadline:
+                          format: date-time
+                          type: string
                         dirty_pages_threshold:
                           format: int64
                           type: integer
                         fail_on_inbound_istio_connections:
                           type: boolean
+                        failure_desired_outcome:
+                          type: string
                         iterations:
                           format: int64
                           type: integer
