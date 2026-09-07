@@ -127,10 +127,8 @@ spec:
             - name: GPU_SCALING_ENABLED
               value: {{ quote .Values.gpu.enabled }}
             {{- end}}
-            {{- if .Values.workloadClassifier.enabled }}
             - name: WORKLOAD_CLASSIFIER_ENABLED
               value: {{ quote .Values.workloadClassifier.enabled }}
-            {{- end}}
             {{- if .Values.evictionRateLimitingEnabled}}
             - name: EVICTION_RATE_LIMITING_ENABLED
               value: {{ quote .Values.evictionRateLimitingEnabled }}
