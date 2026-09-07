@@ -61,10 +61,18 @@ data:
     [tls]
     cert = "/etc/tls/tls.crt"
     key = "/etc/tls/tls.key"
-    {{- if .Values.pooling.enabled }}
 
-    [pooling]
-    pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.port }}"
+    {{- if .Values.pooling.enabled }}
+    {{- if .Values.pooling.pgdog.enabled }}
+    [pooling.postgres]
+    pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.pgdog.port }}"
+    {{- end }}
+
+    {{- if .Values.pooling.proxySql.enabled }}
+    [pooling.mysql]
+    read_write_pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.proxySql.ports.readWrite }}"
+    readonly_pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.proxySql.ports.readOnly }}"
+    {{- end }}
 
     [pooling.config_manager]
     protocol = "http"

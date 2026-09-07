@@ -41,7 +41,7 @@ data:
         stacksize={{ $mergedConfig.stacksize | int64 }}
         have_compress={{ $mergedConfig.have_compress }}
         free_connections_pct={{ $mergedConfig.free_connections_pct | int64 }}
-        interfaces="0.0.0.0:{{ .Values.pooling.port }}"
+        interfaces="0.0.0.0:{{ .Values.pooling.proxySql.ports.readWrite }};0.0.0.0:{{ .Values.pooling.proxySql.ports.readOnly }}"
         default_query_timeout={{ $mergedConfig.default_query_timeout | int64 }}
         connect_timeout_server={{ $mergedConfig.connect_timeout_server | int64 }}
         auto_increment_delay_multiplex={{ $mergedConfig.auto_increment_delay_multiplex | int64 }}
@@ -70,6 +70,7 @@ data:
       {
         rule_id={{ add $index 1 }}
         active=1
+        proxy_port={{ ternary $.Values.pooling.proxySql.ports.readOnly $.Values.pooling.proxySql.ports.readWrite $endpoint.readonly }}
         destination_hostgroup={{ ternary 1 0 .readonly }}
         apply=1
         multiplex={{ if $mergedConfig.multiplexing }}2{{ else }}0{{ end }}

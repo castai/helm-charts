@@ -10,10 +10,25 @@ metadata:
     {{- include "castai-db-proxy.annotations" . | nindent 4 }}
 spec:
   ports:
+    {{- if .Values.pooling.pgdog.enabled }}
     - name: upstream
-      port: {{ .Values.pooling.port }}
+      port: {{ .Values.pooling.pgdog.port }}
       targetPort: upstream
       protocol: TCP
+    {{- end }}
+
+    {{- if .Values.pooling.proxySql.enabled }}
+    - name: upstream-rw
+      port: {{ .Values.pooling.proxySql.ports.readWrite }}
+      targetPort: upstream-rw
+      protocol: TCP
+
+    - name: upstream-ro
+      port: {{ .Values.pooling.proxySql.ports.readOnly }}
+      targetPort: upstream-ro
+      protocol: TCP
+    {{- end }}
+
     - name: metrics
       port: {{ .Values.pooling.metricsPort }}
       targetPort: metrics

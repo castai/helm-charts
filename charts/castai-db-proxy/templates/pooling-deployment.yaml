@@ -128,6 +128,14 @@ spec:
               USERS_FILE="/etc/proxysql-users-secret/{{ .Values.pooling.proxySql.usersSecretKey }}"
               CNF_FILE="/etc/proxysql/proxysql.cnf"
               [ -f "$USERS_FILE" ] || { echo "users file not found: $USERS_FILE" >&2; exit 1; }
+
+              config_escape() {
+                printf '%s' "$1" | sed \
+                  -e 's/\\/\\\\/g' \
+                  -e 's/"/\\"/g' \
+                  -e ':a;N;$!ba;s/\r\|\n//g'
+              }
+
               {
                 echo ""
                 echo "mysql_users="
@@ -138,10 +146,15 @@ spec:
                 while IFS= read -r line || [ -n "$line" ]; do
                   case "$line" in ''|\#*) continue ;; esac
                   case "$line" in *:*) ;; *) echo "invalid line (expected username:password): $line" >&2; exit 1 ;; esac
+
                   user="${line%%:*}"
                   pass="${line#*:}"
+
+                  escaped_user="$(config_escape "$user")"
+                  escaped_pass="$(config_escape "$pass")"
+
                   [ "$first" -eq 1 ] && first=0 || echo ","
-                  printf '  { username="%s" , password="%s" , default_hostgroup=%s , active=1 }' "$user" "$pass" "$hostgroup"
+                  printf '  { username="%s" , password="%s" , default_hostgroup=%s , active=1 }' "$escaped_user" "$escaped_pass" "$hostgroup"
 
                   hostgroup=$((hostgroup + 1))
 
@@ -244,7 +257,7 @@ spec:
             runAsUser: 65532
           ports:
             - name: upstream
-              containerPort: {{ .Values.pooling.port }}
+              containerPort: {{ .Values.pooling.pgdog.port }}
               protocol: TCP
             - name: metrics
               containerPort: {{ .Values.pooling.metricsPort }}
@@ -292,25 +305,28 @@ spec:
             runAsNonRoot: true
             runAsUser: 999
           ports:
-            - name: upstream
-              containerPort: {{ .Values.pooling.port }}
-              protocol: TCP
             - name: admin
               containerPort: 6032
+              protocol: TCP
+            - name: upstream-rw
+              containerPort: {{ .Values.pooling.proxySql.ports.readWrite }}
+              protocol: TCP
+            - name: upstream-ro
+              containerPort: {{ .Values.pooling.proxySql.ports.readOnly }}
               protocol: TCP
             - name: metrics
               containerPort: {{ .Values.pooling.metricsPort }}
               protocol: TCP
           readinessProbe:
             tcpSocket:
-              port: upstream
+              port: upstream-rw
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
           livenessProbe:
             tcpSocket:
-              port: upstream
+              port: upstream-rw
             initialDelaySeconds: 15
             periodSeconds: 20
           volumeMounts:

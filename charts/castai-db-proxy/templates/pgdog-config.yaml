@@ -27,7 +27,7 @@ metadata:
 data:
   pgdog.toml: |
     [general]
-    port = {{ .Values.pooling.port }}
+    port = {{ .Values.pooling.pgdog.port }}
     openmetrics_port = {{ .Values.pooling.metricsPort }}
     openmetrics_namespace = "pgdog_"
 

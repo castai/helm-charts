@@ -25,7 +25,7 @@ data:
     config_file = "/etc/pgdog/pgdog.toml"
 
     [pooler.pgdog.admin_database]
-    url = "postgresql://{{ .Values.pooling.pgdog.admin.user | urlquery }}:{{ .Values.pooling.pgdog.admin.password | urlquery }}@localhost:{{ .Values.pooling.port }}/{{ .Values.pooling.pgdog.admin.name | urlquery }}"
+    url = "postgresql://{{ .Values.pooling.pgdog.admin.user | urlquery }}:{{ .Values.pooling.pgdog.admin.password | urlquery }}@localhost:{{ .Values.pooling.pgdog.port }}/{{ .Values.pooling.pgdog.admin.name | urlquery }}"
     {{- end }}
 
     {{- if $proxySqlEnabled }}
