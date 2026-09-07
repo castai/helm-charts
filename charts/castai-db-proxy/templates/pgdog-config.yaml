@@ -1,0 +1,63 @@
+{{- if and .Values.pooling.enabled .Values.pooling.pgdog .Values.pooling.pgdog.enabled }}
+{{- $defaults := dict
+  "passthrough_auth" "enabled_plain"
+  "healthcheck_interval" 30000
+  "idle_healthcheck_interval" 30000
+  "idle_healthcheck_delay" 5000
+  "healthcheck_timeout" 5000
+  "rollback_timeout" 5000
+  "connect_timeout" 5000
+  "checkout_timeout" 10000
+  "shutdown_timeout" 60000
+  "log_connections" false
+  "log_disconnections" false
+-}}
+{{- $userConfig := .Values.pooling.pgdog.config | default dict -}}
+{{- $mergedConfig := merge (deepCopy $userConfig) $defaults -}}
+{{- $_ := unset $mergedConfig "prepared_statements_limit" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "castai-db-proxy.name" . }}-pgdog-config
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pooling
+  annotations:
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+data:
+  pgdog.toml: |
+    [general]
+    port = {{ .Values.pooling.port }}
+    openmetrics_port = {{ .Values.pooling.metricsPort }}
+    openmetrics_namespace = "pgdog_"
+
+    {{- range $key, $value := $mergedConfig }}
+    {{- if kindIs "string" $value }}
+    {{ $key | printf "%-25s" }} = {{ $value | quote }}
+    {{- else }}
+    {{ $key | printf "%-25s" }} = {{ $value }}
+    {{- end }}
+    {{- end }}
+    {{- with .Values.pooling.pgdog.config.prepared_statements_limit }}
+    {{ "prepared_statements_limit" | printf "%-25s" }} = {{ . }}
+    {{- end }}
+
+    [admin]
+    name = {{ .Values.pooling.pgdog.admin.name | quote }}
+    user = {{ .Values.pooling.pgdog.admin.user | quote }}
+    password = {{ .Values.pooling.pgdog.admin.password | quote }}
+
+    {{- $databases := .Values.pooling.databases | default (list "postgres") }}
+    {{- range $database := $databases }}
+    {{- range $.Values.endpoints }}
+
+    [[databases]]
+    name = {{ $database | quote }}
+    {{- $port := splitList ":" .address | last }}
+    {{- $host := trimSuffix (printf ":%s" $port) .address }}
+    host = {{ $host | quote }}
+    port = {{ $port }}
+    role = {{ ternary "replica" "primary" .readonly | quote }}
+    {{- end }}
+    {{- end }}
+{{- end }}

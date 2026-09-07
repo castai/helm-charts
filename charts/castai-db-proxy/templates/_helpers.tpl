@@ -74,6 +74,10 @@ app.kubernetes.io/component: pooling
 {{- default (include "castai-db-proxy.defaultPgdogVersion" .) .Values.pooling.pgdog.image.tag }}
 {{- end }}
 
+{{- define "castai-db-proxy.proxySqlImage" -}}
+{{- default (include "castai-db-proxy.defaultProxySqlVersion" .) .Values.pooling.proxySql.image.tag }}
+{{- end }}
+
 {{/*
 Worker threads for each proxy listener that serves traffic.
 
