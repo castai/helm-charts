@@ -74,14 +74,14 @@ dependencies:
       - full
   # ── workload-autoscaler + full ────────────────────────────────────────────────
   - name: castai-workload-autoscaler
-    version: "1.10.4"
+    version: "1.11.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
     tags:
       - workload-autoscaler
       - full
   - name: castai-workload-autoscaler-exporter
-    version: "1.10.4"
+    version: "1.11.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler-exporter.enabled
     tags:

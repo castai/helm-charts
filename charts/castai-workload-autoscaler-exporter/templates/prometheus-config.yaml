@@ -5,8 +5,8 @@
   {{- if hasKey .Values.prometheus.scrapeVLLM "workloadClassifier" }}{{ $vllmClassifier = .Values.prometheus.scrapeVLLM.workloadClassifier }}{{ end }}
   {{- if hasKey .Values.prometheus.scrapeVLLM "vllmImageMatch" }}{{ $vllmImageMatch = .Values.prometheus.scrapeVLLM.vllmImageMatch }}{{ end }}
 {{- end }}
-{{- if not (or .Values.prometheus.scrapeConfigs .Values.prometheus.scrape .Values.prometheus.scrapeJMXExporter $vllmClassifier $vllmImageMatch) }}
-  {{- required "prometheus is enabled but no scrape targets configured: set at least one of prometheus.scrape, prometheus.scrapeConfigs, prometheus.scrapeJMXExporter, prometheus.scrapeVLLM.workloadClassifier, or prometheus.scrapeVLLM.vllmImageMatch" nil }}
+{{- if not (or .Values.prometheus.scrapeConfigs .Values.prometheus.scrape .Values.prometheus.scrapeJMXExporter .Values.prometheus.scrapeJVMMetrics $vllmClassifier $vllmImageMatch) }}
+  {{- required "prometheus is enabled but no scrape targets configured: set at least one of prometheus.scrape, prometheus.scrapeConfigs, prometheus.scrapeJMXExporter, prometheus.scrapeJVMMetrics, prometheus.scrapeVLLM.workloadClassifier, or prometheus.scrapeVLLM.vllmImageMatch" nil }}
 {{- end }}
 apiVersion: v1
 kind: ConfigMap
@@ -99,6 +99,58 @@ data:
             action: keep
             regex: "jvm_.*|java_.*|jmx_scrape_.*"
       {{- end }}
+      {{- if .Values.prometheus.scrapeJVMMetrics }}
+      - job_name: "jvm-customer-metrics"
+        scrape_interval: 15s
+        scrape_timeout: 15s
+        kubernetes_sd_configs:
+          - role: pod
+        relabel_configs:
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_jvm_metrics_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_label_workloads_cast_ai_jmx_exporter_injected]
+            action: drop
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_phase]
+            action: keep
+            regex: "Running"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scrape]
+            action: keep
+            regex: "true"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_scheme]
+            action: replace
+            target_label: __scheme__
+            regex: "(https?)"
+          - source_labels: [__meta_kubernetes_pod_annotation_prometheus_io_path]
+            action: replace
+            target_label: __metrics_path__
+            regex: "(.+)"
+          - source_labels: [__meta_kubernetes_pod_ip, __meta_kubernetes_pod_annotation_prometheus_io_port]
+            separator: ":"
+            action: replace
+            target_label: __address__
+            regex: "(.+):(.+)"
+            replacement: "$1:$2"
+          - source_labels: [__meta_kubernetes_namespace]
+            action: replace
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            action: replace
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            action: replace
+            target_label: container
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            action: replace
+            target_label: node
+        metric_relabel_configs:
+          # Keep only JVM / Java metrics exposed by the workload's own JVM metrics endpoint.
+          - source_labels: [__name__]
+            action: keep
+            regex: "jvm_.*|java_.*|jmx_scrape_.*"
+      {{- end }}
+
 
       {{- $vllmModes := list }}
       {{- if $vllmClassifier }}
