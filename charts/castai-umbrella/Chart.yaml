@@ -35,3 +35,17 @@ dependencies:
   - name: autoscaler
     version: "*"
     repository: "file://charts/autoscaler"
+  # ── Read-only profile marker ──────────────────────────────────────────────────
+  # Enabled automatically when tags.readonly=true (same tag as the autoscaler
+  # sub-chart). Exports `global.castai.readOnly=true` to all sub-charts so that
+  # component charts supporting the signal (e.g. castai-spot-handler phase2
+  # permissions — node patch RBAC + PHASE2_PERMISSIONS env) disable write
+  # access in read-only mode.
+  - name: readonly-profile
+    version: "*"
+    repository: "file://charts/readonly-profile"
+    tags:
+      - readonly
+    import-values:
+      - child: exports.readonly
+        parent: global.castai
