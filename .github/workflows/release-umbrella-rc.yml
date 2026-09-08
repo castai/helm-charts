@@ -372,7 +372,7 @@ jobs:
 
       - name: Check template drift between component and umbrella
         id: drift
-        if: steps.changed.outputs.any == 'true'
+        if: steps.changed.outputs.any == 'true' && steps.parse.outputs.chart_name == 'castai-live'
         env:
           CHART_NAME: ${{ steps.parse.outputs.chart_name }}
           CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
