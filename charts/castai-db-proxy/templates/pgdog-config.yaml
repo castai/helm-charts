@@ -1,4 +1,4 @@
-{{- if and .Values.pooling.enabled .Values.pooling.pgdog .Values.pooling.pgdog.enabled }}
+{{- if and .Values.pooling.enabled .Values.pooling.pgdog (eq .Values.protocol "PostgreSQL") }}
 {{- $defaults := dict
   "passthrough_auth" "enabled_plain"
   "healthcheck_interval" 30000

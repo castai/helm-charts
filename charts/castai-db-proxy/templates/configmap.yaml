@@ -1,3 +1,5 @@
+{{- $proxySqlEnabled := and .Values.pooling.enabled (eq .Values.protocol "MySQL") -}}
+{{- $pgdogEnabled := and .Values.pooling.enabled (eq .Values.protocol "PostgreSQL") -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -63,12 +65,12 @@ data:
     key = "/etc/tls/tls.key"
 
     {{- if .Values.pooling.enabled }}
-    {{- if .Values.pooling.pgdog.enabled }}
+    {{- if $pgdogEnabled }}
     [pooling.postgres]
     pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.pgdog.port }}"
     {{- end }}
 
-    {{- if .Values.pooling.proxySql.enabled }}
+    {{- if $proxySqlEnabled}}
     [pooling.mysql]
     read_write_pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.proxySql.ports.readWrite }}"
     readonly_pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.proxySql.ports.readOnly }}"

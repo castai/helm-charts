@@ -206,8 +206,6 @@ pooling:
   # -- Configure the PgDog section to deploy PgDog as the pooler.
   # Mutually exclusive with proxysql.
   pgdog:
-    # -- Enable PgDog as the pooler.
-    enabled: false
     # -- Pooler listen port. Proxy connects to the pooler on this port.
     port: 5432
     #-- Log level for PgDog.
@@ -232,8 +230,6 @@ pooling:
   # -- Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only).
   # Mutually exclusive with pgdog. Requires protocol: "MySQL".
   proxySql:
-    # -- Enable ProxySQL pooler sidecar (MySQL only)
-    enabled: false
     ports:
       # -- Listening port for read-write connections.
       readWrite: 6401

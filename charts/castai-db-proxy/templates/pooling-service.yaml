@@ -1,4 +1,6 @@
 {{- if .Values.pooling.enabled }}
+{{- $proxySqlEnabled := and .Values.pooling.enabled (eq .Values.protocol "MySQL") -}}
+{{- $pgdogEnabled := and .Values.pooling.enabled (eq .Values.protocol "PostgreSQL") -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -10,14 +12,14 @@ metadata:
     {{- include "castai-db-proxy.annotations" . | nindent 4 }}
 spec:
   ports:
-    {{- if .Values.pooling.pgdog.enabled }}
+    {{- if $pgdogEnabled }}
     - name: upstream
       port: {{ .Values.pooling.pgdog.port }}
       targetPort: upstream
       protocol: TCP
     {{- end }}
 
-    {{- if .Values.pooling.proxySql.enabled }}
+    {{- if $proxySqlEnabled }}
     - name: upstream-rw
       port: {{ .Values.pooling.proxySql.ports.readWrite }}
       targetPort: upstream-rw

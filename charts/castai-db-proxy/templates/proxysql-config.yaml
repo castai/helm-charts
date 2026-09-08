@@ -1,4 +1,4 @@
-{{- if and .Values.pooling.enabled .Values.pooling.proxySql .Values.pooling.proxySql.enabled }}
+{{- if and .Values.pooling.enabled .Values.pooling.proxySql (eq .Values.protocol "MySQL") }}
 {{- $defaults := dict
   "threads" 4
   "max_connections" 2048

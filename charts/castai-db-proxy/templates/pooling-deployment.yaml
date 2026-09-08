@@ -1,6 +1,6 @@
 {{- if .Values.pooling.enabled }}
-{{- $pgdogEnabled := and .Values.pooling.pgdog .Values.pooling.pgdog.enabled -}}
-{{- $proxySqlEnabled := and .Values.pooling.proxySql .Values.pooling.proxySql.enabled -}}
+{{- $pgdogEnabled := and .Values.pooling.pgdog  (eq .Values.protocol "PostgreSQL") -}}
+{{- $proxySqlEnabled := and .Values.pooling.proxySql (eq .Values.protocol "MySQL") -}}
 {{- $usersSecretRef := "" -}}
 {{- if $proxySqlEnabled -}}
 {{- if .Values.pooling.proxySql.usersSecretRef -}}

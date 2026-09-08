@@ -1,8 +1,8 @@
 {{- if .Values.pooling.enabled }}
-{{- $pgdogEnabled := and .Values.pooling.pgdog .Values.pooling.pgdog.enabled -}}
-{{- $proxySqlEnabled := and .Values.pooling.proxySql .Values.pooling.proxySql.enabled -}}
+{{- $pgdogEnabled := and .Values.pooling.pgdog  (eq .Values.protocol "PostgreSQL") -}}
+{{- $proxySqlEnabled := and .Values.pooling.proxySql (eq .Values.protocol "MySQL") -}}
 {{- if and $pgdogEnabled $proxySqlEnabled }}
-{{- fail "pooling.pgdog.enabled and pooling.proxySql.enabled are mutually exclusive; enable only one" }}
+{{- fail "pooling.pgdog and pooling.proxySql are mutually exclusive; enable only one" }}
 {{- end }}
 {{- if and $proxySqlEnabled (ne .Values.protocol "MySQL") }}
 {{- fail "pooling.proxySql requires protocol: \"MySQL\"" }}
