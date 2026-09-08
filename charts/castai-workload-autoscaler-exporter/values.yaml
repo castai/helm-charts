@@ -277,6 +277,11 @@ prometheus:
   # instrumented by the JMX exporter webhook (label workloads.cast.ai/jmx-exporter-injected=true).
   # Enable alongside jmxExporter.enabled in the castai-workload-autoscaler chart.
   scrapeJMXExporter: true
+  # scrapeJVMMetrics -- When true, adds a Prometheus scrape job that targets pods
+  # labelled workloads.cast.ai/jvm-metrics-scrape=true and scrapes the endpoint
+  # declared by the pod's prometheus.io/* annotations. Pods that already carry
+  # workloads.cast.ai/jmx-exporter-injected=true are dropped to avoid double scraping.
+  scrapeJVMMetrics: true
   # scrapeVLLM controls Prometheus scrape jobs that collect vLLM metrics (vllm: prefix).
   # Two discovery modes are available and can be enabled independently or together:
   #
