@@ -10,6 +10,7 @@ Umbrella chart for CAST AI components.
 | file://charts/autoscaler-openshift | autoscaler-openshift | * |
 | file://charts/autoscaler | autoscaler | * |
 | file://charts/kent | kent | * |
+| file://charts/readonly-profile | readonly-profile | * |
 
 ## Usage
 

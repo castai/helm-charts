@@ -2,7 +2,7 @@ apiVersion: v2
 name: castai
 description: Umbrella chart for CAST AI components.
 type: application
-version: 0.43.210
+version: 0.43.211
 dependencies:
   # ── Legacy profile sub-charts ─────────────────────────────────────────────────
   - name: kent
@@ -35,3 +35,17 @@ dependencies:
   - name: autoscaler
     version: "*"
     repository: "file://charts/autoscaler"
+  # ── Read-only profile marker ──────────────────────────────────────────────────
+  # Enabled automatically when tags.readonly=true (same tag as the autoscaler
+  # sub-chart). Exports `global.castai.readOnly=true` to all sub-charts so that
+  # component charts supporting the signal (e.g. castai-spot-handler phase2
+  # permissions — node patch RBAC + PHASE2_PERMISSIONS env) disable write
+  # access in read-only mode.
+  - name: readonly-profile
+    version: "*"
+    repository: "file://charts/readonly-profile"
+    tags:
+      - readonly
+    import-values:
+      - child: exports
+        parent: global.castai

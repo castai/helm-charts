@@ -1,0 +1,8 @@
+# Values exported to the umbrella chart via import-values (see the umbrella's
+# Chart.yaml). This chart is only enabled when tags.readonly=true.
+#
+# The whole `exports` map lands in the umbrella's `global.castai`, so component
+# charts that support it (e.g. castai-spot-handler phase2 permissions) read
+# `global.castai.readOnly=true` and disable write access in read-only mode.
+exports:
+  readOnly: true
