@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.24.0](https://img.shields.io/badge/Version-0.24.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.25.0](https://img.shields.io/badge/Version-0.25.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -20,6 +20,7 @@ CAST AI DB agent deployment.
 | collectors.excludedDatabases | string | `""` | Comma-separated list of databases to exclude from database auto-discovery (optional) |
 | collectors.excludedSchemas | string | `""` | Comma-separated list of schemas to exclude from collection (optional) |
 | collectors.indexes.runsEvery | string | `"15m"` | Frequency in which existing indexes are collected |
+| collectors.instanceConfigs.runsEvery | string | `"15m"` | Frequency in which instance settings are collected |
 | collectors.metadata.runsEvery | string | `"15m"` | Frequency in which table metadata is collected |
 | collectors.queries.runsEvery | string | `"15m"` | Frequency in which query statistics are collected |
 | database.autoDiscoveryDatabase | string | `"postgres"` | Database name to use for connecting to database instance for auto-discovering logical databases. This is only required for Postgres |
