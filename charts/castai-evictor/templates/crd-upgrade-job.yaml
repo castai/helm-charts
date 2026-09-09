@@ -1,0 +1,216 @@
+{{- if .Values.crdUpgrade.enabled }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+rules:
+- apiGroups:
+  - apiextensions.k8s.io
+  resourceNames:
+  - evictorconfigs.autoscaling.cast.ai
+  resources:
+  - customresourcedefinitions
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+- apiGroups:
+  - autoscaling.cast.ai
+  resources:
+  - evictorconfigs
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+subjects:
+- kind: ServiceAccount
+  name: {{ include "evictor.fullname" . }}-crd-upgrade
+  namespace: {{ .Release.Namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "evictor.fullname" . }}-crds
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+data:
+  crds.yaml: |
+{{ .Files.Get "crd-files/evictorconfigs.autoscaling.cast.ai.yaml" | indent 4 }}
+  evictorconfig.yaml: |
+{{ include "evictor.evictorconfig" . | indent 4 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "evictor.fullname" . }}-crd-upgrade-{{ .Release.Revision }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "evictor.fullname" . }}-crd-upgrade
+    app.kubernetes.io/instance: {{ include "evictor.fullname" . }}-crd-upgrade
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    {{- include "evictor.annotations" . | nindent 4 }}
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      name: {{ include "evictor.fullname" . }}-crd-upgrade
+      labels:
+        app.kubernetes.io/name: {{ include "evictor.fullname" . }}-crd-upgrade
+        app.kubernetes.io/instance: {{ include "evictor.fullname" . }}-crd-upgrade
+        {{- with .Values.crdUpgrade.podLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      {{- with .Values.crdUpgrade.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "evictor.fullname" . }}-crd-upgrade
+      {{- if .Values.crdUpgrade.securityContext }}
+      {{- $isOpenShift := .Capabilities.APIVersions.Has "security.openshift.io/v1" }}
+      {{- $useRestrictedProfile := and $isOpenShift (.Values.openshift.scc.useRestrictedProfile | default false) }}
+      securityContext:
+        {{- if $useRestrictedProfile }}
+        runAsNonRoot: {{ (.Values.crdUpgrade | default dict) | dig "securityContext" "runAsNonRoot" true }}
+        {{- with .Values.crdUpgrade.securityContext.seccompProfile }}
+        seccompProfile:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- else }}
+        {{- toYaml .Values.crdUpgrade.securityContext | nindent 8 }}
+        {{- end }}
+      {{- end }}
+      {{- with .Values.crdUpgrade.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with include "evictor.tolerations" . }}
+      tolerations:
+        {{- . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+      - name: apply-crd
+        image: {{ .Values.crdUpgrade.image.repository }}:{{ .Values.crdUpgrade.image.tag }}{{ with .Values.crdUpgrade.image.digest }}@{{ . }}{{ end }}
+        imagePullPolicy: {{ .Values.crdUpgrade.image.pullPolicy }}
+        command:
+        - /bin/kubectl
+        args:
+        - apply
+        - --server-side
+        - --force-conflicts
+        - -f
+        - /crds/crds.yaml
+        volumeMounts:
+        - name: crds
+          mountPath: /crds
+          readOnly: true
+        {{- with .Values.crdUpgrade.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.crdUpgrade.containerSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      - name: wait-crd
+        image: {{ .Values.crdUpgrade.image.repository }}:{{ .Values.crdUpgrade.image.tag }}{{ with .Values.crdUpgrade.image.digest }}@{{ . }}{{ end }}
+        imagePullPolicy: {{ .Values.crdUpgrade.image.pullPolicy }}
+        command:
+        - /bin/kubectl
+        args:
+        - wait
+        - --for=condition=Established
+        - crd/evictorconfigs.autoscaling.cast.ai
+        - --timeout=60s
+        {{- with .Values.crdUpgrade.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.crdUpgrade.containerSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      containers:
+      - name: apply-cr
+        image: {{ .Values.crdUpgrade.image.repository }}:{{ .Values.crdUpgrade.image.tag }}{{ with .Values.crdUpgrade.image.digest }}@{{ . }}{{ end }}
+        imagePullPolicy: {{ .Values.crdUpgrade.image.pullPolicy }}
+        command:
+        - /bin/kubectl
+        args:
+        - apply
+        - --server-side
+        - --force-conflicts
+        - -f
+        - /crds/evictorconfig.yaml
+        volumeMounts:
+        - name: crds
+          mountPath: /crds
+          readOnly: true
+        {{- with .Values.crdUpgrade.resources }}
+        resources:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+        {{- with .Values.crdUpgrade.containerSecurityContext }}
+        securityContext:
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      volumes:
+      - name: crds
+        configMap:
+          name: {{ include "evictor.fullname" . }}-crds
+{{- end }}

@@ -4,7 +4,11 @@ metadata:
   name: {{ include "castai-kentroller.serviceAccountName" . }}
   labels:
     {{- include "castai-kentroller.labels" . | nindent 4 }}
-  {{- with .Values.serviceAccount.annotations }}
+  {{- $saAnnotations := .Values.serviceAccount.annotations }}
+  {{- if .Values.azure.workloadIdentityClientID }}
+  {{- $saAnnotations = merge (dict "azure.workload.identity/client-id" .Values.azure.workloadIdentityClientID) $saAnnotations }}
+  {{- end }}
+  {{- with $saAnnotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
