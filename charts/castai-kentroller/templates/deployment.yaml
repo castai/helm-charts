@@ -21,6 +21,9 @@ spec:
       {{- end }}
       labels:
         {{- include "castai-kentroller.labels" . | nindent 8 }}
+        {{- if .Values.azure.workloadIdentityClientID }}
+        azure.workload.identity/use: "true"
+        {{- end }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}

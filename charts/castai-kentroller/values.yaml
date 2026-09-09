@@ -28,6 +28,9 @@ provider: aws
 azure:
   # azure.subscriptionID -- Azure subscription ID used for Azure inventory lookups.
   subscriptionID: ""
+  # azure.workloadIdentityClientID -- Client ID of the Azure AD Workload Identity to federate.
+  # Wires the ServiceAccount annotation and pod label AKS's workload identity webhook requires.
+  workloadIdentityClientID: ""
 
 replicaCount: 2
 
