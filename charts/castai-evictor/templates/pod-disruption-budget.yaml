@@ -1,0 +1,22 @@
+{{ if and (gt (.Values.replicaCount | int) 1) (.Values.leaderElection.enabled) }}
+{{- if and (.Capabilities.APIVersions.Has "policy/v1") (semverCompare ">= 1.21-0" .Capabilities.KubeVersion.Version) -}}
+apiVersion: policy/v1
+{{- else -}}
+apiVersion: policy/v1beta1
+{{- end }}
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "evictor.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  annotations:
+    {{- include "evictor.annotations" . | nindent 4 }}
+  {{- end }}
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      {{- include "evictor.selectorLabels" . | nindent 6 }}
+{{- end }}

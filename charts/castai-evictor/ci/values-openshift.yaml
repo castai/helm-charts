@@ -1,0 +1,26 @@
+# OpenShift-specific values example for castai-evictor
+# Use this file to avoid SCC conflicts with OpenShift platform workloads
+
+test:
+  clusterID: "test"
+  apiKey: "test"
+  apiURL: "test"
+
+openshift:
+  scc:
+    enabled: true
+    priority: 1
+    useRestrictedProfile: true
+
+securityContext:
+  runAsNonRoot: true
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+clusterVPA:
+  enabled: true
