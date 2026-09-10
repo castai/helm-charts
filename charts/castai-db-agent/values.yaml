@@ -40,6 +40,9 @@ collectors:
   queries:
     # -- Frequency in which query statistics are collected
     runsEvery: 15m
+  instanceConfigs:
+    # -- Frequency in which instance settings are collected
+    runsEvery: 15m
   # -- Comma-separated list of schemas to exclude from collection (optional)
   excludedSchemas: ""
   # -- Comma-separated list of databases to exclude from database auto-discovery (optional)
