@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.16.3](https://img.shields.io/badge/Version-0.16.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.17.0](https://img.shields.io/badge/Version-0.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -49,9 +49,15 @@ CAST AI database proxy cache deployment.
 | pooling.databases | list | `["postgres"]` | Pre-configured database names. |
 | pooling.enabled | bool | `false` | Deploy the pooling config manager. |
 | pooling.metricsPort | int | `9090` | Pooler metrics port. |
-| pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/pgdogdev/pgdog","tag":""},"logLevel":"warn","resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. |
+| pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/pgdogdev/pgdog","tag":""},"logLevel":"warn","port":5432,"resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. Mutually exclusive with proxysql. |
 | pooling.pgdog.config | object | `{}` | PgDog [general] config overrides. Merged on top of template defaults (health checks, timeouts, passthrough_auth, log settings). Any key-value pair added here will be rendered into pgdog.toml. See https://docs.pgdog.dev/configuration/pgdog.toml/general/ |
-| pooling.port | int | `5432` | Pooler listen port. Proxy connects to the pooler on this port. |
+| pooling.pgdog.port | int | `5432` | Pooler listen port. Proxy connects to the pooler on this port. |
+| pooling.proxySql | object | `{"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"docker.io/proxysql/proxysql","tag":""},"ports":{"readOnly":6402,"readWrite":6401},"resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"},"users":[],"usersSecretKey":"users","usersSecretRef":""}` | Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only). Mutually exclusive with pgdog. Requires protocol: "MySQL". |
+| pooling.proxySql.ports.readOnly | int | `6402` | Listening port for read-only connections. |
+| pooling.proxySql.ports.readWrite | int | `6401` | Listening port for read-write connections. |
+| pooling.proxySql.users | list | `[]` | Inline list of upstream DB users (raw username/password). Mutually exclusive with usersSecretRef. When set, a Secret is generated from these entries in username:password line format. Example: [{username: "u1", password: "p1"}, {username: "u2", password: "p2"}] |
+| pooling.proxySql.usersSecretKey | string | `"users"` | Key in the users Secret holding the username:password lines. |
+| pooling.proxySql.usersSecretRef | string | `""` | Name of an existing Secret containing upstream DB users. The secret must contain a key named by usersSecretKey (default: users) with one "username:password" entry per line. Mutually exclusive with users. One of users or usersSecretRef must be provided when proxySql is enabled. |
 | pooling.replicas | int | `2` | Number of pooler replicas. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
 | ports.metrics | int | `9090` | Prometheus metrics port. |
