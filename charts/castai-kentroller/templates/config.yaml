@@ -12,6 +12,3 @@ data:
   # AWS Pricing API has a single global endpoint in us-east-1; region must be set for endpoint resolution.
   AWS_DEFAULT_REGION: "us-east-1"
   OTEL_METRICS_ENABLED: {{ .Values.castai.otelMetrics.enabled | quote }}
-  {{- if .Values.castai.otelMetrics.endpoint }}
-  OTEL_METRICS_ENDPOINT: {{ .Values.castai.otelMetrics.endpoint | quote }}
-  {{- end }}

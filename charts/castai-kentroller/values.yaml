@@ -76,10 +76,8 @@ castai:
 
   # castai.otelMetrics -- OpenTelemetry metrics export configuration
   otelMetrics:
-    # castai.otelMetrics.enabled -- Enable OTel metrics export via OTLP gRPC
+    # castai.otelMetrics.enabled -- Enable OTel metrics export via the same gRPC endpoint as Kent. That endpoint must serve OTLP metrics.
     enabled: true
-    # castai.otelMetrics.endpoint -- OTLP gRPC endpoint. Defaults to grpc.cast.ai:443 when empty.
-    endpoint: ""
 
   # castai.apiKeySecretRef -- Name of secret with token for authorizing agent access to the API.
   # apiKey and apiKeySecretRef are mutually exclusive.
@@ -116,9 +114,9 @@ castai:
     enabled: true
     # castai.commitmentBudgets.nodePoolFilterMode -- Controls which customer NodePools are
     # considered for shadow NodePool creation. Annotate a NodePool with
-    # kentroller.cast.ai/commitment-budgets: "clone" or "ignore" to control inclusion.
-    # - opt-out (default): all NodePools are included unless annotated "ignore".
-    # - opt-in: only NodePools annotated "clone" are included.
+    # kentroller.cast.ai/commitment-nodepool-clone: "include" or "exclude" to control inclusion.
+    # - opt-out (default): all NodePools are included unless annotated "exclude".
+    # - opt-in: only NodePools annotated "include" are included.
     nodePoolFilterMode: opt-out
   # castai.continuousRebalancing -- Continuous rebalancing feature configuration
   continuousRebalancing:
