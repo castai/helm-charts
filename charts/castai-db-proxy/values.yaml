@@ -200,15 +200,15 @@ pooling:
     resources:
       cpu: "10m"
       memoryRequest: "32Mi"
-      memoryLimit: "32Mi"
-  # -- Pooler listen port. Proxy connects to the pooler on this port.
-  port: 5432
+      memoryLimit: "32Mi" 
   # -- Pooler metrics port.
   metricsPort: 9090
   # -- Configure the PgDog section to deploy PgDog as the pooler.
   pgdog:
     #-- Log level for PgDog.
     logLevel: warn
+    # -- Pooler listen port. Proxy connects to the pooler on this port.
+    port: 5432
     admin:
       name: pgdog_admin
       user: admin

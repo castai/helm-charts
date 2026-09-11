@@ -64,7 +64,10 @@ data:
     {{- if .Values.pooling.enabled }}
 
     [pooling]
-    pooler_url = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.port }}"
+    host = "{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local"
+
+    [pooling.postgres]
+    port = {{ .Values.pooling.pgdog.port }}
 
     [pooling.config_manager]
     protocol = "http"
