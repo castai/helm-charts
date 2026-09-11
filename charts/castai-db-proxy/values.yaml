@@ -157,6 +157,10 @@ connection_draining:
   grace_period_seconds: 55
   # -- How long the server waits for runtimes to shut down after the grace period. Must be > 0
   graceful_shutdown_timeout_seconds: 5
+  # -- How long the pod's preStop hook sleeps before SIGTERM is delivered to the proxy. This gives the
+  # service endpoint propagation time to complete cluster-wide so no new traffic is routed to the pod
+  # while it drains existing connections. Set to 0 to disable.
+  pre_stop_sleep_seconds: 10
 
 tls:
   # -- Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert.

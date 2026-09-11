@@ -33,10 +33,7 @@ spec:
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
-      {{- if or (lt (int .Values.connection_draining.grace_period_seconds) 1) (lt (int .Values.connection_draining.graceful_shutdown_timeout_seconds) 1) }}
-        {{- fail "connection_draining.grace_period_seconds and graceful_shutdown_timeout_seconds must be positive integers" }}
-      {{- end }}
-      terminationGracePeriodSeconds: {{ add .Values.connection_draining.grace_period_seconds .Values.connection_draining.graceful_shutdown_timeout_seconds 5 }}
+      terminationGracePeriodSeconds: {{ add .Values.connection_draining.grace_period_seconds .Values.connection_draining.graceful_shutdown_timeout_seconds .Values.connection_draining.pre_stop_sleep_seconds 5 }}
       {{- with .Values.dnsPolicy }}
       dnsPolicy: {{ . }}
       {{- end }}
@@ -79,6 +76,14 @@ spec:
             - /etc/roxy/config.toml
             - --log-level
             - {{ .Values.logLevel }}
+          {{- if gt (int .Values.connection_draining.pre_stop_sleep_seconds) 0 }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /usr/bin/sleep
+                  - {{ .Values.connection_draining.pre_stop_sleep_seconds | quote }}
+          {{- end }}
           envFrom:
             - secretRef:
               {{- if .Values.apiKey }}
