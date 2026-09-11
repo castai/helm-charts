@@ -5,10 +5,28 @@ metadata:
   labels:
     {{- include "castai-kentroller.labels" . | nindent 4 }}
 data:
+  DEPLOYMENT_MODE: {{ .Values.deploymentMode | quote }}
+  {{- if eq .Values.deploymentMode "standalone" }}
+  # Keep the binary configuration contract stable. Standalone subsystems must
+  # never use these explicit, non-routable sentinel values.
+  API_KEY: "not-used-in-standalone"
+  API_URL: "https://standalone.invalid"
+  GRPC_URL: "standalone.invalid:443"
+  GRPC_DISABLE_TLS: "false"
+  {{- else }}
   # Prefer umbrella/global API URL override, then fall back to chart-local value.
   API_URL: {{ required "castai.apiURL must be provided" (coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiURL) | quote }}
   GRPC_URL: {{ required "castai.grpcURL must be provided" (coalesce (dig "castai" "grpcURL" "" (.Values.global | default dict)) .Values.castai.grpcURL) | quote }}
   GRPC_DISABLE_TLS: {{ .Values.castai.grpcDisableTLS | default "false" | quote }}
+  {{- end }}
   # AWS Pricing API has a single global endpoint in us-east-1; region must be set for endpoint resolution.
   AWS_DEFAULT_REGION: "us-east-1"
+  {{- if eq .Values.deploymentMode "standalone" }}
+  OTEL_METRICS_ENABLED: "false"
+  {{- else }}
   OTEL_METRICS_ENABLED: {{ .Values.castai.otelMetrics.enabled | quote }}
+  {{- end }}
+  {{- if eq .Values.deploymentMode "standalone" }}
+  AUDIT_EXPORTER_ENABLED: "false"
+  LOG_EXPORTER_ENABLED: "false"
+  {{- end }}

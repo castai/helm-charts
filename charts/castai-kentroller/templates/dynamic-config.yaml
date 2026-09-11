@@ -11,7 +11,11 @@ metadata:
 data:
   config.yaml: |
     spotInterruptionPrediction:
+      {{- if eq .Values.deploymentMode "standalone" }}
+      enabled: false
+      {{- else }}
       enabled: {{ .Values.castai.spotInterruptionPrediction.enabled | default false }}
+      {{- end }}
     rebalancer:
       enabled: {{ .Values.castai.rebalance.enabled | default false }}
       {{- if hasKey .Values.castai.rebalance "preferenceWeightedPacking" }}

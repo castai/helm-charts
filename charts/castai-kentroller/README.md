@@ -37,13 +37,14 @@ Deploys the CAST AI kentroller — the in-cluster controller for KENT (Karpenter
 | castai.continuousRebalancing.savingsThresholdPercentage | int | `15` | Minimum cost savings percentage for performing a rebalance action. Relevant only for modes that can replace nodes (full mode). |
 | castai.organizationIdConfigMapKeyRef | object | `{"key":"ORGANIZATION_ID","name":""}` | Name and key of ConfigMap with organization ID. The referenced ConfigMap must provide the organization ID in .data[<<.Values.castai.organizationIdConfigMapKeyRef.key>>]. |
 | castai.otelMetrics | object | `{"enabled":true}` | OpenTelemetry metrics export configuration |
-| castai.otelMetrics.enabled | bool | `true` | Enable OTel metrics export via the same gRPC endpoint as Kent. That endpoint must serve OTLP metrics. |
+| castai.otelMetrics.enabled | bool | `true` | Enable OTel metrics export via the same gRPC endpoint as Kent. In connected mode only — standalone always disables outbound OTLP export; the local metrics endpoint is controlled separately by metrics.enabled. |
 | castai.rebalance | object | `{"enabled":true,"preferenceWeightedPacking":true}` | Enable rebalance feature |
 | castai.rebalance.preferenceWeightedPacking | bool | `true` | Enable preference-weighted packing in the rebalance plan generator. Scores candidate nodes by cost + reliability + preference penalties (PodAffinity, TopologySpread, VolumeZone) instead of pure cheapest-fit. Hot-reloadable via kubectl-edit on the dynamic config ConfigMap. Default: true. |
-| castai.spotInterruptionPrediction | object | `{"enabled":true}` | Enable CAST AI Spot prediction feature |
+| castai.spotInterruptionPrediction | object | `{"enabled":true}` | Enable CAST AI Spot prediction in connected mode. Standalone mode always disables this CAST ML dependency while retaining local observed-interruption handling. |
 | crds | object | `{"enabled":true}` | CRDs subchart configuration |
 | crds.enabled | bool | `true` | Install CRDs as a dependency subchart |
 | deploymentAnnotations | object | `{"workloads.cast.ai/configuration":"horizontal:\n   optimization: off\nvertical:\n  optimization: on\n  cpu:\n    min: 1000m\n    target: p75\n    lookBackPeriod: 168h\n  memory:\n    target: p90\n    lookBackPeriod: 168h\n"}` | Annotations applied to the Deployment resource itself. The workloads.cast.ai/configuration annotation enables CAST AI Vertical Pod Autoscaler (VPA) and must be on the Deployment, not the pod template. with CPU min 1000m, P75 CPU target, P90 memory target, and the longest supported look-back period (168h). |
+| deploymentMode | string | `"connected"` | Runtime connectivity contract. One of: connected, standalone. Standalone mode has no required runtime connection to the CAST Control Plane and injects inert sentinel values for the binary's required CAST configuration fields. |
 | dynamicConfig | object | `{"annotations":{"argocd.argoproj.io/compare-options":"IgnoreExtraneous"}}` | Settings for the dynamic config ConfigMap managed at runtime by kentroller. |
 | dynamicConfig.annotations | object | `{"argocd.argoproj.io/compare-options":"IgnoreExtraneous"}` | Annotations applied to the dynamic config ConfigMap. |
 | enableTopologySpreadConstraints | bool | `false` | Use topologySpreadConstraints instead of podAntiAffinity. |

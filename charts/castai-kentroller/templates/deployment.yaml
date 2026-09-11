@@ -1,5 +1,8 @@
 apiVersion: apps/v1
 kind: Deployment
+{{- if not (has .Values.deploymentMode (list "connected" "standalone")) }}
+{{- fail "deploymentMode must be one of: connected, standalone" }}
+{{- end }}
 metadata:
   name: {{ include "castai-kentroller.fullname" . }}
   labels:
@@ -142,6 +145,7 @@ spec:
           {{- end }}
           {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
           envFrom:
+          {{- if eq .Values.deploymentMode "connected" }}
           {{- if or .Values.apiKey .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if or .Values.apiKey .Values.castai.apiKey }}
@@ -155,6 +159,7 @@ spec:
           {{- else if not .Values.envFrom }}
           {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
           {{- /* else: envFrom is non-empty — API key is expected to arrive via a custom env source. */}}
+          {{- end }}
           {{- end }}
             - configMapRef:
                 name: {{ include "castai-kentroller.fullname" . }}
