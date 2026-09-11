@@ -6,6 +6,10 @@ metadata:
   labels:
     {{- include "egressd.exporter.labels" . | nindent 4 }}
     app.kubernetes.io/component: aggregator
+  {{- with .Values.exporter.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   replicas: 1
   selector:
