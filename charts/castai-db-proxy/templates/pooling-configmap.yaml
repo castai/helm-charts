@@ -17,7 +17,7 @@ data:
     config_file = "/etc/pgdog/pgdog.toml"
 
     [pooler.pgdog.admin_database]
-    url = "postgresql://{{ .Values.pooling.pgdog.admin.user | urlquery }}:{{ .Values.pooling.pgdog.admin.password | urlquery }}@localhost:{{ .Values.pooling.port }}/{{ .Values.pooling.pgdog.admin.name | urlquery }}"
+    url = "postgresql://{{ .Values.pooling.pgdog.admin.user | urlquery }}:{{ .Values.pooling.pgdog.admin.password | urlquery }}@localhost:{{ .Values.pooling.pgdog.port }}/{{ .Values.pooling.pgdog.admin.name | urlquery }}"
     {{- end }}
 
     [api]
@@ -45,7 +45,7 @@ data:
   {{- $_ := unset $mergedConfig "prepared_statements_limit" -}}
   pgdog.toml: |
     [general]
-    port = {{ .Values.pooling.port }}
+    port = {{ .Values.pooling.pgdog.port }}
     openmetrics_port = {{ .Values.pooling.metricsPort }}
     openmetrics_namespace = "pgdog_"
 

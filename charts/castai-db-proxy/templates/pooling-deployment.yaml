@@ -129,7 +129,7 @@ spec:
             runAsUser: 65532
           ports:
             - name: upstream
-              containerPort: {{ .Values.pooling.port }}
+              containerPort: {{ .Values.pooling.pgdog.port }}
               protocol: TCP
             - name: metrics
               containerPort: {{ .Values.pooling.metricsPort }}

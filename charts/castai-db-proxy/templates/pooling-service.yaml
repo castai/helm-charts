@@ -11,7 +11,7 @@ metadata:
 spec:
   ports:
     - name: upstream
-      port: {{ .Values.pooling.port }}
+      port: {{ .Values.pooling.pgdog.port }}
       targetPort: upstream
       protocol: TCP
     - name: metrics
