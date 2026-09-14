@@ -11,13 +11,13 @@ Wrapper chart for CAST AI Kent profile.
 | https://castai.github.io/helm-charts | castai-agent | 0.161.1 |
 | https://castai.github.io/helm-charts | castai-chart-upgrader | 0.2.1 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.16 |
-| https://castai.github.io/helm-charts | castai-kentroller | 0.7.2 |
+| https://castai.github.io/helm-charts | castai-kentroller | 0.10.0 |
 | https://castai.github.io/helm-charts | castai-kvisor | 1.165.3 |
-| https://castai.github.io/helm-charts | castai-live | 0.123.0 |
+| https://castai.github.io/helm-charts | castai-live | 0.124.0 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.17.6 |
-| https://castai.github.io/helm-charts | castai-spot-handler | 0.35.5 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.11.0 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.11.0 |
+| https://castai.github.io/helm-charts | castai-spot-handler | 0.35.6 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.11.1 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.11.1 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
 
 ## Values
@@ -32,7 +32,6 @@ Wrapper chart for CAST AI Kent profile.
 | castai-agent.enabled | bool | `true` |  |
 | castai-agent.metadataStore.createConfigMap | bool | `true` |  |
 | castai-agent.monitor.resources | object | `{}` |  |
-| castai-agent.provider | string | `"eks"` |  |
 | castai-agent.replicaCount | int | `1` |  |
 | castai-agent.resources | object | `{}` |  |
 | castai-chart-upgrader.chart.name | string | `"castai"` |  |
@@ -74,7 +73,6 @@ Wrapper chart for CAST AI Kent profile.
 | castai-spot-handler.apiKeySecretRef | string | `""` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
-| castai-spot-handler.castai.provider | string | `"eks"` |  |
 | castai-spot-handler.enabled | bool | `true` |  |
 | castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `""` |  |
 | castai-workload-autoscaler-exporter.castai.configMapRef | string | `"castai-agent-metadata"` |  |

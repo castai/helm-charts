@@ -20,6 +20,8 @@ global:
 
 kent:
   enabled: false
+  # kent.managedKarpenter -- Set true when the Karpenter controller is cloud-managed out-of-band (e.g. AKS NAP); the preflight hook will skip the in-cluster controller lookup instead of warning.
+  managedKarpenter: false
   preflight:
     enabled: true
 

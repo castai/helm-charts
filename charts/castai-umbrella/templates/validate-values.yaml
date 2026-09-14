@@ -32,6 +32,13 @@
 {{- end }}
 {{- end }}
 
+{{/* ── Required values when kent is enabled ─────────────────────────────────── */}}
+{{- if .Values.kent.enabled }}
+{{- if not .Values.global.castai.provider }}
+{{ fail "global.castai.provider is required when kent.enabled=true (eks, aks)" }}
+{{- end }}
+{{- end }}
+
 {{/* ── autoscaler-anywhere specific validation ──────────────────────────────── */}}
 {{- if index $.Values.tags "autoscaler-anywhere" }}
 {{- $anywhereAgent := index (index .Values "autoscaler-anywhere") "castai-agent" | default dict }}
