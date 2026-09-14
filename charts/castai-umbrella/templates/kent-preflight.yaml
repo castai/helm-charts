@@ -77,21 +77,53 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Checking for Karpenter deployment..."
-              if ! kubectl get deployment -l app.kubernetes.io/name=karpenter -A --ignore-not-found \
-                | grep -q karpenter; then
-                echo "ERROR: No Karpenter deployment found in cluster."
-                echo "Install Karpenter before enabling KENT."
-                exit 1
-              fi
-              echo "Karpenter deployment found."
+              echo "KENT preflight: validating Karpenter installation."
+              echo "Gates (must pass): Karpenter CRDs. The in-cluster controller probe below is informational and never gates the install."
 
-              echo "Checking for Karpenter CRDs..."
+              echo "[gate] Checking for CRD nodepools.karpenter.sh..."
               if ! kubectl get crd nodepools.karpenter.sh --ignore-not-found \
                 | grep -q nodepools.karpenter.sh; then
                 echo "ERROR: CRD nodepools.karpenter.sh not found in cluster."
-                echo "Ensure Karpenter CRDs are installed before enabling KENT."
+                echo "Karpenter (self-hosted or cloud-managed, e.g. AKS NAP) must be installed before enabling KENT."
                 exit 1
               fi
-              echo "Karpenter CRDs found. Proceeding with KENT installation."
+              echo "[gate] OK: CRD nodepools.karpenter.sh found."
+
+              echo "[info] Checking for AKS Karpenter CRDs (group karpenter.azure.com)..."
+              if ! aks_crds=$(kubectl get crd -o name 2>&1); then
+                echo "ERROR: unable to list CRDs for AKS detection: $aks_crds"
+                exit 1
+              fi
+              if printf '%s\n' "$aks_crds" | grep -q 'karpenter\.azure\.com'; then
+                aks=1
+                echo "[info] AKS cluster detected: CRDs in group karpenter.azure.com present."
+                echo "[gate] Checking for CRD aksnodeclasses.karpenter.azure.com..."
+                if ! kubectl get crd aksnodeclasses.karpenter.azure.com --ignore-not-found \
+                  | grep -q aksnodeclasses.karpenter.azure.com; then
+                  echo "ERROR: AKS cluster detected but CRD aksnodeclasses.karpenter.azure.com not found."
+                  echo "Ensure Karpenter (AKS NAP or self-hosted) is fully installed before enabling KENT."
+                  exit 1
+                fi
+                echo "[gate] OK: CRD aksnodeclasses.karpenter.azure.com found."
+              else
+                aks=0
+                echo "[info] Not an AKS Karpenter cluster; skipping the AKS CRD gate."
+              fi
+              {{- if .Values.kent.managedKarpenter }}
+              echo "[info] kent.managedKarpenter=true: Karpenter controller is cloud-managed out-of-band (e.g. AKS NAP); skipping the in-cluster controller lookup."
+              {{- else }}
+              if [ "${aks:-0}" -eq 1 ]; then
+                echo "[info] AKS cluster: Karpenter controller runs in the AKS-managed control plane out-of-band; skipping the in-cluster controller lookup."
+              else
+                echo "[info] Checking for in-cluster Karpenter controller deployment (informational only)..."
+                if kubectl get deployment -l app.kubernetes.io/name=karpenter -A --ignore-not-found \
+                  | grep -q karpenter; then
+                  echo "[info] In-cluster Karpenter controller deployment found."
+                else
+                  echo "WARNING: No in-cluster Karpenter controller found, assuming cloud-managed Karpenter (e.g. AKS NAP); KENT interacts with Karpenter via CRDs."
+                fi
+              fi
+              {{- end }}
+
+              echo "KENT preflight passed: all Karpenter CRD gates satisfied (informational checks do not gate the install). Proceeding with KENT installation."
 {{- end }}
