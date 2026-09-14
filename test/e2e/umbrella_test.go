@@ -22,6 +22,7 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 		const (
 			kindClusterName = "castai-umbrella-kent"
 			releaseName     = "castai-kent"
+			provider        = "eks"
 		)
 		var (
 			kindHelper      *KindHelper
@@ -57,7 +58,7 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 		})
 
 		It("should install successfully in kent mode", func() {
-			Expect(helmHelper.InstallKentMode(apiKey)).To(Succeed())
+			Expect(helmHelper.InstallKentMode(apiKey, provider)).To(Succeed())
 		})
 
 		It("should have the release in deployed status", func() {

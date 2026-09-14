@@ -32,7 +32,6 @@ Wrapper chart for CAST AI Kent profile.
 | castai-agent.enabled | bool | `true` |  |
 | castai-agent.metadataStore.createConfigMap | bool | `true` |  |
 | castai-agent.monitor.resources | object | `{}` |  |
-| castai-agent.provider | string | `"eks"` |  |
 | castai-agent.replicaCount | int | `1` |  |
 | castai-agent.resources | object | `{}` |  |
 | castai-chart-upgrader.chart.name | string | `"castai"` |  |
@@ -74,7 +73,6 @@ Wrapper chart for CAST AI Kent profile.
 | castai-spot-handler.apiKeySecretRef | string | `""` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
-| castai-spot-handler.castai.provider | string | `"eks"` |  |
 | castai-spot-handler.enabled | bool | `true` |  |
 | castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `""` |  |
 | castai-workload-autoscaler-exporter.castai.configMapRef | string | `"castai-agent-metadata"` |  |
