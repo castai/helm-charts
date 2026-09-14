@@ -124,16 +124,24 @@ rules:
   resources:
   - aksnodeclasses
   verbs:
+  - create
+  - delete
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - karpenter.k8s.aws
   resources:
   - ec2nodeclasses
   verbs:
+  - create
+  - delete
   - get
   - list
+  - patch
+  - update
   - watch
 - apiGroups:
   - karpenter.sh

@@ -850,6 +850,8 @@ spec:
                                 - Blocked
                                 - Success
                                 - Failed
+                                - NodeCordoned
+                                - NodeUncordoned
                               type: string
                             timestamp:
                               description: Timestamp is when this event was recorded
