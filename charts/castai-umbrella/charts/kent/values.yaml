@@ -6,8 +6,6 @@ castai-agent:
   enabled: true
   replicaCount: 1
   apiKeySecretRef: ""
-  # Currently only EKS is supported
-  provider: eks
   # executed for helm to create the namespace `helm --create-namespace`
   createNamespace: false
   metadataStore:
@@ -87,7 +85,6 @@ castai-spot-handler:
   enabled: true
   apiKeySecretRef: ""
   castai:
-    provider: eks
     clusterIdConfigMapKeyRef:
       name: castai-agent-metadata
       key: CLUSTER_ID

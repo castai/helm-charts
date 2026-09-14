@@ -249,6 +249,7 @@ kubectl create secret generic castai-credentials \
 helm upgrade --install castai castai-helm/castai \
   --namespace castai-agent --create-namespace \
   --set global.castai.apiURL=https://api.cast.ai \
+  --set global.castai.provider=<eks|aks> \
   --set kent.enabled=true
 ```
 
