@@ -106,9 +106,17 @@ spec:
         - name: proxysql-users-init
           image: "{{ .Values.pooling.proxySql.image.repository }}:{{ include "castai-db-proxy.proxySqlImage" . }}"
           imagePullPolicy: {{ .Values.pooling.proxySql.image.pullPolicy }}
-          envFrom:
-            - secretRef:
-                name: {{ required "userSecretRef must be provided" .Values.pooling.proxySql.userSecretRef | quote }}
+          env:
+            - name: USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "userSecretRef must be provided" .Values.pooling.proxySql.userSecretRef | quote }}
+                  key: DATABASE_USERNAME
+            - name: PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ required "userSecretRef must be provided" .Values.pooling.proxySql.userSecretRef | quote }}
+                  key: DATABASE_PASSWORD
           command:
             - /bin/sh
             - -c
@@ -125,8 +133,8 @@ spec:
                   -e 's/"/\\"/g'
               }
 
-              escaped_user=$(config_escape "$username")
-              escaped_pass=$(config_escape "$password")
+              escaped_user=$(config_escape "$USERNAME")
+              escaped_pass=$(config_escape "$PASSWORD")
 
               {
                 echo ""
