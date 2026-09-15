@@ -420,6 +420,9 @@ spec:
                   ProjectedSavingsPercent is the percentage of cost reduction from the rebalancing plan.
                   Format: decimal string (e.g., "15.5" means 15.5% savings).
                   Populated after plan generation completes.
+                  When State is Skipped or Failed, this reflects the proposed savings of the best plan
+                  that was rejected (e.g. for not meeting the configured savings threshold), reported
+                  to explain why the claim did not proceed rather than describing executed savings.
                 type: string
               rebalanceName:
                 description: |-
@@ -430,6 +433,11 @@ spec:
                 description: |-
                   SelectedNodes is the list of node names selected for rebalancing after applying
                   scope filters and node constraints. Populated when the request is submitted to Kent.
+                  Entries are always Kubernetes node names, never NodeClaim names.
+                  When State is Skipped or Failed, these may instead hold the proposed selection of
+                  the best plan that was rejected (e.g. for not meeting the configured savings
+                  threshold): no rebalancing was executed for these nodes; they are reported to
+                  explain why the claim did not proceed.
                 items:
                   type: string
                 type: array
@@ -438,6 +446,8 @@ spec:
                 description: |-
                   SelectedNodesCount is the number of nodes in SelectedNodes.
                   This field is populated automatically and exists for display purposes.
+                  On Skipped/Failed claims it counts the rejected plan's proposed selection
+                  (see SelectedNodes), not an executed selection.
                 type: integer
               skippedMessage:
                 description: |-
