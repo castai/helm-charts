@@ -102,7 +102,7 @@ spec:
                 - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
-            runAsUser: 65532
+            runAsUser: 999
         - name: proxysql-users-init
           image: "{{ .Values.pooling.proxySql.image.repository }}:{{ include "castai-db-proxy.proxySqlImage" . }}"
           imagePullPolicy: {{ .Values.pooling.proxySql.image.pullPolicy }}
@@ -156,7 +156,7 @@ spec:
                 - ALL
             readOnlyRootFilesystem: true
             runAsNonRoot: true
-            runAsUser: 65532
+            runAsUser: 999
         {{- end }}
       {{- end }}
       containers:
