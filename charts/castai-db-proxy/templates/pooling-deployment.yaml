@@ -1,16 +1,6 @@
 {{- if .Values.pooling.enabled }}
 {{- $pgdogEnabled := and .Values.pooling.pgdog  (eq .Values.protocol "PostgreSQL") -}}
 {{- $proxySqlEnabled := and .Values.pooling.proxySql (eq .Values.protocol "MySQL") -}}
-{{- $usersSecretRef := "" -}}
-{{- if $proxySqlEnabled -}}
-{{- if .Values.pooling.proxySql.usersSecretRef -}}
-{{- $usersSecretRef = .Values.pooling.proxySql.usersSecretRef -}}
-{{- else if .Values.pooling.proxySql.users -}}
-{{- $usersSecretRef = printf "%s-proxysql-users" (include "castai-db-proxy.name" .) -}}
-{{- else -}}
-{{- $usersSecretRef = required "pooling.proxySql.users or usersSecretRef must be provided when ProxySQL is enabled" "" -}}
-{{- end -}}
-{{- end -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -35,7 +25,6 @@ spec:
         {{- end }}
         {{- if $proxySqlEnabled }}
         checksum/proxysql-config: {{ include (print $.Template.BasePath "/proxysql-config.yaml") . | sha256sum }}
-        checksum/proxysql-users: {{ include (print $.Template.BasePath "/proxysql-users-secret.yaml") . | sha256sum }}
         {{- end }}
       labels:
         {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 8 }}
@@ -66,9 +55,6 @@ spec:
             name: {{ include "castai-db-proxy.name" . }}-proxysql-config
         - name: proxysql-config-output
           emptyDir: {}
-        - name: proxysql-users-secret-volume
-          secret:
-            secretName: {{ $usersSecretRef }}
         {{- end }}
       {{- if or $pgdogEnabled $proxySqlEnabled }}
       initContainers:
@@ -120,19 +106,16 @@ spec:
         - name: proxysql-users-init
           image: "{{ .Values.pooling.proxySql.image.repository }}:{{ include "castai-db-proxy.proxySqlImage" . }}"
           imagePullPolicy: {{ .Values.pooling.proxySql.image.pullPolicy }}
+          envFrom:
+            - secretRef:
+                name: {{ required "userSecretRef must be provided" .Values.pooling.proxySql.userSecretRef | quote }}
           command:
             - /bin/sh
             - -c
             - |
               set -eu
 
-              USERS_FILE="/etc/proxysql-users-secret/{{ .Values.pooling.proxySql.usersSecretKey }}"
               CNF_FILE="/etc/proxysql/proxysql.cnf"
-
-              [ -f "$USERS_FILE" ] || {
-                echo "users file not found: $USERS_FILE" >&2
-                exit 1
-              }
 
               config_escape() {
                 value=$1
@@ -142,71 +125,23 @@ spec:
                   -e 's/"/\\"/g'
               }
 
+              escaped_user=$(config_escape "$username")
+              escaped_pass=$(config_escape "$password")
+
               {
                 echo ""
                 echo "mysql_users="
                 echo "("
-
-                first=1
-                user_count=0
-
-                while IFS= read -r line || [ -n "$line" ]; do
-                  line=$(printf '%s' "$line" | sed 's/\r$//')
-
-                  case "$line" in
-                    ""|\#*)
-                      continue
-                      ;;
-                  esac
-
-                  case "$line" in
-                    *:*)
-                      user=${line%%:*}
-                      pass=${line#*:}
-                      ;;
-                    *)
-                      echo "invalid users file entry: expected username:password" >&2
-                      exit 1
-                      ;;
-                  esac
-
-                  [ -n "$user" ] || {
-                    echo "invalid users file entry: username must not be empty" >&2
-                    exit 1
-                  }
-
-                  escaped_user=$(config_escape "$user")
-                  escaped_pass=$(config_escape "$pass")
-
-                  if [ "$first" -eq 1 ]; then
-                    first=0
-                  else
-                    echo ",\n"
-                  fi
-
-                  printf \
-                    '  { username="%s" , password="%s" , default_hostgroup=0 , active=1 }' \
-                    "$escaped_user" \
-                    "$escaped_pass"
-
-                  user_count=$((user_count + 1))
-                done < "$USERS_FILE"
-
-                [ "$user_count" -gt 0 ] || {
-                  echo "no ProxySQL users found in users file" >&2
-                  exit 1
-                }
-
-                echo ""
+                printf \
+                  '  { username="%s" , password="%s" , default_hostgroup=0 , active=1 }\n' \
+                  "$escaped_user" \
+                  "$escaped_pass"
                 echo ")"
               } >> "$CNF_FILE"
           volumeMounts:
             - name: proxysql-config-output
               mountPath: /etc/proxysql
               readOnly: false
-            - name: proxysql-users-secret-volume
-              mountPath: /etc/proxysql-users-secret
-              readOnly: true
           securityContext:
             capabilities:
               drop:

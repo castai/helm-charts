@@ -1,18 +1,4 @@
 {{- if and .Values.pooling.enabled .Values.pooling.proxySql (eq .Values.protocol "MySQL") }}
-{{- $defaults := dict
-  "threads" 4
-  "max_connections" 2048
-  "stacksize" 1048576
-  "have_compress" true
-  "free_connections_pct" 5
-  "connect_timeout_server" 5000
-  "default_query_timeout" 36000000
-  "auto_increment_delay_multiplex" 5
-  "max_backend_connections" 100
-  "multiplexing" true
--}}
-{{- $userConfig := .Values.pooling.proxySql.config | default dict -}}
-{{- $mergedConfig := merge (deepCopy $userConfig) $defaults -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -36,15 +22,15 @@ data:
 
     mysql_variables=
     {
-        threads={{ $mergedConfig.threads | int64 }}
-        max_connections={{ $mergedConfig.max_connections | int64 }}
-        stacksize={{ $mergedConfig.stacksize | int64 }}
-        have_compress={{ $mergedConfig.have_compress }}
-        free_connections_pct={{ $mergedConfig.free_connections_pct | int64 }}
+        threads={{ .Values.pooling.proxySql.config.threads }}
+        max_connections={{ .Values.pooling.proxySql.config.max_connections }}
+        stacksize={{ .Values.pooling.proxySql.config.stacksize }}
+        have_compress={{ .Values.pooling.proxySql.config.have_compress }}
+        free_connections_pct={{ .Values.pooling.proxySql.config.free_connections_pct }}
         interfaces="0.0.0.0:{{ .Values.pooling.proxySql.ports.readWrite }};0.0.0.0:{{ .Values.pooling.proxySql.ports.readOnly }}"
-        default_query_timeout={{ $mergedConfig.default_query_timeout | int64 }}
-        connect_timeout_server={{ $mergedConfig.connect_timeout_server | int64 }}
-        auto_increment_delay_multiplex={{ $mergedConfig.auto_increment_delay_multiplex | int64 }}
+        default_query_timeout={{ .Values.pooling.proxySql.config.default_query_timeout }}
+        connect_timeout_server={{ .Values.pooling.proxySql.config.connect_timeout_server }}
+        auto_increment_delay_multiplex={{ .Values.pooling.proxySql.config.auto_increment_delay_multiplex }}
         monitor_enabled=false
         have_ssl=true
         ssl_cert="/etc/proxysql/proxysql.crt"
@@ -58,7 +44,7 @@ data:
         address="{{ required "endpoint address must be provided" $endpoint.address | splitList ":" | first }}"
         port={{ required "endpoint address must contain host:port" $endpoint.address | splitList ":" | last | int64 }}
         hostgroup={{ ternary 1 0 .readonly }}
-        max_connections={{ $mergedConfig.max_backend_connections | int64 }}
+        max_connections={{ $.Values.pooling.proxySql.config.max_backend_connections }}
         use_ssl=1
       }{{ if lt $index (sub (len $.Values.endpoints) 1) }},{{ end }}
     {{- end }}
@@ -73,7 +59,7 @@ data:
         proxy_port={{ ternary $.Values.pooling.proxySql.ports.readOnly $.Values.pooling.proxySql.ports.readWrite $endpoint.readonly }}
         destination_hostgroup={{ ternary 1 0 .readonly }}
         apply=1
-        multiplex={{ if $mergedConfig.multiplexing }}2{{ else }}0{{ end }}
+        multiplex={{ if $.Values.pooling.proxySql.config.multiplexing }}2{{ else }}0{{ end }}
       }{{ if lt $index (sub (len $.Values.endpoints) 1) }},{{ end }}
     {{- end }}
     )
