@@ -100,6 +100,10 @@ spec:
               value: {{ .Values.castai.commitmentBudgets.enabled | quote }}
             - name: COMMITMENT_BUDGETS_NODE_POOL_FILTER_MODE
               value: {{ .Values.castai.commitmentBudgets.nodePoolFilterMode | default "opt-out" | quote }}
+            {{- if hasKey .Values.castai.rebalance "disruptGuard" }}
+            - name: REBALANCER_DISRUPT_GUARD_ENABLED
+              value: {{ .Values.castai.rebalance.disruptGuard | quote }}
+            {{- end }}
             {{- if .Values.webhook.enabled }}
             # cert-controller (in-process) provisions and rotates the TLS
             # material for the webhook. These env vars line the rotator up

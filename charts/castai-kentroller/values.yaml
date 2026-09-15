@@ -112,6 +112,13 @@ castai:
     # namespaces. Disable this if you do not use hard hostname/zone TopologySpreadConstraints
     # and want to avoid transient identity churn. Default: true.
     namespaceLabeling: true
+    # castai.rebalance.disruptGuard -- Enable the disrupt guard for manual/scheduled rebalance
+    # plans: while a plan executes, cluster nodes are annotated with
+    # karpenter.sh/do-not-disrupt=true so the Karpenter consolidator does not compete for the
+    # same free capacity; the annotation is reverted on plan completion. Static setting
+    # (env-based, unlike preferenceWeightedPacking) — changing it requires a kentroller pod
+    # restart. Default: true.
+    disruptGuard: true
   # castai.spotInterruptionPrediction -- Enable CAST AI Spot prediction in connected mode. Standalone mode always disables this CAST ML dependency while retaining local observed-interruption handling.
   spotInterruptionPrediction:
     enabled: true
