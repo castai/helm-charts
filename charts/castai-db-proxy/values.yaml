@@ -230,3 +230,44 @@ pooling:
     # pair added here will be rendered into pgdog.toml.
     # See https://docs.pgdog.dev/configuration/pgdog.toml/general/
     config: {}
+  # -- Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only).
+  # Mutually exclusive with pgdog. Requires protocol: "MySQL".
+  proxySql:
+    ports:
+      # -- Listening port for read-write connections.
+      readWrite: 6401
+      # -- Listening port for read-only connections.
+      readOnly: 6402
+    image:
+      repository: docker.io/proxysql/proxysql
+      pullPolicy: IfNotPresent
+      tag: ""
+    resources:
+      cpu: "1"
+      memoryRequest: "1Gi"
+      memoryLimit: "1Gi"
+    # -- Name of an existing Secret containing upstream DB user. The secret must
+    # contain the username and the password fields.
+    userSecretRef: ""
+    config:
+      # Number of ProxySQL worker threads.
+      threads: 4
+      # Maximum number of frontend/client connections accepted by ProxySQL.
+      max_connections: 2048
+      # Stack size, in bytes, allocated to each ProxySQL thread.
+      stacksize: 1048576
+      # Enable MySQL protocol compression support.
+      have_compress: true
+      # Percentage of free backend connections retained in the connection pool.
+      free_connections_pct: 5
+      # Timeout, in milliseconds, for establishing a connection to a backend MySQL server.
+      connect_timeout_server: 5000
+      # Default query timeout, in milliseconds.
+      # 36000000 ms = 10 hours.
+      default_query_timeout: 36000000
+      # Number of queries for which multiplexing is delayed after an AUTO_INCREMENT query.
+      auto_increment_delay_multiplex: 5
+      # Maximum number of backend connections maintained per MySQL server.
+      max_backend_connections: 100
+      # Enable query multiplexing in generated ProxySQL query rules.
+      multiplexing: true

@@ -96,3 +96,7 @@ one worker thread per available core.
 {{- max 1 (int (ceil $cores)) -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "castai-db-proxy.proxySqlImage" -}}
+{{- default (include "castai-db-proxy.defaultProxySqlVersion" .) .Values.pooling.proxySql.image.tag }}
+{{- end }}
