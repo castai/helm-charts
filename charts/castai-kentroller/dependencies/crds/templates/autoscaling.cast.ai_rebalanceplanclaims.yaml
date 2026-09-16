@@ -181,6 +181,15 @@ spec:
                   NodeConstraints defines constraints for node selection during rebalancing.
                   These constraints override the default Node Disruption Budget from NodePool.
                 properties:
+                  maxCPU:
+                    anyOf:
+                    - type: integer
+                    - type: string
+                    description: |-
+                      MaxCPU is the maximum cumulative CPU capacity of nodes selected in a single plan.
+                      Guaranteed to pick at least one node even if it's larger than the requested quantity.
+                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                    x-kubernetes-int-or-string: true
                   maxNodes:
                     description: |-
                       MaxNodes is the maximum number of nodes to rebalance in a single operation.
