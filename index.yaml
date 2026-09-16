@@ -21574,6 +21574,30 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc45/castai-0.0.0-rc45.tgz
     version: 0.0.0-rc45
   - apiVersion: v2
+    created: "2026-09-14T11:19:59.42637821Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 5e699e92ac7d84b3702337a74588b8089361f618eea753dd2e6b2324ed646afe
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc44/castai-0.0.0-rc44.tgz
+    version: 0.0.0-rc44
+  - apiVersion: v2
     created: "2026-09-15T06:01:08.767961917Z"
     dependencies:
     - condition: kent.enabled
@@ -21616,30 +21640,6 @@ entries:
       version: '*'
     description: Umbrella chart for CAST AI components.
     digest: f97469b262fe5b36b021e9d9554b076087ae8dd3f4c8b80b3505b32c756fc108
-    name: castai
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc44/castai-0.0.0-rc44.tgz
-    version: 0.0.0-rc44
-  - apiVersion: v2
-    created: "2026-09-14T11:19:59.42637821Z"
-    dependencies:
-    - condition: kent.enabled
-      name: kent
-      repository: file://charts/kent
-      version: '*'
-    - name: autoscaler-anywhere
-      repository: file://charts/autoscaler-anywhere
-      tags:
-      - autoscaler-anywhere
-      version: '*'
-    - name: autoscaler-openshift
-      repository: file://charts/autoscaler-openshift
-      tags:
-      - autoscaler-openshift
-      version: '*'
-    description: Umbrella chart for CAST AI components.
-    digest: 5e699e92ac7d84b3702337a74588b8089361f618eea753dd2e6b2324ed646afe
     name: castai
     type: application
     urls:
@@ -25286,6 +25286,21 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-ai-optimizer-batch-processor-0.0.2/castai-ai-optimizer-batch-processor-0.0.2.tgz
     version: 0.0.2
   castai-ai-optimizer-proxy:
+  - apiVersion: v2
+    appVersion: v1.1.167
+    created: "2026-09-16T08:46:59.648765991Z"
+    dependencies:
+    - condition: aibrix.enabled
+      name: aibrix
+      repository: file://child-charts/aibrix
+      version: 0.1.2
+    description: AI Optimizer Proxy deployment chart.
+    digest: e51666ac76cb4ae1d787a92e1dbbe921ed9fb6ad8b755aef0ac6f5b98545f993
+    name: castai-ai-optimizer-proxy
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-ai-optimizer-proxy-0.0.212/castai-ai-optimizer-proxy-0.0.212.tgz
+    version: 0.0.212
   - apiVersion: v2
     appVersion: v1.1.166
     created: "2026-09-14T12:23:08.723210552Z"
@@ -78584,4 +78599,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-16T08:34:34.37939986Z"
+generated: "2026-09-16T08:46:59.696210991Z"
