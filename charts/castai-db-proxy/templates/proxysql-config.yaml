@@ -17,20 +17,20 @@ data:
         admin_credentials="admin:admin"
         mysql_ifaces="127.0.0.1:6032"
         restapi_enabled=true
-        restapi_port={{ .Values.pooling.metricsPort }}
+        restapi_port={{ .Values.pooling.metricsPort | int64 }}
     }
 
     mysql_variables=
     {
-        threads={{ .Values.pooling.proxySql.config.threads }}
-        max_connections={{ .Values.pooling.proxySql.config.max_connections }}
-        stacksize={{ .Values.pooling.proxySql.config.stacksize }}
+        threads={{ .Values.pooling.proxySql.config.threads | int64 }}
+        max_connections={{ .Values.pooling.proxySql.config.max_connections | int64 }}
+        stacksize={{ .Values.pooling.proxySql.config.stacksize | int64 }}
         have_compress={{ .Values.pooling.proxySql.config.have_compress }}
-        free_connections_pct={{ .Values.pooling.proxySql.config.free_connections_pct }}
-        interfaces="0.0.0.0:{{ .Values.pooling.proxySql.ports.readWrite }};0.0.0.0:{{ .Values.pooling.proxySql.ports.readOnly }}"
-        default_query_timeout={{ .Values.pooling.proxySql.config.default_query_timeout }}
-        connect_timeout_server={{ .Values.pooling.proxySql.config.connect_timeout_server }}
-        auto_increment_delay_multiplex={{ .Values.pooling.proxySql.config.auto_increment_delay_multiplex }}
+        free_connections_pct={{ .Values.pooling.proxySql.config.free_connections_pct | int64 }}
+        interfaces="0.0.0.0:{{ .Values.pooling.proxySql.ports.readWrite | int64 }};0.0.0.0:{{ .Values.pooling.proxySql.ports.readOnly | int64 }}"
+        default_query_timeout={{ .Values.pooling.proxySql.config.default_query_timeout | int64 }}
+        connect_timeout_server={{ .Values.pooling.proxySql.config.connect_timeout_server | int64 }}
+        auto_increment_delay_multiplex={{ .Values.pooling.proxySql.config.auto_increment_delay_multiplex | int64 }}
         monitor_enabled=false
         have_ssl=true
         ssl_cert="/etc/proxysql/proxysql.crt"
@@ -44,7 +44,7 @@ data:
         address="{{ required "endpoint address must be provided" $endpoint.address | splitList ":" | first }}"
         port={{ required "endpoint address must contain host:port" $endpoint.address | splitList ":" | last | int64 }}
         hostgroup={{ ternary 1 0 .readonly }}
-        max_connections={{ $.Values.pooling.proxySql.config.max_backend_connections }}
+        max_connections={{ $.Values.pooling.proxySql.config.max_backend_connections | int64 }}
         use_ssl=1
       }{{ if lt $index (sub (len $.Values.endpoints) 1) }},{{ end }}
     {{- end }}
@@ -56,7 +56,7 @@ data:
       {
         rule_id={{ add $index 1 }}
         active=1
-        proxy_port={{ ternary $.Values.pooling.proxySql.ports.readOnly $.Values.pooling.proxySql.ports.readWrite $endpoint.readonly }}
+        proxy_port={{ ternary ($.Values.pooling.proxySql.ports.readOnly | int64) ($.Values.pooling.proxySql.ports.readWrite | int64) $endpoint.readonly }}
         destination_hostgroup={{ ternary 1 0 .readonly }}
         apply=1
         multiplex={{ if $.Values.pooling.proxySql.config.multiplexing }}2{{ else }}0{{ end }}
