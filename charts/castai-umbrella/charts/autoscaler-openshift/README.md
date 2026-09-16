@@ -8,7 +8,7 @@ Wrapper chart for CAST AI Autoscaler OpenShift profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.161.1 |
+| https://castai.github.io/helm-charts | castai-agent | 0.162.0 |
 
 ## Values
 
