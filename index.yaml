@@ -21609,6 +21609,30 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc45/castai-0.0.0-rc45.tgz
     version: 0.0.0-rc45
   - apiVersion: v2
+    created: "2026-09-15T06:01:08.767961917Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: fb91e5773378927c830307fcb0ef86a2e977a547370224cf92dd2928690255e9
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc44/castai-0.0.0-rc44.tgz
+    version: 0.0.0-rc44
+  - apiVersion: v2
     created: "2026-09-11T15:51:20.652491647Z"
     dependencies:
     - condition: kent.enabled
@@ -21651,30 +21675,6 @@ entries:
       version: '*'
     description: Umbrella chart for CAST AI components.
     digest: 5e699e92ac7d84b3702337a74588b8089361f618eea753dd2e6b2324ed646afe
-    name: castai
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc44/castai-0.0.0-rc44.tgz
-    version: 0.0.0-rc44
-  - apiVersion: v2
-    created: "2026-09-15T06:01:08.767961917Z"
-    dependencies:
-    - condition: kent.enabled
-      name: kent
-      repository: file://charts/kent
-      version: '*'
-    - name: autoscaler-anywhere
-      repository: file://charts/autoscaler-anywhere
-      tags:
-      - autoscaler-anywhere
-      version: '*'
-    - name: autoscaler-openshift
-      repository: file://charts/autoscaler-openshift
-      tags:
-      - autoscaler-openshift
-      version: '*'
-    description: Umbrella chart for CAST AI components.
-    digest: fb91e5773378927c830307fcb0ef86a2e977a547370224cf92dd2928690255e9
     name: castai
     type: application
     urls:
@@ -75904,6 +75904,21 @@ entries:
     version: 1.13.8
   omni-agent:
   - apiVersion: v2
+    appVersion: v1.19.3
+    created: "2026-09-16T10:28:44.083867739Z"
+    dependencies:
+    - condition: liqo.enabled
+      name: liqo
+      repository: https://castai.github.io/liqo/
+      version: v1.2.0-21
+    description: A Helm chart for OMNI agent
+    digest: 33e08e6523e8c6dbe3f561ff08874a6db9d8f6a6b0596395a830a2f2ed29264d
+    name: omni-agent
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/omni-agent-1.19.3/omni-agent-1.19.3.tgz
+    version: 1.19.3
+  - apiVersion: v2
     appVersion: v1.19.2
     created: "2026-09-15T08:21:02.104130979Z"
     dependencies:
@@ -78649,4 +78664,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-16T09:36:56.393128814Z"
+generated: "2026-09-16T10:28:44.486535088Z"
