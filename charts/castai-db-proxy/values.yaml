@@ -90,7 +90,7 @@ resources:
   memoryLimit: "2Gi"
 
 image:
-  repository: us-docker.pkg.dev/castai-hub/library/db-proxy
+  repository: ghcr.io/castai/images/db-proxy
   pullPolicy: IfNotPresent
   # -- Overrides the image tag. Defaults to Chart.appVersion.
   tag: ""
@@ -198,7 +198,7 @@ pooling:
     # -- Frequency in which pooling metrics are reported in seconds.
     report_metrics_frequency_seconds: 15
     image:
-      repository: us-docker.pkg.dev/castai-hub/library/db-pooling
+      repository: ghcr.io/castai/images/db-pooling
       pullPolicy: IfNotPresent
       tag: ""
     resources:
