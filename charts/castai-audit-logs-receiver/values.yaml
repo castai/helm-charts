@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 
 image:
-  repository: us-docker.pkg.dev/castai-hub/library/audit-logs-receiver
+  repository: ghcr.io/castai/images/audit-logs-receiver
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""

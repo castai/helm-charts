@@ -38,7 +38,7 @@ A Helm chart for CAST AI OpenTelemetry Collector.
 | fullnameOverride | string | `""` | Override the release name used for the full names of resources. |
 | hostNetwork | bool | `false` | Host networking requested for this pod. Use the host's network namespace. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"us-docker.pkg.dev/castai-hub/library/audit-logs-receiver"` |  |
+| image.repository | string | `"ghcr.io/castai/images/audit-logs-receiver"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` | Specify image pull secrets |
 | nameOverride | string | `""` | Override the name of the chart. |
