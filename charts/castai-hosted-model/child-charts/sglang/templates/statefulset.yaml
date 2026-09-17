@@ -72,6 +72,15 @@ spec:
         - name: models
           emptyDir: {}
         {{- end }}
+        {{- if .Values.cache.hostPath.enabled }}
+        # sglang JIT/autotune kernel cache, persisted on the host (shared across models)
+        # so restarts skip the compile/tune pass. Same hostPath convention as the
+        # model weights volume above.
+        - name: sglang-cache
+          hostPath:
+            path: {{ required "cache.hostPath.path must be set when cache.hostPath.enabled is true" .Values.cache.hostPath.path }}
+            type: {{ .Values.cache.hostPath.type }}
+        {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -125,6 +134,10 @@ spec:
           env:
             - name: HF_HOME # Co-locate the HuggingFace cache with the download dir
               value: /models
+            {{- if .Values.cache.hostPath.enabled }}
+            - name: SGLANG_CACHE_DIR # Persist JIT/autotune kernels on the host (see cache.hostPath)
+              value: /sglang-cache
+            {{- end }}
             {{- if .Values.ldLibraryPath }}
             - name: LD_LIBRARY_PATH
               value: {{ .Values.ldLibraryPath | quote }}
@@ -217,6 +230,10 @@ spec:
           {{- end }}
             - name: models
               mountPath: /models
+            {{- if .Values.cache.hostPath.enabled }}
+            - name: sglang-cache
+              mountPath: /sglang-cache
+            {{- end }}
             {{- with .Values.extraVolumeMounts }}
             {{- toYaml . | nindent 12 }}
             {{- end }}
