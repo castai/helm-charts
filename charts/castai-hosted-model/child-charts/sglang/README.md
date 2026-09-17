@@ -1,6 +1,6 @@
 # sglang
 
-![Version: 0.3.0](https://img.shields.io/badge/Version-0.3.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
+![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
 
 CAST AI hosted model deployment chart for SGLang.
 
@@ -9,6 +9,7 @@ CAST AI hosted model deployment chart for SGLang.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
+| cache | object | `{"hostPath":{"enabled":false,"path":"","type":"DirectoryOrCreate"}}` | Persistent sglang cache storage (JIT/autotune kernels). When hostPath is enabled, SGLANG_CACHE_DIR is set to a fixed container path (/sglang-cache) backed by a node-local directory shared across models (e.g. /mnt/cache/sglang), so pod restarts on the same node skip the multi-minute compile/tune pass after weights are loaded. Cache contents are keyed by kernel/graph hash, not by model, so one generic dir per node is correct. When disabled, no volume and no SGLANG_CACHE_DIR are emitted (sglang uses its in-container default). |
 | container.port | int | `8000` |  |
 | containerSecurityContext | object | `{}` |  |
 | deployment.labels | string | `nil` |  |

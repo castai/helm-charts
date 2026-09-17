@@ -17,6 +17,19 @@ persistence:
     path: ""
     type: DirectoryOrCreate
 
+# -- Persistent sglang cache storage (JIT/autotune kernels). When hostPath is
+# enabled, SGLANG_CACHE_DIR is set to a fixed container path (/sglang-cache)
+# backed by a node-local directory shared across models (e.g. /mnt/cache/sglang),
+# so pod restarts on the same node skip the multi-minute compile/tune pass after
+# weights are loaded. Cache contents are keyed by kernel/graph hash, not by
+# model, so one generic dir per node is correct. When disabled, no volume and
+# no SGLANG_CACHE_DIR are emitted (sglang uses its in-container default).
+cache:
+  hostPath:
+    enabled: false
+    path: ""
+    type: DirectoryOrCreate
+
 model:
   # -- HF model name or repo id (e.g. "meta-llama/Llama-3.1-8B-Instruct"). Only the HuggingFace source is supported.
   name:
