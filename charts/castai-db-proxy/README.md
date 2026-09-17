@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.19.1](https://img.shields.io/badge/Version-0.19.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.20.0](https://img.shields.io/badge/Version-0.20.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -25,7 +25,7 @@ CAST AI database proxy cache deployment.
 | dnsPolicy | string | `""` | Pod DNS policy. |
 | endpoints | list | `[]` | Upstream database endpoints. Each entry needs `address` (host:port) and `readonly` (bool). |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-proxy"` |  |
+| image.repository | string | `"ghcr.io/castai/images/db-proxy"` |  |
 | image.tag | string | `""` | Overrides the image tag. Defaults to Chart.appVersion. |
 | keepalive | object | `{"count":3,"idle_seconds":60,"interval_seconds":10}` | TCP keepalive for client and database connections. Probing is the only way to tell a connection whose far end vanished *without closing* (an evicted pod, a lost node, a killed database instance etc.) from one that is merely idle. Without it the proxy would wait on a read that will never complete, holding the connection and the database session behind it until the pod restarts. |
 | keepalive.count | int | `3` | Unanswered probes before the connection is dropped. |
@@ -40,7 +40,7 @@ CAST AI database proxy cache deployment.
 | pooling.configManager.discovery | object | `{"refresh_interval_seconds":10}` | Peer discovery settings. |
 | pooling.configManager.discovery.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
 | pooling.configManager.image.pullPolicy | string | `"IfNotPresent"` |  |
-| pooling.configManager.image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-pooling"` |  |
+| pooling.configManager.image.repository | string | `"ghcr.io/castai/images/db-pooling"` |  |
 | pooling.configManager.image.tag | string | `""` |  |
 | pooling.configManager.port | int | `50051` | gRPC listen port for the config manager. |
 | pooling.configManager.report_metrics_frequency_seconds | int | `15` | Frequency in which pooling metrics are reported in seconds. |
