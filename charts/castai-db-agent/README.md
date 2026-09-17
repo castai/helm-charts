@@ -1,6 +1,6 @@
 # castai-db-agent
 
-![Version: 0.25.0](https://img.shields.io/badge/Version-0.25.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.26.0](https://img.shields.io/badge/Version-0.26.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI DB agent deployment.
 
@@ -36,7 +36,7 @@ CAST AI DB agent deployment.
 | databaseInstanceID | string | `""` |  |
 | gRPCEndpoint | string | `""` | URL to the CAST AI API gRPC endpoint. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"us-docker.pkg.dev/castai-hub/library/db-agent"` |  |
+| image.repository | string | `"ghcr.io/castai/images/db-agent"` |  |
 | image.tag | string | `""` |  |
 | logLevel | string | `"info"` |  |
 | organizationID | string | `""` |  |

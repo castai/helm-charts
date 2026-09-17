@@ -3,7 +3,7 @@ apiKey: ""
 # -- URL to the CAST AI API endpoint.
 apiURL: ""
 image:
-  repository: us-docker.pkg.dev/castai-hub/library/db-agent
+  repository: ghcr.io/castai/images/db-agent
   pullPolicy: IfNotPresent
   tag: ""  # uses values from _versions.tpl for default value
 logLevel: info
