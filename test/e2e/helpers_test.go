@@ -24,7 +24,7 @@ func NewUmbrellaHelmHelper(releaseName, namespace, apiURL string) *UmbrellaHelmH
 	return &UmbrellaHelmHelper{namespace: namespace, releaseName: releaseName, apiURL: apiURL}
 }
 
-func (h *UmbrellaHelmHelper) InstallKentMode(apiKey string) error {
+func (h *UmbrellaHelmHelper) InstallKentMode(apiKey, provider string) error {
 	// preflight checks for Karpenter deployment + CRDs which don't exist on Kind.
 	// castai-aws-vpc-cni runs a pre-install hook that patches the aws-node daemonset,
 	// which also doesn't exist on Kind.
@@ -38,6 +38,7 @@ func (h *UmbrellaHelmHelper) InstallKentMode(apiKey string) error {
 		"--set", "kent.castai-workload-autoscaler-exporter.enabled=false",
 		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
 		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
+		"--set", fmt.Sprintf("global.castai.provider=%s", provider),
 		"--timeout", defaultHelmTimeout,
 	)
 	_, err := utils.Run(cmd)
