@@ -239,7 +239,7 @@ pooling:
       # -- Listening port for read-only connections.
       readOnly: 6402
     image:
-      repository: docker.io/proxysql/proxysql
+      repository: ghcr.io/castai/images/proxysql/proxysql
       pullPolicy: IfNotPresent
       tag: ""
     resources:
