@@ -21620,30 +21620,6 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc5/castai-0.0.0-rc5.tgz
     version: 0.0.0-rc5
   - apiVersion: v2
-    created: "2026-09-18T07:24:06.411451175Z"
-    dependencies:
-    - condition: kent.enabled
-      name: kent
-      repository: file://charts/kent
-      version: '*'
-    - name: autoscaler-anywhere
-      repository: file://charts/autoscaler-anywhere
-      tags:
-      - autoscaler-anywhere
-      version: '*'
-    - name: autoscaler-openshift
-      repository: file://charts/autoscaler-openshift
-      tags:
-      - autoscaler-openshift
-      version: '*'
-    description: Umbrella chart for CAST AI components.
-    digest: 0b00b5c8b97d7962a4fc5e6116a666db059e6b865eac241b23faa54a7353de49
-    name: castai
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc46/castai-0.0.0-rc46.tgz
-    version: 0.0.0-rc46
-  - apiVersion: v2
     created: "2026-09-16T13:37:42.106930513Z"
     dependencies:
     - condition: kent.enabled
@@ -21686,6 +21662,30 @@ entries:
       version: '*'
     description: Umbrella chart for CAST AI components.
     digest: b63c0d0e8ff2c53b7e1948fbf2ce322802004cd53f412a3bab35bb6c6c3eb986
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc46/castai-0.0.0-rc46.tgz
+    version: 0.0.0-rc46
+  - apiVersion: v2
+    created: "2026-09-18T07:24:06.411451175Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 0b00b5c8b97d7962a4fc5e6116a666db059e6b865eac241b23faa54a7353de49
     name: castai
     type: application
     urls:
@@ -74562,6 +74562,16 @@ entries:
     version: 0.0.2
   castware-operator:
   - apiVersion: v2
+    appVersion: v0.10.7-rc1
+    created: "2026-09-18T10:43:05.470448939Z"
+    description: CAST AI operator for managing Castware components.
+    digest: f6b7796078e630a50af77b9bb5caa638b25bf5f32948a08e96f8ddf451811896
+    name: castware-operator
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castware-operator-0.10.7-rc1/castware-operator-0.10.7-rc1.tgz
+    version: 0.10.7-rc1
+  - apiVersion: v2
     appVersion: v0.10.6
     created: "2026-09-14T07:49:33.994395656Z"
     description: CAST AI operator for managing Castware components.
@@ -74693,9 +74703,9 @@ entries:
     version: 0.10.0-rc1
   - apiVersion: v2
     appVersion: v0.9.3-rc1
-    created: "2026-08-06T11:44:26.268836169Z"
+    created: "2026-08-06T11:35:15.758843511Z"
     description: CAST AI operator for managing Castware components.
-    digest: f1d051f45aae1a841c945a15ba9dce8c04da4b6885139ef242abbd6539ee7a44
+    digest: d3b26a17de85d25d92a4937f02bca30bc4a59588d59626cd7a218c576520b918
     name: castware-operator
     type: application
     urls:
@@ -74703,9 +74713,9 @@ entries:
     version: 0.9.3-rc1
   - apiVersion: v2
     appVersion: v0.9.3-rc1
-    created: "2026-08-06T11:35:15.758843511Z"
+    created: "2026-08-06T11:44:26.268836169Z"
     description: CAST AI operator for managing Castware components.
-    digest: d3b26a17de85d25d92a4937f02bca30bc4a59588d59626cd7a218c576520b918
+    digest: f1d051f45aae1a841c945a15ba9dce8c04da4b6885139ef242abbd6539ee7a44
     name: castware-operator
     type: application
     urls:
@@ -78945,4 +78955,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-18T09:43:27.224233467Z"
+generated: "2026-09-18T10:43:05.514714673Z"
