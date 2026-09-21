@@ -55,7 +55,7 @@ Deploys the CAST AI kentroller — the in-cluster controller for KENT (Karpenter
 | global.registry | string | `""` |  |
 | global.tolerations | list | `[]` |  |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"us-docker.pkg.dev/castai-hub/library/kentroller"` |  |
+| image.repository | string | `"ghcr.io/castai/images/kentroller"` |  |
 | image.tag | string | `""` |  |
 | metrics | object | `{"enabled":true,"port":8443,"service":{"enabled":true}}` | Metrics endpoint configuration |
 | metrics.enabled | bool | `true` | Enable metrics endpoint on :8443 |
