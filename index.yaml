@@ -21784,30 +21784,6 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc47/castai-0.0.0-rc47.tgz
     version: 0.0.0-rc47
   - apiVersion: v2
-    created: "2026-09-18T07:56:23.362984554Z"
-    dependencies:
-    - condition: kent.enabled
-      name: kent
-      repository: file://charts/kent
-      version: '*'
-    - name: autoscaler-anywhere
-      repository: file://charts/autoscaler-anywhere
-      tags:
-      - autoscaler-anywhere
-      version: '*'
-    - name: autoscaler-openshift
-      repository: file://charts/autoscaler-openshift
-      tags:
-      - autoscaler-openshift
-      version: '*'
-    description: Umbrella chart for CAST AI components.
-    digest: b63c0d0e8ff2c53b7e1948fbf2ce322802004cd53f412a3bab35bb6c6c3eb986
-    name: castai
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc46/castai-0.0.0-rc46.tgz
-    version: 0.0.0-rc46
-  - apiVersion: v2
     created: "2026-09-18T07:24:06.411451175Z"
     dependencies:
     - condition: kent.enabled
@@ -21850,6 +21826,30 @@ entries:
       version: '*'
     description: Umbrella chart for CAST AI components.
     digest: 3df0fcc0003d4c24506ebc00a4ffb63435268d84b8b655302dc23183d1409fa6
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc46/castai-0.0.0-rc46.tgz
+    version: 0.0.0-rc46
+  - apiVersion: v2
+    created: "2026-09-18T07:56:23.362984554Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: b63c0d0e8ff2c53b7e1948fbf2ce322802004cd53f412a3bab35bb6c6c3eb986
     name: castai
     type: application
     urls:
@@ -63439,6 +63439,17 @@ entries:
     version: 0.0.1
   castai-spot-handler:
   - apiVersion: v2
+    appVersion: v0.35.7
+    created: "2026-09-21T17:58:19.142614251Z"
+    description: Spot Handler is the component responsible for scheduled events monitoring
+      and delivering them to the central platform.
+    digest: 78103335706a1f949f1add234d8f3234b61d91c6ef571b70c8bcef158eabeee2
+    name: castai-spot-handler
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-spot-handler-0.35.7/castai-spot-handler-0.35.7.tgz
+    version: 0.35.7
+  - apiVersion: v2
     appVersion: v0.35.6
     created: "2026-09-09T13:29:47.022697001Z"
     description: Spot Handler is the component responsible for scheduled events monitoring
@@ -79235,4 +79246,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-21T14:11:03.782743573Z"
+generated: "2026-09-21T17:58:19.188225122Z"
