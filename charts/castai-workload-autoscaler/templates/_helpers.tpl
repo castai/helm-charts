@@ -242,3 +242,35 @@ Keys are used as-is (same format as cluster-autoscaler CLI flags).
 {{- end -}}
 {{- join "," $args -}}
 {{- end -}}
+
+{{/*
+Determine whether the "admissions.enforcer/disabled" annotation should be added
+to the MutatingWebhookConfiguration.
+
+When webhook.aksAdmissionsEnforcerDisabled is:
+  - "auto" (default): add when the provider resolves to "aks", or when it cannot
+    be resolved at all (fail open — the annotation is ignored on non-AKS clusters)
+  - "true": always add
+  - "false": never add
+
+The provider resolves like the castai-agent chart: chart-local .Values.provider
+first, falling back to .Values.global.castai.provider. Standalone installs may
+have neither (e.g. historical releases deployed without globals) — fail open
+there: on AKS the admissions enforcer would block our webhook from protected
+namespaces, while non-AKS clusters simply ignore the annotation.
+
+Source: https://learn.microsoft.com/en-us/azure/aks/faq#can-admission-controller-webhooks-affect-kube-system-and-internal-aks-namespaces-
+*/}}
+{{- define "workload-autoscaler.aksAdmissionsEnforcerDisabled" -}}
+{{- $setting := "auto" -}}
+{{- if hasKey .Values.webhook "aksAdmissionsEnforcerDisabled" -}}
+{{- $setting = toString .Values.webhook.aksAdmissionsEnforcerDisabled -}}
+{{- end -}}
+{{- $global := .Values.global | default dict -}}
+{{- $provider := .Values.provider | default (dig "castai" "provider" "" $global) -}}
+{{- if eq $setting "true" -}}
+true
+{{- else if and (eq $setting "auto") (or (eq $provider "") (eq $provider "aks")) -}}
+true
+{{- end -}}
+{{- end -}}

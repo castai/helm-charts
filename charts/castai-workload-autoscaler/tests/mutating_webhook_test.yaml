@@ -1,0 +1,98 @@
+suite: workload-autoscaler mutating webhook configuration
+templates:
+  - templates/mutating-webhook-configuration.yaml
+capabilities:
+  majorVersion: 1
+  minorVersion: 21
+  apiVersions:
+    - admissionregistration.k8s.io/v1
+tests:
+  # ── admissions.enforcer/disabled annotation ─────────────────────────────
+
+  - it: should add admissions.enforcer annotation when provider is not set (fail open)
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+    asserts:
+      - equal:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+          value: "true"
+
+  - it: should not add admissions.enforcer annotation when provider is gke
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      global.castai.provider: gke
+    asserts:
+      - notExists:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+
+  - it: should add admissions.enforcer annotation when chart-local provider is aks
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      provider: aks
+    asserts:
+      - equal:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+          value: "true"
+
+  - it: should not add admissions.enforcer annotation when chart-local provider is gke
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      provider: gke
+    asserts:
+      - notExists:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+
+  - it: should prefer chart-local provider over global.castai.provider
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      provider: gke
+      global.castai.provider: aks
+    asserts:
+      - notExists:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+
+  - it: should add admissions.enforcer annotation when provider is aks and setting is auto
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      global.castai.provider: aks
+    asserts:
+      - equal:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+          value: "true"
+
+  - it: should add admissions.enforcer annotation when setting is true regardless of provider
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      webhook.aksAdmissionsEnforcerDisabled: true
+    asserts:
+      - equal:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+          value: "true"
+
+  - it: should not add admissions.enforcer annotation when setting is false even on aks
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      global.castai.provider: aks
+      webhook.aksAdmissionsEnforcerDisabled: false
+    asserts:
+      - notExists:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+
+  - it: should add admissions.enforcer annotation when setting is true on aks
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      global.castai.provider: aks
+      webhook.aksAdmissionsEnforcerDisabled: true
+    asserts:
+      - equal:
+          path: metadata.annotations["admissions.enforcer/disabled"]
+          value: "true"

@@ -1667,16 +1667,18 @@ spec:
                     containerName:
                       type: string
                     feature:
+                      description: |-
+                        Feature identifies the pipeline feature that produced this warning.
+                        Empty when the warning was emitted by the recommender itself.
                       type: string
                     id:
-                      description: RecommendationWarningID identifies a specific warning
-                        generated during recommendation.
+                      description: RecWarn identifies a specific warning spotted while
+                        generating the recommendation.
                       type: string
                     message:
                       type: string
                   required:
                   - containerName
-                  - feature
                   - id
                   type: object
                 type: array

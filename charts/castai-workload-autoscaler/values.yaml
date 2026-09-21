@@ -110,6 +110,15 @@ webhook:
   # timeoutSeconds -- Controls duration for how long Control Plane will wait for webhook to respond (includes
   # connection and waiting for response)
   # timeoutSeconds: 10
+  # aksAdmissionsEnforcerDisabled -- Controls whether the "admissions.enforcer/disabled: true" annotation
+  # is added to the MutatingWebhookConfiguration. On AKS, this exempts our webhook from the AKS
+  # admissions enforcer that blocks webhooks from running on kube-system and other protected namespaces.
+  # When set to "auto" (default), the annotation is added when the provider resolves to "aks" or when
+  # it cannot be resolved (neither provider nor global.castai.provider is set) — fail open, since the
+  # annotation is ignored on non-AKS clusters.
+  # Set to "true" to force-add the annotation regardless of provider.
+  # Set to "false" to never add the annotation.
+  aksAdmissionsEnforcerDisabled: "auto"
 
 # telemetryDebug -- Configuration for telemetry debug to collect controller runtime metrics.
 # When enabled, the controller emits its own Prometheus metrics (memory, CPU, cache size, etc.) to CAST AI.
@@ -199,6 +208,14 @@ resources:
 hostNetwork: false
 # dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
 dnsPolicy: ""
+
+# provider -- Name of the Kubernetes service provider
+# one of: "eks", "gke", "aks", "kops", "anywhere".
+# Used by webhook.aksAdmissionsEnforcerDisabled="auto" to decide whether the
+# admissions.enforcer/disabled annotation is added. Falls back to
+# global.castai.provider when empty; when neither is set the annotation is
+# added (fail open) — it is ignored on non-AKS clusters.
+provider: ""
 
 castai:
   # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API

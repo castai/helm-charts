@@ -4,9 +4,15 @@ metadata:
   name: {{ include "workload-autoscaler.webhookName" . }}
   labels:
   {{- include "workload-autoscaler.labels" . | nindent 4 }}
-  {{ if .Values.commonAnnotations -}}
+  {{- $enforcerDisabled := include "workload-autoscaler.aksAdmissionsEnforcerDisabled" . | trim }}
+  {{- if or .Values.commonAnnotations $enforcerDisabled }}
   annotations:
+    {{- if $enforcerDisabled }}
+    admissions.enforcer/disabled: "true"
+    {{- end }}
+    {{ if .Values.commonAnnotations -}}
     {{- include "workload-autoscaler.annotations" . | nindent 4 }}
+    {{- end }}
   {{- end }}
 webhooks:
   - name: workload-autoscaler.cast.ai
