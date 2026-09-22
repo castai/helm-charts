@@ -117,6 +117,13 @@ spec:
                               IgnoreBlockingPDB allows rebalancing pods blocked by PodDisruptionBudgets with 0 disruptions allowed.
                               WARNING: May violate PDB guarantees during eviction.
                             type: boolean
+                          ignoreBlockingPDBTimeout:
+                            description: |-
+                              IgnoreBlockingPDBTimeout specifies how long to wait before force-deleting PDB-blocked pods.
+                              If not specified, defaults to 10m (DefaultPDBBlockedPodForceDeleteTimeout).
+                              Only takes effect when ignoreBlockingPDB is true.
+                              Format: duration string (e.g., "5m", "10m", "30m")
+                            type: string
                           ignoreConsolidatable:
                             description: |-
                               IgnoreConsolidatable allows rebalancing nodes whose NodeClaim does not yet have the

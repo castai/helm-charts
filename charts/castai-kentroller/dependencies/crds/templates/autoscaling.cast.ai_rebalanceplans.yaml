@@ -86,6 +86,13 @@ spec:
                         a deadline annotation is placed on the NodeClaim; after the deadline, only PDB-blocked
                         pods are force-deleted (not all pods on the node).
                       type: boolean
+                    ignoreBlockingPDBTimeout:
+                      description: |-
+                        IgnoreBlockingPDBTimeout specifies how long to wait before force-deleting PDB-blocked pods.
+                        If not specified, defaults to 10m (DefaultPDBBlockedPodForceDeleteTimeout).
+                        Only takes effect when ignoreBlockingPDB is true.
+                        Format: duration string (e.g., "5m", "10m", "30m")
+                      type: string
                     ignoreZeroNodePoolDisruptionBudgets:
                       description: |-
                         IgnoreZeroNodePoolDisruptionBudgets overrides NodePool disruption budgets that allow 0
