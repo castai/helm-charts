@@ -136,6 +136,13 @@ castai:
     # - opt-out (default): all NodePools are included unless annotated "exclude".
     # - opt-in: only NodePools annotated "include" are included.
     nodePoolFilterMode: opt-out
+    # castai.commitmentBudgets.drainMode -- Controls over-limit drain enforcement.
+    # - off (default): no drain claims are created; over-limit pools emit warning events only.
+    # - safe: over-limit budget NodePools get auto-executing RebalancePlanClaims
+    #   that respect PDBs and NodePool disruption budgets.
+    # - aggressive: drain claims ignore blocking PDBs and zero NodePool
+    #   disruption budgets and evict aggressively until back within limits.
+    drainMode: off
   # castai.continuousRebalancing -- Continuous rebalancing feature configuration
   continuousRebalancing:
     # castai.continuousRebalancing.enabled -- Whether continuous rebalancing is enabled
