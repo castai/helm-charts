@@ -112,6 +112,12 @@ castai:
     # namespaces. Disable this if you do not use hard hostname/zone TopologySpreadConstraints
     # and want to avoid transient identity churn. Default: true.
     namespaceLabeling: true
+    # castai.rebalance.softTSCSpreading -- Spread pods with soft (ScheduleAnyway) zone
+    # TopologySpreadConstraints across AZs during rebalancing/consolidation, instead of packing
+    # them wherever is cheapest. Hot-reloadable via kubectl-edit on the dynamic config ConfigMap.
+    # Changes consolidation aggressiveness for existing customers, so it needs explicit opt-in.
+    # Default: false.
+    softTSCSpreading: false
     # castai.rebalance.disruptGuard -- Enable the disrupt guard for manual/scheduled rebalance
     # plans: while a plan executes, cluster nodes are annotated with
     # karpenter.sh/do-not-disrupt=true so the Karpenter consolidator does not compete for the
