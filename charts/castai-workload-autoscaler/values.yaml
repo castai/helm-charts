@@ -12,7 +12,7 @@ global:
     apiKeySecretRef: ""
 
 image:
-  repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
+  repository: ghcr.io/castai/images/workload-autoscaler
   pullPolicy: IfNotPresent
   tag: ""
 
@@ -167,7 +167,7 @@ jmxExporter:
   enabled: true
   initImage:
     # repository -- Init container image that contains the JMX exporter isolator and javaagent jars.
-    repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+    repository: ghcr.io/castai/images/jmx-exporter-init
     # tag -- Image tag for the init container. Bundles jmx_prometheus_isolator_javaagent.jar and jmx_prometheus_javaagent.jar.
     tag: 1.6.0-v2
   # imagePullSecrets -- secret names appended to each injected pod's imagePullSecrets.
