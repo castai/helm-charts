@@ -115,7 +115,7 @@ castai-kvisor:
       cluster-proxy-enabled: "true"
 
 castai-chart-upgrader:
-  enabled: false
+  enabled: true
   chart:
     name: castai
     repository: "https://castai.github.io/helm-charts"
