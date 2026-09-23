@@ -33,7 +33,7 @@ on:
         description: 'Component release tag to simulate (e.g. castai-agent-0.158.0)'
         required: true
       rc_version:
-        description: 'Umbrella RC version to publish (e.g. 0.0.0-rc42). If omitted, the next available RC counter is used.'
+        description: 'Umbrella RC number to publish (e.g. 51 publishes 0.0.0-rc51). If omitted, the next available RC counter is used.'
         required: false
         default: ''
 
@@ -74,13 +74,13 @@ jobs:
       - name: Validate RC version
         if: github.event_name == 'workflow_dispatch' && inputs.rc_version != ''
         env:
-          RC_VERSION: ${{ inputs.rc_version }}
+          RC_NUMBER: ${{ inputs.rc_version }}
         run: |
-          if [[ "$RC_VERSION" != *-rc ]]; then
-            echo "ERROR: rc_version must end with '-rc' (got '${RC_VERSION}')."
+          if [[ ! "$RC_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: rc_version must be the RC number only, e.g. 51 (got '${RC_NUMBER}')."
             exit 1
           fi
-          echo "Using manually selected umbrella RC version: ${RC_VERSION}"
+          echo "Using manually selected umbrella RC version: 0.0.0-rc${RC_NUMBER}"
 
       - name: Check if component is tracked in umbrella
         id: check
@@ -354,13 +354,13 @@ jobs:
         id: rc
         if: steps.changed.outputs.any == 'true'
         env:
-          RC_VERSION: ${{ inputs.rc_version }}
+          RC_NUMBER: ${{ inputs.rc_version }}
         run: |
           CHART_YAML="kubecast/castai-umbrella/chart/Chart.yaml"
           CURRENT=$(yq '.version' "$CHART_YAML")
 
-          if [ -n "$RC_VERSION" ]; then
-            NEW_VERSION="$RC_VERSION"
+          if [ -n "$RC_NUMBER" ]; then
+            NEW_VERSION="0.0.0-rc${RC_NUMBER}"
           else
             RC_NUM=$(echo "$CURRENT" | grep -oP 'rc\K\d+$' || echo "0")
             NEXT_RC=$((RC_NUM + 1))
