@@ -2351,6 +2351,41 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-09-23T06:41:50.998094855Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    - import-values:
+      - child: exports
+        parent: global.castai
+      name: readonly-profile
+      repository: file://charts/readonly-profile
+      tags:
+      - readonly
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 2098aae82ddd0d3b73561060a3075be5f1a8e80dfbb83273732aca2792c77020
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.43.238/castai-0.43.238.tgz
+    version: 0.43.238
+  - apiVersion: v2
     created: "2026-09-22T14:41:40.097819425Z"
     dependencies:
     - condition: kent.enabled
@@ -34428,6 +34463,15 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-db-optimizer-0.1.0/castai-db-optimizer-0.1.0.tgz
     version: 0.1.0
   castai-db-proxy:
+  - apiVersion: v2
+    created: "2026-09-23T06:41:51.130648428Z"
+    description: CAST AI database proxy cache deployment.
+    digest: 2a089ac4be9a5cb36311c3818ab6b4ed6021775575780a9c38e16c5222a6997a
+    name: castai-db-proxy
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-db-proxy-0.22.0/castai-db-proxy-0.22.0.tgz
+    version: 0.22.0
   - apiVersion: v2
     created: "2026-09-18T08:48:06.793245022Z"
     description: CAST AI database proxy cache deployment.
@@ -79582,4 +79626,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-23T06:29:07.862447287Z"
+generated: "2026-09-23T06:41:51.138513941Z"
