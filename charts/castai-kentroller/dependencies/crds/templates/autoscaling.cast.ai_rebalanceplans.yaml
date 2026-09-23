@@ -101,6 +101,23 @@ spec:
                         WARNING: May violate NodePool disruption budget guarantees.
                       type: boolean
                   type: object
+                compressedData:
+                  description: |-
+                    CompressedData holds compressed spec fields when the plan exceeds the etcd size threshold.
+                    When populated, compression candidate fields (NodeClaimsToAdd, PodsToMigrate, NodeClaimsToDelete) are nil.
+                  properties:
+                    algorithm:
+                      description: Algorithm is the compression algorithm used.
+                      enum:
+                        - zstd
+                      type: string
+                    data:
+                      description: |-
+                        Data is the zstd-compressed JSON payload, stored as bytes
+                        (Kubernetes serializes []byte as base64 in JSON).
+                      format: byte
+                      type: string
+                  type: object
                 execute:
                   default: false
                   description: |-
@@ -553,6 +570,23 @@ spec:
                           description: PriceMonthly is the total monthly cost as a decimal string (hourly * 730).
                           type: string
                       type: object
+                  type: object
+                compressedData:
+                  description: |-
+                    CompressedData holds compressed status fields when the plan exceeds the etcd size threshold.
+                    When populated, compression candidate fields (NodesCreation, NodesDeletion, Savings, etc.) are nil.
+                  properties:
+                    algorithm:
+                      description: Algorithm is the compression algorithm used.
+                      enum:
+                        - zstd
+                      type: string
+                    data:
+                      description: |-
+                        Data is the zstd-compressed JSON payload, stored as bytes
+                        (Kubernetes serializes []byte as base64 in JSON).
+                      format: byte
+                      type: string
                   type: object
                 conditions:
                   description: |-
