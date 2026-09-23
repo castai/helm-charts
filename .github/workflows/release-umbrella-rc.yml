@@ -5,7 +5,10 @@ name: Release umbrella RC
 #
 #  1. Image tag in values.yaml (autoscaler.<component>.image.tag)
 #     — for flat-template autoscaler/workload-autoscaler modes.
-#     Derives the image tag from the GitHub release tag (v<chart_version>).
+#     Derives the image tag from the GitHub release tag (v<chart_version>),
+#     except castai-cluster-controller, whose image tag is read from the
+#     released chart's appVersion (chart version and image version are
+#     independent series for that component).
 #
 #  2. Subchart dependency version in charts/kent/Chart.yaml,
 #     charts/autoscaler-anywhere/Chart.yaml, and
@@ -170,16 +173,49 @@ jobs:
         env:
           CHART_NAME: ${{ steps.parse.outputs.chart_name }}
           CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag_name }}
         run: |
+          set -euo pipefail
           # Image tags follow the GitHub release tag directly:
           #   castai-kvisor-1.55.21 → v1.55.21
           # Exceptions:
           #   - castai-live: images don't carry the v prefix.
+          #   - castai-cluster-controller: chart version and image version are
+          #     independent series. The real image tag is the published chart's
+          #     appVersion, so read it from the released chart package instead
+          #     of the release tag.
           if [ "$CHART_NAME" = "castai-live" ]; then
             echo "image_tag=${CHART_VERSION}" >> $GITHUB_OUTPUT
-          else
-            echo "image_tag=v${CHART_VERSION}" >> $GITHUB_OUTPUT
+            exit 0
           fi
+          if [ "$CHART_NAME" = "castai-cluster-controller" ]; then
+            CHART_TGZ="/tmp/${CHART_NAME}-${CHART_VERSION}.tgz"
+            ASSET_URL="https://github.com/castai/helm-charts/releases/download/${RELEASE_TAG}/${CHART_NAME}-${CHART_VERSION}.tgz"
+            # The release event can fire before cr finishes attaching the chart
+            # package — retry until the asset is downloadable.
+            DOWNLOADED=false
+            for ATTEMPT in 1 2 3 4 5; do
+              if curl -fsSL "$ASSET_URL" -o "$CHART_TGZ"; then
+                DOWNLOADED=true
+                break
+              fi
+              echo "Chart package not downloadable yet (attempt ${ATTEMPT}/5) — retrying in 30s..."
+              sleep 30
+            done
+            if [ "$DOWNLOADED" != "true" ]; then
+              echo "ERROR: could not download ${ASSET_URL} after 5 attempts."
+              exit 1
+            fi
+            IMAGE_TAG=$(tar -xzOf "$CHART_TGZ" "${CHART_NAME}/Chart.yaml" | yq '.appVersion')
+            if [ -z "$IMAGE_TAG" ] || [ "$IMAGE_TAG" = "null" ]; then
+              echo "ERROR: ${CHART_NAME}/Chart.yaml in the released package has no appVersion — cannot derive the image tag."
+              exit 1
+            fi
+            echo "castai-cluster-controller: image tag from released chart appVersion: ${IMAGE_TAG}"
+            echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "image_tag=v${CHART_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Install Python dependencies
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
