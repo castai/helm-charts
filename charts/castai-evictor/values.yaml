@@ -128,7 +128,7 @@ updateStrategy:
   type: Recreate
 
 image:
-  repository: us-docker.pkg.dev/castai-hub/library/evictor
+  repository: ghcr.io/castai/images/evictor
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
@@ -235,9 +235,9 @@ apiKeySecretRef: ""
 # clusterVPA -- Cluster proportional vertical autoscaler for the evictor deployment
 # https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler.
 clusterVPA:
-  repository: "us-docker.pkg.dev/castai-hub/library/cpa/cpvpa"
+  repository: "ghcr.io/castai/images/cpa/cpvpa"
   enabled: true
-  version: v0.8.13
+  version: v0.8.14
   pollPeriodSeconds: 300
   resources: {}
   # configOverride -- Override the default ClusterVPA calculation configuration.
