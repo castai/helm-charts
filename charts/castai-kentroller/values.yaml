@@ -181,6 +181,11 @@ castai:
     deleteEmptyCycleIntervalSeconds: 60
     # castai.continuousRebalancing.minNodeAgeSeconds -- Minimum time in seconds a node must exist before it is considered for replacement. Avoids churning nodes that just started up.
     minNodeAgeSeconds: 300
+    # castai.continuousRebalancing.diagnosticsVerbose -- Emit full per-node continuous rebalancing diagnostics logs
+    # (crb_node_decision / crb_node_blocker entries and cycle-status lines such as "no good nodes found").
+    # When false, only the aggregate crb_cycle_summary entry is emitted per cycle. Hot-reloadable via the
+    # dynamic ConfigMap; flip to true temporarily for a debugging window on a specific cluster.
+    diagnosticsVerbose: false
     # castai.continuousRebalancing.evictionConfig -- Fine-grained control over which pods and nodes
     # may be touched during rebalancing. Each entry targets either pods or nodes (not both).
     #

@@ -440,6 +440,181 @@ spec:
                   that was rejected (e.g. for not meeting the configured savings threshold), reported
                   to explain why the claim did not proceed rather than describing executed savings.
                 type: string
+              proposedSavings:
+                description: |-
+                  ProposedSavings is the rejected best plan's full savings summary, including the
+                  per-node blue/green cost details the plan would have produced had it proceeded.
+                  Populated when a plan was built and then rejected (skipped or failed); nil when no
+                  plan was built before the rejection (e.g. an empty node selection).
+                properties:
+                  blueNodes:
+                    description: BlueNodes contains per-node resource and cost details
+                      for nodes being removed.
+                    items:
+                      description: NodeCostDetails carries resolved resource and cost
+                        details for a single node in a rebalancing plan.
+                      properties:
+                        instanceType:
+                          description: InstanceType is the resolved instance type
+                            (e.g., "m5.xlarge").
+                          type: string
+                        isSpot:
+                          description: IsSpot indicates whether this is a spot/preemptible
+                            instance.
+                          type: boolean
+                        memoryMiB:
+                          description: MemoryMiB is the memory capacity in mebibytes.
+                          format: int64
+                          type: integer
+                        milliCPU:
+                          description: MilliCPU is the CPU capacity in millicores
+                            (e.g., 4000 for 4 vCPUs).
+                          format: int64
+                          type: integer
+                        name:
+                          description: Name is the node or NodeClaim name.
+                          type: string
+                        priceHourly:
+                          description: PriceHourly is the hourly cost as a decimal
+                            string (e.g., "0.192").
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  currency:
+                    default: USD
+                    description: Currency is the currency code for all cost amounts
+                      (e.g., "USD", "EUR").
+                    type: string
+                  currentClusterHourlyCost:
+                    description: |-
+                      CurrentClusterHourlyCost is the estimated hourly cost of the entire current cluster.
+                      Format: decimal string (e.g., "3.42").
+                    type: string
+                  currentClusterMonthlyCost:
+                    description: |-
+                      CurrentClusterMonthlyCost is the estimated monthly cost of the entire current cluster.
+                      Format: decimal string (e.g., "2500.00").
+                    type: string
+                  currentClusterNodes:
+                    description: CurrentClusterNodes is the total number of nodes
+                      in the cluster before rebalancing.
+                    format: int32
+                    type: integer
+                  currentHourlyCost:
+                    description: |-
+                      CurrentHourlyCost is the estimated hourly cost of the current (blue) rebalanced nodes.
+                      Format: decimal string (e.g., "1.69").
+                    type: string
+                  currentMigratablePods:
+                    description: CurrentMigratablePods is the number of pods that
+                      can be migrated during rebalancing.
+                    format: int32
+                    type: integer
+                  currentMonthlyCost:
+                    description: |-
+                      CurrentMonthlyCost is the estimated monthly cost of the current (blue) rebalanced nodes.
+                      Format: decimal string (e.g., "1234.56").
+                    type: string
+                  currentProblematicPods:
+                    description: CurrentProblematicPods is the number of pods with
+                      issues preventing migration.
+                    format: int32
+                    type: integer
+                  currentReplaceableNodes:
+                    description: CurrentReplaceableNodes is the number of nodes selected
+                      for rebalancing (blue nodes).
+                    format: int32
+                    type: integer
+                  greenNodes:
+                    description: GreenNodes contains per-node resource and cost details
+                      for nodes being added.
+                    items:
+                      description: NodeCostDetails carries resolved resource and cost
+                        details for a single node in a rebalancing plan.
+                      properties:
+                        instanceType:
+                          description: InstanceType is the resolved instance type
+                            (e.g., "m5.xlarge").
+                          type: string
+                        isSpot:
+                          description: IsSpot indicates whether this is a spot/preemptible
+                            instance.
+                          type: boolean
+                        memoryMiB:
+                          description: MemoryMiB is the memory capacity in mebibytes.
+                          format: int64
+                          type: integer
+                        milliCPU:
+                          description: MilliCPU is the CPU capacity in millicores
+                            (e.g., 4000 for 4 vCPUs).
+                          format: int64
+                          type: integer
+                        name:
+                          description: Name is the node or NodeClaim name.
+                          type: string
+                        priceHourly:
+                          description: PriceHourly is the hourly cost as a decimal
+                            string (e.g., "0.192").
+                          type: string
+                      required:
+                      - name
+                      type: object
+                    type: array
+                  projectedClusterHourlyCost:
+                    description: |-
+                      ProjectedClusterHourlyCost is the estimated hourly cost of the entire cluster after rebalancing.
+                      Format: decimal string (e.g., "3.25").
+                    type: string
+                  projectedClusterMonthlyCost:
+                    description: |-
+                      ProjectedClusterMonthlyCost is the estimated monthly cost of the entire cluster after rebalancing.
+                      Format: decimal string (e.g., "2376.55").
+                    type: string
+                  projectedClusterNodes:
+                    description: ProjectedClusterNodes is the total number of nodes
+                      in the cluster after rebalancing.
+                    format: int32
+                    type: integer
+                  projectedClusterSavingsPercent:
+                    description: |-
+                      ProjectedClusterSavingsPercent is the percentage of cost reduction relative to total cluster spend.
+                      Format: decimal string (e.g., "10.2" means 10.2% cluster savings).
+                    type: string
+                  projectedGreenNodes:
+                    description: ProjectedGreenNodes is the number of new nodes added
+                      during rebalancing (green nodes).
+                    format: int32
+                    type: integer
+                  projectedHourlyCost:
+                    description: |-
+                      ProjectedHourlyCost is the estimated hourly cost of the new (green) rebalanced nodes.
+                      Format: decimal string (e.g., "1.52").
+                    type: string
+                  projectedMonthlyCost:
+                    description: |-
+                      ProjectedMonthlyCost is the estimated monthly cost of the new (green) rebalanced nodes.
+                      Format: decimal string (e.g., "1111.11").
+                    type: string
+                  projectedSavingsCostHourly:
+                    description: |-
+                      ProjectedSavingsCostHourly is the estimated hourly cost savings from executing this plan.
+                      Format: decimal string (e.g., "0.17", "-0.07").
+                    type: string
+                  projectedSavingsCostMonthly:
+                    description: |-
+                      ProjectedSavingsCostMonthly is the estimated monthly cost savings from executing this plan.
+                      Positive values indicate cost reduction, negative values indicate cost increase.
+                      This is calculated as: CurrentMonthlyCost - ProjectedMonthlyCost.
+                      Format: decimal string (e.g., "123.45", "-50.00").
+                    type: string
+                  projectedSavingsPercent:
+                    description: |-
+                      ProjectedSavingsPercent is the percentage of cost reduction relative to current spend.
+                      Format: decimal string (e.g., "15.5" means 15.5% savings).
+                    type: string
+                type: object
               rebalanceName:
                 description: |-
                   RebalanceName is the name of the created Rebalance CR.
