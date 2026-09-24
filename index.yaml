@@ -22968,54 +22968,6 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc36/castai-0.0.0-rc36.tgz
     version: 0.0.0-rc36
   - apiVersion: v2
-    created: "2026-09-04T10:53:52.393884007Z"
-    dependencies:
-    - condition: kent.enabled
-      name: kent
-      repository: file://charts/kent
-      version: '*'
-    - name: autoscaler-anywhere
-      repository: file://charts/autoscaler-anywhere
-      tags:
-      - autoscaler-anywhere
-      version: '*'
-    - name: autoscaler-openshift
-      repository: file://charts/autoscaler-openshift
-      tags:
-      - autoscaler-openshift
-      version: '*'
-    description: Umbrella chart for CAST AI components.
-    digest: 93b6cf54fa7ef9f0a75504261f68cc1f9c2fb2b68cf1078a72ef2602c066baf6
-    name: castai
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc35/castai-0.0.0-rc35.tgz
-    version: 0.0.0-rc35
-  - apiVersion: v2
-    created: "2026-09-03T12:44:43.31088904Z"
-    dependencies:
-    - condition: kent.enabled
-      name: kent
-      repository: file://charts/kent
-      version: '*'
-    - name: autoscaler-anywhere
-      repository: file://charts/autoscaler-anywhere
-      tags:
-      - autoscaler-anywhere
-      version: '*'
-    - name: autoscaler-openshift
-      repository: file://charts/autoscaler-openshift
-      tags:
-      - autoscaler-openshift
-      version: '*'
-    description: Umbrella chart for CAST AI components.
-    digest: 81349987039a116eef185dcd52b861ed24fa065c88ae93bd2d6185cd40872bfa
-    name: castai
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc35/castai-0.0.0-rc35.tgz
-    version: 0.0.0-rc35
-  - apiVersion: v2
     created: "2026-09-03T19:24:14.558465196Z"
     dependencies:
     - condition: kent.enabled
@@ -23058,6 +23010,54 @@ entries:
       version: '*'
     description: Umbrella chart for CAST AI components.
     digest: 646dfc676c293cf2641a84b05c2aebd88630a3a1953f6255e5adbfdfc70d0cbf
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc35/castai-0.0.0-rc35.tgz
+    version: 0.0.0-rc35
+  - apiVersion: v2
+    created: "2026-09-04T10:53:52.393884007Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 93b6cf54fa7ef9f0a75504261f68cc1f9c2fb2b68cf1078a72ef2602c066baf6
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc35/castai-0.0.0-rc35.tgz
+    version: 0.0.0-rc35
+  - apiVersion: v2
+    created: "2026-09-03T12:44:43.31088904Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 81349987039a116eef185dcd52b861ed24fa065c88ae93bd2d6185cd40872bfa
     name: castai
     type: application
     urls:
@@ -55369,6 +55369,26 @@ entries:
         - name: Public Docs
           url: https://docs.cast.ai/docs/sec-kvisor-overview
     apiVersion: v2
+    appVersion: v1.165.4
+    created: "2026-09-24T08:36:01.215453954Z"
+    dependencies:
+    - alias: clickhouse-operator
+      condition: reliabilityMetrics.operator.enabled
+      name: altinity-clickhouse-operator
+      repository: https://docs.altinity.com/clickhouse-operator/
+      version: 0.27.0
+    description: CAST AI security and observability.
+    digest: 8ac8479a709b07c097214636b12ab8ba145d60b8aa35a1d5637dfb46e41251af
+    name: castai-kvisor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-kvisor-1.165.4/castai-kvisor-1.165.4.tgz
+    version: 1.165.4
+  - annotations:
+      artifacthub.io/links: |
+        - name: Public Docs
+          url: https://docs.cast.ai/docs/sec-kvisor-overview
+    apiVersion: v2
     appVersion: v1.165.3
     created: "2026-09-07T09:03:03.815181548Z"
     dependencies:
@@ -80339,4 +80359,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-23T18:43:02.858632623Z"
+generated: "2026-09-24T08:36:01.357356466Z"
