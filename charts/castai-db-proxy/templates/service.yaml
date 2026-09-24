@@ -12,16 +12,32 @@ spec:
   {{- end }}
   ports:
     - name: rw
-      port: {{ .Values.ports.readWrite }}
+      port: {{ include "castai-db-proxy.servicePort" . }}
       targetPort: rw
-      protocol: TCP
-    - name: ro
-      port: {{ .Values.ports.readOnly }}
-      targetPort: ro
       protocol: TCP
     - name: metrics
       port: {{ .Values.ports.metrics }}
       targetPort: metrics
+      protocol: TCP
+  selector:
+    {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 4 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "castai-db-proxy.readonlyName" . }}
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+  annotations:
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+spec:
+  {{- with .Values.service.trafficDistribution }}
+  trafficDistribution: {{ . }}
+  {{- end }}
+  ports:
+    - name: ro
+      port: {{ include "castai-db-proxy.servicePort" . }}
+      targetPort: ro
       protocol: TCP
   selector:
     {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 4 }}

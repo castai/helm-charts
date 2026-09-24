@@ -100,3 +100,29 @@ one worker thread per available core.
 {{- define "castai-db-proxy.proxySqlImage" -}}
 {{- default (include "castai-db-proxy.defaultProxySqlVersion" .) .Values.pooling.proxySql.image.tag }}
 {{- end }}
+
+{{/*
+Name of the dedicated read-only service fronting the proxy.
+*/}}
+{{- define "castai-db-proxy.readonlyName" -}}
+{{- printf "%s-ro" (include "castai-db-proxy.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Client-facing port exposed by the proxy services. Each dedicated service
+(read-write and read-only) exposes the database protocol's default port so
+clients can connect without a custom port; the proxy's listen port is only
+the service's targetPort.
+*/}}
+{{- define "castai-db-proxy.servicePort" -}}
+{{- $protocol := lower .Values.protocol -}}
+{{- if eq $protocol "mysql" -}}
+{{- 3306 -}}
+{{- else if eq $protocol "postgresql" -}}
+{{- 5432 -}}
+{{- else if eq $protocol "oracle" -}}
+{{- 1521 -}}
+{{- else -}}
+{{- fail (printf "unsupported protocol %q: must be one of PostgreSQL, MySQL, Oracle" .Values.protocol) -}}
+{{- end -}}
+{{- end -}}
