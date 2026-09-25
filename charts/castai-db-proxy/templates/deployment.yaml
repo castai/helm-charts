@@ -104,10 +104,6 @@ spec:
                   fieldPath: metadata.namespace
             - name: K8S_DEPLOYMENT
               value: {{ include "castai-db-proxy.name" . }}
-            - name: RW_ENDPOINT
-              value: "{{ include "castai-db-proxy.name" . }}.{{ .Release.Namespace }}:{{ include "castai-db-proxy.servicePort" . }}"
-            - name: RO_ENDPOINT
-              value: "{{ include "castai-db-proxy.readonlyName" . }}.{{ .Release.Namespace }}:{{ include "castai-db-proxy.servicePort" . }}"
           securityContext:
             capabilities:
               drop:
