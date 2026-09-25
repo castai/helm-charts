@@ -60,8 +60,8 @@ CAST AI database proxy cache deployment.
 | pooling.replicas | int | `2` | Number of pooler replicas. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
 | ports.metrics | int | `9090` | Prometheus metrics port. |
-| ports.readOnly | int | `6142` | Listening port for read-only connections. |
-| ports.readWrite | int | `6141` | Listening port for read-write connections. |
+| ports.readOnly | int | `6142` | Port the proxy listens on for read-only connections. Clients connect through the `<release>-ro` service, which exposes the protocol's default port targeting this port. |
+| ports.readWrite | int | `6141` | Port the proxy listens on for read-write connections. Clients connect through the release service, which exposes the protocol's default port (5432 PostgreSQL, 3306 MySQL, 1521 Oracle) targeting this port. |
 | protocol | string | `"PostgreSQL"` | Database protocol. |
 | proxyID | string | `""` | ID of this proxy instance. |
 | queryMetricsBufferSize | int | `50000` | Maximum query metrics queued before new ones are dropped |
@@ -75,7 +75,7 @@ CAST AI database proxy cache deployment.
 | rollingUpdate.maxSurge | string | `"100%"` | Maximum number of pods that can be created above the desired number of pods during an update. |
 | rollingUpdate.maxUnavailable | int | `0` | Maximum number of pods that can be unavailable during an update. |
 | serverThreads | string | `""` | Worker threads for each proxy listener that serves traffic. Leave empty to derive from resources.cpu, rounded up (minimum 1). Set explicitly only to override that. Background services are fixed at one thread each and are unaffected. |
-| service.trafficDistribution | string | `"PreferClose"` | Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+. |
+| service.trafficDistribution | string | `"PreferClose"` | Traffic distribution policy for the proxy services (read-write and read-only). Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+. |
 | serviceAccountName | string | `""` | The name of the service account to be used by the pod. |
 | tls.secretName | string | `""` | Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert. |
 | tolerations | object | `{}` | Pod toleration rules. |

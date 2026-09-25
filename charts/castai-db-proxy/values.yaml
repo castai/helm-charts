@@ -40,9 +40,13 @@ protocol: "PostgreSQL"
 endpoints: []
 
 ports:
-  # -- Listening port for read-write connections.
+  # -- Port the proxy listens on for read-write connections. Clients connect
+  # through the release service, which exposes the protocol's default port
+  # (5432 PostgreSQL, 3306 MySQL, 1521 Oracle) targeting this port.
   readWrite: 6141
-  # -- Listening port for read-only connections.
+  # -- Port the proxy listens on for read-only connections. Clients connect
+  # through the `<release>-ro` service, which exposes the protocol's default
+  # port targeting this port.
   readOnly: 6142
   # -- Prometheus metrics port.
   metrics: 9090
@@ -68,8 +72,8 @@ logLevel: "info"
 serverThreads: ""
 
 service:
-  # -- Traffic distribution policy for the service. Set to "PreferClose" to reduce inter-zone traffic.
-  # Requires Kubernetes 1.31+.
+  # -- Traffic distribution policy for the proxy services (read-write and read-only).
+  # Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+.
   trafficDistribution: "PreferClose"
 
 # commonLabels -- Labels to add to all resources.

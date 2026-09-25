@@ -13,6 +13,10 @@ data:
     protocol = {{ .Values.protocol | quote }}
     databases_resolver = "api"
 
+    [environment]
+    proxy_available_address = "{{ include "castai-db-proxy.name" . }}.{{ .Release.Namespace }}:{{ include "castai-db-proxy.servicePort" . }}"
+    proxy_available_ro_address = "{{ include "castai-db-proxy.readonlyName" . }}.{{ .Release.Namespace }}:{{ include "castai-db-proxy.servicePort" . }}"
+
     [environment.k8s]
 
     [ports]
