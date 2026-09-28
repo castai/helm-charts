@@ -1,6 +1,6 @@
 # castai-dbo
 
-0.14.0
+0.15.0
 
 Umbrella chart for CAST AI Database Optimizer components.
 
@@ -14,9 +14,9 @@ Umbrella chart for CAST AI Database Optimizer components.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | db-agent(castai-db-agent) | 0.25.0 |
+| https://castai.github.io/helm-charts | db-agent(castai-db-agent) | 0.26.0 |
 | https://castai.github.io/helm-charts | db-optimizer(castai-db-optimizer) | 0.80.2 |
-| https://castai.github.io/helm-charts | db-proxy(castai-db-proxy) | 0.22.0 |
+| https://castai.github.io/helm-charts | db-proxy(castai-db-proxy) | 0.23.0 |
 
 ## Usage
 
