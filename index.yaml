@@ -2351,6 +2351,41 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-09-28T14:00:33.004744114Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    - import-values:
+      - child: exports
+        parent: global.castai
+      name: readonly-profile
+      repository: file://charts/readonly-profile
+      tags:
+      - readonly
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 21a701ed2401242000d575d28c426dcbb8ff0438e7b5695edcb2f5d7dbc30786
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.43.272/castai-0.43.272.tgz
+    version: 0.43.272
+  - apiVersion: v2
     created: "2026-09-28T13:19:28.202458853Z"
     dependencies:
     - condition: kent.enabled
@@ -30209,6 +30244,16 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-apa-runbook-operator-0.0.19/castai-apa-runbook-operator-0.0.19.tgz
     version: 0.0.19
   castai-audit-logs-receiver:
+  - apiVersion: v2
+    appVersion: v0.10.0
+    created: "2026-09-28T14:00:33.205492198Z"
+    description: A Helm chart for CAST AI OpenTelemetry Collector.
+    digest: d0c9c1f0d30f3e50814d9d5e1422b57bbecc94f92204019f09269a54382f39a5
+    name: castai-audit-logs-receiver
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-audit-logs-receiver-0.13.0/castai-audit-logs-receiver-0.13.0.tgz
+    version: 0.13.0
   - apiVersion: v2
     appVersion: v0.9.1
     created: "2026-09-17T14:02:17.814633243Z"
@@ -81742,4 +81787,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-28T13:29:59.877729902Z"
+generated: "2026-09-28T14:00:33.347129847Z"
