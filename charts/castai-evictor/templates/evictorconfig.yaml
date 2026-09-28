@@ -56,7 +56,7 @@ config:
   {{- end }}
 {{- end }}
 {{- if $rules }}
-  evictionRules:
+evictionRules:
   {{- range $rules }}
     {{- $rule := omit . "settings" }}
     {{- if .settings }}
@@ -70,7 +70,7 @@ config:
       {{- end }}
       {{- $rule = set $rule "settings" $crSettings }}
     {{- end }}
-    - {{ $rule | toYaml | nindent 6 | trim }}
+  - {{ $rule | toYaml | nindent 4 | trim }}
   {{- end }}
 {{- end }}
 {{- end }}

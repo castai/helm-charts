@@ -18,6 +18,64 @@ tests:
       - hasDocuments:
           count: 0
 
+  # ── EvictorConfig CR: evictionRules placement ──────────────────────────────
+
+  - it: renders evictionRules as a sibling of config (slice form)
+    set:
+      crdUpgrade:
+        enabled: true
+      customConfig:
+        - nodeSelector:
+            labelSelector:
+              matchLabels:
+                app: test
+          settings:
+            removalDisabled:
+              enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 3
+    asserts:
+      - matchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "\n  evictionRules:\n    - "
+      - notMatchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "\n    evictionRules:"
+
+  - it: renders evictionRules as a sibling of config (map form)
+    set:
+      crdUpgrade:
+        enabled: true
+      customConfig:
+        evictionRules:
+          - nodeSelector:
+              labelSelector:
+                matchLabels:
+                  app: test
+            settings:
+              removalDisabled:
+                enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 3
+    asserts:
+      - matchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "\n  evictionRules:\n    - "
+      - notMatchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "\n    evictionRules:"
+
+  - it: omits evictionRules when customConfig is empty
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 3
+    asserts:
+      - notMatchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "evictionRules:"
+
   # ── Pod security context (default) ──────────────────────────────────────────
 
   - it: renders full pod security context by default
