@@ -45,6 +45,12 @@ jobs:
       - name: Run chart-testing (lint)
         run: ct lint --debug --config ct.yaml
 
+      # castai-db-proxy is excluded from chart-testing (default values don't
+      # render), so its configuration matrix is verified by rendering each
+      # ci/ scenario and asserting on the output.
+      - name: Render-test castai-db-proxy configurations
+        run: charts/castai-db-proxy/ci/render-tests.sh
+
       - name: Check for merge conflict markers
         uses: olivernybroe/action-conflict-finder@v4.1
 

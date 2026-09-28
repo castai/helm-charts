@@ -1,0 +1,10 @@
+# PostgreSQL, no pooling, read-write upstream only.
+# Expect: no read-only available address and no -ro service; the read-write
+# available address is still advertised on the PostgreSQL default port 5432.
+apiKey: "ci-test-token"
+organizationID: "11111111-1111-1111-1111-111111111111"
+proxyID: "ci-test-proxy"
+protocol: "PostgreSQL"
+endpoints:
+  - address: "primary.db:5432"
+    readonly: false

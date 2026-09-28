@@ -1,0 +1,15 @@
+# PostgreSQL with pgdog pooling enabled and a read-only endpoint listed.
+# Expect: no read-only available address and no -ro service — db-proxy resolves
+# the pgdog sidecar as its only (read-write) endpoint in this mode, so a
+# read-only address must not be advertised.
+apiKey: "ci-test-token"
+organizationID: "11111111-1111-1111-1111-111111111111"
+proxyID: "ci-test-proxy"
+protocol: "PostgreSQL"
+endpoints:
+  - address: "primary.db:5432"
+    readonly: false
+  - address: "replica.db:5432"
+    readonly: true
+pooling:
+  enabled: true
