@@ -112,6 +112,12 @@ castai:
     # namespaces. Disable this if you do not use hard hostname/zone TopologySpreadConstraints
     # and want to avoid transient identity churn. Default: true.
     namespaceLabeling: true
+    # castai.rebalance.softTSCSpreading -- Spread pods with soft (ScheduleAnyway) zone
+    # TopologySpreadConstraints across AZs during rebalancing/consolidation, instead of packing
+    # them wherever is cheapest. Hot-reloadable via kubectl-edit on the dynamic config ConfigMap.
+    # Changes consolidation aggressiveness for existing customers, so it needs explicit opt-in.
+    # Default: false.
+    softTSCSpreading: false
     # castai.rebalance.disruptGuard -- Enable the disrupt guard for manual/scheduled rebalance
     # plans: while a plan executes, cluster nodes are annotated with
     # karpenter.sh/do-not-disrupt=true so the Karpenter consolidator does not compete for the
@@ -136,6 +142,13 @@ castai:
     # - opt-out (default): all NodePools are included unless annotated "exclude".
     # - opt-in: only NodePools annotated "include" are included.
     nodePoolFilterMode: opt-out
+    # castai.commitmentBudgets.drainMode -- Controls over-limit drain enforcement.
+    # - off (default): no drain claims are created; over-limit pools emit warning events only.
+    # - safe: over-limit budget NodePools get auto-executing RebalancePlanClaims
+    #   that respect PDBs and NodePool disruption budgets.
+    # - aggressive: drain claims ignore blocking PDBs and zero NodePool
+    #   disruption budgets and evict aggressively until back within limits.
+    drainMode: off
   # castai.continuousRebalancing -- Continuous rebalancing feature configuration
   continuousRebalancing:
     # castai.continuousRebalancing.enabled -- Whether continuous rebalancing is enabled
@@ -168,6 +181,11 @@ castai:
     deleteEmptyCycleIntervalSeconds: 60
     # castai.continuousRebalancing.minNodeAgeSeconds -- Minimum time in seconds a node must exist before it is considered for replacement. Avoids churning nodes that just started up.
     minNodeAgeSeconds: 300
+    # castai.continuousRebalancing.diagnosticsVerbose -- Emit full per-node continuous rebalancing diagnostics logs
+    # (crb_node_decision / crb_node_blocker entries and cycle-status lines such as "no good nodes found").
+    # When false, only the aggregate crb_cycle_summary entry is emitted per cycle. Hot-reloadable via the
+    # dynamic ConfigMap; flip to true temporarily for a debugging window on a specific cluster.
+    diagnosticsVerbose: false
     # castai.continuousRebalancing.evictionConfig -- Fine-grained control over which pods and nodes
     # may be touched during rebalancing. Each entry targets either pods or nodes (not both).
     #
@@ -214,6 +232,7 @@ castai:
     #   ignoreProblemPodsWithoutController: false
     #   ignoreInstanceCriteria: false
     #   ignoreBlockingPDB: false
+    #   ignoreBlockingPDBTimeout: 10m
     #   aggressiveEviction: false
     #   drainTimeout: 10m
     aggressiveModeConfig: {}

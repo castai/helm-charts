@@ -100,6 +100,8 @@ spec:
               value: {{ .Values.castai.commitmentBudgets.enabled | quote }}
             - name: COMMITMENT_BUDGETS_NODE_POOL_FILTER_MODE
               value: {{ .Values.castai.commitmentBudgets.nodePoolFilterMode | default "opt-out" | quote }}
+            - name: COMMITMENT_BUDGETS_DRAIN_MODE
+              value: {{ .Values.castai.commitmentBudgets.drainMode | default "off" | quote }}
             {{- if hasKey .Values.castai.rebalance "disruptGuard" }}
             - name: REBALANCER_DISRUPT_GUARD_ENABLED
               value: {{ .Values.castai.rebalance.disruptGuard | quote }}

@@ -23,7 +23,7 @@ Cluster utilization defragmentation tool
 | clusterIdConfigMapKeyRef.name | string | `""` | name and of the config map with cluster id |
 | clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
 | clusterIdSecretKeyRef.name | string | `""` |  |
-| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"us-docker.pkg.dev/castai-hub/library/cpa/cpvpa","resources":{},"version":"v0.8.13"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |
+| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"ghcr.io/castai/images/cpa/cpvpa","resources":{},"version":"v0.8.14"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |
 | commonAnnotations | object | `{}` |  |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | configMapLabels | object | `{}` |  |
@@ -60,7 +60,7 @@ Cluster utilization defragmentation tool
 | hostNetwork.enabled | bool | `false` | Enable host networking. |
 | ignorePodDisruptionBudgets | bool | `false` | Specifies whether the Evictor should ignore Pod Disruption Budgets (PDBs). If true, evictor will attempt to evict pods even if it would violate a PDB. Use with caution as this may disrupt application availability guarantees. |
 | image.pullPolicy | string | `"IfNotPresent"` |  |
-| image.repository | string | `"us-docker.pkg.dev/castai-hub/library/evictor"` |  |
+| image.repository | string | `"ghcr.io/castai/images/evictor"` |  |
 | image.tag | string | `""` |  |
 | imagePullSecrets | list | `[]` |  |
 | karpenterNodeCleanup | object | `{"enabled":false}` | Karpenter NodeClaim cleanup for nodes Evictor has drained. When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully drained, so Karpenter's termination controller can clean up the EC2 instance. Requires `nodeclaims.karpenter.sh` get/list/watch/delete permission (granted by this chart). |

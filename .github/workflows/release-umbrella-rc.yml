@@ -5,7 +5,10 @@ name: Release umbrella RC
 #
 #  1. Image tag in values.yaml (autoscaler.<component>.image.tag)
 #     — for flat-template autoscaler/workload-autoscaler modes.
-#     Derives the image tag from the GitHub release tag (v<chart_version>).
+#     Derives the image tag from the GitHub release tag (v<chart_version>),
+#     except castai-cluster-controller, whose image tag is read from the
+#     released chart's appVersion (chart version and image version are
+#     independent series for that component).
 #
 #  2. Subchart dependency version in charts/kent/Chart.yaml,
 #     charts/autoscaler-anywhere/Chart.yaml, and
@@ -30,7 +33,7 @@ on:
         description: 'Component release tag to simulate (e.g. castai-agent-0.158.0)'
         required: true
       rc_version:
-        description: 'Umbrella RC version to publish (e.g. 0.0.0-rc42). If omitted, the next available RC counter is used.'
+        description: 'Umbrella RC number to publish (e.g. 51 publishes 0.0.0-rc51). If omitted, the next available RC counter is used.'
         required: false
         default: ''
 
@@ -71,13 +74,13 @@ jobs:
       - name: Validate RC version
         if: github.event_name == 'workflow_dispatch' && inputs.rc_version != ''
         env:
-          RC_VERSION: ${{ inputs.rc_version }}
+          RC_NUMBER: ${{ inputs.rc_version }}
         run: |
-          if [[ "$RC_VERSION" != *-rc ]]; then
-            echo "ERROR: rc_version must end with '-rc' (got '${RC_VERSION}')."
+          if [[ ! "$RC_NUMBER" =~ ^[0-9]+$ ]]; then
+            echo "ERROR: rc_version must be the RC number only, e.g. 51 (got '${RC_NUMBER}')."
             exit 1
           fi
-          echo "Using manually selected umbrella RC version: ${RC_VERSION}"
+          echo "Using manually selected umbrella RC version: 0.0.0-rc${RC_NUMBER}"
 
       - name: Check if component is tracked in umbrella
         id: check
@@ -170,16 +173,49 @@ jobs:
         env:
           CHART_NAME: ${{ steps.parse.outputs.chart_name }}
           CHART_VERSION: ${{ steps.parse.outputs.chart_version }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag_name }}
         run: |
+          set -euo pipefail
           # Image tags follow the GitHub release tag directly:
           #   castai-kvisor-1.55.21 → v1.55.21
           # Exceptions:
           #   - castai-live: images don't carry the v prefix.
+          #   - castai-cluster-controller: chart version and image version are
+          #     independent series. The real image tag is the published chart's
+          #     appVersion, so read it from the released chart package instead
+          #     of the release tag.
           if [ "$CHART_NAME" = "castai-live" ]; then
             echo "image_tag=${CHART_VERSION}" >> $GITHUB_OUTPUT
-          else
-            echo "image_tag=v${CHART_VERSION}" >> $GITHUB_OUTPUT
+            exit 0
           fi
+          if [ "$CHART_NAME" = "castai-cluster-controller" ]; then
+            CHART_TGZ="/tmp/${CHART_NAME}-${CHART_VERSION}.tgz"
+            ASSET_URL="https://github.com/castai/helm-charts/releases/download/${RELEASE_TAG}/${CHART_NAME}-${CHART_VERSION}.tgz"
+            # The release event can fire before cr finishes attaching the chart
+            # package — retry until the asset is downloadable.
+            DOWNLOADED=false
+            for ATTEMPT in 1 2 3 4 5; do
+              if curl -fsSL "$ASSET_URL" -o "$CHART_TGZ"; then
+                DOWNLOADED=true
+                break
+              fi
+              echo "Chart package not downloadable yet (attempt ${ATTEMPT}/5) — retrying in 30s..."
+              sleep 30
+            done
+            if [ "$DOWNLOADED" != "true" ]; then
+              echo "ERROR: could not download ${ASSET_URL} after 5 attempts."
+              exit 1
+            fi
+            IMAGE_TAG=$(tar -xzOf "$CHART_TGZ" "${CHART_NAME}/Chart.yaml" | yq '.appVersion')
+            if [ -z "$IMAGE_TAG" ] || [ "$IMAGE_TAG" = "null" ]; then
+              echo "ERROR: ${CHART_NAME}/Chart.yaml in the released package has no appVersion — cannot derive the image tag."
+              exit 1
+            fi
+            echo "castai-cluster-controller: image tag from released chart appVersion: ${IMAGE_TAG}"
+            echo "image_tag=${IMAGE_TAG}" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "image_tag=v${CHART_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Install Python dependencies
         if: steps.parse.outputs.skip != 'true' && steps.check.outputs.skip != 'true'
@@ -318,13 +354,13 @@ jobs:
         id: rc
         if: steps.changed.outputs.any == 'true'
         env:
-          RC_VERSION: ${{ inputs.rc_version }}
+          RC_NUMBER: ${{ inputs.rc_version }}
         run: |
           CHART_YAML="kubecast/castai-umbrella/chart/Chart.yaml"
           CURRENT=$(yq '.version' "$CHART_YAML")
 
-          if [ -n "$RC_VERSION" ]; then
-            NEW_VERSION="$RC_VERSION"
+          if [ -n "$RC_NUMBER" ]; then
+            NEW_VERSION="0.0.0-rc${RC_NUMBER}"
           else
             RC_NUM=$(echo "$CURRENT" | grep -oP 'rc\K\d+$' || echo "0")
             NEXT_RC=$((RC_NUM + 1))
