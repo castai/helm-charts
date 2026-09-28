@@ -1,0 +1,16 @@
+# MySQL with ProxySQL pooling and a read-only endpoint listed.
+# Expect: read-only available address advertised and the -ro service deployed
+# on the MySQL default port 3306.
+apiKey: "ci-test-token"
+organizationID: "11111111-1111-1111-1111-111111111111"
+proxyID: "ci-test-proxy"
+protocol: "MySQL"
+endpoints:
+  - address: "mysql-primary.db:3306"
+    readonly: false
+  - address: "mysql-replica.db:3306"
+    readonly: true
+pooling:
+  enabled: true
+  proxySql:
+    userSecretRef: "mysql-credentials"
