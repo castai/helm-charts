@@ -102,10 +102,13 @@ one worker thread per available core.
 {{- end }}
 
 {{/*
-Name of the dedicated read-only service fronting the proxy.
+Name of the dedicated read-only service fronting the proxy. The base name is
+truncated to 60 characters before appending the "-ro" suffix so the final
+name never exceeds the 63-character DNS limit and can never collide with
+the main service name after truncation (60 + 3 = 63).
 */}}
 {{- define "castai-db-proxy.readonlyName" -}}
-{{- printf "%s-ro" (include "castai-db-proxy.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-ro" (include "castai-db-proxy.name" . | trunc 60 | trimSuffix "-") | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*

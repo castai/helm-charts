@@ -1,5 +1,9 @@
 {{- $proxySqlEnabled := and .Values.pooling.enabled (eq .Values.protocol "MySQL") -}}
 {{- $pgdogEnabled := and .Values.pooling.enabled (eq .Values.protocol "PostgreSQL") -}}
+{{- $allowedProtocols := list "PostgreSQL" "MySQL" "Oracle" }}
+{{- if not (has .Values.protocol $allowedProtocols) }}
+{{- fail (printf "protocol must be one of %v, got %q" $allowedProtocols .Values.protocol) }}
+{{- end -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
