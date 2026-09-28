@@ -53,6 +53,8 @@ spec:
                   fieldPath: status.podIP
             - name: CASTAI_API_URL
               value: {{ required "apiURL must be provided" .Values.castai.apiURL | quote }}
+            - name: CASTAI_INCLUDE_BODY
+              value: {{ .Values.castai.includeBody | default false | quote }}
             {{- if .Values.castai.clusterIdSecretKeyRef.name }}
             {{- if ne .Values.castai.clusterID "" }}
             {{- fail "choose clusterID OR clusterIdSecretKeyRef only" }}

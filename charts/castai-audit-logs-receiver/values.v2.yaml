@@ -24,6 +24,8 @@ castai:
     name: ""
     key: "CASTAI_CLUSTER_ID"
   apiURL: "https://api.cast.ai"
+  # Include the full JSON body of each audit event in the response.
+  includeBody: false
 
 commonAnnotations: {}
 commonLabels: {}
@@ -77,6 +79,7 @@ config:
         key: ${env:CASTAI_API_KEY}
       poll_interval: 10s
       page_limit: 100
+      include_body: ${env:CASTAI_INCLUDE_BODY}
       checkpoint_file: "/var/lib/otelcol/file_storage/audit_logs_v2_checkpoint.json"
       # Optional filters — all seven v2 filter dimensions.
       filters:
