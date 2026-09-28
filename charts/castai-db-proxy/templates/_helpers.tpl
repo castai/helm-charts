@@ -112,6 +112,26 @@ the main service name after truncation (60 + 3 = 63).
 {{- end -}}
 
 {{/*
+Name of the headless service used for cluster peer discovery. The base name
+is truncated to 54 characters (63 minus the "headless-" prefix) before the
+prefix is prepended so the service name never exceeds the 63-character DNS
+label limit. Base names of up to 54 characters render unchanged.
+*/}}
+{{- define "castai-db-proxy.headlessName" -}}
+{{- printf "headless-%s" (include "castai-db-proxy.name" . | trunc 54 | trimSuffix "-") | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Name of the headless service fronting the pooling config managers. The base
+name is truncated to 47 characters (63 minus "headless-" and "-pooler") so
+the service name never exceeds the 63-character DNS label limit. Base names
+of up to 47 characters render unchanged.
+*/}}
+{{- define "castai-db-proxy.poolerHeadlessName" -}}
+{{- printf "headless-%s-pooler" (include "castai-db-proxy.name" . | trunc 47 | trimSuffix "-") | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
 Client-facing port exposed by the proxy services. Each dedicated service
 (read-write and read-only) exposes the database protocol's default port so
 clients can connect without a custom port; the proxy's listen port is only

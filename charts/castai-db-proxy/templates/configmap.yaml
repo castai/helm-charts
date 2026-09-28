@@ -56,7 +56,7 @@ data:
 
     [cluster.discovery]
     type = "dns"
-    resolver_address = "headless-{{ include "castai-db-proxy.name" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.ports.cluster }}"
+    resolver_address = "{{ include "castai-db-proxy.headlessName" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.ports.cluster }}"
     refresh_interval_seconds = {{ .Values.cluster.refresh_interval_seconds }}
     {{- end }}
 
@@ -94,6 +94,6 @@ data:
 
     [pooling.config_manager.discovery]
     type = "dns"
-    resolver_address = "headless-{{ include "castai-db-proxy.name" . }}-pooler.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.configManager.port }}"
+    resolver_address = "{{ include "castai-db-proxy.poolerHeadlessName" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.pooling.configManager.port }}"
     refresh_interval_seconds = {{ .Values.pooling.configManager.discovery.refresh_interval_seconds }}
     {{- end }}
