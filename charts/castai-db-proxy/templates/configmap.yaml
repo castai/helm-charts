@@ -15,7 +15,9 @@ data:
 
     [environment]
     proxy_available_address = "{{ include "castai-db-proxy.name" . }}.{{ .Release.Namespace }}:{{ include "castai-db-proxy.servicePort" . }}"
+    {{- if include "castai-db-proxy.readonlyUpstream" . | eq "true" }}
     proxy_available_ro_address = "{{ include "castai-db-proxy.readonlyName" . }}.{{ .Release.Namespace }}:{{ include "castai-db-proxy.servicePort" . }}"
+    {{- end }}
 
     [environment.k8s]
 

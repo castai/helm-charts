@@ -21,6 +21,7 @@ spec:
       protocol: TCP
   selector:
     {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 4 }}
+{{- if include "castai-db-proxy.readonlyUpstream" . | eq "true" }}
 ---
 apiVersion: v1
 kind: Service
@@ -41,3 +42,4 @@ spec:
       protocol: TCP
   selector:
     {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 4 }}
+{{- end }}

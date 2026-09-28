@@ -126,3 +126,24 @@ the service's targetPort.
 {{- fail (printf "unsupported protocol %q: must be one of PostgreSQL, MySQL, Oracle" .Values.protocol) -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Whether a read-only upstream is configured for the proxy: at least one
+endpoint with readonly=true. Pgdog pooling (PostgreSQL) never qualifies —
+db-proxy resolves the pgdog sidecar as its only (read-write) endpoint in
+that mode, so a read-only address must not be advertised.
+*/}}
+{{- define "castai-db-proxy.readonlyUpstream" -}}
+{{- $pgdogEnabled := and .Values.pooling.enabled (eq .Values.protocol "PostgreSQL") -}}
+{{- if $pgdogEnabled -}}
+{{- false -}}
+{{- else -}}
+{{- $hasReadonly := false -}}
+{{- range .Values.endpoints -}}
+{{- if .readonly -}}
+{{- $hasReadonly = true -}}
+{{- end -}}
+{{- end -}}
+{{- $hasReadonly -}}
+{{- end -}}
+{{- end -}}

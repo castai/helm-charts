@@ -44,9 +44,9 @@ ports:
   # through the release service, which exposes the protocol's default port
   # (5432 PostgreSQL, 3306 MySQL, 1521 Oracle) targeting this port.
   readWrite: 6141
-  # -- Port the proxy listens on for read-only connections. Clients connect
-  # through the `<release>-ro` service, which exposes the protocol's default
-  # port targeting this port.
+  # -- Port the proxy listens on for read-only connections. Only used when a read-only
+  # upstream endpoint is configured: clients then connect through the `<release>-ro`
+  # service, which exposes the protocol's default port targeting this port.
   readOnly: 6142
   # -- Prometheus metrics port.
   metrics: 9090
