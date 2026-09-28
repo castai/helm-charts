@@ -60123,6 +60123,27 @@ entries:
     version: 0.0.0-pipeline-test-2
   castai-live:
   - apiVersion: v2
+    appVersion: v0.132.2
+    created: "2026-09-28T15:47:10.930355513Z"
+    dependencies:
+    - name: castai-live-crds
+      repository: file://dependencies/crds
+      version: 0.0.38
+    - name: castai-aws-vpc-cni-extra
+      repository: file://dependencies/aws-vpc-cni-extra
+      version: 0.0.1
+    - alias: castai-aws-vpc-cni
+      name: aws-vpc-cni
+      repository: file://dependencies/aws-vpc-cni
+      version: 1.21.2
+    description: CAST AI live migration components deployment chart.
+    digest: 40b1c6f317af3acc0ac130ec3e6f6bec7be8898a96de7dc3165601a47ef048ce
+    name: castai-live
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-live-0.132.2/castai-live-0.132.2.tgz
+    version: 0.132.2
+  - apiVersion: v2
     appVersion: v0.132.1
     created: "2026-09-28T13:17:18.773067035Z"
     dependencies:
@@ -81811,4 +81832,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-28T14:26:25.215869568Z"
+generated: "2026-09-28T15:47:10.937207843Z"
