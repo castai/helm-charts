@@ -22985,30 +22985,6 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc53/castai-0.0.0-rc53.tgz
     version: 0.0.0-rc53
   - apiVersion: v2
-    created: "2026-09-28T10:37:13.731683151Z"
-    dependencies:
-    - condition: kent.enabled
-      name: kent
-      repository: file://charts/kent
-      version: '*'
-    - name: autoscaler-anywhere
-      repository: file://charts/autoscaler-anywhere
-      tags:
-      - autoscaler-anywhere
-      version: '*'
-    - name: autoscaler-openshift
-      repository: file://charts/autoscaler-openshift
-      tags:
-      - autoscaler-openshift
-      version: '*'
-    description: Umbrella chart for CAST AI components.
-    digest: 929d304ae7087302c48f0e4a5a278634a7aafba3a6c06322cb5fe9286724092f
-    name: castai
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc52/castai-0.0.0-rc52.tgz
-    version: 0.0.0-rc52
-  - apiVersion: v2
     created: "2026-09-28T11:04:34.837223093Z"
     dependencies:
     - condition: kent.enabled
@@ -23051,6 +23027,30 @@ entries:
       version: '*'
     description: Umbrella chart for CAST AI components.
     digest: 4128457288682d9880d22858009f449f6ab43ca92ae435bf203fe675dd40e19b
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc52/castai-0.0.0-rc52.tgz
+    version: 0.0.0-rc52
+  - apiVersion: v2
+    created: "2026-09-28T10:37:13.731683151Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 929d304ae7087302c48f0e4a5a278634a7aafba3a6c06322cb5fe9286724092f
     name: castai
     type: application
     urls:
@@ -53067,6 +53067,23 @@ entries:
     version: 0.0.2
   castai-kentroller:
   - apiVersion: v2
+    appVersion: v0.20.0
+    created: "2026-09-28T13:29:59.679107763Z"
+    dependencies:
+    - condition: crds.enabled
+      name: castai-kentroller-crds
+      repository: file://dependencies/crds
+      version: 0.0.1
+    description: Deploys the CAST AI kentroller — the in-cluster controller for KENT
+      (Karpenter Enterprise by CAST AI), responsible for automated Kubernetes cluster
+      management.
+    digest: cf36676a372759310f35ce85440dc57ece465c4c0c2559bb8b8d3efa36392540
+    name: castai-kentroller
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-kentroller-0.20.0/castai-kentroller-0.20.0.tgz
+    version: 0.20.0
+  - apiVersion: v2
     appVersion: v0.19.0
     created: "2026-09-25T13:29:03.480356031Z"
     dependencies:
@@ -81725,4 +81742,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-09-28T13:19:28.20899079Z"
+generated: "2026-09-28T13:29:59.877729902Z"
