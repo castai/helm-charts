@@ -267,6 +267,31 @@ helm upgrade castai castai-helm/castai \
 
 ---
 
+## Image registry
+
+CAST AI images are migrating to GitHub Container Registry — charts now default to
+`ghcr.io/castai/images/*`. The same images are also published to Google Artifact Registry
+(`us-docker.pkg.dev/castai-hub/library/*`) with identical paths and tags, and both
+registries are fully supported.
+
+If your clusters cannot pull from `ghcr.io` (e.g. a registry allowlist) or you run into
+any issue with the new registry, fall back to GAR with the ready-made values file
+[`gar-values.yaml`](https://github.com/castai/helm-charts/blob/main/charts/castai-umbrella/gar-values.yaml):
+
+```shell
+helm upgrade --install castai castai-helm/castai \
+  --namespace castai-agent --create-namespace \
+  --set global.castai.apiKey=<YOUR_API_KEY> \
+  --set global.castai.provider=<eks|aks|gke> \
+  --set tags.full=true \
+  -f gar-values.yaml
+```
+
+The file covers all profiles and only rewrites registry prefixes — image versions stay
+managed by the chart, so it is safe to keep across chart upgrades.
+
+---
+
 ## Values
 
 | Key | Type | Default | Description |

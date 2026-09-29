@@ -1,0 +1,166 @@
+# Fallback to Google Artifact Registry (us-docker.pkg.dev/castai-hub/library).
+#
+# CAST AI images are dual-published: every ghcr.io/castai/images/<image> is also
+# available as us-docker.pkg.dev/castai-hub/library/<image> (identical paths and
+# tags), so this file only rewrites repository prefixes — versions stay chart-managed.
+#
+# Usage (combine with your normal install flags/values):
+#   helm upgrade --install castai castai-helm/castai -f gar-values.yaml ...
+
+autoscaler:
+  castai-agent:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/agent
+    clusterVPA:
+      repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
+  castai-spot-handler:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/spot-handler
+  castai-kvisor:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/kvisor
+    agent:
+      gpu:
+        dcgmExporter:
+          image:
+            repository: us-docker.pkg.dev/castai-hub/library/nvidia/k8s/dcgm-exporter
+      reliabilityMetrics:
+        collector:
+          image:
+            repository: us-docker.pkg.dev/castai-hub/library/reliability-metrics-otel-collector
+    controller:
+      reliabilityMetrics:
+        collector:
+          image:
+            repository: us-docker.pkg.dev/castai-hub/library/reliability-metrics-otel-collector
+    eventGenerator:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/kvisor-event-generator
+  castai-cluster-controller:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/cluster-controller
+  castai-evictor:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/evictor
+    clusterVPA:
+      repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
+  castai-pod-mutator:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/pod-mutator
+  castai-pod-pinner:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/pod-pinner
+  castai-workload-autoscaler:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
+    jmxExporter:
+      initImage:
+        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+  castai-workload-autoscaler-exporter:
+    exporter:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
+    prometheus:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/prom/prometheus
+    crdUpgrade:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/kubectl
+  castai-live:
+    # castai-live resolves images as "<imageRegistry>/<image>"
+    imageRegistry: us-docker.pkg.dev/castai-hub/library
+
+autoscaler-anywhere:
+  castai-agent:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/agent
+    clusterVPA:
+      repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
+  castai-pod-mutator:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/pod-mutator
+  castai-evictor:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/evictor
+    clusterVPA:
+      repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
+  castai-cluster-controller:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/cluster-controller
+  castai-workload-autoscaler:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
+    jmxExporter:
+      initImage:
+        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+  castai-workload-autoscaler-exporter:
+    exporter:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
+    prometheus:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/prom/prometheus
+    crdUpgrade:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/kubectl
+
+autoscaler-openshift:
+  castai-agent:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/agent
+    clusterVPA:
+      repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
+
+kent:
+  castai-agent:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/agent
+    clusterVPA:
+      repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
+  castai-kentroller:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/kentroller
+  castai-pod-mutator:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/pod-mutator
+  castai-cluster-controller:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/cluster-controller
+  castai-workload-autoscaler:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
+    jmxExporter:
+      initImage:
+        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+  castai-workload-autoscaler-exporter:
+    exporter:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
+    prometheus:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/prom/prometheus
+    crdUpgrade:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/kubectl
+  castai-kvisor:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/kvisor
+    agent:
+      gpu:
+        dcgmExporter:
+          image:
+            repository: us-docker.pkg.dev/castai-hub/library/nvidia/k8s/dcgm-exporter
+      reliabilityMetrics:
+        collector:
+          image:
+            repository: us-docker.pkg.dev/castai-hub/library/reliability-metrics-otel-collector
+    controller:
+      reliabilityMetrics:
+        collector:
+          image:
+            repository: us-docker.pkg.dev/castai-hub/library/reliability-metrics-otel-collector
+    eventGenerator:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/kvisor-event-generator
+  castai-live:
+    imageRegistry: us-docker.pkg.dev/castai-hub/library

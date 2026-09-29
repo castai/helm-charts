@@ -3,6 +3,7 @@ package e2e
 import (
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	. "github.com/onsi/gomega"
@@ -81,6 +82,53 @@ func (h *UmbrellaHelmHelper) UpgradeToFullMode() error {
 	_, err := utils.Run(cmd)
 	if err != nil {
 		return fmt.Errorf("helm upgrade to full mode failed: %w", err)
+	}
+	return nil
+}
+
+// garValuesPath resolves the GAR fallback values file shipped with the chart.
+func garValuesPath() string {
+	return filepath.Join(chartPath, "gar-values.yaml")
+}
+
+// InstallAutoscalerReadonlyModeWithGAR installs readonly mode with the GAR
+// registry fallback values file (gar-values.yaml), so every CAST AI image is
+// pulled from us-docker.pkg.dev/castai-hub/library instead of ghcr.io.
+func (h *UmbrellaHelmHelper) InstallAutoscalerReadonlyModeWithGAR(apiKey, provider string) error {
+	cmd := exec.Command("helm", "upgrade", "--install", h.releaseName,
+		chartPath,
+		"--namespace", h.namespace,
+		"--create-namespace",
+		"--set", "tags.readonly=true",
+		"--set", fmt.Sprintf("global.castai.apiKey=%s", apiKey),
+		"--set", fmt.Sprintf("global.castai.apiURL=%s", h.apiURL),
+		"--set", fmt.Sprintf("global.castai.provider=%s", provider),
+		"-f", garValuesPath(),
+		"--timeout", defaultHelmTimeout,
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("helm install autoscaler readonly mode with GAR values failed: %w", err)
+	}
+	return nil
+}
+
+// UpgradeToFullModeWithGAR upgrades readonly → full while keeping the GAR
+// registry fallback in place. --reuse-values already preserves the values from
+// the initial install; gar-values.yaml is passed again to make that explicit.
+func (h *UmbrellaHelmHelper) UpgradeToFullModeWithGAR() error {
+	cmd := exec.Command("helm", "upgrade", h.releaseName,
+		chartPath,
+		"--namespace", h.namespace,
+		"--reuse-values",
+		"--set", "tags.readonly=false",
+		"--set", "tags.full=true",
+		"-f", garValuesPath(),
+		"--timeout", defaultHelmTimeout,
+	)
+	_, err := utils.Run(cmd)
+	if err != nil {
+		return fmt.Errorf("helm upgrade to full mode with GAR values failed: %w", err)
 	}
 	return nil
 }
@@ -305,6 +353,32 @@ func (p *PodHelper) VerifyAtLeastOnePodReady(g Gomega, deploymentName string) {
 		fmt.Sprintf("Deployment %s has no availableReplicas field yet", deploymentName))
 	g.Expect(available).NotTo(Equal("0"),
 		fmt.Sprintf("Deployment %s has 0 available replicas", deploymentName))
+}
+
+// VerifyAllPodImagesHavePrefix asserts that every container and init container
+// image of every pod in the namespace starts with requiredPrefix, tolerating
+// the given allowedPrefixes (external images that are documented exceptions).
+func (p *PodHelper) VerifyAllPodImagesHavePrefix(g Gomega, requiredPrefix string, allowedPrefixes ...string) {
+	jsonPaths := []string{
+		"{.items[*].spec.containers[*].image}",
+		"{.items[*].spec.initContainers[*].image}",
+	}
+	checked := 0
+	for _, jp := range jsonPaths {
+		cmd := exec.Command("kubectl", "get", "pods", "-n", p.namespace, "-o", "jsonpath="+jp)
+		output, err := utils.Run(cmd)
+		g.Expect(err).NotTo(HaveOccurred(), "failed to list pod images")
+		for _, image := range strings.Fields(output) {
+			allowed := strings.HasPrefix(image, requiredPrefix)
+			for _, prefix := range allowedPrefixes {
+				allowed = allowed || strings.HasPrefix(image, prefix)
+			}
+			g.Expect(allowed).To(BeTrue(),
+				fmt.Sprintf("pod image %s is not from %s (or an allowed exception)", image, requiredPrefix))
+			checked++
+		}
+	}
+	g.Expect(checked).NotTo(BeZero(), "no pod images found to verify")
 }
 
 // VerifyAgentConnected waits until the castai-agent has successfully registered
