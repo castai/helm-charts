@@ -681,6 +681,108 @@ var _ = Describe("castai-umbrella helm chart", Ordered, func() {
 	})
 
 	// -----------------------------------------------------------------------
+	// Full mode with GAR registry fallback (gar-values.yaml)
+	// -----------------------------------------------------------------------
+	Context("full mode with GAR registry fallback", Ordered, func() {
+		const (
+			kindClusterName = "castai-umbrella-gar"
+			releaseName     = "castai-gar"
+			provider        = "eks"
+			garPrefix       = "us-docker.pkg.dev/castai-hub/library/"
+		)
+		var (
+			kindHelper      *KindHelper
+			helmHelper      *UmbrellaHelmHelper
+			podHelper       *PodHelper
+			namespaceHelper *NamespaceHelper
+			apiKey          string
+		)
+
+		BeforeAll(func() {
+			verifyAPIKey := func(g Gomega) { apiKey = getAPIKey(g) }
+			verifyAPIKey(Default)
+			kindHelper = NewKindHelper(kindClusterName)
+			helmHelper = NewUmbrellaHelmHelper(releaseName, umbrellaNamespace, apiURL)
+			podHelper = NewPodHelper(umbrellaNamespace)
+			namespaceHelper = NewNamespaceHelper()
+			By(fmt.Sprintf("creating Kind cluster: %s", kindClusterName))
+			Expect(kindHelper.Create()).To(Succeed())
+			Expect(kindHelper.SetKubeContext()).To(Succeed())
+			kindHelper.WaitForReady(Default)
+		})
+
+		AfterAll(func() {
+			_ = helmHelper.Uninstall()
+			_ = namespaceHelper.Delete(umbrellaNamespace)
+			_ = kindHelper.Delete()
+		})
+
+		AfterEach(func() {
+			if CurrentSpecReport().Failed() {
+				collectDebugInfo(umbrellaNamespace)
+			}
+		})
+
+		It("should install successfully in readonly mode with GAR values", func() {
+			Expect(helmHelper.InstallAutoscalerReadonlyModeWithGAR(apiKey, provider)).To(Succeed())
+		})
+
+		It("should upgrade successfully to full mode with GAR values", func() {
+			Expect(helmHelper.UpgradeToFullModeWithGAR()).To(Succeed())
+		})
+
+		It("should have the release in deployed status", func() {
+			Eventually(helmHelper.VerifyReleaseInstalled, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should create the full-mode deployments", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-agent")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-cluster-controller")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+			Eventually(func(g Gomega) {
+				podHelper.VerifyDeploymentExists(g, "castai-workload-autoscaler")
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should have castai-agent registered with mothership", func() {
+			By("patching castai-agent with fake EKS env vars (provider=eks) so it can register")
+			Expect(patchAgentForE2E(umbrellaNamespace, apiURL)).To(Succeed())
+
+			By("waiting for castai-agent to register — configmap is created only after successful registration")
+			Eventually(func(g Gomega) {
+				podHelper.VerifyAgentConnected(g)
+			}, 10*time.Minute, 10*time.Second).Should(Succeed())
+		})
+
+		It("should have castai-agent pod running and ready on a GAR image", func() {
+			Eventually(func(g Gomega) {
+				podHelper.VerifyAtLeastOnePodReady(g, "castai-agent")
+			}, 5*time.Minute, 10*time.Second).Should(Succeed())
+		})
+
+		It("should pull every pod image from GAR", func() {
+			// Documented exceptions (never defaulted to ghcr.io/castai/images):
+			// evictor CRD-upgrade kubectl (registry.k8s.io) and castai-live hook
+			// images (ghcr.io/castai/live) — see gar-values.yaml header.
+			Eventually(func(g Gomega) {
+				podHelper.VerifyAllPodImagesHavePrefix(g, garPrefix,
+					"registry.k8s.io/",
+					"ghcr.io/castai/live/",
+				)
+			}, 2*time.Minute, 5*time.Second).Should(Succeed())
+		})
+
+		It("should have the GAR registry in release values", func() {
+			values, err := helmHelper.GetReleaseValues()
+			Expect(err).NotTo(HaveOccurred())
+			Expect(values).To(ContainSubstring("us-docker.pkg.dev/castai-hub/library"))
+		})
+	})
+
+	// -----------------------------------------------------------------------
 	// Uninstall
 	// -----------------------------------------------------------------------
 	Context("clean uninstall", Ordered, func() {

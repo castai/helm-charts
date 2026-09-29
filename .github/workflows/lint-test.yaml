@@ -45,6 +45,9 @@ jobs:
       - name: Run chart-testing (lint)
         run: ct lint --debug --config ct.yaml
 
+      - name: Check umbrella gar-values.yaml completeness
+        run: ./scripts/check-gar-values.sh
+
       - name: Check for merge conflict markers
         uses: olivernybroe/action-conflict-finder@v4.1
 
