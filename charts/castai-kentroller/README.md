@@ -68,7 +68,7 @@ Deploys the CAST AI kentroller — the in-cluster controller for KENT (Karpenter
 | metrics.service | object | `{"enabled":true}` | Create a Service for metrics |
 | nodeSelector | object | `{"kubernetes.io/os":"linux"}` | Node selector for pod scheduling. kentroller must run on Linux nodes only — it manages Windows node rebalancing but cannot run on Windows itself (no Windows build of the binary). |
 | podAnnotations | object | `{}` | Annotations applied to the pod template. |
-| provider | string | `"aws"` | Cloud provider for this cluster, selecting the cloud-provider implementation used by the rebalancer. One of: aws, azure, gcp. |
+| provider | string | `""` | Cloud provider for this cluster, selecting the cloud-provider implementation used by the rebalancer. One of: aws, azure, gcp. When empty, the provider is resolved from global.castai.provider using the upstream vocabulary (eks -> aws, aks -> azure, gke -> gcp), defaulting to "aws" when neither is set. |
 | replicaCount | int | `2` |  |
 | resources.limits.memory | string | `"2Gi"` |  |
 | resources.requests.cpu | int | `1` |  |

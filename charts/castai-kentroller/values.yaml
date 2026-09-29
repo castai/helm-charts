@@ -27,7 +27,10 @@ crds:
 
 # provider -- Cloud provider for this cluster, selecting the cloud-provider
 # implementation used by the rebalancer. One of: aws, azure, gcp.
-provider: aws
+# When empty, the provider is resolved from global.castai.provider using the
+# upstream vocabulary (eks -> aws, aks -> azure, gke -> gcp), defaulting to
+# "aws" when neither is set.
+provider: ""
 
 # azure -- Azure-specific configuration. Required when provider is "azure".
 azure:

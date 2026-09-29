@@ -84,14 +84,15 @@ spec:
                   fieldPath: metadata.labels['pod-template-hash']
             - name: DYNAMIC_CONFIG_MAP_NAME
               value: {{ include "castai-kentroller.dynamicConfigMapName" . }}
-            {{- if not (has .Values.provider (list "aws" "azure" "gcp")) }}
-            {{- fail "provider must be one of: aws, azure, gcp" }}
+            {{- $provider := include "castai-kentroller.resolvedProvider" . }}
+            {{- if not (has $provider (list "aws" "azure" "gcp")) }}
+            {{- fail (printf "provider must be one of: aws, azure, gcp (resolved %q from provider or global.castai.provider)" $provider) }}
             {{- end }}
-            {{- if and (eq .Values.provider "azure") (not .Values.azure.subscriptionID) }}
-            {{- fail "azure.subscriptionID is required when provider is \"azure\"" }}
+            {{- if and (eq $provider "azure") (not .Values.azure.subscriptionID) }}
+            {{- fail "azure.subscriptionID is required when provider resolves to \"azure\"" }}
             {{- end }}
             - name: PROVIDER
-              value: {{ .Values.provider | quote }}
+              value: {{ $provider | quote }}
             {{- if .Values.azure.subscriptionID }}
             - name: AZURE_SUBSCRIPTION_ID
               value: {{ .Values.azure.subscriptionID | quote }}

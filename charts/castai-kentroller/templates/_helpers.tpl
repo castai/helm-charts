@@ -33,6 +33,22 @@ Merge global and chart-level tolerations.
 {{- end }}
 
 {{/*
+Resolve the cloud provider used by the rebalancer. An explicit .Values.provider
+(aws, azure, gcp) always wins. When unset, fall back to global.castai.provider
+using the upstream-vocabulary mapping (eks→aws, aks→azure, gke→gcp), and
+finally default to "aws". The resolved value may be returned unvalidated;
+callers validate against the supported set.
+*/}}
+{{- define "castai-kentroller.resolvedProvider" -}}
+{{- if .Values.provider -}}
+{{- .Values.provider -}}
+{{- else -}}
+{{- $globalProvider := dig "castai" "provider" "" (default dict .Values.global) -}}
+{{- index (dict "eks" "aws" "aks" "azure" "gke" "gcp") $globalProvider | default "aws" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
 Expand the name of the chart.
 */}}
 {{- define "castai-kentroller.name" -}}
