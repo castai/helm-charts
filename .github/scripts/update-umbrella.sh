@@ -8,7 +8,14 @@ CHART_NAME="${1:?chart name required}"
 VERSION="${2:?version required}"
 REPO_ROOT="${3:-.}"
 
-mapfile -t SUBCHART_FILES < <(find "${REPO_ROOT}/charts/castai-umbrella/charts" -maxdepth 2 -name "Chart.yaml")
+# Enumerate wrapper charts; fail if none are found.
+shopt -s nullglob
+SUBCHART_FILES=("${REPO_ROOT}/charts/castai-umbrella/charts"/*/Chart.yaml)
+shopt -u nullglob
+if [ "${#SUBCHART_FILES[@]}" -eq 0 ]; then
+  echo "ERROR: no subchart Chart.yaml files found under ${REPO_ROOT}/charts/castai-umbrella/charts" >&2
+  exit 1
+fi
 
 CHANGED=false
 
