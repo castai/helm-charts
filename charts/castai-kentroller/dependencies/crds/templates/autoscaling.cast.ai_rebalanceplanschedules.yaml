@@ -159,6 +159,14 @@ spec:
                             description: IgnoreProblemRemovalDisabledPods allows rebalancing
                               pods marked with removal-disabled annotation.
                             type: boolean
+                          ignoreProblemRemovalDisabledPodsTimeout:
+                            description: |-
+                              IgnoreProblemRemovalDisabledPodsTimeout specifies how long to wait before force-deleting
+                              pods marked karpenter.sh/do-not-disrupt=true on nodes being drained by the plan.
+                              If not specified, defaults to 10m (DefaultRemovalDisabledPodForceDeleteTimeout).
+                              Only takes effect when ignoreProblemRemovalDisabledPods is true.
+                              Format: duration string (e.g., "5m", "10m", "30m")
+                            type: string
                           ignoreZeroNodePoolDisruptionBudgets:
                             description: |-
                               IgnoreZeroNodePoolDisruptionBudgets overrides NodePool disruption budgets that allow 0 disruptions

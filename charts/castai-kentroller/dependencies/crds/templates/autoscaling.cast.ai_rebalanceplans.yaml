@@ -93,6 +93,21 @@ spec:
                         Only takes effect when ignoreBlockingPDB is true.
                         Format: duration string (e.g., "5m", "10m", "30m")
                       type: string
+                    ignoreProblemRemovalDisabledPods:
+                      description: |-
+                        IgnoreProblemRemovalDisabledPods enables targeted force-deletion of pods marked
+                        karpenter.sh/do-not-disrupt=true during node drain. Such pods hard-block Karpenter's
+                        NodeClaim termination, so when this flag is set a deadline annotation is placed on
+                        the NodeClaim; after the deadline, only do-not-disrupt pods are force-deleted
+                        (not all pods on the node).
+                      type: boolean
+                    ignoreProblemRemovalDisabledPodsTimeout:
+                      description: |-
+                        IgnoreProblemRemovalDisabledPodsTimeout specifies how long to wait before force-deleting
+                        do-not-disrupt pods. If not specified, defaults to 10m (DefaultRemovalDisabledPodForceDeleteTimeout).
+                        Only takes effect when ignoreProblemRemovalDisabledPods is true.
+                        Format: duration string (e.g., "5m", "10m", "30m")
+                      type: string
                     ignoreZeroNodePoolDisruptionBudgets:
                       description: |-
                         IgnoreZeroNodePoolDisruptionBudgets overrides NodePool disruption budgets that allow 0
