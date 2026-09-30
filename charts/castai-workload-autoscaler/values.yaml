@@ -253,6 +253,11 @@ inPlaceResizeEnabled: true
 # Requires 'inPlaceResizeEnabled' to be set to true.
 inPlaceResizeDeferredEnabled: true
 
+# inPlaceResizeStuckTimeout -- How long a pending in-place resize may wait for the kubelet before
+# the pod is considered stuck and falls back to eviction. Go duration format (e.g. 30s, 5m).
+# Empty uses the controller default (5m).
+inPlaceResizeStuckTimeout: ""
+
 # expectations -- Pod expectations prevent over-eviction/detach/resize by blocking duplicate
 # actions until the cache catches up to previous writes.
 expectations:

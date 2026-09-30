@@ -59,10 +59,27 @@ spec:
                     description: Readonly indicates the recommendation must not be
                       applied to the workload.
                     type: boolean
-                  reason:
-                    description: Reason is a human-readable explanation of why the
-                      recommendation is readonly.
-                    type: string
+                  reasons:
+                    description: Reasons explain why the recommendation is readonly.
+                    items:
+                      description: ReadonlyReason explains why a recommendation must
+                        not be applied.
+                      properties:
+                        id:
+                          description: ID is a machine-consumable code for the reason.
+                          type: string
+                        message:
+                          description: Message is a human-readable explanation of
+                            this reason.
+                          type: string
+                      required:
+                      - id
+                      - message
+                      type: object
+                    type: array
+                    x-kubernetes-list-map-keys:
+                    - id
+                    x-kubernetes-list-type: map
                 required:
                 - readonly
                 type: object

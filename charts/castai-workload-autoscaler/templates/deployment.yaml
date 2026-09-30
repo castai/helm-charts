@@ -103,6 +103,10 @@ spec:
             - name: IN_PLACE_RESIZE_DEFERRED_ENABLED
               value: {{ quote .Values.inPlaceResizeDeferredEnabled }}
             {{- end}}
+            {{- if .Values.inPlaceResizeStuckTimeout }}
+            - name: IN_PLACE_RESIZE_STUCK_TIMEOUT
+              value: {{ quote .Values.inPlaceResizeStuckTimeout }}
+            {{- end }}
             {{- if hasKey .Values "expectations" }}
             {{- if hasKey .Values.expectations "timeout" }}
             - name: EXPECTATION_TIMEOUT
