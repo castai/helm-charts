@@ -103,6 +103,10 @@ affinity:
                 - windows
 
 exporter:
+  # verticalOptimization -- Controls vertical optimization for the exporter deployment
+  # itself via the workloads.cast.ai/configuration annotation. "on" (default) optimizes it,
+  # "off" disables vertical optimization.
+  verticalOptimization: "on"
   image:
     repository: ghcr.io/castai/images/workload-autoscaler
     pullPolicy: IfNotPresent
@@ -233,6 +237,10 @@ exporter:
 
 prometheus:
   enabled: true
+  # verticalOptimization -- Controls vertical optimization for the prometheus deployment
+  # itself via the workloads.cast.ai/configuration annotation. "on" (default) optimizes it,
+  # "off" disables vertical optimization.
+  verticalOptimization: "on"
   serviceAccount:
     # Specifies whether a service account should be created
     create: true

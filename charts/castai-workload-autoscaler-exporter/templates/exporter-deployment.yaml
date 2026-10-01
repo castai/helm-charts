@@ -6,7 +6,7 @@ metadata:
   annotations:
     workloads.cast.ai/configuration: |
       vertical:
-        optimization: "on"
+        optimization: {{ .Values.exporter.verticalOptimization | default "on" | quote }}
       scalingPolicyName: balanced
   labels:
   {{- include "exporter.labels" . | nindent 4 }}
