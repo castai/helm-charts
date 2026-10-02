@@ -37,4 +37,35 @@ webhooks:
     failurePolicy: Ignore
     sideEffects: NoneOnDryRun
     timeoutSeconds: 10
+  - name: mscale-rollout.castai.kb.io
+    admissionReviewVersions: ["v1"]
+    clientConfig:
+      # caBundle omitted; patched by the cert-rotator at runtime.
+      service:
+        name: {{ include "castai-kentroller.webhookServiceName" . }}
+        namespace: {{ .Release.Namespace }}
+        path: /mutate-argoproj-io-rollouts-scale
+        port: 443
+    rules:
+      - apiGroups: ["argoproj.io"]
+        apiVersions: ["v1alpha1"]
+        operations: ["UPDATE"]
+        resources: ["rollouts/scale"]
+        scope: Namespaced
+    namespaceSelector:
+      matchExpressions:
+        {{- if eq .Values.webhook.scaleDown.mode "opt-in" }}
+        - key: tsc-scaledown.cast.ai/enabled
+          operator: In
+          values:
+            - "true"
+        {{- else }}
+        - key: tsc-scaledown.cast.ai/disabled
+          operator: NotIn
+          values:
+            - "true"
+        {{- end }}
+    failurePolicy: Ignore
+    sideEffects: NoneOnDryRun
+    timeoutSeconds: 10
 {{- end }}

@@ -32,6 +32,15 @@ crds:
 # "aws" when neither is set.
 provider: ""
 
+# nodePoolFilterMode -- Controls which NodePools' nodes are eligible for consolidation and
+# rebalancing — both continuous rebalancing and scheduled/API-triggered
+# RebalancePlanClaims. Annotate a NodePool with kentroller.cast.ai/consolidation:
+# "include" or "exclude" to control inclusion.
+# - opt-out (default): all NodePools participate unless annotated "exclude".
+# - opt-in: only NodePools annotated "include" participate.
+# Static setting (env-based) — changing it requires a kentroller pod restart.
+nodePoolFilterMode: opt-out
+
 # azure -- Azure-specific configuration. Required when provider is "azure".
 azure:
   # azure.subscriptionID -- Azure subscription ID used for Azure inventory lookups.
