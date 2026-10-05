@@ -280,7 +280,7 @@
       "type": "string"
     },
     "tolerations": {
-      "type": ["array", "object", "null"],
+      "type": ["array", "null"],
       "items": {
         "type": "object"
       }
@@ -565,26 +565,6 @@
       "required": ["apiKeySecretRef"]
     }
   ],
-  "not": {
-    "allOf": [
-      {
-        "properties": {
-          "apiKey": {
-            "minLength": 1
-          }
-        },
-        "required": ["apiKey"]
-      },
-      {
-        "properties": {
-          "apiKeySecretRef": {
-            "minLength": 1
-          }
-        },
-        "required": ["apiKeySecretRef"]
-      }
-    ]
-  },
   "allOf": [
     {
       "description": "ProxySQL pooling: requires protocol MySQL, a non-null pooling.proxySql section, and a userSecretRef with the upstream DB credentials.",
