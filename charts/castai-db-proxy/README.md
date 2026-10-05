@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.23.0](https://img.shields.io/badge/Version-0.23.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.24.0](https://img.shields.io/badge/Version-0.24.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -78,7 +78,7 @@ CAST AI database proxy cache deployment.
 | service.trafficDistribution | string | `"PreferClose"` | Traffic distribution policy for the proxy services (read-write and read-only). Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+. |
 | serviceAccountName | string | `""` | The name of the service account to be used by the pod. |
 | tls.secretName | string | `""` | Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert. |
-| tolerations | object | `{}` | Pod toleration rules. |
+| tolerations | list | `[]` | Pod toleration rules. |
 | topologySpreadConstraints | list | `[]` | Pod topology spread constraints. |
 
 ----------------------------------------------

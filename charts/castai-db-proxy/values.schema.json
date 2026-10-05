@@ -1,0 +1,661 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "castai-db-proxy",
+  "description": "Values for the CAST AI database proxy chart. Mirrors the rules enforced by the chart templates: protocol enum, mutually exclusive apiKey/apiKeySecretRef, required organizationID/proxyID/endpoints, and the ProxySQL credentials requirement for MySQL pooling.",
+  "type": "object",
+  "additionalProperties": false,
+  "definitions": {
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "pullPolicy": {
+          "enum": ["Always", "IfNotPresent", "Never"]
+        },
+        "tag": {
+          "type": "string",
+          "description": "Overrides the image tag. Defaults to Chart.appVersion or the version pinned in templates/_versions.tpl."
+        }
+      }
+    },
+    "memoryQuantity": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9]+(\\.[0-9]+)?(Ei|Pi|Ti|Gi|Mi|Ki|E|P|T|G|M|k|m)?$"
+        },
+        {
+          "type": "integer",
+          "minimum": 0
+        }
+      ]
+    },
+    "resources": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "cpu": {
+          "description": "CPU request, e.g. \"2\", \"0.5\" or \"1500m\".",
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]+(\\.[0-9]+)?m?$"
+            },
+            {
+              "type": "integer",
+              "minimum": 0
+            }
+          ]
+        },
+        "memoryRequest": {
+          "$ref": "#/definitions/memoryQuantity"
+        },
+        "memoryLimit": {
+          "$ref": "#/definitions/memoryQuantity"
+        }
+      }
+    },
+    "port": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 65535
+    }
+  },
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "Umbrella charts toggle this subchart via condition db-proxy.enabled. Ignored when the chart is installed standalone."
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Overrides the base name of the generated resources."
+    },
+    "replicas": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "rollingUpdate": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "maxSurge": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9]+%$"
+            }
+          ]
+        },
+        "maxUnavailable": {
+          "anyOf": [
+            {
+              "type": "integer",
+              "minimum": 0
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9]+%$"
+            }
+          ]
+        }
+      }
+    },
+    "apiURL": {
+      "type": "string",
+      "minLength": 1,
+      "description": "URL to the CAST AI gRPC API server."
+    },
+    "apiKey": {
+      "type": "string",
+      "description": "Token used for authorizing access to the CAST AI API. Mutually exclusive with apiKeySecretRef; exactly one of them must be set."
+    },
+    "apiKeySecretRef": {
+      "type": "string",
+      "description": "Name of a secret providing the API token in .data[\"API_KEY\"]. Mutually exclusive with apiKey; exactly one of them must be set."
+    },
+    "queryMetricsFlushIntervalSeconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "queryMetricsMaxConcurrentRequests": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "queryMetricsBufferSize": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "operationalMetricsFlushIntervalSeconds": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "organizationID": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ID of the organization."
+    },
+    "proxyID": {
+      "type": "string",
+      "minLength": 1,
+      "description": "ID of this proxy instance."
+    },
+    "protocol": {
+      "enum": ["PostgreSQL", "MySQL", "Oracle"],
+      "description": "Database protocol of the upstream endpoints."
+    },
+    "endpoints": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Upstream database endpoints. At least one is required.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["address", "readonly"],
+        "properties": {
+          "address": {
+            "type": "string",
+            "pattern": "^.+:[0-9]+$",
+            "description": "Upstream address as host:port."
+          },
+          "readonly": {
+            "type": "boolean",
+            "description": "Whether the endpoint serves read-only connections."
+          }
+        }
+      }
+    },
+    "ports": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "readWrite": {
+          "$ref": "#/definitions/port",
+          "description": "Port the proxy listens on for read-write connections."
+        },
+        "readOnly": {
+          "$ref": "#/definitions/port",
+          "description": "Port the proxy listens on for read-only connections."
+        },
+        "metrics": {
+          "$ref": "#/definitions/port",
+          "description": "Prometheus metrics port."
+        },
+        "cluster": {
+          "$ref": "#/definitions/port",
+          "description": "Cluster peer communication port."
+        }
+      }
+    },
+    "cache": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "defaultTTLSecs": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "cluster": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "refresh_interval_seconds": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "logLevel": {
+      "enum": ["trace", "debug", "info", "warn", "error"]
+    },
+    "serverThreads": {
+      "description": "Worker threads per proxy listener. Empty (or null) derives from resources.cpu rounded up, minimum 1.",
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^([1-9][0-9]*)?$"
+        },
+        {
+          "type": "integer",
+          "minimum": 1
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "trafficDistribution": {
+          "enum": ["", "Cluster", "PreferClose", "ClosestClient"],
+          "description": "Traffic distribution policy for the proxy services. PreferClose/ClosestClient require Kubernetes 1.31+."
+        }
+      }
+    },
+    "commonLabels": {
+      "type": ["object", "null"],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "commonAnnotations": {
+      "type": ["object", "null"],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "podLabels": {
+      "type": ["object", "null"],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "podAnnotations": {
+      "type": ["object", "null"],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "resources": {
+      "$ref": "#/definitions/resources"
+    },
+    "image": {
+      "$ref": "#/definitions/image"
+    },
+    "serviceAccountName": {
+      "type": "string"
+    },
+    "tolerations": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object"
+      }
+    },
+    "nodeSelector": {
+      "type": ["object", "null"],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "affinity": {
+      "type": ["object", "null"]
+    },
+    "topologySpreadConstraints": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object"
+      }
+    },
+    "dnsPolicy": {
+      "enum": ["", "ClusterFirst", "ClusterFirstWithHostNet", "Default", "None"]
+    },
+    "dnsConfig": {
+      "type": ["object", "null"]
+    },
+    "connection_draining": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "grace_period_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "graceful_shutdown_timeout_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "pre_stop_sleep_seconds": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Set to 0 to disable the preStop sleep."
+        }
+      }
+    },
+    "tls": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "secretName": {
+          "type": "string",
+          "description": "Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert."
+        }
+      }
+    },
+    "keepalive": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "idle_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "interval_seconds": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "pooling": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Deploy the pooling config manager with a pooler. pgdog is used when protocol is PostgreSQL, ProxySQL when protocol is MySQL."
+        },
+        "replicas": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "databases": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": "Pre-configured database names. Defaults to [\"postgres\"] when empty."
+        },
+        "configManager": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "port": {
+              "$ref": "#/definitions/port",
+              "description": "gRPC listen port for the config manager."
+            },
+            "discovery": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "refresh_interval_seconds": {
+                  "type": "integer",
+                  "minimum": 1
+                }
+              }
+            },
+            "report_metrics_frequency_seconds": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "image": {
+              "$ref": "#/definitions/image"
+            },
+            "resources": {
+              "$ref": "#/definitions/resources"
+            }
+          }
+        },
+        "metricsPort": {
+          "$ref": "#/definitions/port",
+          "description": "Pooler metrics port."
+        },
+        "pgdog": {
+          "type": ["object", "null"],
+          "description": "PgDog pooler. Only used when protocol is PostgreSQL. Set to null to omit it.",
+          "additionalProperties": false,
+          "properties": {
+            "logLevel": {
+              "enum": ["error", "warn", "info", "debug", "trace"]
+            },
+            "port": {
+              "$ref": "#/definitions/port",
+              "description": "Pooler listen port. The proxy connects to the pooler on this port."
+            },
+            "admin": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "user": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "password": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              }
+            },
+            "image": {
+              "$ref": "#/definitions/image"
+            },
+            "resources": {
+              "$ref": "#/definitions/resources"
+            },
+            "config": {
+              "type": ["object", "null"],
+              "additionalProperties": {
+                "type": ["string", "number", "boolean"]
+              },
+              "description": "PgDog [general] config overrides, rendered into pgdog.toml. See https://docs.pgdog.dev/configuration/pgdog.toml/general/."
+            }
+          }
+        },
+        "proxySql": {
+          "type": ["object", "null"],
+          "description": "ProxySQL pooler. Only used when protocol is MySQL; mutually exclusive with pgdog. Set to null to omit it.",
+          "additionalProperties": false,
+          "properties": {
+            "ports": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "readWrite": {
+                  "$ref": "#/definitions/port",
+                  "description": "Listening port for read-write connections."
+                },
+                "readOnly": {
+                  "$ref": "#/definitions/port",
+                  "description": "Listening port for read-only connections."
+                }
+              }
+            },
+            "image": {
+              "$ref": "#/definitions/image"
+            },
+            "resources": {
+              "$ref": "#/definitions/resources"
+            },
+            "userSecretRef": {
+              "type": "string",
+              "description": "Name of an existing Secret containing the upstream DB user. Must contain DATABASE_USERNAME and DATABASE_PASSWORD keys. Required when pooling is enabled with protocol MySQL."
+            },
+            "config": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "threads": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Number of ProxySQL worker threads."
+                },
+                "max_connections": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Maximum number of frontend/client connections accepted by ProxySQL."
+                },
+                "stacksize": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Stack size, in bytes, allocated to each ProxySQL thread."
+                },
+                "have_compress": {
+                  "type": "boolean",
+                  "description": "Enable MySQL protocol compression support."
+                },
+                "free_connections_pct": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100,
+                  "description": "Percentage of free backend connections retained in the connection pool."
+                },
+                "connect_timeout_server": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Timeout, in milliseconds, for establishing a connection to a backend MySQL server."
+                },
+                "default_query_timeout": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Default query timeout, in milliseconds."
+                },
+                "auto_increment_delay_multiplex": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "Number of queries for which multiplexing is delayed after an AUTO_INCREMENT query."
+                },
+                "max_backend_connections": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "description": "Maximum number of backend connections maintained per MySQL server."
+                },
+                "multiplexing": {
+                  "type": "boolean",
+                  "description": "Enable query multiplexing in generated ProxySQL query rules."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "global": {
+      "type": "object",
+      "description": "Populated by Helm on every subchart render: umbrella charts pass global values down through this key. Must be accepted even when unset."
+    }
+  },
+  "anyOf": [
+    {
+      "properties": {
+        "apiKey": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["apiKey"]
+    },
+    {
+      "properties": {
+        "apiKeySecretRef": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": ["apiKeySecretRef"]
+    }
+  ],
+  "allOf": [
+    {
+      "description": "ProxySQL pooling: requires protocol MySQL, a non-null pooling.proxySql section, and a userSecretRef with the upstream DB credentials.",
+      "if": {
+        "properties": {
+          "protocol": {
+            "const": "MySQL"
+          },
+          "pooling": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          }
+        },
+        "required": ["protocol", "pooling"]
+      },
+      "then": {
+        "properties": {
+          "pooling": {
+            "properties": {
+              "proxySql": {
+                "type": "object",
+                "properties": {
+                  "userSecretRef": {
+                    "minLength": 1
+                  }
+                },
+                "required": ["userSecretRef"]
+              }
+            },
+            "required": ["proxySql"]
+          }
+        }
+      }
+    },
+    {
+      "description": "PgDog pooling: requires protocol PostgreSQL and a non-null pooling.pgdog section.",
+      "if": {
+        "properties": {
+          "protocol": {
+            "const": "PostgreSQL"
+          },
+          "pooling": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          }
+        },
+        "required": ["protocol", "pooling"]
+      },
+      "then": {
+        "properties": {
+          "pooling": {
+            "properties": {
+              "pgdog": {
+                "type": "object"
+              }
+            },
+            "required": ["pgdog"]
+          }
+        }
+      }
+    },
+    {
+      "description": "Pooling is only supported for PostgreSQL (pgdog) and MySQL (ProxySQL) protocols.",
+      "if": {
+        "properties": {
+          "pooling": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          }
+        },
+        "required": ["pooling"]
+      },
+      "then": {
+        "properties": {
+          "protocol": {
+            "enum": ["PostgreSQL", "MySQL"]
+          }
+        }
+      }
+    }
+  ]
+}

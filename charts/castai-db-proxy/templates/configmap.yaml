@@ -4,6 +4,9 @@
 {{- if not (has .Values.protocol $allowedProtocols) }}
 {{- fail (printf "protocol must be one of %v, got %q" $allowedProtocols .Values.protocol) }}
 {{- end -}}
+{{- if and .Values.apiKey .Values.apiKeySecretRef }}
+{{- fail "apiKey and apiKeySecretRef are mutually exclusive: exactly one must be set." }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
