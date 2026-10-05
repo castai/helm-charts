@@ -198,6 +198,12 @@ castai:
     # When false, only the aggregate crb_cycle_summary entry is emitted per cycle. Hot-reloadable via the
     # dynamic ConfigMap; flip to true temporarily for a debugging window on a specific cluster.
     diagnosticsVerbose: false
+    # castai.continuousRebalancing.disableDriftPlans -- Suppress drift plan generation entirely.
+    # When true, kentroller stops replacing nodes whose NodeClaim is Drifted (the Karpenter
+    # nodepool-hash template change); drifted nodes are left to Karpenter's own drift
+    # disruption. Hot-reloadable via the dynamic ConfigMap. Records
+    # drift_candidates_blocked{reason="disabled"} per cycle while active.
+    disableDriftPlans: false
     # castai.continuousRebalancing.evictionConfig -- Fine-grained control over which pods and nodes
     # may be touched during rebalancing. Each entry targets either pods or nodes (not both).
     #

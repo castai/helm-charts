@@ -836,6 +836,13 @@ spec:
                             nodeClaimName:
                               description: NodeClaimName is the name of the NodeClaim for this attempt (includes -attempt-N suffix)
                               type: string
+                            reason:
+                              description: |-
+                                Reason is the machine-readable classification of a failed attempt, populated with
+                                the event reason that caused it (e.g. "InsufficientCapacityError",
+                                "SubscriptionQuotaReached", "SpotInterrupted"). Plans recorded before this field
+                                existed leave it empty; consumers must fall back to matching Description.
+                              type: string
                             status:
                               description: Status describes the outcome of this attempt
                               enum:

@@ -58,6 +58,7 @@ data:
       minNodeAgeSeconds: {{ .Values.castai.continuousRebalancing.minNodeAgeSeconds }}
       {{- end }}
       diagnosticsVerbose: {{ .Values.castai.continuousRebalancing.diagnosticsVerbose | default false }}
+      disableDriftPlans: {{ .Values.castai.continuousRebalancing.disableDriftPlans | default false }}
       {{- with .Values.castai.continuousRebalancing.evictionConfig }}
       evictionConfig:
         {{- toYaml . | nindent 8 }}
