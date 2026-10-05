@@ -633,6 +633,29 @@
           }
         }
       }
+    },
+    {
+      "description": "Pooling is only supported for PostgreSQL (pgdog) and MySQL (ProxySQL) protocols.",
+      "if": {
+        "properties": {
+          "pooling": {
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          }
+        },
+        "required": ["pooling"]
+      },
+      "then": {
+        "properties": {
+          "protocol": {
+            "enum": ["PostgreSQL", "MySQL"]
+          }
+        }
+      }
     }
   ]
 }
