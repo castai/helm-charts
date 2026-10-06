@@ -31,7 +31,7 @@ spec:
       terminationGracePeriodSeconds: 5
       containers:
         - name: test-container
-          image: us-docker.pkg.dev/castai-hub/library/busybox:1.37.0
+          image: ghcr.io/castai/images/busybox:1.37.0
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           command: ["/bin/sh", "-c", "while true; do echo Hello Kubernetes; sleep 3600; done"]
       {{- with .Values.nodeSelector }}

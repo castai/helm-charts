@@ -145,8 +145,6 @@ clusterAutoscaler:
     scale-down-delay-after-failure: "30s"
     # scale-down-unneeded-time -- How long a node must be unneeded before removal (CA default: 10m)
     scale-down-unneeded-time: "30s"
-    # scale-down-unready-time -- How long an unready node must be unneeded before removal (CA default: 20m)
-    scale-down-unready-time: "1m"
     # scan-interval -- How often CA re-evaluates the cluster (CA default: 10s)
     scan-interval: "10s"
     # new-pod-scale-up-delay -- Delay before considering a new pod for scale-up. Uncomment to enable.
