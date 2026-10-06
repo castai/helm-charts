@@ -1,0 +1,193 @@
+suite: OpenShift SCC rendering
+templates:
+  - openshift-scc.yaml
+capabilities:
+  apiVersions:
+    - security.openshift.io/v1
+
+tests:
+  # ── Rendering gates ─────────────────────────────────────────────────────────
+
+  - it: does not render when not on OpenShift
+    capabilities:
+      apiVersions:
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: renders 3 documents
+    asserts:
+      - hasDocuments:
+          count: 3
+
+  - it: document 0 is the SCC
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: kind
+          value: SecurityContextConstraints
+
+  - it: document 1 is the ClusterRole
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRole
+
+  - it: document 2 is the ClusterRoleBinding
+    documentIndex: 2
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRoleBinding
+
+  # ── SCC users ───────────────────────────────────────────────────────────────
+
+  - it: includes only the evictor SA when crdUpgrade is disabled
+    set:
+      crdUpgrade:
+        enabled: false
+    documentIndex: 0
+    asserts:
+      - lengthEqual:
+          path: users
+          count: 1
+      - equal:
+          path: users[0]
+          value: system:serviceaccount:NAMESPACE:castai-evictor
+
+  - it: includes both evictor and crd-upgrade SAs when crdUpgrade is enabled
+    set:
+      crdUpgrade:
+        enabled: true
+    documentIndex: 0
+    asserts:
+      - lengthEqual:
+          path: users
+          count: 2
+      - equal:
+          path: users[0]
+          value: system:serviceaccount:NAMESPACE:castai-evictor
+      - equal:
+          path: users[1]
+          value: system:serviceaccount:NAMESPACE:castai-evictor-crd-upgrade
+
+  # ── Default profile (useRestrictedProfile=false) ────────────────────────────
+
+  - it: uses MustRunAs for runAsUser by default
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: runAsUser.type
+          value: MustRunAs
+      - equal:
+          path: runAsUser.uid
+          value: 1004
+
+  - it: uses MustRunAs for fsGroup by default
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: fsGroup.type
+          value: MustRunAs
+      - equal:
+          path: fsGroup.ranges[0].min
+          value: 1004
+      - equal:
+          path: fsGroup.ranges[0].max
+          value: 1004
+
+  - it: enforces readOnlyRootFilesystem by default
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: readOnlyRootFilesystem
+          value: true
+
+  - it: lists runtime/default as the allowed seccomp profile
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: seccompProfiles
+          value:
+            - runtime/default
+
+  # ── Restricted profile (useRestrictedProfile=true) ──────────────────────────
+
+  - it: uses MustRunAsRange for runAsUser when restricted profile is enabled
+    set:
+      openshift:
+        scc:
+          useRestrictedProfile: true
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: runAsUser.type
+          value: MustRunAsRange
+      - notExists:
+          path: runAsUser.uid
+
+  - it: uses RunAsAny for fsGroup when restricted profile is enabled
+    set:
+      openshift:
+        scc:
+          useRestrictedProfile: true
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: fsGroup.type
+          value: RunAsAny
+      - notExists:
+          path: fsGroup.ranges
+
+  - it: uses RunAsAny for supplementalGroups when restricted profile is enabled
+    set:
+      openshift:
+        scc:
+          useRestrictedProfile: true
+    documentIndex: 0
+    asserts:
+      - equal:
+          path: supplementalGroups.type
+          value: RunAsAny
+
+  - it: omits readOnlyRootFilesystem when restricted profile is enabled
+    set:
+      openshift:
+        scc:
+          useRestrictedProfile: true
+    documentIndex: 0
+    asserts:
+      - notExists:
+          path: readOnlyRootFilesystem
+
+  # ── ClusterRole / ClusterRoleBinding ───────────────────────────────────────
+
+  - it: ClusterRole grants use of the SCC resource
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: rules[0].apiGroups[0]
+          value: security.openshift.io
+      - equal:
+          path: rules[0].resources[0]
+          value: securitycontextconstraints
+      - equal:
+          path: rules[0].verbs[0]
+          value: use
+      - equal:
+          path: rules[0].resourceNames[0]
+          value: castai-evictor-scc
+
+  - it: ClusterRoleBinding references the evictor SA
+    documentIndex: 2
+    asserts:
+      - equal:
+          path: subjects[0].kind
+          value: ServiceAccount
+      - equal:
+          path: subjects[0].name
+          value: castai-evictor
+      - equal:
+          path: roleRef.name
+          value: castai-evictor-scc-user

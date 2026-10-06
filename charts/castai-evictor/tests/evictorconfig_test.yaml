@@ -1,0 +1,23 @@
+suite: EvictorConfig CR rendering
+templates:
+  - evictorconfig.yaml
+capabilities:
+  apiVersions:
+    - autoscaling.cast.ai/v1alpha1/EvictorConfig
+
+tests:
+  - it: does not render any standalone resource when crdUpgrade is enabled (default)
+    set:
+      crdUpgrade:
+        enabled: true
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  - it: does not render any standalone resource when crdUpgrade is disabled
+    set:
+      crdUpgrade:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0

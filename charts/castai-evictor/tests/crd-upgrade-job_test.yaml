@@ -1,0 +1,246 @@
+suite: CRD upgrade Job rendering
+templates:
+  - crd-upgrade-job.yaml
+  - evictorconfig.yaml
+capabilities:
+  apiVersions:
+    - autoscaling.cast.ai/v1alpha1/EvictorConfig
+
+tests:
+  # ── Rendering gate ──────────────────────────────────────────────────────────
+
+  - it: does not render when crdUpgrade is disabled
+    set:
+      crdUpgrade:
+        enabled: false
+    template: crd-upgrade-job.yaml
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # ── EvictorConfig CR: evictionRules placement ──────────────────────────────
+
+  - it: renders evictionRules as a sibling of config (slice form)
+    set:
+      crdUpgrade:
+        enabled: true
+      customConfig:
+        - nodeSelector:
+            labelSelector:
+              matchLabels:
+                app: test
+          settings:
+            removalDisabled:
+              enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 3
+    asserts:
+      - matchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "\n  evictionRules:\n    - "
+      - notMatchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "\n    evictionRules:"
+
+  - it: renders evictionRules as a sibling of config (map form)
+    set:
+      crdUpgrade:
+        enabled: true
+      customConfig:
+        evictionRules:
+          - nodeSelector:
+              labelSelector:
+                matchLabels:
+                  app: test
+            settings:
+              removalDisabled:
+                enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 3
+    asserts:
+      - matchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "\n  evictionRules:\n    - "
+      - notMatchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "\n    evictionRules:"
+
+  - it: omits evictionRules when customConfig is empty
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 3
+    asserts:
+      - notMatchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: "evictionRules:"
+
+  # ── EvictorConfig CR: evictorEnabled default ─────────────────────────────
+
+  - it: renders enabled false by default
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 3
+    asserts:
+      # Exactly two spaces: a direct child of the CR's spec block, so
+      # nested `enabled:` keys can't satisfy the match.
+      - matchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: '(?m)^  enabled: false$'
+      - notMatchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: '(?m)^\s*enabled: true$'
+
+  - it: renders enabled true when evictorEnabled is set
+    set:
+      crdUpgrade:
+        enabled: true
+      evictorEnabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 3
+    asserts:
+      - matchRegex:
+          path: data["evictorconfig.yaml"]
+          pattern: '(?m)^  enabled: true$'
+
+  # ── Pod security context (default) ──────────────────────────────────────────
+
+  - it: renders full pod security context by default
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 1004
+      - equal:
+          path: spec.template.spec.securityContext.runAsGroup
+          value: 1004
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1004
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+
+  # ── Pod security context (OpenShift restricted profile) ─────────────────────
+
+  - it: strips UID fields on OpenShift with restricted profile
+    capabilities:
+      apiVersions:
+        - security.openshift.io/v1
+        - autoscaling.cast.ai/v1alpha1/EvictorConfig
+    set:
+      crdUpgrade:
+        enabled: true
+      openshift:
+        scc:
+          useRestrictedProfile: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+      - notExists:
+          path: spec.template.spec.securityContext.runAsUser
+      - notExists:
+          path: spec.template.spec.securityContext.runAsGroup
+      - notExists:
+          path: spec.template.spec.securityContext.fsGroup
+
+  - it: keeps UID fields on OpenShift without restricted profile
+    capabilities:
+      apiVersions:
+        - security.openshift.io/v1
+        - autoscaling.cast.ai/v1alpha1/EvictorConfig
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 1004
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 1004
+
+  # ── Container security context ─────────────────────────────────────────────
+
+  - it: applies container security context without seccompProfile or runAsUser (inherited from pod)
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.allowPrivilegeEscalation
+          value: false
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.readOnlyRootFilesystem
+          value: true
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.capabilities.drop[0]
+          value: ALL
+      - notExists:
+          path: spec.template.spec.initContainers[0].securityContext.seccompProfile
+      - notExists:
+          path: spec.template.spec.initContainers[0].securityContext.runAsUser
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.allowPrivilegeEscalation
+          value: false
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.seccompProfile
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+
+  # ── Overridable security context ────────────────────────────────────────────
+
+  - it: reflects overridden crdUpgrade.securityContext values
+    set:
+      crdUpgrade:
+        enabled: true
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 2000
+          runAsGroup: 2000
+          fsGroup: 2000
+          seccompProfile:
+            type: RuntimeDefault
+        containerSecurityContext:
+          allowPrivilegeEscalation: false
+          runAsNonRoot: true
+          runAsUser: 2000
+          readOnlyRootFilesystem: true
+          capabilities:
+            drop:
+              - ALL
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.securityContext.runAsUser
+          value: 2000
+      - equal:
+          path: spec.template.spec.securityContext.fsGroup
+          value: 2000
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.runAsUser
+          value: 2000
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.runAsUser
+          value: 2000
