@@ -24600,30 +24600,6 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc47/castai-0.0.0-rc47.tgz
     version: 0.0.0-rc47
   - apiVersion: v2
-    created: "2026-09-18T07:56:23.362984554Z"
-    dependencies:
-    - condition: kent.enabled
-      name: kent
-      repository: file://charts/kent
-      version: '*'
-    - name: autoscaler-anywhere
-      repository: file://charts/autoscaler-anywhere
-      tags:
-      - autoscaler-anywhere
-      version: '*'
-    - name: autoscaler-openshift
-      repository: file://charts/autoscaler-openshift
-      tags:
-      - autoscaler-openshift
-      version: '*'
-    description: Umbrella chart for CAST AI components.
-    digest: b63c0d0e8ff2c53b7e1948fbf2ce322802004cd53f412a3bab35bb6c6c3eb986
-    name: castai
-    type: application
-    urls:
-    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc46/castai-0.0.0-rc46.tgz
-    version: 0.0.0-rc46
-  - apiVersion: v2
     created: "2026-09-16T13:37:42.106930513Z"
     dependencies:
     - condition: kent.enabled
@@ -24666,6 +24642,30 @@ entries:
       version: '*'
     description: Umbrella chart for CAST AI components.
     digest: 0b00b5c8b97d7962a4fc5e6116a666db059e6b865eac241b23faa54a7353de49
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.0.0-rc46/castai-0.0.0-rc46.tgz
+    version: 0.0.0-rc46
+  - apiVersion: v2
+    created: "2026-09-18T07:56:23.362984554Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: b63c0d0e8ff2c53b7e1948fbf2ce322802004cd53f412a3bab35bb6c6c3eb986
     name: castai
     type: application
     urls:
@@ -77067,6 +77067,16 @@ entries:
     version: 0.0.6-test
   castai-workload-autoscaler-exporter:
   - apiVersion: v2
+    appVersion: v1.14.2
+    created: "2026-10-06T11:15:33.098392644Z"
+    description: CAST AI workload autoscaler exporter.
+    digest: e3dbfe2259f8348368fe20e109919cd5da213c11f694f25cb7da30d443f8f195
+    name: castai-workload-autoscaler-exporter
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-workload-autoscaler-exporter-1.14.2/castai-workload-autoscaler-exporter-1.14.2.tgz
+    version: 1.14.2
+  - apiVersion: v2
     appVersion: v1.14.1
     created: "2026-10-01T09:45:17.938955387Z"
     description: CAST AI workload autoscaler exporter.
@@ -83597,4 +83607,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-10-06T11:13:16.9319316Z"
+generated: "2026-10-06T11:15:33.202988001Z"
