@@ -52,6 +52,7 @@ data:
 
     [cache]
     default_ttl_secs = {{ .Values.cache.defaultTTLSecs }}
+    analysis_memo_mib = {{ .Values.cache.analysisMemoMiB }}
     {{- if .Values.cluster.enabled }}
 
     [cluster]
