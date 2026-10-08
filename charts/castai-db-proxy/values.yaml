@@ -56,6 +56,10 @@ ports:
 cache:
   # -- Default TTL for cached results in seconds.
   defaultTTLSecs: 300
+  # -- Memory in MiB each proxy pod may use to remember how it analyzed each SQL statement, so repeated statements skip
+  # parsing. Also caps the largest statement it can remember. Raise it if the pod has spare memory and the workload
+  # sends many distinct or very large statements.
+  analysisMemoMiB: 512
 
 cluster:
   # -- Enable distributed cache cluster mode.

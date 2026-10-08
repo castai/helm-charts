@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.24.0](https://img.shields.io/badge/Version-0.24.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.25.0](https://img.shields.io/badge/Version-0.25.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -12,6 +12,7 @@ CAST AI database proxy cache deployment.
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API. |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing access to the API. apiKey and apiKeySecretRef are mutually exclusive. The referenced secret must provide the token in .data["API_KEY"]. |
 | apiURL | string | `"api-grpc.cast.ai"` | URL to the CAST AI gRPC API server. |
+| cache.analysisMemoMiB | int | `512` | Memory in MiB each proxy pod may use to remember how it analyzed each SQL statement, so repeated statements skip parsing. Also caps the largest statement it can remember. Raise it if the pod has spare memory and the workload sends many distinct or very large statements. |
 | cache.defaultTTLSecs | int | `300` | Default TTL for cached results in seconds. |
 | cluster.enabled | bool | `true` | Enable distributed cache cluster mode. |
 | cluster.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
