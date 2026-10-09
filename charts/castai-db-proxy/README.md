@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.25.0](https://img.shields.io/badge/Version-0.25.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.26.0](https://img.shields.io/badge/Version-0.26.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -60,7 +60,7 @@ CAST AI database proxy cache deployment.
 | pooling.proxySql.userSecretRef | string | `""` | Name of an existing Secret containing upstream DB user. The secret must contain the username and the password fields. |
 | pooling.replicas | int | `2` | Number of pooler replicas. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
-| ports.metrics | int | `9090` | Prometheus metrics port. |
+| ports.metrics | int | `9090` | Prometheus metrics port the proxy listens on. Not exposed through the proxy services; scrape the pods directly, e.g. via podAnnotations:   podAnnotations:     prometheus.io/scrape: "true"     prometheus.io/port: "9090" |
 | ports.readOnly | int | `6142` | Port the proxy listens on for read-only connections. Only used when a read-only upstream endpoint is configured: clients then connect through the `<release>-ro` service, which exposes the protocol's default port targeting this port. |
 | ports.readWrite | int | `6141` | Port the proxy listens on for read-write connections. Clients connect through the release service, which exposes the protocol's default port (5432 PostgreSQL, 3306 MySQL, 1521 Oracle) targeting this port. |
 | protocol | string | `"PostgreSQL"` | Database protocol. |
@@ -76,7 +76,11 @@ CAST AI database proxy cache deployment.
 | rollingUpdate.maxSurge | string | `"100%"` | Maximum number of pods that can be created above the desired number of pods during an update. |
 | rollingUpdate.maxUnavailable | int | `0` | Maximum number of pods that can be unavailable during an update. |
 | serverThreads | string | `""` | Worker threads for each proxy listener that serves traffic. Leave empty to derive from resources.cpu, rounded up (minimum 1). Set explicitly only to override that. Background services are fixed at one thread each and are unaffected. |
+| service.annotations | object | `{}` | Annotations added to the client-facing proxy services (read-write and read-only), on top of commonAnnotations. Use these to configure your cloud's load balancer exactly as your cloud provider's documentation describes. Examples (GKE):  annotations:    networking.gke.io/load-balancer-type: "Internal"    # Optional: allow clients from other regions in the same VPC    # networking.gke.io/internal-load-balancer-allow-global-access: "true"    # Optional: pin to a reserved internal IP (reserve it in the same subnet first)    # networking.gke.io/load-balancer-ip-addresses: "my-reserved-ip-name"    # Optional: place the LB in a specific subnet    # networking.gke.io/internal-load-balancer-subnet: "my-subnet" Examples (EKS, AWS Load Balancer Controller -> NLB):  annotations:    service.beta.kubernetes.io/aws-load-balancer-type: "external"    service.beta.kubernetes.io/aws-load-balancer-scheme: "internal"    # Register pod IPs directly (needs the VPC CNI) instead of node ports    service.beta.kubernetes.io/aws-load-balancer-nlb-target-type: "ip"    # Optional: attach a security group to the NLB and manage access there    # service.beta.kubernetes.io/aws-load-balancer-security-groups: "sg-0123456789abcdef0"    # Optional: pin to specific subnets (otherwise auto-discovered via subnet tags)    # service.beta.kubernetes.io/aws-load-balancer-subnets: "subnet-aaa,subnet-bbb"    # Optional: fixed private IPs, one per subnet (requires the subnets annotation)    # service.beta.kubernetes.io/aws-load-balancer-private-ipv4-addresses: "10.0.1.10,10.0.2.10"    # Optional: preserve the client IP when using ip targets (off by default)    # service.beta.kubernetes.io/aws-load-balancer-target-group-attributes: "preserve_client_ip.enabled=true" |
+| service.externalTrafficPolicy | string | `""` | External traffic policy ("Cluster" or "Local"). "Local" preserves the client source IP. Only meaningful when type is LoadBalancer or NodePort. |
+| service.loadBalancerSourceRanges | list | `[]` | CIDRs allowed to reach the proxy services when type is LoadBalancer. Leave empty to allow all. On GKE this restricts the LB firewall; on EKS prefer the aws-load-balancer-security-groups annotation (NLBs do not support source ranges). |
 | service.trafficDistribution | string | `"PreferClose"` | Traffic distribution policy for the proxy services (read-write and read-only). Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+. |
+| service.type | string | `""` | Type of the client-facing proxy services (read-write and read-only). Set to "LoadBalancer" to expose the proxy through a cloud load balancer. Metrics are not exposed through these services; scrape the pods directly (see ports.metrics). Cloud-specific load balancer behavior is configured through `service.annotations` -- set them 1:1 as your cloud's documentation describes. |
 | serviceAccountName | string | `""` | The name of the service account to be used by the pod. |
 | tls.secretName | string | `""` | Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert. |
 | tolerations | list | `[]` | Pod toleration rules. |
