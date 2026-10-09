@@ -6,18 +6,27 @@ metadata:
     {{- include "castai-db-proxy.labels" . | nindent 4 }}
   annotations:
     {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+    {{- with .Values.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
+  {{- with .Values.service.type }}
+  type: {{ . }}
+  {{- end }}
   {{- with .Values.service.trafficDistribution }}
   trafficDistribution: {{ . }}
+  {{- end }}
+  {{- with .Values.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   ports:
     - name: rw
       port: {{ include "castai-db-proxy.servicePort" . }}
       targetPort: rw
-      protocol: TCP
-    - name: metrics
-      port: {{ .Values.ports.metrics }}
-      targetPort: metrics
       protocol: TCP
   selector:
     {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 4 }}
@@ -31,9 +40,22 @@ metadata:
     {{- include "castai-db-proxy.labels" . | nindent 4 }}
   annotations:
     {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+    {{- with .Values.service.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
 spec:
+  {{- with .Values.service.type }}
+  type: {{ . }}
+  {{- end }}
   {{- with .Values.service.trafficDistribution }}
   trafficDistribution: {{ . }}
+  {{- end }}
+  {{- with .Values.service.externalTrafficPolicy }}
+  externalTrafficPolicy: {{ . }}
+  {{- end }}
+  {{- with .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   ports:
     - name: ro
