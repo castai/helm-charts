@@ -27,6 +27,13 @@ data:
   OTEL_METRICS_ENABLED: {{ .Values.castai.otelMetrics.enabled | quote }}
   {{- end }}
   {{- if eq .Values.deploymentMode "standalone" }}
+  OTEL_LOGS_ENABLED: "false"
+  {{- else }}
+  OTEL_LOGS_ENABLED: {{ .Values.castai.otelLogs.enabled | quote }}
+  # OTel SDK self-metrics (log queue drops, export failures); experimental in the Go SDK.
+  OTEL_GO_X_OBSERVABILITY: "true"
+  {{- end }}
+  {{- if eq .Values.deploymentMode "standalone" }}
   AUDIT_EXPORTER_ENABLED: "false"
   LOG_EXPORTER_ENABLED: "false"
   {{- end }}

@@ -120,6 +120,14 @@ rules:
   - list
   - watch
 - apiGroups:
+  - eks.amazonaws.com
+  resources:
+  - nodeclasses
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
   - karpenter.azure.com
   resources:
   - aksnodeclasses

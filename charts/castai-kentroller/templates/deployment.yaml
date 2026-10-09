@@ -36,6 +36,8 @@ spec:
       {{- . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "castai-kentroller.serviceAccountName" . }}
+      # Covers the manager's 90s graceful shutdown plus the 10s OTel log flush.
+      terminationGracePeriodSeconds: 105
       securityContext:
       {{- toYaml .Values.securityContext | nindent 8 }}
       containers:
