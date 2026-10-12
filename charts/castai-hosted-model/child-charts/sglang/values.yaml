@@ -29,6 +29,25 @@ cache:
     enabled: false
     path: ""
     type: DirectoryOrCreate
+  # -- Golden JIT/autotune kernel cache on a shared filesystem (e.g. a cluster-wide
+  # inference FS). When enabled TOGETHER with cache.hostPath, a `cache-copy`
+  # initContainer runs before the server and copies the pre-warmed cache from
+  # this shared location into the node-local cache volume.
+  #
+  # Why: Triton's FileCacheManager has a concurrent-write race on network
+  # filesystems (multiple TP ranks writing the same kernel files). The golden
+  # cache is produced ONCE by a single-writer warmup job at this path (keyed
+  # by image version — kernel hashes are image-specific); every boot copies
+  # it locally so the ranks only ever read the shared copy.
+  #
+  # Path convention: <fs-mount>/sglang-cache/<image-tag> (version-tagged so
+  # cache entries always match the running image). Set type to Directory to
+  # fail-fast when the warmup has not run yet, or DirectoryOrCreate to boot
+  # with a cold cache instead.
+  sharedFS:
+    enabled: false
+    path: ""
+    type: DirectoryOrCreate
 
 model:
   # -- HF model name or repo id (e.g. "meta-llama/Llama-3.1-8B-Instruct"). Only the HuggingFace source is supported.
