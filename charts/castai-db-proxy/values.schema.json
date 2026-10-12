@@ -201,6 +201,11 @@
         "defaultTTLSecs": {
           "type": "integer",
           "minimum": 0
+        },
+        "analysisMemoMiB": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Memory in MiB each proxy pod may use for SQL statement analysis caching."
         }
       }
     },
@@ -240,9 +245,31 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "type": {
+          "enum": ["", "ClusterIP", "NodePort", "LoadBalancer"],
+          "description": "Type of the client-facing proxy services (read-write and read-only). Metrics are not exposed through these services; scrape the pods directly."
+        },
         "trafficDistribution": {
           "enum": ["", "Cluster", "PreferClose", "ClosestClient"],
           "description": "Traffic distribution policy for the proxy services. PreferClose/ClosestClient require Kubernetes 1.31+."
+        },
+        "annotations": {
+          "type": ["object", "null"],
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Annotations added to the client-facing proxy services, on top of commonAnnotations. Use them to configure your cloud's load balancer 1:1 as your cloud provider's documentation describes."
+        },
+        "externalTrafficPolicy": {
+          "enum": ["", "Cluster", "Local"],
+          "description": "External traffic policy. Local preserves the client source IP. Only meaningful when type is LoadBalancer or NodePort."
+        },
+        "loadBalancerSourceRanges": {
+          "type": ["array", "null"],
+          "items": {
+            "type": "string"
+          },
+          "description": "CIDRs allowed to reach the proxy services when type is LoadBalancer. Empty allows all. On EKS, NLBs do not support source ranges; use the aws-load-balancer-security-groups annotation instead."
         }
       }
     },

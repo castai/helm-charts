@@ -20,6 +20,12 @@ commonAnnotations:
 
 service:
   trafficDistribution: "PreferClose"
+  type: LoadBalancer
+  annotations:
+    networking.gke.io/load-balancer-type: "Internal"
+  externalTrafficPolicy: Local
+  loadBalancerSourceRanges:
+    - 10.0.0.0/8
 
 topologySpreadConstraints:
   - maxSkew: 1
