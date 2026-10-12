@@ -56,6 +56,10 @@ autoscaler:
     jmxExporter:
       initImage:
         repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+    # The helm test hook hardcodes ghcr.io/castai/images/busybox (not overridable
+    # by values); disable it so GAR-only clusters do not pull from ghcr.
+    test:
+      enabled: false
   castai-workload-autoscaler-exporter:
     exporter:
       image:
@@ -93,6 +97,10 @@ autoscaler-anywhere:
     jmxExporter:
       initImage:
         repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+    # The helm test hook hardcodes ghcr.io/castai/images/busybox (not overridable
+    # by values); disable it so GAR-only clusters do not pull from ghcr.
+    test:
+      enabled: false
   castai-workload-autoscaler-exporter:
     exporter:
       image:
@@ -135,6 +143,10 @@ kent:
     jmxExporter:
       initImage:
         repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+    # The helm test hook hardcodes ghcr.io/castai/images/busybox (not overridable
+    # by values); disable it so GAR-only clusters do not pull from ghcr.
+    test:
+      enabled: false
   castai-workload-autoscaler-exporter:
     exporter:
       image:
