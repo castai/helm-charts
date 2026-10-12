@@ -1,0 +1,16 @@
+{{- if .Values.pooling.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "castai-db-proxy.name" . }}-pooler
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+    app.kubernetes.io/component: pooling
+  annotations:
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 6 }}
+{{- end }}
