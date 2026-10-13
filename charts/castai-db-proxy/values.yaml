@@ -114,6 +114,21 @@ nodeSelector: {}
 
 # -- Pod affinity rules.
 affinity:
+  podAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          topologyKey: topology.kubernetes.io/zone
+          labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - APP_NAME
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                  - pooling
   podAntiAffinity:
     requiredDuringSchedulingIgnoredDuringExecution:
       - labelSelector:
@@ -165,9 +180,11 @@ connection_draining:
   grace_period_seconds: 55
   # -- How long the server waits for runtimes to shut down after the grace period. Must be > 0
   graceful_shutdown_timeout_seconds: 5
-  # -- How long the pod's preStop hook sleeps before SIGTERM is delivered to the proxy. This gives the
-  # service endpoint propagation time to complete cluster-wide so no new traffic is routed to the pod
-  # while it drains existing connections. Set to 0 to disable.
+  # -- How long the pod's preStop hook sleeps before SIGTERM is delivered to the proxy (and to the
+  # pooler containers, when pooling is enabled). This gives the service endpoint propagation time to
+  # complete cluster-wide so no new traffic is routed to the pod while it drains existing connections.
+  # Pooler pods get this preStop time plus 65s (pgdog shutdown_timeout 60s + 5s margin) to terminate.
+  # Set to 0 to disable.
   pre_stop_sleep_seconds: 10
 
 tls:
@@ -192,10 +209,49 @@ pooling:
   enabled: false
   # -- Number of pooler replicas.
   replicas: 2
+  # -- Rolling update strategy configuration for the pooler deployment.
+  rollingUpdate:
+    # -- Maximum number of pooler pods that can be created above the desired number during an update.
+    maxSurge: 1
+    # -- Maximum number of pooler pods that can be unavailable during an update.
+    maxUnavailable: 0
+  # -- Extra labels to add to the pooler pods.
+  podLabels: {}
+  # -- Extra annotations to add to the pooler pods.
+  podAnnotations: {}
+  # -- Pod topology spread constraints for the pooler pods. The APP_NAME placeholder is
+  # replaced with the release name at render time.
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+      labelSelector:
+        matchLabels:
+          app.kubernetes.io/name: APP_NAME
+          app.kubernetes.io/component: pooling
+  # -- Affinity rules for the pooler pods. The default prefers co-locating pooler pods
+  # in the same availability zones as the proxy pods, so proxy-to-pooler traffic stays
+  # in-zone. The APP_NAME placeholder is replaced with the release name at render time.
+  affinity:
+    podAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            topologyKey: topology.kubernetes.io/zone
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - APP_NAME
+                - key: app.kubernetes.io/component
+                  operator: In
+                  values:
+                    - proxy
   # -- Pre-configured database names.
   databases:
     - postgres
-  #-- Configuration for the pooling configuration manager.
+  # -- Configuration for the pooling configuration manager.
   configManager:
     # -- gRPC listen port for the config manager.
     port: 50051
@@ -212,12 +268,12 @@ pooling:
     resources:
       cpu: "10m"
       memoryRequest: "32Mi"
-      memoryLimit: "32Mi" 
+      memoryLimit: "32Mi"
   # -- Pooler metrics port.
   metricsPort: 9090
   # -- Configure the PgDog section to deploy PgDog as the pooler.
   pgdog:
-    #-- Log level for PgDog.
+    # -- Log level for PgDog.
     logLevel: warn
     # -- Pooler listen port. Proxy connects to the pooler on this port.
     port: 5432

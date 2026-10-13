@@ -63,20 +63,6 @@
       "type": "integer",
       "minimum": 1,
       "maximum": 65535
-    }
-  },
-  "properties": {
-    "enabled": {
-      "type": "boolean",
-      "description": "Umbrella charts toggle this subchart via condition db-proxy.enabled. Ignored when the chart is installed standalone."
-    },
-    "nameOverride": {
-      "type": "string",
-      "description": "Overrides the base name of the generated resources."
-    },
-    "replicas": {
-      "type": "integer",
-      "minimum": 1
     },
     "rollingUpdate": {
       "type": "object",
@@ -107,6 +93,38 @@
           ]
         }
       }
+    },
+    "stringMap": {
+      "type": ["object", "null"],
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "topologySpreadConstraints": {
+      "type": ["array", "null"],
+      "items": {
+        "type": "object"
+      }
+    },
+    "affinity": {
+      "type": ["object", "null"]
+    }
+  },
+  "properties": {
+    "enabled": {
+      "type": "boolean",
+      "description": "Umbrella charts toggle this subchart via condition db-proxy.enabled. Ignored when the chart is installed standalone."
+    },
+    "nameOverride": {
+      "type": "string",
+      "description": "Overrides the base name of the generated resources."
+    },
+    "replicas": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "rollingUpdate": {
+      "$ref": "#/definitions/rollingUpdate"
     },
     "apiURL": {
       "type": "string",
@@ -201,6 +219,10 @@
         "defaultTTLSecs": {
           "type": "integer",
           "minimum": 0
+        },
+        "analysisMemoMiB": {
+          "type": "integer",
+          "minimum": 0
         }
       }
     },
@@ -259,16 +281,10 @@
       }
     },
     "podLabels": {
-      "type": ["object", "null"],
-      "additionalProperties": {
-        "type": "string"
-      }
+      "$ref": "#/definitions/stringMap"
     },
     "podAnnotations": {
-      "type": ["object", "null"],
-      "additionalProperties": {
-        "type": "string"
-      }
+      "$ref": "#/definitions/stringMap"
     },
     "resources": {
       "$ref": "#/definitions/resources"
@@ -292,13 +308,10 @@
       }
     },
     "affinity": {
-      "type": ["object", "null"]
+      "$ref": "#/definitions/affinity"
     },
     "topologySpreadConstraints": {
-      "type": ["array", "null"],
-      "items": {
-        "type": "object"
-      }
+      "$ref": "#/definitions/topologySpreadConstraints"
     },
     "dnsPolicy": {
       "enum": ["", "ClusterFirst", "ClusterFirstWithHostNet", "Default", "None"]
@@ -364,6 +377,21 @@
         "replicas": {
           "type": "integer",
           "minimum": 1
+        },
+        "rollingUpdate": {
+          "$ref": "#/definitions/rollingUpdate"
+        },
+        "podLabels": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "podAnnotations": {
+          "$ref": "#/definitions/stringMap"
+        },
+        "topologySpreadConstraints": {
+          "$ref": "#/definitions/topologySpreadConstraints"
+        },
+        "affinity": {
+          "$ref": "#/definitions/affinity"
         },
         "databases": {
           "type": ["array", "null"],
