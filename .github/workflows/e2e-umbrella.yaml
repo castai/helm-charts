@@ -67,7 +67,7 @@ jobs:
           API_URL: ${{ vars.CASTAI_API_URL }}
         run: |
           FOCUS="${{ github.event.inputs.focus }}"
-          ARGS="-v -timeout 75m"
+          ARGS="-v -timeout 75m --ginkgo.v --ginkgo.poll-progress-after=5m --ginkgo.poll-progress-interval=1m"
           if [ -n "$FOCUS" ]; then
             ARGS="$ARGS --ginkgo.focus=${FOCUS}"
           fi
