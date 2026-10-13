@@ -2351,6 +2351,41 @@ entries:
     version: 0.1.28
   castai:
   - apiVersion: v2
+    created: "2026-10-13T08:43:58.830169676Z"
+    dependencies:
+    - condition: kent.enabled
+      name: kent
+      repository: file://charts/kent
+      version: '*'
+    - name: autoscaler-anywhere
+      repository: file://charts/autoscaler-anywhere
+      tags:
+      - autoscaler-anywhere
+      version: '*'
+    - name: autoscaler-openshift
+      repository: file://charts/autoscaler-openshift
+      tags:
+      - autoscaler-openshift
+      version: '*'
+    - name: autoscaler
+      repository: file://charts/autoscaler
+      version: '*'
+    - import-values:
+      - child: exports
+        parent: global.castai
+      name: readonly-profile
+      repository: file://charts/readonly-profile
+      tags:
+      - readonly
+      version: '*'
+    description: Umbrella chart for CAST AI components.
+    digest: 76af1d649dd0fd9fd5d43c6f629e72f1c826f50786965c3ebed5c5365ae108fe
+    name: castai
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-0.45.1/castai-0.45.1.tgz
+    version: 0.45.1
+  - apiVersion: v2
     created: "2026-10-07T17:05:46.565408449Z"
     dependencies:
     - condition: kent.enabled
@@ -53728,6 +53763,26 @@ entries:
   castai-hosted-model:
   - apiVersion: v2
     appVersion: v0.0.1
+    created: "2026-10-13T08:43:59.12040388Z"
+    dependencies:
+    - condition: vllm.enabled
+      name: vllm
+      repository: file://child-charts/vllm
+      version: 0.0.46
+    - condition: sglang.enabled
+      name: sglang
+      repository: file://child-charts/sglang
+      version: 0.3.2
+    description: CAST AI hosted model deployment chart with PVC support for compilation
+      caches.
+    digest: 0ae8fd3ec820fdf667078db183cc9bced4aa8639316a9ce152a85136602263b7
+    name: castai-hosted-model
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-hosted-model-0.0.64/castai-hosted-model-0.0.64.tgz
+    version: 0.0.64
+  - apiVersion: v2
+    appVersion: v0.0.1
     created: "2026-09-17T10:27:21.786849268Z"
     dependencies:
     - condition: vllm.enabled
@@ -84128,4 +84183,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-10-09T12:53:48.856766377Z"
+generated: "2026-10-13T08:43:59.32777754Z"
