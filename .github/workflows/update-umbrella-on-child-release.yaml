@@ -12,6 +12,16 @@ on:
       version:
         description: 'Version (e.g. 0.115.0)'
         required: true
+      use_default_token:
+        description: 'Use GITHUB_TOKEN instead of PAT (no downstream workflows will be triggered)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_TOKEN: ${{ (github.event_name == 'workflow_dispatch' && inputs.use_default_token) && secrets.GITHUB_TOKEN || secrets.PAT_CICD }}
 
 jobs:
   parse-release-tag:
@@ -61,7 +71,7 @@ jobs:
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ secrets.PAT_CICD }}
+          token: ${{ env.RELEASE_TOKEN }}
 
       - name: Configure Git
         run: |
