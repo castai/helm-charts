@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.26.0](https://img.shields.io/badge/Version-0.26.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.26.1](https://img.shields.io/badge/Version-0.26.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -56,7 +56,7 @@ CAST AI database proxy cache deployment.
 | pooling.proxySql | object | `{"config":{"auto_increment_delay_multiplex":5,"connect_timeout_server":5000,"default_query_timeout":36000000,"free_connections_pct":5,"have_compress":true,"max_backend_connections":100,"max_connections":2048,"multiplexing":true,"stacksize":1048576,"threads":4},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/castai/images/proxysql/proxysql","tag":""},"ports":{"readOnly":6402,"readWrite":6401},"resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"},"userSecretRef":""}` | Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only). Mutually exclusive with pgdog. Requires protocol: "MySQL". |
 | pooling.proxySql.ports.readOnly | int | `6402` | Listening port for read-only connections. |
 | pooling.proxySql.ports.readWrite | int | `6401` | Listening port for read-write connections. |
-| pooling.proxySql.userSecretRef | string | `""` | Name of an existing Secret containing upstream DB user. The secret must contain the username and the password fields. |
+| pooling.proxySql.userSecretRef | string | `""` | Name of an existing Secret containing the upstream DB credentials. The Secret must contain exactly these data keys, referenced via secretKeyRef: DATABASE_USERNAME and DATABASE_PASSWORD. |
 | pooling.replicas | int | `2` | Number of pooler replicas. |
 | pooling.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Rolling update strategy configuration for the pooler deployment. |
 | pooling.rollingUpdate.maxSurge | int | `1` | Maximum number of pooler pods that can be created above the desired number during an update. |

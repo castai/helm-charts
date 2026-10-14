@@ -310,8 +310,9 @@ pooling:
       cpu: "1"
       memoryRequest: "1Gi"
       memoryLimit: "1Gi"
-    # -- Name of an existing Secret containing upstream DB user. The secret must
-    # contain the username and the password fields.
+    # -- Name of an existing Secret containing the upstream DB credentials.
+    # The Secret must contain exactly these data keys, referenced via
+    # secretKeyRef: DATABASE_USERNAME and DATABASE_PASSWORD.
     userSecretRef: ""
     config:
       # Number of ProxySQL worker threads.
