@@ -506,8 +506,8 @@
               "$ref": "#/definitions/resources"
             },
             "userSecretRef": {
-              "type": "string",
-              "description": "Name of an existing Secret containing the upstream DB user. Must contain DATABASE_USERNAME and DATABASE_PASSWORD keys. Required when pooling is enabled with protocol MySQL."
+              "type": "string", 
+              "description": "Name of an existing Secret containing the upstream DB credentials. The Secret must contain exactly these data keys, referenced via secretKeyRef: DATABASE_USERNAME and DATABASE_PASSWORD."
             },
             "config": {
               "type": "object",
