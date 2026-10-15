@@ -143,10 +143,8 @@ the service's targetPort.
 {{- 3306 -}}
 {{- else if eq $protocol "postgresql" -}}
 {{- 5432 -}}
-{{- else if eq $protocol "oracle" -}}
-{{- 1521 -}}
 {{- else -}}
-{{- fail (printf "unsupported protocol %q: must be one of PostgreSQL, MySQL, Oracle" .Values.protocol) -}}
+{{- fail (printf "unsupported protocol %q: must be one of PostgreSQL, MySQL" .Values.protocol) -}}
 {{- end -}}
 {{- end -}}
 

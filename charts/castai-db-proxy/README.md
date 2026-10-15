@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.26.1](https://img.shields.io/badge/Version-0.26.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.27.0](https://img.shields.io/badge/Version-0.27.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -65,7 +65,7 @@ CAST AI database proxy cache deployment.
 | ports.cluster | int | `9050` | Cluster peer communication port. |
 | ports.metrics | int | `9090` | Prometheus metrics port. |
 | ports.readOnly | int | `6142` | Port the proxy listens on for read-only connections. Only used when a read-only upstream endpoint is configured: clients then connect through the `<release>-ro` service, which exposes the protocol's default port targeting this port. |
-| ports.readWrite | int | `6141` | Port the proxy listens on for read-write connections. Clients connect through the release service, which exposes the protocol's default port (5432 PostgreSQL, 3306 MySQL, 1521 Oracle) targeting this port. |
+| ports.readWrite | int | `6141` | Port the proxy listens on for read-write connections. Clients connect through the release service, which exposes the protocol's default port (5432 PostgreSQL, 3306 MySQL) targeting this port. |
 | protocol | string | `"PostgreSQL"` | Database protocol. |
 | proxyID | string | `""` | ID of this proxy instance. |
 | queryMetricsBufferSize | int | `50000` | Maximum query metrics queued before new ones are dropped |
