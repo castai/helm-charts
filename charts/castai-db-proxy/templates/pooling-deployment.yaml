@@ -332,15 +332,17 @@ spec:
               containerPort: {{ .Values.pooling.metricsPort }}
               protocol: TCP
           readinessProbe:
-            tcpSocket:
-              port: upstream-rw
+            httpGet:
+              path: /metrics
+              port: {{ .Values.pooling.metricsPort }}
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
           livenessProbe:
-            tcpSocket:
-              port: upstream-rw
+            httpGet:
+              path: /metrics
+              port: {{ .Values.pooling.metricsPort }}
             initialDelaySeconds: 15
             periodSeconds: 20
           volumeMounts:
