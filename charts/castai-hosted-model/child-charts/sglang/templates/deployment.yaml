@@ -69,12 +69,51 @@ spec:
             path: {{ required "cache.hostPath.path must be set when cache.hostPath.enabled is true" .Values.cache.hostPath.path }}
             type: {{ .Values.cache.hostPath.type }}
         {{- end }}
+        {{- if and .Values.cache.sharedFS.enabled .Values.cache.hostPath.enabled }}
+        # Golden JIT cache on the shared inference FS, written once by the warmup
+        # job. Consumed read-only by the cache-copy initContainer below.
+        - name: shared-cache
+          hostPath:
+            path: {{ required "cache.sharedFS.path must be set when cache.sharedFS.enabled is true" .Values.cache.sharedFS.path }}
+            type: {{ .Values.cache.sharedFS.type }}
+        {{- end }}
         {{- with .Values.extraVolumes }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
-      {{- with .Values.initContainers }}
+      {{- if or (and .Values.cache.sharedFS.enabled .Values.cache.hostPath.enabled) .Values.initContainers }}
       initContainers:
+        {{- if and .Values.cache.sharedFS.enabled .Values.cache.hostPath.enabled }}
+        # Copies the pre-warmed golden JIT cache from the shared FS into the
+        # node-local cache volume BEFORE the server starts. Fixes the Triton
+        # concurrent-write race on network filesystems: the TP ranks never
+        # write to the shared location — a single-writer warmup job produced
+        # it, and every boot only reads it.
+        - name: cache-copy
+          image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              mkdir -p /sglang-cache
+              if [ -d /shared-cache ] && [ "$(ls -A /shared-cache 2>/dev/null)" ]; then
+                echo "copying pre-warmed JIT cache from shared FS..."
+                cp -r /shared-cache/. /sglang-cache/ 2>/dev/null || true
+                echo "cache copied: $(du -sh /sglang-cache 2>/dev/null | cut -f1)"
+              else
+                echo "no pre-warmed JIT cache on the shared FS — cold compile on this boot"
+              fi
+          volumeMounts:
+            - name: shared-cache
+              mountPath: /shared-cache
+              readOnly: true
+            - name: sglang-cache
+              mountPath: /sglang-cache
+        {{- end }}
+        {{- with .Values.initContainers }}
         {{- toYaml . | nindent 8 }}
+        {{- end }}
       {{- end }}
       containers:
         - name: "sglang"

@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.24.0](https://img.shields.io/badge/Version-0.24.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.29.0](https://img.shields.io/badge/Version-0.29.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -8,10 +8,11 @@ CAST AI database proxy cache deployment.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| affinity | object | `{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"provisioner.cast.ai/managed-by","operator":"In","values":["cast.ai"]}]},"weight":100}],"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"NotIn","values":["windows"]},{"key":"kubernetes.io/arch","operator":"In","values":["amd64","arm64"]}]}]}},"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["APP_NAME"]},{"key":"app.kubernetes.io/component","operator":"In","values":["proxy"]}]},"topologyKey":"kubernetes.io/hostname"}]}}` | Pod affinity rules. |
+| affinity | object | `{"nodeAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"preference":{"matchExpressions":[{"key":"provisioner.cast.ai/managed-by","operator":"In","values":["cast.ai"]}]},"weight":100}],"requiredDuringSchedulingIgnoredDuringExecution":{"nodeSelectorTerms":[{"matchExpressions":[{"key":"kubernetes.io/os","operator":"NotIn","values":["windows"]},{"key":"kubernetes.io/arch","operator":"In","values":["amd64","arm64"]}]}]}},"podAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"podAffinityTerm":{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["APP_NAME"]},{"key":"app.kubernetes.io/component","operator":"In","values":["pooling"]}]},"topologyKey":"topology.kubernetes.io/zone"},"weight":100}]},"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["APP_NAME"]},{"key":"app.kubernetes.io/component","operator":"In","values":["proxy"]}]},"topologyKey":"kubernetes.io/hostname"}]}}` | Pod affinity rules. |
 | apiKey | string | `""` | Token to be used for authorizing access to the CAST AI API. |
 | apiKeySecretRef | string | `""` | Name of secret with Token to be used for authorizing access to the API. apiKey and apiKeySecretRef are mutually exclusive. The referenced secret must provide the token in .data["API_KEY"]. |
 | apiURL | string | `"api-grpc.cast.ai"` | URL to the CAST AI gRPC API server. |
+| cache.analysisMemoMiB | int | `512` | Memory in MiB each proxy pod may use to remember how it analyzed each SQL statement, so repeated statements skip parsing. Also caps the largest statement it can remember. Raise it if the pod has spare memory and the workload sends many distinct or very large statements. |
 | cache.defaultTTLSecs | int | `300` | Default TTL for cached results in seconds. |
 | cluster.enabled | bool | `true` | Enable distributed cache cluster mode. |
 | cluster.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
@@ -20,7 +21,7 @@ CAST AI database proxy cache deployment.
 | connection_draining | object | `{"grace_period_seconds":55,"graceful_shutdown_timeout_seconds":5,"pre_stop_sleep_seconds":10}` | Connection draining configuration |
 | connection_draining.grace_period_seconds | int | `55` | How long existing connections have to finish after SIGTERM. Must be > 0 |
 | connection_draining.graceful_shutdown_timeout_seconds | int | `5` | How long the server waits for runtimes to shut down after the grace period. Must be > 0 |
-| connection_draining.pre_stop_sleep_seconds | int | `10` | How long the pod's preStop hook sleeps before SIGTERM is delivered to the proxy. This gives the service endpoint propagation time to complete cluster-wide so no new traffic is routed to the pod while it drains existing connections. Set to 0 to disable. |
+| connection_draining.pre_stop_sleep_seconds | int | `10` | How long the pod's preStop hook sleeps before SIGTERM is delivered to the proxy (and to the pooler containers, when pooling is enabled). This gives the service endpoint propagation time to complete cluster-wide so no new traffic is routed to the pod while it drains existing connections. Pooler pods get this preStop time plus 65s (pgdog shutdown_timeout 60s + 5s margin) to terminate. Set to 0 to disable. |
 | dnsConfig | object | `{}` | Pod DNS configuration. |
 | dnsPolicy | string | `""` | Pod DNS policy. |
 | endpoints | list | `[]` | Upstream database endpoints. Each entry needs `address` (host:port) and `readonly` (bool). |
@@ -37,31 +38,34 @@ CAST AI database proxy cache deployment.
 | organizationID | string | `""` | ID of the organization. |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
+| pooling.affinity | object | `{"podAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"podAffinityTerm":{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["APP_NAME"]},{"key":"app.kubernetes.io/component","operator":"In","values":["proxy"]}]},"topologyKey":"topology.kubernetes.io/zone"},"weight":100}]},"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["APP_NAME"]},{"key":"app.kubernetes.io/component","operator":"In","values":["pooling"]}]},"topologyKey":"kubernetes.io/hostname"}]}}` | Affinity rules for the pooler pods. The default prefers co-locating pooler pods in the same availability zones as the proxy pods, so proxy-to-pooler traffic stays in-zone, and never schedules two pooler pods on the same node, so a single node failure cannot take down every pooler. The APP_NAME placeholder is replaced with the release name at render time. |
+| pooling.configManager | object | `{"discovery":{"refresh_interval_seconds":10},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/castai/images/db-pooling","tag":""},"port":50051,"report_metrics_frequency_seconds":15,"resources":{"cpu":"10m","memoryLimit":"32Mi","memoryRequest":"32Mi"}}` | Configuration for the pooling configuration manager. |
 | pooling.configManager.discovery | object | `{"refresh_interval_seconds":10}` | Peer discovery settings. |
 | pooling.configManager.discovery.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
-| pooling.configManager.image.pullPolicy | string | `"IfNotPresent"` |  |
-| pooling.configManager.image.repository | string | `"ghcr.io/castai/images/db-pooling"` |  |
-| pooling.configManager.image.tag | string | `""` |  |
 | pooling.configManager.port | int | `50051` | gRPC listen port for the config manager. |
 | pooling.configManager.report_metrics_frequency_seconds | int | `15` | Frequency in which pooling metrics are reported in seconds. |
-| pooling.configManager.resources.cpu | string | `"10m"` |  |
-| pooling.configManager.resources.memoryLimit | string | `"32Mi"` |  |
-| pooling.configManager.resources.memoryRequest | string | `"32Mi"` |  |
 | pooling.databases | list | `["postgres"]` | Pre-configured database names. |
 | pooling.enabled | bool | `false` | Deploy the pooling config manager. |
 | pooling.metricsPort | int | `9090` | Pooler metrics port. |
 | pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/castai/images/pgdogdev/pgdog","tag":""},"logLevel":"warn","port":5432,"resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. |
 | pooling.pgdog.config | object | `{}` | PgDog [general] config overrides. Merged on top of template defaults (health checks, timeouts, passthrough_auth, log settings). Any key-value pair added here will be rendered into pgdog.toml. See https://docs.pgdog.dev/configuration/pgdog.toml/general/ |
+| pooling.pgdog.logLevel | string | `"warn"` | Log level for PgDog. |
 | pooling.pgdog.port | int | `5432` | Pooler listen port. Proxy connects to the pooler on this port. |
+| pooling.podAnnotations | object | `{}` | Extra annotations to add to the pooler pods. |
+| pooling.podLabels | object | `{}` | Extra labels to add to the pooler pods. |
 | pooling.proxySql | object | `{"config":{"auto_increment_delay_multiplex":5,"connect_timeout_server":5000,"default_query_timeout":36000000,"free_connections_pct":5,"have_compress":true,"max_backend_connections":100,"max_connections":2048,"multiplexing":true,"stacksize":1048576,"threads":4},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/castai/images/proxysql/proxysql","tag":""},"ports":{"readOnly":6402,"readWrite":6401},"resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"},"userSecretRef":""}` | Configure the ProxySQL section to deploy ProxySQL as the pooler (MySQL only). Mutually exclusive with pgdog. Requires protocol: "MySQL". |
 | pooling.proxySql.ports.readOnly | int | `6402` | Listening port for read-only connections. |
 | pooling.proxySql.ports.readWrite | int | `6401` | Listening port for read-write connections. |
-| pooling.proxySql.userSecretRef | string | `""` | Name of an existing Secret containing upstream DB user. The secret must contain the username and the password fields. |
+| pooling.proxySql.userSecretRef | string | `""` | Name of an existing Secret containing the upstream DB credentials. The Secret must contain exactly these data keys, referenced via secretKeyRef: DATABASE_USERNAME and DATABASE_PASSWORD. |
 | pooling.replicas | int | `2` | Number of pooler replicas. |
+| pooling.rollingUpdate | object | `{"maxSurge":1,"maxUnavailable":0}` | Rolling update strategy configuration for the pooler deployment. |
+| pooling.rollingUpdate.maxSurge | int | `1` | Maximum number of pooler pods that can be created above the desired number during an update. |
+| pooling.rollingUpdate.maxUnavailable | int | `0` | Maximum number of pooler pods that can be unavailable during an update. |
+| pooling.topologySpreadConstraints | list | `[{"labelSelector":{"matchLabels":{"app.kubernetes.io/component":"pooling","app.kubernetes.io/name":"APP_NAME"}},"maxSkew":1,"topologyKey":"topology.kubernetes.io/zone","whenUnsatisfiable":"ScheduleAnyway"}]` | Pod topology spread constraints for the pooler pods. The APP_NAME placeholder is replaced with the release name at render time. |
 | ports.cluster | int | `9050` | Cluster peer communication port. |
 | ports.metrics | int | `9090` | Prometheus metrics port. |
 | ports.readOnly | int | `6142` | Port the proxy listens on for read-only connections. Only used when a read-only upstream endpoint is configured: clients then connect through the `<release>-ro` service, which exposes the protocol's default port targeting this port. |
-| ports.readWrite | int | `6141` | Port the proxy listens on for read-write connections. Clients connect through the release service, which exposes the protocol's default port (5432 PostgreSQL, 3306 MySQL, 1521 Oracle) targeting this port. |
+| ports.readWrite | int | `6141` | Port the proxy listens on for read-write connections. Clients connect through the release service, which exposes the protocol's default port (5432 PostgreSQL, 3306 MySQL) targeting this port. |
 | protocol | string | `"PostgreSQL"` | Database protocol. |
 | proxyID | string | `""` | ID of this proxy instance. |
 | queryMetricsBufferSize | int | `50000` | Maximum query metrics queued before new ones are dropped |

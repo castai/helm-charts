@@ -66,6 +66,11 @@ function check_profile {
         -f "$GAR_VALUES" \
         "$@")
 
+    # Helm test hooks (templates/tests/) are excluded for now: they only run on
+    # an explicit `helm test`, never on install/upgrade. TODO: drop the exclusion
+    # once castai-workload-autoscaler exposes its test image via values.
+    rendered=$(awk 'BEGIN { RS = "\n---\n"; ORS = "\n---\n" } !/# Source: [^\n]*\/templates\/tests\//' <<< "$rendered")
+
     leaks=$(grep -oE 'ghcr\.io/castai/images[A-Za-z0-9._/:-]*' <<< "$rendered" | sort -u || true)
     if [[ -n "$leaks" ]]; then
         echo "FAIL: profile '$profile' still references ghcr.io/castai/images:" >&2
@@ -147,8 +152,10 @@ function check_values_coverage {
 
     # Hardcoded ghcr.io/castai/images literals in templates cannot be
     # overridden by any values file — flag them so they get fixed upstream.
+    # Helm test hooks (templates/tests/) are excluded for now; see check_profile.
     local hardcoded
-    hardcoded=$(find "$CHART" -path '*/templates/*' \( -name '*.yaml' -o -name '*.tpl' \) \
+    hardcoded=$(find "$CHART" -path '*/templates/*' -not -path '*/templates/tests/*' \
+        \( -name '*.yaml' -o -name '*.tpl' \) \
         -exec grep -hoE 'ghcr\.io/castai/images[A-Za-z0-9._/:-]*' {} + 2>/dev/null | sort -u || true)
     if [[ -n "$hardcoded" ]]; then
         echo "FAIL: hardcoded ghcr.io/castai/images reference(s) in templates (not overridable by values):" >&2

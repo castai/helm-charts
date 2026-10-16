@@ -12,7 +12,7 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.20 |
 | https://castai.github.io/helm-charts | castai-evictor | 0.35.148 |
 | https://castai.github.io/helm-charts | castai-kvisor | 1.165.5 |
-| https://castai.github.io/helm-charts | castai-live | 0.140.1 |
+| https://castai.github.io/helm-charts | castai-live | 0.140.2 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.17.9 |
 | https://castai.github.io/helm-charts | castai-pod-pinner | 1.14.7 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.11 |

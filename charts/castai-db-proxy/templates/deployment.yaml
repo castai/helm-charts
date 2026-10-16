@@ -45,7 +45,7 @@ spec:
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- $appName := default .Chart.Name .Values.nameOverride -}}
+      {{- $appName := include "castai-db-proxy.name" . -}}
       {{- with .Values.affinity }}
       affinity:
         {{- toYaml . | replace "APP_NAME" $appName | nindent 8 }}

@@ -1,0 +1,16 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
+#
+# octo-sts trust policy "images-publish": lets the publish workflow of
+# github.com/castai/images, on its main branch only, create releases and push
+# index.yaml in this repository.
+#
+# octo-sts reads this file from the default branch only. Changing it changes who may
+# write to this repository, so it goes through review like the workflows do.
+issuer: https://token.actions.githubusercontent.com
+subject_pattern: 'repo:castai(@44625431)?/images(@1362548923)?:ref:refs/heads/main'
+claim_pattern:
+  repository: castai/images
+  repository_id: "1362548923"
+  job_workflow_ref: castai/images/\.github/workflows/publish\.yml@refs/heads/main
+permissions:
+  contents: write

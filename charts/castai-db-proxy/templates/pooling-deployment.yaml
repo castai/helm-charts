@@ -1,6 +1,7 @@
 {{- if .Values.pooling.enabled }}
 {{- $pgdogEnabled := and .Values.pooling.pgdog  (eq .Values.protocol "PostgreSQL") -}}
 {{- $proxySqlEnabled := and .Values.pooling.proxySql (eq .Values.protocol "MySQL") -}}
+{{- $appName := include "castai-db-proxy.name" . -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -13,6 +14,11 @@ metadata:
 spec:
   replicas: {{ .Values.pooling.replicas }}
   revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: {{ .Values.pooling.rollingUpdate.maxSurge }}
+      maxUnavailable: {{ .Values.pooling.rollingUpdate.maxUnavailable }}
   selector:
     matchLabels:
       {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 6 }}
@@ -26,16 +32,25 @@ spec:
         {{- if $proxySqlEnabled }}
         checksum/proxysql-config: {{ include (print $.Template.BasePath "/proxysql-config.yaml") . | sha256sum }}
         {{- end }}
+        {{- with .Values.pooling.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
       labels:
         {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 8 }}
+        {{- with .Values.pooling.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
     spec:
+      # 60s pgdog shutdown_timeout + 5s margin, plus the preStop sleep above.
+      terminationGracePeriodSeconds: {{ add .Values.connection_draining.pre_stop_sleep_seconds 65 }}
+      {{- with .Values.pooling.topologySpreadConstraints }}
       topologySpreadConstraints:
-        - maxSkew: 1
-          topologyKey: topology.kubernetes.io/zone
-          whenUnsatisfiable: ScheduleAnyway
-          labelSelector:
-            matchLabels:
-              {{- include "castai-db-proxy.poolingSelectorLabels" . | nindent 14 }}
+        {{- toYaml . | replace "APP_NAME" $appName | nindent 8 }}
+      {{- end }}
+      {{- with .Values.pooling.affinity }}
+      affinity:
+        {{- toYaml . | replace "APP_NAME" $appName | nindent 8 }}
+      {{- end }}
       volumes:
         - name: pooling-config
           configMap:
@@ -229,6 +244,15 @@ spec:
           env:
             - name: RUST_LOG
               value: {{ .Values.pooling.pgdog.logLevel }}
+          {{- if gt (int .Values.connection_draining.pre_stop_sleep_seconds) 0 }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - sleep {{ .Values.connection_draining.pre_stop_sleep_seconds | quote }}
+          {{- end }}
           securityContext:
             capabilities:
               drop:
@@ -278,6 +302,15 @@ spec:
             - --reload
             - --prometheus
             - -f
+          {{- if gt (int .Values.connection_draining.pre_stop_sleep_seconds) 0 }}
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - sleep {{ .Values.connection_draining.pre_stop_sleep_seconds | quote }}
+          {{- end }}
           securityContext:
             capabilities:
               drop:

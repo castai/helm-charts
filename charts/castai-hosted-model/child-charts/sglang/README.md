@@ -1,6 +1,6 @@
 # sglang
 
-![Version: 0.3.1](https://img.shields.io/badge/Version-0.3.1-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
+![Version: 0.3.2](https://img.shields.io/badge/Version-0.3.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: v0.0.1](https://img.shields.io/badge/AppVersion-v0.0.1-informational?style=flat-square)
 
 CAST AI hosted model deployment chart for SGLang.
 
@@ -9,7 +9,8 @@ CAST AI hosted model deployment chart for SGLang.
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` |  |
-| cache | object | `{"hostPath":{"enabled":false,"path":"","type":"DirectoryOrCreate"}}` | Persistent sglang cache storage (JIT/autotune kernels). When hostPath is enabled, SGLANG_CACHE_DIR is set to a fixed container path (/sglang-cache) backed by a node-local directory shared across models (e.g. /mnt/cache/sglang), so pod restarts on the same node skip the multi-minute compile/tune pass after weights are loaded. Cache contents are keyed by kernel/graph hash, not by model, so one generic dir per node is correct. When disabled, no volume and no SGLANG_CACHE_DIR are emitted (sglang uses its in-container default). |
+| cache | object | `{"hostPath":{"enabled":false,"path":"","type":"DirectoryOrCreate"},"sharedFS":{"enabled":false,"path":"","type":"DirectoryOrCreate"}}` | Persistent sglang cache storage (JIT/autotune kernels). When hostPath is enabled, SGLANG_CACHE_DIR is set to a fixed container path (/sglang-cache) backed by a node-local directory shared across models (e.g. /mnt/cache/sglang), so pod restarts on the same node skip the multi-minute compile/tune pass after weights are loaded. Cache contents are keyed by kernel/graph hash, not by model, so one generic dir per node is correct. When disabled, no volume and no SGLANG_CACHE_DIR are emitted (sglang uses its in-container default). |
+| cache.sharedFS | object | `{"enabled":false,"path":"","type":"DirectoryOrCreate"}` | Golden JIT/autotune kernel cache on a shared filesystem (e.g. a cluster-wide inference FS). When enabled TOGETHER with cache.hostPath, a `cache-copy` initContainer runs before the server and copies the pre-warmed cache from this shared location into the node-local cache volume.  Why: Triton's FileCacheManager has a concurrent-write race on network filesystems (multiple TP ranks writing the same kernel files). The golden cache is produced ONCE by a single-writer warmup job at this path (keyed by image version — kernel hashes are image-specific); every boot copies it locally so the ranks only ever read the shared copy.  Path convention: <fs-mount>/sglang-cache/<image-tag> (version-tagged so cache entries always match the running image). Set type to Directory to fail-fast when the warmup has not run yet, or DirectoryOrCreate to boot with a cold cache instead. |
 | container.port | int | `8000` |  |
 | containerSecurityContext | object | `{}` |  |
 | deployment.labels | string | `nil` |  |
