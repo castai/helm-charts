@@ -231,7 +231,9 @@ pooling:
           app.kubernetes.io/component: pooling
   # -- Affinity rules for the pooler pods. The default prefers co-locating pooler pods
   # in the same availability zones as the proxy pods, so proxy-to-pooler traffic stays
-  # in-zone. The APP_NAME placeholder is replaced with the release name at render time.
+  # in-zone, and never schedules two pooler pods on the same node, so a single node
+  # failure cannot take down every pooler. The APP_NAME placeholder is replaced with
+  # the release name at render time.
   affinity:
     podAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
@@ -248,6 +250,19 @@ pooling:
                   operator: In
                   values:
                     - proxy
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+              - key: app.kubernetes.io/name
+                operator: In
+                values:
+                  - APP_NAME
+              - key: app.kubernetes.io/component
+                operator: In
+                values:
+                  - pooling
+          topologyKey: kubernetes.io/hostname
   # -- Pre-configured database names.
   databases:
     - postgres
