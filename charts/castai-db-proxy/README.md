@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.28.0](https://img.shields.io/badge/Version-0.28.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.29.0](https://img.shields.io/badge/Version-0.29.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -38,7 +38,7 @@ CAST AI database proxy cache deployment.
 | organizationID | string | `""` | ID of the organization. |
 | podAnnotations | object | `{}` | Extra annotations to add to the pod. |
 | podLabels | object | `{}` | Extra labels to add to the pod. |
-| pooling.affinity | object | `{"podAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"podAffinityTerm":{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["APP_NAME"]},{"key":"app.kubernetes.io/component","operator":"In","values":["proxy"]}]},"topologyKey":"topology.kubernetes.io/zone"},"weight":100}]}}` | Affinity rules for the pooler pods. The default prefers co-locating pooler pods in the same availability zones as the proxy pods, so proxy-to-pooler traffic stays in-zone. The APP_NAME placeholder is replaced with the release name at render time. |
+| pooling.affinity | object | `{"podAffinity":{"preferredDuringSchedulingIgnoredDuringExecution":[{"podAffinityTerm":{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["APP_NAME"]},{"key":"app.kubernetes.io/component","operator":"In","values":["proxy"]}]},"topologyKey":"topology.kubernetes.io/zone"},"weight":100}]},"podAntiAffinity":{"requiredDuringSchedulingIgnoredDuringExecution":[{"labelSelector":{"matchExpressions":[{"key":"app.kubernetes.io/name","operator":"In","values":["APP_NAME"]},{"key":"app.kubernetes.io/component","operator":"In","values":["pooling"]}]},"topologyKey":"kubernetes.io/hostname"}]}}` | Affinity rules for the pooler pods. The default prefers co-locating pooler pods in the same availability zones as the proxy pods, so proxy-to-pooler traffic stays in-zone, and never schedules two pooler pods on the same node, so a single node failure cannot take down every pooler. The APP_NAME placeholder is replaced with the release name at render time. |
 | pooling.configManager | object | `{"discovery":{"refresh_interval_seconds":10},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/castai/images/db-pooling","tag":""},"port":50051,"report_metrics_frequency_seconds":15,"resources":{"cpu":"10m","memoryLimit":"32Mi","memoryRequest":"32Mi"}}` | Configuration for the pooling configuration manager. |
 | pooling.configManager.discovery | object | `{"refresh_interval_seconds":10}` | Peer discovery settings. |
 | pooling.configManager.discovery.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
