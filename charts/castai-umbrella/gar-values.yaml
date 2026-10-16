@@ -47,6 +47,7 @@ autoscaler:
     crdUpgrade:
       image:
         repository: us-docker.pkg.dev/castai-hub/library/kubectl
+        tag: "v1.35.7"
   castai-pod-mutator:
     image:
       repository: us-docker.pkg.dev/castai-hub/library/pod-mutator
@@ -90,6 +91,7 @@ autoscaler-anywhere:
     crdUpgrade:
       image:
         repository: us-docker.pkg.dev/castai-hub/library/kubectl
+        tag: "v1.35.7"
   castai-cluster-controller:
     image:
       repository: us-docker.pkg.dev/castai-hub/library/cluster-controller
