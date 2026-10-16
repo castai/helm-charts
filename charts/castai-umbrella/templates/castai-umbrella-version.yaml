@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: castai-umbrella-version
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/name: castai-umbrella
+    app.kubernetes.io/instance: {{ .Release.Name | quote }}
+    helm.sh/chart: {{ include "castai-umbrella.chart" . | quote }}
+  annotations:
+    meta.helm.sh/release-name: {{ .Release.Name | quote }}
+data:
+  umbrella_version: {{ .Chart.Version | quote }}
+  umbrella_tags: {{ include "castai-umbrella.enabledTags" . | quote }}
