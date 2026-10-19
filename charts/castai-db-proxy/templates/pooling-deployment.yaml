@@ -331,6 +331,12 @@ spec:
             - name: metrics
               containerPort: {{ .Values.pooling.metricsPort }}
               protocol: TCP
+          startupProbe:
+            tcpSocket:
+              port: upstream-rw
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 10
           readinessProbe:
             httpGet:
               path: /metrics
