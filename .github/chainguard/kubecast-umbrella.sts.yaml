@@ -1,0 +1,6 @@
+issuer: https://gitlab.com
+subject_pattern: 'project_path:castai/kubecast:ref_type:branch:ref:master'
+claim_pattern:
+  project_path: castai/kubecast
+permissions:
+  contents: write
