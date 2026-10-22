@@ -546,11 +546,11 @@ spec:
                             description: IsSpot indicates whether this is a spot/preemptible instance.
                             type: boolean
                           memoryMiB:
-                            description: MemoryMiB is the memory capacity in mebibytes, carried forward from the plan.
+                            description: MemoryMiB is the allocatable memory in mebibytes, carried forward from the plan.
                             format: int64
                             type: integer
                           milliCPU:
-                            description: MilliCPU is the CPU capacity in millicores, carried forward from the plan.
+                            description: MilliCPU is the allocatable CPU in millicores, carried forward from the plan.
                             format: int64
                             type: integer
                           name:
@@ -951,11 +951,15 @@ spec:
                             description: IsSpot indicates whether this is a spot/preemptible instance.
                             type: boolean
                           memoryMiB:
-                            description: MemoryMiB is the memory capacity in mebibytes.
+                            description: |-
+                              MemoryMiB is the node's allocatable memory in mebibytes: capacity minus VM overhead,
+                              kubelet and system reserved, and the eviction threshold.
                             format: int64
                             type: integer
                           milliCPU:
-                            description: MilliCPU is the CPU capacity in millicores (e.g., 4000 for 4 vCPUs).
+                            description: |-
+                              MilliCPU is the node's allocatable CPU in millicores: capacity minus kubelet and system
+                              reserved (e.g., 3920 on a 4 vCPU node).
                             format: int64
                             type: integer
                           name:
@@ -1020,11 +1024,15 @@ spec:
                             description: IsSpot indicates whether this is a spot/preemptible instance.
                             type: boolean
                           memoryMiB:
-                            description: MemoryMiB is the memory capacity in mebibytes.
+                            description: |-
+                              MemoryMiB is the node's allocatable memory in mebibytes: capacity minus VM overhead,
+                              kubelet and system reserved, and the eviction threshold.
                             format: int64
                             type: integer
                           milliCPU:
-                            description: MilliCPU is the CPU capacity in millicores (e.g., 4000 for 4 vCPUs).
+                            description: |-
+                              MilliCPU is the node's allocatable CPU in millicores: capacity minus kubelet and system
+                              reserved (e.g., 3920 on a 4 vCPU node).
                             format: int64
                             type: integer
                           name:
@@ -1130,11 +1138,15 @@ spec:
                             description: IsSpot indicates whether this is a spot/preemptible instance.
                             type: boolean
                           memoryMiB:
-                            description: MemoryMiB is the memory capacity in mebibytes.
+                            description: |-
+                              MemoryMiB is the node's allocatable memory in mebibytes: capacity minus VM overhead,
+                              kubelet and system reserved, and the eviction threshold.
                             format: int64
                             type: integer
                           milliCPU:
-                            description: MilliCPU is the CPU capacity in millicores (e.g., 4000 for 4 vCPUs).
+                            description: |-
+                              MilliCPU is the node's allocatable CPU in millicores: capacity minus kubelet and system
+                              reserved (e.g., 3920 on a 4 vCPU node).
                             format: int64
                             type: integer
                           name:
@@ -1199,11 +1211,15 @@ spec:
                             description: IsSpot indicates whether this is a spot/preemptible instance.
                             type: boolean
                           memoryMiB:
-                            description: MemoryMiB is the memory capacity in mebibytes.
+                            description: |-
+                              MemoryMiB is the node's allocatable memory in mebibytes: capacity minus VM overhead,
+                              kubelet and system reserved, and the eviction threshold.
                             format: int64
                             type: integer
                           milliCPU:
-                            description: MilliCPU is the CPU capacity in millicores (e.g., 4000 for 4 vCPUs).
+                            description: |-
+                              MilliCPU is the node's allocatable CPU in millicores: capacity minus kubelet and system
+                              reserved (e.g., 3920 on a 4 vCPU node).
                             format: int64
                             type: integer
                           name:

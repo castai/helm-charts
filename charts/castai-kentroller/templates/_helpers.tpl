@@ -34,7 +34,7 @@ Merge global and chart-level tolerations.
 
 {{/*
 Resolve the cloud provider used by the rebalancer. An explicit .Values.provider
-(aws, azure, gcp) always wins. When unset, fall back to global.castai.provider
+(aws, azure, gcp, kwok) always wins. When unset, fall back to global.castai.provider
 using the upstream-vocabulary mapping (eks→aws, aks→azure, gke→gcp), and
 finally default to "aws". The resolved value may be returned unvalidated;
 callers validate against the supported set.

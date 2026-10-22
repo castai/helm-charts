@@ -1,0 +1,36 @@
+{{- /*
+KWOK is a synthetic provider for local/e2e clusters. Its node class RBAC lives here
+rather than in the generated role.yaml so production installs never receive it.
+*/}}
+{{- if eq (include "castai-kentroller.resolvedProvider" .) "kwok" }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "castai-kentroller.serviceAccountName" . }}-kwok
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+rules:
+  - apiGroups:
+      - karpenter.kwok.sh
+    resources:
+      - kwoknodeclasses
+    verbs:
+      - get
+      - list
+      - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "castai-kentroller.serviceAccountName" . }}-kwok
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "castai-kentroller.serviceAccountName" . }}-kwok
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-kentroller.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}

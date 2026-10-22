@@ -87,8 +87,8 @@ spec:
             - name: DYNAMIC_CONFIG_MAP_NAME
               value: {{ include "castai-kentroller.dynamicConfigMapName" . }}
             {{- $provider := include "castai-kentroller.resolvedProvider" . }}
-            {{- if not (has $provider (list "aws" "azure" "gcp")) }}
-            {{- fail (printf "provider must be one of: aws, azure, gcp (resolved %q from provider or global.castai.provider)" $provider) }}
+            {{- if not (has $provider (list "aws" "azure" "gcp" "kwok")) }}
+            {{- fail (printf "provider must be one of: aws, azure, gcp, kwok (resolved %q from provider or global.castai.provider)" $provider) }}
             {{- end }}
             {{- if and (eq $provider "azure") (not .Values.azure.subscriptionID) }}
             {{- fail "azure.subscriptionID is required when provider resolves to \"azure\"" }}
@@ -110,6 +110,15 @@ spec:
             {{- if hasKey .Values.castai.rebalance "disruptGuard" }}
             - name: REBALANCER_DISRUPT_GUARD_ENABLED
               value: {{ .Values.castai.rebalance.disruptGuard | quote }}
+            {{- end }}
+            {{- if and .Values.castai.challengeSecretRef .Values.castai.challengeSecretRef.name }}
+            # Overrides the handshake secret embedded in release builds.
+            - name: CHALLENGE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.castai.challengeSecretRef.name | quote }}
+                  key: {{ .Values.castai.challengeSecretRef.key | default "secret" | quote }}
+                  optional: true
             {{- end }}
             {{- if .Values.webhook.enabled }}
             # cert-controller (in-process) provisions and rotates the TLS
