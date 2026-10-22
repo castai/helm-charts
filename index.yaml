@@ -56095,6 +56095,23 @@ entries:
     version: 0.0.2
   castai-kentroller:
   - apiVersion: v2
+    appVersion: v0.30.0
+    created: "2026-10-22T12:11:33.10112012Z"
+    dependencies:
+    - condition: crds.enabled
+      name: castai-kentroller-crds
+      repository: file://dependencies/crds
+      version: 0.0.1
+    description: Deploys the CAST AI kentroller — the in-cluster controller for KENT
+      (Karpenter Enterprise by CAST AI), responsible for automated Kubernetes cluster
+      management.
+    digest: 8ba4efd976b62043f3b341435d8309e2d8bb901165d648c178e880564844d5fc
+    name: castai-kentroller
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-kentroller-0.30.0/castai-kentroller-0.30.0.tgz
+    version: 0.30.0
+  - apiVersion: v2
     appVersion: v0.29.1
     created: "2026-10-22T06:59:49.258054171Z"
     dependencies:
@@ -85851,4 +85868,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-10-22T09:27:50.453467377Z"
+generated: "2026-10-22T12:11:33.109526977Z"
