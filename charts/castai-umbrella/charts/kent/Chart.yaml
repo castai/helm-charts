@@ -5,31 +5,31 @@ type: application
 version: 0.16.0
 dependencies:
   - name: castai-agent
-    version: "0.162.7"
+    version: "0.162.8"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-agent.enabled
   - name: castai-cluster-controller
-    version: "0.92.20"
+    version: "0.92.21"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-cluster-controller.enabled
   - name: castai-kentroller
-    version: "0.27.1"
+    version: "0.30.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kentroller.enabled
   - name: castai-workload-autoscaler
-    version: "1.14.2"
+    version: "1.15.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler.enabled
   - name: castai-workload-autoscaler-exporter
-    version: "1.14.2"
+    version: "1.18.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler-exporter.enabled
   - name: castai-live
-    version: "0.141.0"
+    version: "0.141.3"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
   - name: castai-pod-mutator
-    version: "0.17.11"
+    version: "0.17.12"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-mutator.enabled
   - name: castai-spot-handler
@@ -41,7 +41,7 @@ dependencies:
     repository: "https://kubernetes-sigs.github.io/metrics-server/"
     condition: metrics-server.enabled
   - name: castai-kvisor
-    version: "1.165.5"
+    version: "1.166.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-kvisor.enabled
   - name: castai-chart-upgrader

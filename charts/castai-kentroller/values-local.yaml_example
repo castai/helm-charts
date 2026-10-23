@@ -50,6 +50,12 @@ castai:
   # The referenced secret must provide the token in .data["API_KEY"].
   apiKeySecretRef: ""
 
+  # castai.challengeSecretRef -- Optional secret (key `secret`) injected as
+  # CHALLENGE_SECRET, overriding the embedded handshake secret. Create it in
+  # the release namespace when the target kent expects the dev value.
+  challengeSecretRef:
+    name: kent-handshake
+
   # castai.apiURL -- CASTAI public api url.
   apiURL: "https://api--xxx.local.cast.ai"
   grpcURL: "kent-server.kent.svc.cluster.local:8080"

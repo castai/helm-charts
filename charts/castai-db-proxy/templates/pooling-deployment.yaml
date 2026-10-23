@@ -99,12 +99,10 @@ spec:
             - /bin/sh
             - -c
             - |
+              set -eu
+
               cp /etc/proxysql-template/proxysql.cnf /etc/proxysql/proxysql.cnf
-              chmod 755 /etc/proxysql/proxysql.cnf
-              openssl req -x509 -newkey rsa:2048 \
-                -keyout /etc/proxysql/proxysql.key \
-                -out /etc/proxysql/proxysql.crt \
-                -days 3650 -nodes -subj "/CN=proxysql"
+              chmod 600 /etc/proxysql/proxysql.cnf
           volumeMounts:
             - name: proxysql-config-template
               mountPath: /etc/proxysql-template
@@ -331,16 +329,24 @@ spec:
             - name: metrics
               containerPort: {{ .Values.pooling.metricsPort }}
               protocol: TCP
-          readinessProbe:
+          startupProbe:
             tcpSocket:
               port: upstream-rw
+            periodSeconds: 5
+            timeoutSeconds: 5
+            failureThreshold: 10
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: {{ .Values.pooling.metricsPort }}
             initialDelaySeconds: 5
             periodSeconds: 10
             timeoutSeconds: 5
             failureThreshold: 3
           livenessProbe:
-            tcpSocket:
-              port: upstream-rw
+            httpGet:
+              path: /metrics
+              port: {{ .Values.pooling.metricsPort }}
             initialDelaySeconds: 15
             periodSeconds: 20
           volumeMounts:

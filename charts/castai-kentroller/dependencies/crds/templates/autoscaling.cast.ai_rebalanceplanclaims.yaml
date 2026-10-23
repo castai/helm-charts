@@ -471,12 +471,15 @@ spec:
                             instance.
                           type: boolean
                         memoryMiB:
-                          description: MemoryMiB is the memory capacity in mebibytes.
+                          description: |-
+                            MemoryMiB is the node's allocatable memory in mebibytes: capacity minus VM overhead,
+                            kubelet and system reserved, and the eviction threshold.
                           format: int64
                           type: integer
                         milliCPU:
-                          description: MilliCPU is the CPU capacity in millicores
-                            (e.g., 4000 for 4 vCPUs).
+                          description: |-
+                            MilliCPU is the node's allocatable CPU in millicores: capacity minus kubelet and system
+                            reserved (e.g., 3920 on a 4 vCPU node).
                           format: int64
                           type: integer
                         name:
@@ -551,12 +554,15 @@ spec:
                             instance.
                           type: boolean
                         memoryMiB:
-                          description: MemoryMiB is the memory capacity in mebibytes.
+                          description: |-
+                            MemoryMiB is the node's allocatable memory in mebibytes: capacity minus VM overhead,
+                            kubelet and system reserved, and the eviction threshold.
                           format: int64
                           type: integer
                         milliCPU:
-                          description: MilliCPU is the CPU capacity in millicores
-                            (e.g., 4000 for 4 vCPUs).
+                          description: |-
+                            MilliCPU is the node's allocatable CPU in millicores: capacity minus kubelet and system
+                            reserved (e.g., 3920 on a 4 vCPU node).
                           format: int64
                           type: integer
                         name:

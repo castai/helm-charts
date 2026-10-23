@@ -26,7 +26,9 @@ crds:
   enabled: true
 
 # provider -- Cloud provider for this cluster, selecting the cloud-provider
-# implementation used by the rebalancer. One of: aws, azure, gcp.
+# implementation used by the rebalancer. One of: aws, azure, gcp, kwok.
+# kwok is for local/e2e clusters running the Karpenter KWOK provider; it also
+# grants read access to karpenter.kwok.sh kwoknodeclasses.
 # When empty, the provider is resolved from global.castai.provider using the
 # upstream vocabulary (eks -> aws, aks -> azure, gke -> gcp), defaulting to
 # "aws" when neither is set.
@@ -79,6 +81,9 @@ serviceAccount:
 
 # castai -- CAST AI API configuration
 castai:
+  # castai.challengeSecretRef -- Optional secret (key `secret`) injected as
+  # CHALLENGE_SECRET, overriding the handshake secret embedded in release builds.
+  challengeSecretRef: {}
   # castai.apiURL -- CAST AI public API URL
   apiURL: "https://api.cast.ai"
   grpcURL: "grpc.prod-master.cast.ai:443"

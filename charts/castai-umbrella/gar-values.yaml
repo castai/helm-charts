@@ -44,6 +44,9 @@ autoscaler:
       repository: us-docker.pkg.dev/castai-hub/library/evictor
     clusterVPA:
       repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
+    crdUpgrade:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/kubectl
   castai-pod-mutator:
     image:
       repository: us-docker.pkg.dev/castai-hub/library/pod-mutator
@@ -56,6 +59,9 @@ autoscaler:
     jmxExporter:
       initImage:
         repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+    test:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/busybox
   castai-workload-autoscaler-exporter:
     exporter:
       image:
@@ -84,6 +90,9 @@ autoscaler-anywhere:
       repository: us-docker.pkg.dev/castai-hub/library/evictor
     clusterVPA:
       repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
+    crdUpgrade:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/kubectl
   castai-cluster-controller:
     image:
       repository: us-docker.pkg.dev/castai-hub/library/cluster-controller
@@ -93,6 +102,9 @@ autoscaler-anywhere:
     jmxExporter:
       initImage:
         repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+    test:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/busybox
   castai-workload-autoscaler-exporter:
     exporter:
       image:
@@ -135,6 +147,9 @@ kent:
     jmxExporter:
       initImage:
         repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+    test:
+      image:
+        repository: us-docker.pkg.dev/castai-hub/library/busybox
   castai-workload-autoscaler-exporter:
     exporter:
       image:

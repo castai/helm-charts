@@ -11,6 +11,7 @@
   "shutdown_timeout" 60000
   "log_connections" false
   "log_disconnections" false
+  "default_pool_size" 200
 -}}
 {{- $userConfig := .Values.pooling.pgdog.config | default dict -}}
 {{- $mergedConfig := merge (deepCopy $userConfig) $defaults -}}
