@@ -1,10 +1,5 @@
 {{/* ── Collect enabled tags ─────────────────────────────────────────────────── */}}
-{{- $enabledTags := list }}
-{{- range $tag := list "readonly" "node-autoscaler" "workload-autoscaler" "full" "autoscaler-anywhere" "autoscaler-openshift" }}
-{{- if index $.Values.tags $tag }}
-{{- $enabledTags = append $enabledTags $tag }}
-{{- end }}
-{{- end }}
+{{- $enabledTags := without (splitList "," (include "castai-umbrella.enabledTags" .)) "" }}
 
 {{/* ── Mutual exclusivity ───────────────────────────────────────────────────── */}}
 {{- if gt (len $enabledTags) 1 }}
