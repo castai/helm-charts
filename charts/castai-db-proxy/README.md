@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.33.2](https://img.shields.io/badge/Version-0.33.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.34.0](https://img.shields.io/badge/Version-0.34.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -14,6 +14,7 @@ CAST AI database proxy cache deployment.
 | apiURL | string | `"api-grpc.cast.ai"` | URL to the CAST AI gRPC API server. |
 | cache.analysisMemoMiB | int | `512` | Memory in MiB each proxy pod may use to remember how it analyzed each SQL statement, so repeated statements skip parsing. Also caps the largest statement it can remember. Raise it if the pod has spare memory and the workload sends many distinct or very large statements. |
 | cache.defaultTTLSecs | int | `300` | Default TTL for cached results in seconds. |
+| cluster.connectionsPerPeer | string | `""` | Connections each pod opens to every peer. Leave empty to use one per worker thread (see serverThreads), which lets peer traffic grow with resources.cpu. Set explicitly only to override that. |
 | cluster.enabled | bool | `true` | Enable distributed cache cluster mode. |
 | cluster.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
 | commonAnnotations | object | `{}` | Annotations to add to all resources. |
@@ -78,7 +79,7 @@ CAST AI database proxy cache deployment.
 | rollingUpdate | object | `{"maxSurge":"100%","maxUnavailable":0}` | Rolling update strategy configuration. |
 | rollingUpdate.maxSurge | string | `"100%"` | Maximum number of pods that can be created above the desired number of pods during an update. |
 | rollingUpdate.maxUnavailable | int | `0` | Maximum number of pods that can be unavailable during an update. |
-| serverThreads | string | `""` | Worker threads for each proxy listener that serves traffic. Leave empty to derive from resources.cpu, rounded up (minimum 1). Set explicitly only to override that. Background services are fixed at one thread each and are unaffected. |
+| serverThreads | string | `""` | Worker threads for each proxy listener that serves traffic. Leave empty to derive from resources.cpu, rounded up (minimum 1). Set explicitly only to override that. Cluster peer traffic gets as many threads at each end; other background services are fixed at one thread each and are unaffected. |
 | service.trafficDistribution | string | `"PreferClose"` | Traffic distribution policy for the proxy services (read-write and read-only). Set to "PreferClose" to reduce inter-zone traffic. Requires Kubernetes 1.31+. |
 | serviceAccountName | string | `""` | The name of the service account to be used by the pod. |
 | tls.secretName | string | `""` | Name of a TLS secret (tls.crt/tls.key) to override the built-in self-signed cert. |
