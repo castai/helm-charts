@@ -22,11 +22,10 @@ Chart name and version as used by the helm.sh/chart label.
 {{- end }}
 
 {{ define "castai-umbrella.enabledTags" -}}
-{{- $all := list "readonly" "node-autoscaler" "workload-autoscaler" "full" "autoscaler-anywhere" "autoscaler-openshift" -}}
 {{- $tags := .Values.tags | default dict -}}
 {{- $enabled := list -}}
-{{- range $all -}}
-{{- if and (hasKey $tags .) (index $tags .) }}{{- $enabled = append $enabled . }}{{- end -}}
+{{- range sortAlpha (keys $tags) -}}
+{{- if index $tags . }}{{- $enabled = append $enabled . }}{{- end -}}
 {{- end -}}
 {{- join "," $enabled -}}
 {{- end -}}

@@ -9,6 +9,7 @@ metadata:
     helm.sh/chart: {{ include "castai-umbrella.chart" . | quote }}
   annotations:
     meta.helm.sh/release-name: {{ .Release.Name | quote }}
+    meta.helm.sh/release-namespace: {{ .Release.Namespace | quote }}
 data:
   umbrella_version: {{ .Chart.Version | quote }}
   umbrella_tags: {{ include "castai-umbrella.enabledTags" . | quote }}
