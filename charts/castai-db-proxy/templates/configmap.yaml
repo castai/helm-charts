@@ -57,6 +57,9 @@ data:
 
     [cluster]
     listen_port = {{ .Values.ports.cluster }}
+    {{- if .Values.cluster.connectionsPerPeer }}
+    connections_per_peer = {{ .Values.cluster.connectionsPerPeer | int }}
+    {{- end }}
 
     [cluster.discovery]
     type = "dns"

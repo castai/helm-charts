@@ -236,6 +236,22 @@
         "refresh_interval_seconds": {
           "type": "integer",
           "minimum": 1
+        },
+        "connectionsPerPeer": {
+          "description": "Connections each pod opens to every peer. Empty (or null) uses one per worker thread.",
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^([1-9][0-9]*)?$"
+            },
+            {
+              "type": "integer",
+              "minimum": 1
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       }
     },
