@@ -203,6 +203,10 @@ resources:
     cpu: 100m
     memory: 512Mi
 
+# hostNetwork -- Run pods on the host network. When true, the webhook (webhook.port, default 9443),
+# metrics (metrics.targetPort, default 8080) and health probe (healthProbe.port, default 8081) ports are
+# also declared as hostPorts so kube-scheduler accounts for them during placement and avoids
+# co-locating pods that would bind the same host ports.
 hostNetwork: false
 # dnsPolicy -- DNS Policy Override - Needed when using custom CNI's. Defaults to "ClusterFirstWithHostNet" if hostNetwork is true
 dnsPolicy: ""
@@ -372,6 +376,10 @@ healthProbe:
 test:
   # Flag to disable the hook
   enabled: true
+  # image -- Test hook image. Override to mirror it in private-registry setups.
+  image:
+    repository: ghcr.io/castai/images/busybox
+    tag: "1.37.0"
 
 # -- Used to set additional environment variables for the workload autoscaler container via configMaps or secrets.
 envFrom: []

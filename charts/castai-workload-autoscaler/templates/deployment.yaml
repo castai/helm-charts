@@ -60,6 +60,25 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ include "workload-autoscaler.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          ports:
+            - name: https
+              protocol: TCP
+              containerPort: {{ .Values.webhook.port }}
+              {{- if .Values.hostNetwork }}
+              hostPort: {{ .Values.webhook.port }}
+              {{- end }}
+            - name: metrics
+              protocol: TCP
+              containerPort: {{ .Values.metrics.targetPort }}
+              {{- if .Values.hostNetwork }}
+              hostPort: {{ .Values.metrics.targetPort }}
+              {{- end }}
+            - name: health
+              protocol: TCP
+              containerPort: {{ .Values.healthProbe.port }}
+              {{- if .Values.hostNetwork }}
+              hostPort: {{ .Values.healthProbe.port }}
+              {{- end }}
           env:
             - name: POD_NAME
               valueFrom:

@@ -23,7 +23,7 @@ allowHostDirVolumePlugin: false
 allowHostIPC: false
 allowHostNetwork: {{ .Values.hostNetwork | default false }}
 allowHostPID: false
-allowHostPorts: false
+allowHostPorts: {{ .Values.hostNetwork | default false }}
 allowPrivilegeEscalation: {{ .Values.containerSecurityContext.allowPrivilegeEscalation | default false }}
 allowedCapabilities: []
 defaultAddCapabilities: []

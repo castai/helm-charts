@@ -29,9 +29,13 @@ spec:
         app.kubernetes.io/instance: test-{{ .Release.Name }}
     spec:
       terminationGracePeriodSeconds: 5
+      {{- with include "workload-autoscaler.imagePullSecrets" . }}
+      imagePullSecrets:
+      {{- . | nindent 8 }}
+      {{- end }}
       containers:
         - name: test-container
-          image: ghcr.io/castai/images/busybox:1.37.0
+          image: "{{ .Values.test.image.repository }}:{{ .Values.test.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
           command: ["/bin/sh", "-c", "while true; do echo Hello Kubernetes; sleep 3600; done"]
       {{- with .Values.nodeSelector }}
