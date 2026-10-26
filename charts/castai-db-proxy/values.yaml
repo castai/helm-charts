@@ -66,13 +66,17 @@ cluster:
   enabled: true
   # -- Refresh interval of DNS for peer discovery in seconds.
   refresh_interval_seconds: 10
+  # -- Connections each pod opens to every peer. Leave empty to use one per worker thread (see serverThreads), which
+  # lets peer traffic grow with resources.cpu. Set explicitly only to override that.
+  connectionsPerPeer: ""
 
 # -- Application log level. Supports "trace", "debug", "info", "warn", "error"
 logLevel: "info"
 
 # -- Worker threads for each proxy listener that serves traffic. Leave empty to derive
 # from resources.cpu, rounded up (minimum 1). Set explicitly only to override that.
-# Background services are fixed at one thread each and are unaffected.
+# Cluster peer traffic gets as many threads at each end; other background services are
+# fixed at one thread each and are unaffected.
 serverThreads: ""
 
 service:
