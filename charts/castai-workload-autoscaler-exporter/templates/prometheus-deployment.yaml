@@ -31,9 +31,9 @@ spec:
       priorityClassName: {{ .Values.priorityClass.name }}
       {{- end }}
       serviceAccountName: {{ template "exporter.serviceAccountName" . }}-prometheus
-      {{- with .Values.imagePullSecrets }}
+      {{- with include "exporter.imagePullSecrets" . }}
       imagePullSecrets:
-      {{- toYaml . | nindent 8 }}
+      {{- . | nindent 8 }}
       {{- end }}
       {{- with .Values.prometheus.podSecurityContext }}
       securityContext:
