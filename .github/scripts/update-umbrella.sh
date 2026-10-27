@@ -37,7 +37,8 @@ for CHART_FILE in "${SUBCHART_FILES[@]}"; do
   if [ ! -f "$CHART_FILE" ]; then
     continue
   fi
-  if yq ".dependencies[].name" "$CHART_FILE" | grep -qx "$CHART_NAME"; then
+  # grep -q would close the pipe on match, SIGPIPE-ing yq and failing the probe under pipefail.
+  if yq ".dependencies[].name" "$CHART_FILE" | grep -x "$CHART_NAME" >/dev/null; then
     CURRENT=$(yq ".dependencies[] | select(.name == \"$CHART_NAME\") | .version" "$CHART_FILE")
     if [ "$CURRENT" != "$VERSION" ]; then
       echo "Updating ${CHART_NAME} in ${CHART_FILE}: ${CURRENT} -> ${VERSION}"
