@@ -56,7 +56,7 @@ tests:
           path: users[0]
           value: system:serviceaccount:NAMESPACE:castai-evictor
 
-  - it: includes both evictor and crd-upgrade SAs when crdUpgrade is enabled
+  - it: includes only the evictor SA even when crdUpgrade is enabled
     set:
       crdUpgrade:
         enabled: true
@@ -64,13 +64,10 @@ tests:
     asserts:
       - lengthEqual:
           path: users
-          count: 2
+          count: 1
       - equal:
           path: users[0]
           value: system:serviceaccount:NAMESPACE:castai-evictor
-      - equal:
-          path: users[1]
-          value: system:serviceaccount:NAMESPACE:castai-evictor-crd-upgrade
 
   # ── Default profile (useRestrictedProfile=false) ────────────────────────────
 

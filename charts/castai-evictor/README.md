@@ -38,7 +38,7 @@ Cluster utilization defragmentation tool
 | crdUpgrade.podAnnotations | object | `{}` | Additional annotations applied to the CRD upgrade Job pod. |
 | crdUpgrade.podLabels | object | `{}` | Additional labels applied to the CRD upgrade Job pod. |
 | crdUpgrade.resources | object | `{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}}` | Resources for all containers (init + main) in the Job. |
-| crdUpgrade.securityContext | object | `{"fsGroup":1004,"runAsGroup":1004,"runAsNonRoot":true,"runAsUser":1004,"seccompProfile":{"type":"RuntimeDefault"}}` | Pod security context. On OpenShift with useRestrictedProfile, UID fields are stripped automatically. NOTE: runAsUser/runAsGroup/fsGroup mirror .Values.securityContext to stay within the evictor SCC's MustRunAs range on the non-restricted path. |
+| crdUpgrade.securityContext | object | `{"fsGroup":1004,"runAsGroup":1004,"runAsNonRoot":true,"runAsUser":1004,"seccompProfile":{"type":"RuntimeDefault"}}` | Pod security context. UID fields apply on non-OpenShift clusters only; on OpenShift the namespace SCC assigns the UID. |
 | customConfig | object | `{}` |  |
 | cycleInterval | string | `"1m"` | Specifies the interval between eviction cycles. This property can be used to lower or raise the frequency of the evictor's find-and-drain operations. |
 | dnsPolicy | string | `""` | DNS Policy Override - Needed when using some custom CNI's. |
@@ -65,9 +65,10 @@ Cluster utilization defragmentation tool
 | imagePullSecrets | list | `[]` |  |
 | karpenterNodeCleanup | object | `{"enabled":false}` | Karpenter NodeClaim cleanup for nodes Evictor has drained. When enabled, Evictor deletes the Karpenter NodeClaim for any node it has successfully drained, so Karpenter's termination controller can clean up the EC2 instance. Requires `nodeclaims.karpenter.sh` get/list/watch/delete permission (granted by this chart). |
 | karpenterNodeCleanup.enabled | bool | `false` | Whether to enable cleanup of Karpenter nodes. |
-| kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100}}` | Specifies Kubernetes client settings. |
+| kubernetesClient | object | `{"rateLimiter":{"burst":200,"qps":100},"useCoreObjectCache":false}` | Specifies Kubernetes client settings. |
 | kubernetesClient.rateLimiter.burst | int | `200` | Burst controls the maximum queries per second that the client is allowed to issue in a short burst. |
 | kubernetesClient.rateLimiter.qps | int | `100` | QPS or queries per second. Controls how many queries per second the client should be allowed to issue, not accounting for bursts. |
+| kubernetesClient.useCoreObjectCache | bool | `false` | If true, Evictor uses informer-backed caches for core Kubernetes object reads (pods, nodes, volume objects), which reduces API server load. When false, all such reads go straight to the API server. |
 | leaderElection | object | `{"enabled":true}` | Specifies leader election parameters. |
 | leaderElection.enabled | bool | `true` | Whether to enable leader election. |
 | liveMigration | object | `{"enabled":true,"useK8sClientCache":true}` | Specifies LIVE migration settings. This options assumes that the CAST AI LIVE components are already installed in the cluster. |

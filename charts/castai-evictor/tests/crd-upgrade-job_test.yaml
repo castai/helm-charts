@@ -160,7 +160,7 @@ tests:
       - notExists:
           path: spec.template.spec.securityContext.fsGroup
 
-  - it: keeps UID fields on OpenShift without restricted profile
+  - it: strips UID fields on OpenShift even without restricted profile
     capabilities:
       apiVersions:
         - security.openshift.io/v1
@@ -172,11 +172,39 @@ tests:
     documentIndex: 4
     asserts:
       - equal:
-          path: spec.template.spec.securityContext.runAsUser
-          value: 1004
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
       - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
+      - notExists:
+          path: spec.template.spec.securityContext.runAsUser
+      - notExists:
+          path: spec.template.spec.securityContext.runAsGroup
+      - notExists:
           path: spec.template.spec.securityContext.fsGroup
-          value: 1004
+
+  - it: strips a custom runAsUser override on OpenShift
+    capabilities:
+      apiVersions:
+        - security.openshift.io/v1
+        - autoscaling.cast.ai/v1alpha1/EvictorConfig
+    set:
+      crdUpgrade:
+        enabled: true
+        securityContext:
+          runAsUser: 2000
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - notExists:
+          path: spec.template.spec.securityContext.runAsUser
+      - equal:
+          path: spec.template.spec.securityContext.runAsNonRoot
+          value: true
+      - equal:
+          path: spec.template.spec.securityContext.seccompProfile.type
+          value: RuntimeDefault
 
   # ── Container security context ─────────────────────────────────────────────
 

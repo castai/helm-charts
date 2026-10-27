@@ -84,6 +84,8 @@ spec:
               value: {{ .Values.woop.enabled | quote }}
             - name: WOOP_USE_K8S_CLIENT_CACHE
               value: {{ .Values.woop.useK8sClientCache | quote }}
+            - name: K8S_CLIENT_USE_CORE_OBJECT_CACHE
+              value: {{ .Values.kubernetesClient.useCoreObjectCache | quote }}
             - name: POD_MUTATIONS_ENABLED
               value: {{ .Values.podMutations.enabled | quote }}
             - name: SCOPED_MODE

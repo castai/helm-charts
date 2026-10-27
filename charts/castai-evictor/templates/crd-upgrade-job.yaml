@@ -115,9 +115,9 @@ spec:
       serviceAccountName: {{ include "evictor.fullname" . }}-crd-upgrade
       {{- if .Values.crdUpgrade.securityContext }}
       {{- $isOpenShift := .Capabilities.APIVersions.Has "security.openshift.io/v1" }}
-      {{- $useRestrictedProfile := and $isOpenShift (.Values.openshift.scc.useRestrictedProfile | default false) }}
+      {{- /* OpenShift SCC admission validates runAsUser against a per-namespace UID range; pinned UIDs are rejected. */}}
       securityContext:
-        {{- if $useRestrictedProfile }}
+        {{- if $isOpenShift }}
         runAsNonRoot: {{ (.Values.crdUpgrade | default dict) | dig "securityContext" "runAsNonRoot" true }}
         {{- with .Values.crdUpgrade.securityContext.seccompProfile }}
         seccompProfile:
@@ -127,7 +127,7 @@ spec:
         {{- toYaml .Values.crdUpgrade.securityContext | nindent 8 }}
         {{- end }}
       {{- end }}
-      {{- with .Values.crdUpgrade.imagePullSecrets }}
+      {{- with concat (.Values.global.imagePullSecrets | default list) (.Values.crdUpgrade.imagePullSecrets | default list) }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}

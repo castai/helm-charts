@@ -166,6 +166,9 @@ kubernetesClient:
     qps: 100
     # kubernetesClient.rateLimiter.burst -- Burst controls the maximum queries per second that the client is allowed to issue in a short burst.
     burst: 200
+  # kubernetesClient.useCoreObjectCache -- If true, Evictor uses informer-backed caches for core Kubernetes object reads (pods, nodes, volume objects), which reduces API server load.
+  # When false, all such reads go straight to the API server.
+  useCoreObjectCache: false
 
 # updateStrategy -- Controls `deployment.spec.strategy` field.
 updateStrategy:
@@ -378,8 +381,8 @@ crdUpgrade:
   podLabels: {}
   # crdUpgrade.podAnnotations -- Additional annotations applied to the CRD upgrade Job pod.
   podAnnotations: {}
-  # crdUpgrade.securityContext -- Pod security context. On OpenShift with useRestrictedProfile, UID fields are stripped automatically.
-  # NOTE: runAsUser/runAsGroup/fsGroup mirror .Values.securityContext to stay within the evictor SCC's MustRunAs range on the non-restricted path.
+  # crdUpgrade.securityContext -- Pod security context. UID fields apply on non-OpenShift clusters only;
+  # on OpenShift the namespace SCC assigns the UID.
   securityContext:
     runAsNonRoot: true
     runAsUser: 1004
