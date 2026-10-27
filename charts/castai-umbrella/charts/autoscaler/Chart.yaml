@@ -2,7 +2,7 @@ apiVersion: v2
 name: autoscaler
 description: CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, full.
 type: application
-version: 0.2.0
+version: 0.3.0
 dependencies:
   # ── readonly components ───────────────────────────────────────────────────────
   - name: castai-agent
@@ -85,5 +85,15 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-workload-autoscaler-exporter.enabled
     tags:
+      - workload-autoscaler
+      - full
+  # ── opt-in (disabled by default via castai-storage-autoscaler.enabled=false) ──
+  # Enable in any mode with --set autoscaler.castai-storage-autoscaler.enabled=true.
+  - name: castai-storage-autoscaler
+    version: "0.3.0"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-storage-autoscaler.enabled
+    tags:
+      - node-autoscaler
       - workload-autoscaler
       - full

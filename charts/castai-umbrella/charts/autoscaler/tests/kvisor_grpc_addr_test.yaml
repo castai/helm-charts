@@ -1,4 +1,6 @@
 suite: kvisor grpcAddr configuration
+values:
+  - ./values-test-base.yaml
 set:
   castai-kvisor.enabled: true
   castai-kvisor.castai.apiKeySecretRef: castai-credentials

@@ -1,33 +1,36 @@
 dependencies:
 - name: castai-agent
   repository: https://castai.github.io/helm-charts
-  version: 0.155.5
+  version: 0.162.7
 - name: castai-spot-handler
   repository: https://castai.github.io/helm-charts
-  version: 0.35.2
+  version: 0.35.13
 - name: castai-kvisor
   repository: https://castai.github.io/helm-charts
-  version: 1.160.3
+  version: 1.166.0
 - name: castai-cluster-controller
   repository: https://castai.github.io/helm-charts
-  version: 0.92.4
+  version: 0.92.21
 - name: castai-evictor
   repository: https://castai.github.io/helm-charts
-  version: 0.35.60
+  version: 0.35.151
 - name: castai-pod-mutator
   repository: https://castai.github.io/helm-charts
-  version: 0.13.4
+  version: 0.17.12
 - name: castai-pod-pinner
   repository: https://castai.github.io/helm-charts
-  version: 1.12.5
+  version: 1.14.8
 - name: castai-live
   repository: https://castai.github.io/helm-charts
-  version: 0.98.0
+  version: 0.142.1
 - name: castai-workload-autoscaler
   repository: https://castai.github.io/helm-charts
-  version: 1.0.23
+  version: 1.15.0
 - name: castai-workload-autoscaler-exporter
   repository: https://castai.github.io/helm-charts
-  version: 1.0.23
-digest: sha256:4e92ef750974f90b5f188f14946770f82ab4bedf2d9926755b6173cc1c185d86
-generated: "2026-05-26T15:09:37.329384+02:00"
+  version: 1.18.0
+- name: castai-storage-autoscaler
+  repository: https://castai.github.io/helm-charts
+  version: 0.3.0
+digest: sha256:e3031411b4600f2e689b33791e34fc16645873591f541b9799a0c9e4fbd77331
+generated: "2026-10-26T14:05:18.622232+01:00"

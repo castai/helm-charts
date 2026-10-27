@@ -108,3 +108,28 @@ castai-workload-autoscaler-exporter:
   castai:
     apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
+
+# Storage autoscaler is opt-in (EKS and GKE only) — this is the deliberate
+# exception to the "do NOT set <component>.enabled here" rule above: pinning
+# enabled=false keeps the chart inert in every mode until explicitly enabled:
+#   --set autoscaler.castai-storage-autoscaler.enabled=true
+castai-storage-autoscaler:
+  enabled: false
+  fullnameOverride: castai-storage-autoscaler
+  serviceAccount:
+    # Empty on purpose — the cloud IAM annotation is passed at install time,
+    # exactly like kvisor/kentroller:
+    #   --set autoscaler.castai-storage-autoscaler.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=<role-arn>
+    #   --set autoscaler.castai-storage-autoscaler.serviceAccount.annotations."iam\.gke\.io/gcp-service-account"=<sa>@<project>.iam.gserviceaccount.com
+    annotations: {}
+  castai:
+    enabled: true
+    apiKeySecretRef:
+      name: castai-credentials
+      key: API_KEY
+    clusterIDConfigMapRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+    orgIDConfigMapRef:
+      name: castai-agent-metadata
+      key: ORGANIZATION_ID
