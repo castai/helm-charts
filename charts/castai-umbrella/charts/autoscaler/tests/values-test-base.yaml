@@ -1,10 +1,4 @@
 # Shared base values for all unittest suites in this chart.
-#
-# helm-unittest renders every vendored subchart template regardless of the
-# enabled conditions/tags, so subcharts with `required` CAST AI credential /
-# provider guards fail the whole render before any assertion runs. Give every
-# vendored component the same dummy wiring a real umbrella install gets
-# (global.castai + explicit refs where a chart doesn't resolve globals).
 global:
   castai:
     provider: eks

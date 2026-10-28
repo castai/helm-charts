@@ -119,3 +119,26 @@ castai-chart-upgrader:
   chart:
     name: castai
     repository: "https://castai.github.io/helm-charts"
+
+# Storage autoscaler is opt-in (EKS and GKE only), disabled by default via
+# the umbrella root (kent.castai-storage-autoscaler.enabled=false, see
+# charts/castai-umbrella/values.yaml). Enable per install with:
+#   --set kent.castai-storage-autoscaler.enabled=true
+castai-storage-autoscaler:
+  fullnameOverride: castai-storage-autoscaler
+  serviceAccount:
+    # Empty on purpose — the cloud IAM annotation is passed at install time:
+    #   --set kent.castai-storage-autoscaler.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=<role-arn>
+    #   --set kent.castai-storage-autoscaler.serviceAccount.annotations."iam\.gke\.io/gcp-service-account"=<sa>@<project>.iam.gserviceaccount.com
+    annotations: {}
+  castai:
+    enabled: true
+    apiKeySecretRef:
+      name: castai-credentials
+      key: API_KEY
+    clusterIDConfigMapRef:
+      name: castai-agent-metadata
+      key: CLUSTER_ID
+    orgIDConfigMapRef:
+      name: castai-agent-metadata
+      key: ORGANIZATION_ID

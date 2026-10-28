@@ -58,6 +58,16 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-spot-handler.castai.provider | string | `""` |  |
+| castai-storage-autoscaler.castai.apiKeySecretRef.key | string | `"API_KEY"` |  |
+| castai-storage-autoscaler.castai.apiKeySecretRef.name | string | `"castai-credentials"` |  |
+| castai-storage-autoscaler.castai.clusterIDConfigMapRef.key | string | `"CLUSTER_ID"` |  |
+| castai-storage-autoscaler.castai.clusterIDConfigMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-storage-autoscaler.castai.enabled | bool | `true` |  |
+| castai-storage-autoscaler.castai.orgIDConfigMapRef.key | string | `"ORGANIZATION_ID"` |  |
+| castai-storage-autoscaler.castai.orgIDConfigMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-storage-autoscaler.enabled | bool | `false` |  |
+| castai-storage-autoscaler.fullnameOverride | string | `"castai-storage-autoscaler"` |  |
+| castai-storage-autoscaler.serviceAccount.annotations | object | `{}` |  |
 | castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `""` |  |
 | castai-workload-autoscaler-exporter.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | castai-workload-autoscaler-exporter.fullnameOverride | string | `"castai-workload-autoscaler-exporter"` |  |
