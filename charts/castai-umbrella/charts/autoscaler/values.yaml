@@ -109,12 +109,13 @@ castai-workload-autoscaler-exporter:
     apiKeySecretRef: ""
     configMapRef: castai-agent-metadata
 
-# Storage autoscaler is opt-in (EKS and GKE only) — this is the deliberate
-# exception to the "do NOT set <component>.enabled here" rule above: pinning
-# enabled=false keeps the chart inert in every mode until explicitly enabled:
+# Storage autoscaler is opt-in (EKS and GKE only) — the tag-based activation
+# rule above stays untouched for tag-managed components; this one is controlled
+# by the umbrella root instead:
+#   autoscaler.castai-storage-autoscaler.enabled=false (default, see charts/castai-umbrella/values.yaml)
+# Enable per install with:
 #   --set autoscaler.castai-storage-autoscaler.enabled=true
 castai-storage-autoscaler:
-  enabled: false
   fullnameOverride: castai-storage-autoscaler
   serviceAccount:
     # Empty on purpose — the cloud IAM annotation is passed at install time,

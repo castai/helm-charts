@@ -65,7 +65,6 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | castai-storage-autoscaler.castai.enabled | bool | `true` |  |
 | castai-storage-autoscaler.castai.orgIDConfigMapRef.key | string | `"ORGANIZATION_ID"` |  |
 | castai-storage-autoscaler.castai.orgIDConfigMapRef.name | string | `"castai-agent-metadata"` |  |
-| castai-storage-autoscaler.enabled | bool | `false` |  |
 | castai-storage-autoscaler.fullnameOverride | string | `"castai-storage-autoscaler"` |  |
 | castai-storage-autoscaler.serviceAccount.annotations | object | `{}` |  |
 | castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `""` |  |

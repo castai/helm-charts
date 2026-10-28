@@ -24,6 +24,10 @@ kent:
   managedKarpenter: false
   preflight:
     enabled: true
+  # castai-storage-autoscaler is opt-in (EKS and GKE only), disabled by default:
+  #   --set kent.castai-storage-autoscaler.enabled=true
+  castai-storage-autoscaler:
+    enabled: false
 
 # tags -- Profile mode selection (mutually exclusive — pick one).
 # Component overrides are stable across all mode upgrades with --reuse-values:
@@ -36,7 +40,12 @@ tags:
   workload-autoscaler: false
   full: false
 
-autoscaler: {}
+autoscaler:
+  # castai-storage-autoscaler is opt-in (EKS and GKE only), disabled by default
+  # in every mode so the mode tags never activate it:
+  #   --set autoscaler.castai-storage-autoscaler.enabled=true
+  castai-storage-autoscaler:
+    enabled: false
 
 # extraObjects -- List of extra Kubernetes objects to render with the chart.
 # Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella.
