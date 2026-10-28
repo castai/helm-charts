@@ -163,6 +163,25 @@ spec:
                   key: {{ .Values.castai.organizationIdConfigMapKeyRef.key }}
                   optional: false
           {{- end }}
+          {{- if .Values.karpenterMonitor.enabled }}
+          # karpenter-monitor — the Karpenter provisioning observability
+          # collector runs IN-PROCESS inside this controller (a leader-gated
+          # runnable in the manager; see cmd/monitor.go), values-gated via
+          # karpenterMonitor.enabled. Its pods list + pods/log RBAC in the
+          # Karpenter namespace is bound to this SA via rbac.yaml; its
+          # heartbeat/exporter health rides the manager's own probe
+          # endpoints via AddHealthzCheck/AddReadyzCheck.
+            - name: KARPENTER_MONITOR_ENABLED
+              value: "true"
+            - name: KARPENTER_NAMESPACE
+              value: {{ .Values.karpenterMonitor.karpenterNamespace | quote }}
+            - name: KARPENTER_SERVICE_NAME
+              value: {{ .Values.karpenterMonitor.karpenterServiceName | quote }}
+            - name: KARPENTER_METRICS_PORT
+              value: {{ .Values.karpenterMonitor.metricsPort | quote }}
+            - name: KARPENTER_SCRAPE_INTERVAL
+              value: {{ .Values.karpenterMonitor.scrapeInterval | quote }}
+          {{- end }}
           {{- $resolvedSecretRef := or .Values.castai.apiKeySecretRef .Values.global.castai.apiKeySecretRef }}
           envFrom:
           {{- if eq .Values.deploymentMode "connected" }}

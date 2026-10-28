@@ -1,0 +1,29 @@
+# Chart-testing fixture that enables the karpenterMonitor values-gated
+# in-process collector inside the kentroller controller, so ct install
+# renders and deploys the collector's Namespace-scoped Role and RoleBinding
+# (and the KARPENTER_* env on the controller container) instead of only the
+# disabled path.
+castai:
+  apiKey: "API_KEY_TEST"
+  apiURL: "API_URL_TEST"
+  grpcURL: "GRPS_URL_TEST"
+  # Disable OTLP export in ct installs: kind has no real Kent endpoint and
+  # the test fixture credentials would otherwise push metrics/logs against
+  # the real grpc.prod-master.cast.ai endpoint with a fresh
+  # service.instance.id per run.
+  otelMetrics:
+    enabled: false
+  otelLogs:
+    enabled: false
+karpenterMonitor:
+  enabled: true
+  karpenterNamespace: kube-system
+  karpenterServiceName: karpenter
+  metricsPort: 8080
+  scrapeInterval: 60s
+
+# kind has no Karpenter to scrape: the collector idles cleanly. Its
+# heartbeat/exporter checks ride the controller container's own
+# liveness/readiness probe endpoints via the manager's
+# AddHealthzCheck/AddReadyzCheck, so pod readiness is unaffected when
+# Karpenter is absent.

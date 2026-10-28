@@ -147,7 +147,11 @@ castai:
     # (env-based, unlike preferenceWeightedPacking) — changing it requires a kentroller pod
     # restart. Default: true.
     disruptGuard: true
-  # castai.spotInterruptionPrediction -- Enable CAST AI Spot prediction in connected mode. Standalone mode always disables this CAST ML dependency while retaining local observed-interruption handling.
+  # castai.spotInterruptionPrediction -- Enable spot interruption prediction handling in connected mode: replacement of at-risk
+  # spot nodes via RebalancePlanClaims, driven by mothership-pushed UnavailableOffering CRs. Independent of
+  # continuous rebalancing (castai.continuousRebalancing.enabled). Standalone mode always disables it.
+  # aggressiveModeConfig overrides the full aggressive config applied to spot claims (same schema as CRB's);
+  # when unset, the SPOT_INTERRUPTION_PREDICTION_AGGRESSIVE_MODE env preset applies (recommended by default).
   spotInterruptionPrediction:
     enabled: true
   # castai.clm -- Enable CLM node labeling feature
@@ -367,3 +371,34 @@ webhook:
     # selects all namespaces unless labeled
     # tsc-scaledown.cast.ai/disabled=true.
     mode: opt-in
+
+# karpenterMonitor -- Karpenter node-provisioning observability collector.
+# Runs IN-PROCESS inside the kentroller controller as a leader-gated
+# runnable in the manager (no second container, no second binary; values-
+# gated via karpenterMonitor.enabled rendered as KARPENTER_MONITOR_ENABLED).
+# COLLECTOR ONLY: discovers Karpenter pods, tails their logs, scrapes the
+# /metrics endpoint, and ships allowlisted ERROR records — always to the
+# local log, plus the OTel log pipeline when OTEL_LOGS_ENABLED (same
+# endpoint/auth as the controller; the Components API log path is retired).
+# Metrics export via OTel when castai.otelMetrics.enabled. The collector's
+# heartbeat/exporter health rides the controller's own liveness/readiness
+# probe endpoints; it shares the controller's resources and LOG_LEVEL.
+# Alert evaluation is the control plane's job.
+# Default off; enable per cluster (risk-based rollout, real feature
+# flags instead of ArgoCD pause workarounds).
+karpenterMonitor:
+  # karpenterMonitor.enabled -- Run the karpenter-monitor collector
+  # in-process inside the controller (leader-gated); off by default.
+  enabled: false
+  # karpenterMonitor.karpenterNamespace -- Namespace Karpenter runs in
+  # (Karpenter does not have to live in kube-system).
+  karpenterNamespace: kube-system
+  # karpenterMonitor.karpenterServiceName -- Name of the Karpenter controller
+  # Service. The collector uses it for both the in-cluster scrape URL
+  # (http://<svc>.<ns>.svc.cluster.local:<port>/metrics) and the API-server
+  # service proxy path used by local runs.
+  karpenterServiceName: karpenter
+  # karpenterMonitor.metricsPort -- Karpenter /metrics port (KARPENTER_METRICS_PORT).
+  metricsPort: 8080
+  # karpenterMonitor.scrapeInterval -- Metrics scrape interval.
+  scrapeInterval: 60s

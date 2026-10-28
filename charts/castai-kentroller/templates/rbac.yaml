@@ -284,3 +284,44 @@ subjects:
   name: {{ include "castai-kentroller.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
 {{- end }}
+{{- if .Values.karpenterMonitor.enabled }}
+---
+# karpenter-monitor collector RBAC: scoped to the namespace Karpenter runs
+# in — pods/list for discovery polling and pods/log/get for log tailing
+# (Kubernetes RBAC cannot scope list to individual dynamically-named
+# pods, so the namespace Role plus the collector's own label selector is
+# the practical minimum). Bound to the kentroller SA the collector's
+# container shares (one deployment per component). No cluster-wide grants.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "castai-kentroller.name" . }}-karpenter-monitor
+  namespace: {{ .Values.karpenterMonitor.karpenterNamespace }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: karpenter-monitor
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["list"]
+  - apiGroups: [""]
+    resources: ["pods/log"]
+    verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "castai-kentroller.name" . }}-karpenter-monitor
+  namespace: {{ .Values.karpenterMonitor.karpenterNamespace }}
+  labels:
+    {{- include "castai-kentroller.labels" . | nindent 4 }}
+    app.kubernetes.io/component: karpenter-monitor
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "castai-kentroller.name" . }}-karpenter-monitor
+subjects:
+- kind: ServiceAccount
+  name: {{ include "castai-kentroller.serviceAccountName" . }}
+  namespace: {{ .Release.Namespace }}
+{{- end }}
