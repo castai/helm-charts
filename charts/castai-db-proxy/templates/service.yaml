@@ -43,3 +43,47 @@ spec:
   selector:
     {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 4 }}
 {{- end }}
+{{- if include "castai-db-proxy.directConnect" . | eq "true" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "castai-db-proxy.directName" . }}
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+  annotations:
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+spec:
+  {{- with .Values.service.trafficDistribution }}
+  trafficDistribution: {{ . }}
+  {{- end }}
+  ports:
+    - name: direct-rw
+      port: {{ include "castai-db-proxy.servicePort" . }}
+      targetPort: direct-rw
+      protocol: TCP
+  selector:
+    {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 4 }}
+{{- if include "castai-db-proxy.hasReadonlyEndpoint" . | eq "true" }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "castai-db-proxy.directReadonlyName" . }}
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+  annotations:
+    {{- include "castai-db-proxy.annotations" . | nindent 4 }}
+spec:
+  {{- with .Values.service.trafficDistribution }}
+  trafficDistribution: {{ . }}
+  {{- end }}
+  ports:
+    - name: direct-ro
+      port: {{ include "castai-db-proxy.servicePort" . }}
+      targetPort: direct-ro
+      protocol: TCP
+  selector:
+    {{- include "castai-db-proxy.proxySelectorLabels" . | nindent 4 }}
+{{- end }}
+{{- end }}

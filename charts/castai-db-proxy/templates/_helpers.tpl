@@ -149,6 +149,19 @@ the service's targetPort.
 {{- end -}}
 
 {{/*
+Whether at least one endpoint has readonly=true.
+*/}}
+{{- define "castai-db-proxy.hasReadonlyEndpoint" -}}
+{{- $hasReadonly := false -}}
+{{- range .Values.endpoints -}}
+{{- if .readonly -}}
+{{- $hasReadonly = true -}}
+{{- end -}}
+{{- end -}}
+{{- $hasReadonly -}}
+{{- end -}}
+
+{{/*
 Whether a read-only upstream is configured for the proxy: at least one
 endpoint with readonly=true. Pgdog pooling (PostgreSQL) never qualifies —
 db-proxy resolves the pgdog sidecar as its only (read-write) endpoint in
@@ -159,12 +172,32 @@ that mode, so a read-only address must not be advertised.
 {{- if $pgdogEnabled -}}
 {{- false -}}
 {{- else -}}
-{{- $hasReadonly := false -}}
-{{- range .Values.endpoints -}}
-{{- if .readonly -}}
-{{- $hasReadonly = true -}}
+{{- include "castai-db-proxy.hasReadonlyEndpoint" . -}}
 {{- end -}}
 {{- end -}}
-{{- $hasReadonly -}}
+
+{{/*
+Whether the proxy also listens on ports that bypass the pooler, routing straight
+to the configured endpoints. Only with pooling: without it every port is direct.
+*/}}
+{{- define "castai-db-proxy.directConnect" -}}
+{{- and .Values.pooling.enabled .Values.pooling.directConnect.enabled -}}
 {{- end -}}
+
+{{/*
+Name of the service fronting the read-write port that bypasses the pooler. The
+base name is truncated to 56 characters (63 minus "-direct") so the final name
+never exceeds the 63-character DNS label limit.
+*/}}
+{{- define "castai-db-proxy.directName" -}}
+{{- printf "%s-direct" (include "castai-db-proxy.name" . | trunc 56 | trimSuffix "-") -}}
+{{- end -}}
+
+{{/*
+Name of the service fronting the read-only port that bypasses the pooler. The
+base name is truncated to 53 characters (63 minus "-direct-ro") so the final
+name never exceeds the 63-character DNS label limit.
+*/}}
+{{- define "castai-db-proxy.directReadonlyName" -}}
+{{- printf "%s-direct-ro" (include "castai-db-proxy.name" . | trunc 53 | trimSuffix "-") -}}
 {{- end -}}

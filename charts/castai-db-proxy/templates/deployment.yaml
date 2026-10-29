@@ -121,6 +121,14 @@ spec:
             - name: metrics
               containerPort: {{ .Values.ports.metrics }}
               protocol: TCP
+            {{- if include "castai-db-proxy.directConnect" . | eq "true" }}
+            - name: direct-rw
+              containerPort: {{ .Values.pooling.directConnect.ports.readWrite }}
+              protocol: TCP
+            - name: direct-ro
+              containerPort: {{ .Values.pooling.directConnect.ports.readOnly }}
+              protocol: TCP
+            {{- end }}
             {{- if .Values.cluster.enabled }}
             - name: cluster
               containerPort: {{ .Values.ports.cluster }}

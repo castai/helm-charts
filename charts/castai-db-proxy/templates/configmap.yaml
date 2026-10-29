@@ -96,6 +96,12 @@ data:
     readonly = {{ .Values.pooling.proxySql.ports.readOnly }}
     {{- end }}
 
+    {{- if .Values.pooling.directConnect.enabled }}
+    [pooling.direct_connect_port]
+    read_write = {{ .Values.pooling.directConnect.ports.readWrite }}
+    readonly = {{ .Values.pooling.directConnect.ports.readOnly }}
+    {{- end }}
+
     [pooling.config_manager]
     protocol = "http"
 

@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.34.0](https://img.shields.io/badge/Version-0.34.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.35.0](https://img.shields.io/badge/Version-0.35.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -46,6 +46,10 @@ CAST AI database proxy cache deployment.
 | pooling.configManager.port | int | `50051` | gRPC listen port for the config manager. |
 | pooling.configManager.report_metrics_frequency_seconds | int | `15` | Frequency in which pooling metrics are reported in seconds. |
 | pooling.databases | list | `["postgres"]` | Pre-configured database names. |
+| pooling.directConnect | object | `{"enabled":false,"ports":{"readOnly":6144,"readWrite":6143}}` | Ports that bypass the pooler and route straight to configured endpoints. |
+| pooling.directConnect.enabled | bool | `false` | Serve the direct ports alongside the pooled ones. |
+| pooling.directConnect.ports.readOnly | int | `6144` | Port the proxy listens on for direct read-only connections. Only used when a read-only endpoint is configured. |
+| pooling.directConnect.ports.readWrite | int | `6143` | Port the proxy listens on for direct read-write connections. |
 | pooling.enabled | bool | `false` | Deploy the pooling config manager. |
 | pooling.metricsPort | int | `9090` | Pooler metrics port. |
 | pooling.pgdog | object | `{"admin":{"name":"pgdog_admin","password":"admin","user":"admin"},"config":{},"image":{"pullPolicy":"IfNotPresent","repository":"ghcr.io/castai/images/pgdogdev/pgdog","tag":""},"logLevel":"warn","port":5432,"resources":{"cpu":"1","memoryLimit":"1Gi","memoryRequest":"1Gi"}}` | Configure the PgDog section to deploy PgDog as the pooler. |
