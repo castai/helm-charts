@@ -1,0 +1,358 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.19.0
+    {{- if .Values.config.crds.keep }}
+    helm.sh/resource-policy: keep
+    {{- end }}
+  name: pvpolicies.storage.cast.ai
+spec:
+  group: storage.cast.ai
+  names:
+    kind: PVPolicy
+    listKind: PVPolicyList
+    plural: pvpolicies
+    shortNames:
+    - pvpol
+    singular: pvpolicy
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.priority
+      name: Priority
+      type: integer
+    - jsonPath: .spec.dryRun
+      name: DryRun
+      type: boolean
+    - jsonPath: .spec.config.dimensions.storageEnabled
+      name: Storage
+      type: boolean
+    - jsonPath: .spec.config.dimensions.iopsEnabled
+      name: IOPS
+      type: boolean
+    - jsonPath: .spec.config.dimensions.throughputEnabled
+      name: Throughput
+      type: boolean
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: PVPolicy scopes storage-autoscaler auto-tuning configuration
+          to a selected set of PVCs/workloads.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec is the desired state of the PVPolicy.
+            properties:
+              config:
+                description: Config is the tuning configuration applied to matched
+                  PVCs.
+                properties:
+                  dimensions:
+                    description: Dimensions toggles which auto-tuning dimensions are
+                      active.
+                    properties:
+                      iopsEnabled:
+                        description: IOPSEnabled controls whether IOPS auto-tuning
+                          is active.
+                        type: boolean
+                      storageEnabled:
+                        description: StorageEnabled controls whether storage capacity
+                          auto-resizing is active.
+                        type: boolean
+                      throughputEnabled:
+                        description: ThroughputEnabled controls whether throughput
+                          auto-tuning is active.
+                        type: boolean
+                    required:
+                    - iopsEnabled
+                    - storageEnabled
+                    - throughputEnabled
+                    type: object
+                  performance:
+                    default: {}
+                    description: |-
+                      Performance is the performance (IOPS/throughput) tuning configuration. Always populated with default values.
+                      Considered only if Dimensions.ThroughputEnabled or Dimensions.IOPSEnabled is true.
+                    properties:
+                      changeCooldown:
+                        default: 15m
+                        description: ChangeCooldown is the minimum time between consecutive
+                          performance adjustments.
+                        type: string
+                      lookbackPeriod:
+                        default: 6h
+                        description: LookbackPeriod is the metrics window used to
+                          compute the performance target.
+                        type: string
+                      maxIops:
+                        description: MaxIOPS is the user-supplied upper bound for
+                          IOPS (0 = unset).
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      maxThroughputMiBs:
+                        description: MaxThroughputMiBs is the user-supplied upper
+                          bound for throughput in MiB/s (0 = unset).
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      minWarmupWindow:
+                        default: 30m
+                        description: MinWarmupWindow is the minimum observation time
+                          before the first performance change.
+                        type: string
+                      overhead:
+                        default: 0.2
+                        description: Overhead is the buffer on top of the target observation
+                          (0.0-2.5).
+                        maximum: 2.5
+                        minimum: 0
+                        type: number
+                      target:
+                        default: max
+                        description: Target is "max" or a percentile such as "p50"-"p99.9".
+                        minLength: 1
+                        type: string
+                    type: object
+                  storage:
+                    default: {}
+                    description: |-
+                      Storage is the storage resize configuration. Always populated with default values.
+                      Considered only if Dimensions.StorageEnabled is true.
+                    properties:
+                      cooldownPeriod:
+                        default: 30m
+                        description: CooldownPeriod is the minimum time between consecutive
+                          resize operations.
+                        type: string
+                      growthPercent:
+                        default: 20
+                        description: GrowthPercent is the percentage by which to grow
+                          the PVC when resizing.
+                        format: int32
+                        maximum: 100
+                        minimum: 0
+                        type: integer
+                      maxSize:
+                        description: |-
+                          MaxSize is the maximum size the PVC can grow to (e.g. "500Gi").
+                          Empty means no cap.
+                        type: string
+                      minGrowthStepGiB:
+                        default: 5
+                        description: MinGrowthStepGiB is the minimum resize increment
+                          in GiB.
+                        format: int32
+                        minimum: 0
+                        type: integer
+                      thresholdPercent:
+                        default: 80
+                        description: ThresholdPercent is the PVC usage percentage
+                          that triggers a resize.
+                        format: int32
+                        maximum: 100
+                        minimum: 0
+                        type: integer
+                      thresholdPeriod:
+                        default: 5m
+                        description: ThresholdPeriod is how long the threshold must
+                          be sustained before triggering a resize.
+                        type: string
+                    type: object
+                required:
+                - dimensions
+                type: object
+              dryRun:
+                description: |-
+                  DryRun, when true, makes the controller log planned actions for this
+                  policy without actually modifying PVCs (resize, IOPS/throughput changes).
+                type: boolean
+              priority:
+                description: 'Priority: higher wins when multiple policies match the
+                  same PVC.'
+                format: int32
+                minimum: 1
+                type: integer
+              selector:
+                description: Selector chooses which PVCs/workloads this policy applies
+                  to.
+                properties:
+                  namespaces:
+                    description: |-
+                      Namespaces restricts matching to PVCs in any of the given namespaces.
+                      If empty, all namespaces are considered.
+                    items:
+                      type: string
+                    type: array
+                  pvc:
+                    description: |-
+                      PVC matches PVCs directly by name, label, or storage class.
+                      If nil, PVCs are not matched directly (only via Workload).
+                    properties:
+                      labels:
+                        description: Labels selects PVCs by their Kubernetes labels.
+                        properties:
+                          matchExpressions:
+                            description: matchExpressions is a list of label selector
+                              requirements. The requirements are ANDed.
+                            items:
+                              description: |-
+                                A label selector requirement is a selector that contains values, a key, and an operator that
+                                relates the key and values.
+                              properties:
+                                key:
+                                  description: key is the label key that the selector
+                                    applies to.
+                                  type: string
+                                operator:
+                                  description: |-
+                                    operator represents a key's relationship to a set of values.
+                                    Valid operators are In, NotIn, Exists and DoesNotExist.
+                                  type: string
+                                values:
+                                  description: |-
+                                    values is an array of string values. If the operator is In or NotIn,
+                                    the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                    the values array must be empty. This array is replaced during a strategic
+                                    merge patch.
+                                  items:
+                                    type: string
+                                  type: array
+                                  x-kubernetes-list-type: atomic
+                              required:
+                              - key
+                              - operator
+                              type: object
+                            type: array
+                            x-kubernetes-list-type: atomic
+                          matchLabels:
+                            additionalProperties:
+                              type: string
+                            description: |-
+                              matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                              map is equivalent to an element of matchExpressions, whose key field is "key", the
+                              operator is "In", and the values array contains only "value". The requirements are ANDed.
+                            type: object
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      names:
+                        description: |-
+                          Names matches PVCs with any of the given names.
+                          If empty, all PVCs in scope are matched (subject to Labels and StorageClasses).
+                        items:
+                          type: string
+                        type: array
+                      storageClasses:
+                        description: |-
+                          StorageClasses matches PVCs using any of the given StorageClasses.
+                          If empty, PVCs of any storage class are matched.
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                  workload:
+                    description: |-
+                      Workload matches PVCs indirectly through their parent workloads.
+                      If nil, workloads are not used for matching.
+                    properties:
+                      kinds:
+                        description: Kinds matches workloads of any of the given types.
+                        enum:
+                        - Deployment
+                        - StatefulSet
+                        - DaemonSet
+                        - ReplicaSet
+                        - Job
+                        - CronJob
+                        items:
+                          type: string
+                        type: array
+                      labels:
+                        description: Labels select workloads by their Kubernetes labels.
+                        properties:
+                          matchExpressions:
+                            description: matchExpressions is a list of label selector
+                              requirements. The requirements are ANDed.
+                            items:
+                              description: |-
+                                A label selector requirement is a selector that contains values, a key, and an operator that
+                                relates the key and values.
+                              properties:
+                                key:
+                                  description: key is the label key that the selector
+                                    applies to.
+                                  type: string
+                                operator:
+                                  description: |-
+                                    operator represents a key's relationship to a set of values.
+                                    Valid operators are In, NotIn, Exists and DoesNotExist.
+                                  type: string
+                                values:
+                                  description: |-
+                                    values is an array of string values. If the operator is In or NotIn,
+                                    the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                    the values array must be empty. This array is replaced during a strategic
+                                    merge patch.
+                                  items:
+                                    type: string
+                                  type: array
+                                  x-kubernetes-list-type: atomic
+                              required:
+                              - key
+                              - operator
+                              type: object
+                            type: array
+                            x-kubernetes-list-type: atomic
+                          matchLabels:
+                            additionalProperties:
+                              type: string
+                            description: |-
+                              matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                              map is equivalent to an element of matchExpressions, whose key field is "key", the
+                              operator is "In", and the values array contains only "value". The requirements are ANDed.
+                            type: object
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      names:
+                        description: |-
+                          Names matches workloads with any of the given names.
+                          If empty, all workloads of the specified Kinds are matched (subject to Labels).
+                        items:
+                          type: string
+                        type: array
+                    type: object
+                type: object
+            required:
+            - config
+            - dryRun
+            - priority
+            - selector
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

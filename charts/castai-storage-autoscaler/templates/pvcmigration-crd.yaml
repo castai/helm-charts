@@ -1,0 +1,924 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.19.0
+    {{- if .Values.migration.crds.keep }}
+    helm.sh/resource-policy: keep
+    {{- end }}
+  name: pvcmigrations.storage.cast.ai
+spec:
+  group: storage.cast.ai
+  names:
+    kind: PVCMigration
+    listKind: PVCMigrationList
+    plural: pvcmigrations
+    shortNames:
+    - pvcm
+    singular: pvcmigration
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.sourcePVCName
+      name: Source PVC
+      type: string
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    - jsonPath: .status.rollback.outcome
+      name: RollbackOutcome
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          PVCMigration orchestrates migrating data from one PVC to another using rsync.
+          It supports shrinking, cross-AZ migration, storage class changes, and disk type changes.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PVCMigrationSpec defines the desired state of a PVCMigration
+              operation.
+            properties:
+              cleanupPolicy:
+                allOf:
+                - enum:
+                  - Retain
+                  - Delete
+                - enum:
+                  - Retain
+                  - Delete
+                default: Retain
+                description: |-
+                  CleanupPolicy controls what happens to the original PV after
+                  a successful migration (after the monitoring window passes).
+                type: string
+              cutover:
+                description: Cutover configures when and how the cutover from source
+                  to target occurs.
+                properties:
+                  downtimeThreshold:
+                    default: 30s
+                    description: |-
+                      DowntimeThreshold is the maximum acceptable estimated duration for
+                      the final sync. In Immediate mode, the controller exits the delta sync loop
+                      and initiates cutover when the dry-run estimate drops to or below this value.
+                      In Deferred mode, the controller marks the CR as ready for cutover when the
+                      estimate drops below this value, and triggers re-sync if the delta drifts above it.
+                    type: string
+                  mode:
+                    allOf:
+                    - enum:
+                      - Immediate
+                      - Deferred
+                    - enum:
+                      - Immediate
+                      - Deferred
+                    description: |-
+                      Mode determines when cutover happens.
+                      Immediate: the controller stops the workload and performs cutover automatically
+                        when the estimated final sync duration drops to or below the downtime threshold.
+                      Deferred: the controller keeps syncing and waits for an external event
+                        (deployment rollout, node drain, etc.) to stop the workload pods.
+                    type: string
+                required:
+                - mode
+                type: object
+              cutoverTimeout:
+                default: 15m
+                description: |-
+                  CutoverTimeout is the maximum duration from when workload pods stop
+                  to when the new PVC must be bound and the workload can restart.
+                  Prevents unbounded downtime during the cutover/swap phases.
+                type: string
+              integrityCheckMethod:
+                allOf:
+                - enum:
+                  - Checksum
+                  - FileCount
+                  - Both
+                  - None
+                - enum:
+                  - Checksum
+                  - FileCount
+                  - Both
+                  - None
+                default: Both
+                description: IntegrityCheckMethod controls how data integrity is verified
+                  after the final sync.
+                type: string
+              monitoringWindow:
+                default: 5m
+                description: |-
+                  MonitoringWindow is how long to watch workload pods after the PVC swap
+                  to confirm the application starts successfully on the new volume.
+                  If any pod fails within this window, a rollback is triggered.
+                type: string
+              resumingWorkloadTimeout:
+                default: 5m
+                description: |-
+                  ResumingWorkloadTimeout is the maximum duration the ResumingWorkload
+                  phase may wait for the workload pod to reach Running. If the phase
+                  has not observed a Running pod within this duration from when it
+                  began, the migration is failed and rolled back. Defaults to 5m.
+                type: string
+              rsyncOptions:
+                description: RsyncOptions customizes rsync behavior.
+                properties:
+                  additionalArgs:
+                    description: AdditionalArgs are extra flags passed to rsync.
+                    items:
+                      type: string
+                    type: array
+                  bandwidthLimitKBps:
+                    description: BandwidthLimitKBps limits rsync bandwidth in kilobytes
+                      per second.
+                    format: int64
+                    minimum: 0
+                    type: integer
+                  image:
+                    description: Image is a custom rsync container image.
+                    type: string
+                type: object
+              sourcePVCName:
+                description: |-
+                  SourcePVCName is the name of the PVC to migrate data from.
+                  Must be in the same namespace as this PVCMigration resource.
+                maxLength: 253
+                minLength: 1
+                type: string
+              targetSize:
+                anyOf:
+                - type: integer
+                - type: string
+                description: |-
+                  TargetSize is the desired size for the new PVC.
+                  Must be large enough to hold the existing data (validated during preparation).
+                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                x-kubernetes-int-or-string: true
+              targetStorageClassName:
+                description: |-
+                  TargetStorageClassName is the storage class for the new PVC.
+                  If omitted, the source PVC's storage class is used.
+                type: string
+              targetTopology:
+                description: |-
+                  TargetTopology controls where the target PVC is provisioned and rsync pods are scheduled.
+                  When omitted, the target PVC is provisioned in the source's zone and rsync pods
+                  are co-located with the workload.
+                properties:
+                  nodeSelector:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      NodeSelector is a set of labels that the rsync client (target) pod must match.
+                      Applied in addition to zone-based scheduling.
+                    type: object
+                  tolerations:
+                    description: |-
+                      Tolerations are applied to the rsync client and source-mount worker pods.
+                      Use together with NodeSelector when the target node pool is tainted.
+                    items:
+                      description: |-
+                        The pod this Toleration is attached to tolerates any taint that matches
+                        the triple <key,value,effect> using the matching operator <operator>.
+                      properties:
+                        effect:
+                          description: |-
+                            Effect indicates the taint effect to match. Empty means match all taint effects.
+                            When specified, allowed values are NoSchedule, PreferNoSchedule and NoExecute.
+                          type: string
+                        key:
+                          description: |-
+                            Key is the taint key that the toleration applies to. Empty means match all taint keys.
+                            If the key is empty, operator must be Exists; this combination means to match all values and all keys.
+                          type: string
+                        operator:
+                          description: |-
+                            Operator represents a key's relationship to the value.
+                            Valid operators are Exists and Equal. Defaults to Equal.
+                            Exists is equivalent to wildcard for value, so that a pod can
+                            tolerate all taints of a particular category.
+                          type: string
+                        tolerationSeconds:
+                          description: |-
+                            TolerationSeconds represents the period of time the toleration (which must be
+                            of effect NoExecute, otherwise this field is ignored) tolerates the taint. By default,
+                            it is not set, which means tolerate the taint forever (do not evict). Zero and
+                            negative values will be treated as 0 (evict immediately) by the system.
+                          format: int64
+                          type: integer
+                        value:
+                          description: |-
+                            Value is the taint value the toleration matches to.
+                            If the operator is Exists, the value should be empty, otherwise just a regular string.
+                          type: string
+                      type: object
+                    type: array
+                  zone:
+                    description: |-
+                      Zone is the target availability zone (e.g. "us-central1-b").
+                      When set, the target PVC is provisioned in this zone and the rsync client pod
+                      is scheduled there. When omitted, the source PVC's zone is used.
+                    type: string
+                type: object
+              timeout:
+                default: 6h
+                description: |-
+                  Timeout is the overall operation timeout. If the migration has not
+                  completed within this duration from start, it is aborted.
+                  Zero means no timeout.
+                type: string
+            required:
+            - cutover
+            - sourcePVCName
+            - targetSize
+            type: object
+          status:
+            description: PVCMigrationStatus defines the observed state of a PVCMigration
+              operation.
+            properties:
+              cleanup:
+                description: Cleanup holds status for the Cleanup phase.
+                properties:
+                  newPVReclaimPolicyRestored:
+                    description: |-
+                      NewPVReclaimPolicyRestored is true once the new PV's reclaim policy has been
+                      restored to its original value (set to Retain during the swap).
+                    type: boolean
+                  originalPVReclaimPolicyEnsuredRetain:
+                    description: |-
+                      OriginalPVReclaimPolicyEnsuredRetain is true once the cleanup phase has confirmed
+                      the original PV's reclaim policy is Retain. Only set under spec.cleanupPolicy=Retain.
+                    type: boolean
+                  originalPVReclaimPolicySetToDelete:
+                    description: |-
+                      OriginalPVReclaimPolicySetToDelete is true once the original PV's reclaim policy
+                      has been patched to Delete, triggering async cleanup by Kubernetes.
+                      Only applies when spec.cleanupPolicy is Delete.
+                    type: boolean
+                type: object
+              completionTime:
+                description: CompletionTime is when the migration reached a terminal
+                  state.
+                format: date-time
+                type: string
+              conditions:
+                description: Conditions represent the latest available observations
+                  of the migration's state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+                x-kubernetes-list-map-keys:
+                - type
+                x-kubernetes-list-type: map
+              cutover:
+                description: Cutover holds status for the Cutover phase.
+                properties:
+                  cutoverPodEndpoint:
+                    description: |-
+                      CutoverPodEndpoint is the HTTP API base URL of the source worker
+                      pod reused as the cutover server (e.g. "http://10.0.2.5:8080").
+                    type: string
+                  cutoverPodName:
+                    description: CutoverPodName is the name of the cutover pod (mounts
+                      source PVC directly).
+                    type: string
+                  cutoverRsyncEndpoint:
+                    description: |-
+                      CutoverRsyncEndpoint is the rsync daemon URL inside the cutover
+                      pod (e.g. "rsync://10.0.2.5:873/volume").
+                    type: string
+                  cutoverStartTime:
+                    description: CutoverStartTime is when the cutover phase began
+                      (workload stopped).
+                    format: date-time
+                    type: string
+                  finalSyncJobID:
+                    description: |-
+                      FinalSyncJobID is the rsync client job ID for the final delta
+                      sync running against the cutover pod.
+                    type: string
+                  finalSyncProgress:
+                    description: FinalSyncProgress reports progress of the final delta
+                      sync.
+                    properties:
+                      bytesTransferred:
+                        description: BytesTransferred is the total bytes transferred
+                          in the current pass.
+                        format: int64
+                        type: integer
+                      lastUpdated:
+                        description: LastUpdated is when progress was last reported.
+                        format: date-time
+                        type: string
+                      percent:
+                        description: |-
+                          Percent is rsync's own percent from --info=progress2 (0–100).
+                          Populated during transfer so consumers can display progress
+                          even before TotalBytes is known (TotalBytes is only set from
+                          --stats at end-of-pass).
+                        type: integer
+                      totalBytes:
+                        description: TotalBytes is the total bytes to transfer in
+                          the current pass.
+                        format: int64
+                        type: integer
+                      transferRateBytesPerSec:
+                        description: TransferRateBytesPerSec is the observed transfer
+                          rate.
+                        format: int64
+                        type: integer
+                    type: object
+                  integrityCheckJobID:
+                    description: |-
+                      IntegrityCheckJobID is the rsync client job ID for the optional
+                      checksum verification pass.
+                    type: string
+                  integrityCheckResult:
+                    description: IntegrityCheckResult is the outcome of the integrity
+                      verification.
+                    enum:
+                    - Pending
+                    - Passed
+                    - Failed
+                    - Skipped
+                    type: string
+                  subStep:
+                    description: SubStep describes the current cutover sub-step.
+                    enum:
+                    - Pending
+                    - StoppingWorkload
+                    - WaitingForPodTermination
+                    - CreatingCutoverPod
+                    - RunningFinalSync
+                    - RunningIntegrityCheck
+                    - Complete
+                    - Failed
+                    type: string
+                type: object
+              dataMigration:
+                description: DataMigration holds status for the DataMigration phase.
+                properties:
+                  clientPodName:
+                    description: ClientPodName is the name of the rsync client pod.
+                    type: string
+                  currentJobID:
+                    description: |-
+                      CurrentJobID is the job ID of the rsync job currently running
+                      (or recently completed) on the target worker. Cleared when the
+                      pass terminates so a new reconcile starts fresh.
+                    type: string
+                  currentPassType:
+                    description: |-
+                      CurrentPassType describes which rsync pass is running under
+                      the current sub-step. One of "initial", "delta", "dryrun".
+                      Needed for recovery when the reconciler restarts mid-pass.
+                    type: string
+                  deltaEstimateBytes:
+                    description: |-
+                      DeltaEstimateBytes is the most recent dry-run estimate of bytes
+                      remaining to sync.
+                    format: int64
+                    type: integer
+                  estimatedFinalSyncDuration:
+                    description: |-
+                      EstimatedFinalSyncDuration is the estimated time for the final sync,
+                      computed as deltaEstimateBytes / observed transfer rate.
+                    type: string
+                  initialSyncComplete:
+                    description: InitialSyncComplete is true once the first full rsync
+                      pass finishes.
+                    type: boolean
+                  lastTransferRateBytesPerSec:
+                    description: |-
+                      LastTransferRateBytesPerSec is the observed transfer rate from
+                      the most recent non-dry-run pass. Used to estimate final sync
+                      duration from delta estimate bytes.
+                    format: int64
+                    type: integer
+                  preDeltaEstimateDone:
+                    description: |-
+                      PreDeltaEstimateDone records that the one-shot pre-delta dry-run
+                      estimate already ran (successfully or not), so regressions and
+                      restarts never re-run it.
+                    type: boolean
+                  readyForCutover:
+                    description: |-
+                      ReadyForCutover is true when the delta estimate has dropped
+                      below the downtime threshold.
+                    type: boolean
+                  readyForCutoverSince:
+                    description: ReadyForCutoverSince is when ReadyForCutover first
+                      became true.
+                    format: date-time
+                    type: string
+                  subStep:
+                    description: SubStep describes the current data migration sub-step.
+                    enum:
+                    - Pending
+                    - CreatingTargetPVC
+                    - WaitingForTargetPVCBound
+                    - CreatingClientPod
+                    - WaitingForClientPodReady
+                    - RunningInitialSync
+                    - EstimatingDelta
+                    - RunningDeltaSync
+                    - RunningDryRun
+                    - ReadyForCutover
+                    - Complete
+                    - Failed
+                    type: string
+                  syncPassCount:
+                    description: SyncPassCount is the total number of completed sync
+                      passes.
+                    format: int32
+                    type: integer
+                  syncProgress:
+                    description: SyncProgress reports current sync transfer progress.
+                    properties:
+                      bytesTransferred:
+                        description: BytesTransferred is the total bytes transferred
+                          in the current pass.
+                        format: int64
+                        type: integer
+                      lastUpdated:
+                        description: LastUpdated is when progress was last reported.
+                        format: date-time
+                        type: string
+                      percent:
+                        description: |-
+                          Percent is rsync's own percent from --info=progress2 (0–100).
+                          Populated during transfer so consumers can display progress
+                          even before TotalBytes is known (TotalBytes is only set from
+                          --stats at end-of-pass).
+                        type: integer
+                      totalBytes:
+                        description: TotalBytes is the total bytes to transfer in
+                          the current pass.
+                        format: int64
+                        type: integer
+                      transferRateBytesPerSec:
+                        description: TransferRateBytesPerSec is the observed transfer
+                          rate.
+                        format: int64
+                        type: integer
+                    type: object
+                  targetPVCName:
+                    description: TargetPVCName is the name of the created target PVC.
+                    type: string
+                  targetWorkerEndpoint:
+                    description: |-
+                      TargetWorkerEndpoint is the HTTP API base URL of the target
+                      worker pod (e.g. "http://10.0.2.3:8080"). Captured when the
+                      client pod reaches Running with a PodIP during
+                      DMWaitingForClientPodReady. Cleared on pod regression.
+                      Used by sync sub-steps to communicate with the worker.
+                    type: string
+                type: object
+              error:
+                description: Error holds information about the last error encountered.
+                properties:
+                  message:
+                    description: Message is a human-readable error message.
+                    type: string
+                  phase:
+                    description: Phase is the phase in which the error occurred.
+                    enum:
+                    - Pending
+                    - Preparation
+                    - DataMigration
+                    - Cutover
+                    - PVCSwap
+                    - ResumingWorkload
+                    - Monitoring
+                    - Cleanup
+                    - Rollback
+                    - Completed
+                    - Failed
+                    type: string
+                  retryCount:
+                    description: RetryCount is the number of consecutive retries attempted.
+                    format: int32
+                    type: integer
+                  time:
+                    description: Time is when the error occurred.
+                    format: date-time
+                    type: string
+                required:
+                - message
+                type: object
+              monitoring:
+                description: Monitoring holds status for the Monitoring phase.
+                properties:
+                  allPodsHealthy:
+                    description: AllPodsHealthy is true once all observed pods pass
+                      readiness checks.
+                    type: boolean
+                  monitoringStartTime:
+                    description: MonitoringStartTime is when the monitoring window
+                      began.
+                    format: date-time
+                    type: string
+                  podObservations:
+                    description: PodObservations records the health status of observed
+                      workload pods.
+                    items:
+                      description: PodObservation records the health observation of
+                        a single workload pod.
+                      properties:
+                        lastObserved:
+                          description: LastObserved is when this observation was recorded.
+                          format: date-time
+                          type: string
+                        message:
+                          description: Message is a human-readable description of
+                            the pod's state.
+                          type: string
+                        name:
+                          description: Name is the pod name.
+                          type: string
+                        phase:
+                          description: Phase is the pod's phase (Running, Pending,
+                            Failed, etc.).
+                          type: string
+                        ready:
+                          description: Ready is true if all containers pass their
+                            readiness probes.
+                          type: boolean
+                        restartCount:
+                          description: RestartCount is the total restart count across
+                            all containers.
+                          format: int32
+                          type: integer
+                      required:
+                      - name
+                      - phase
+                      - ready
+                      type: object
+                    type: array
+                type: object
+              observedGeneration:
+                description: ObservedGeneration is the most recent generation observed
+                  by the controller.
+                format: int64
+                type: integer
+              phase:
+                description: Phase is the current high-level phase of the migration
+                  workflow.
+                enum:
+                - Pending
+                - Preparation
+                - DataMigration
+                - Cutover
+                - PVCSwap
+                - ResumingWorkload
+                - Monitoring
+                - Cleanup
+                - Rollback
+                - Completed
+                - Failed
+                type: string
+              preparation:
+                description: Preparation holds status for the Preparation phase.
+                properties:
+                  rsyncDaemonEndpoint:
+                    description: |-
+                      RsyncDaemonEndpoint is the rsync protocol endpoint of the daemon
+                      running inside the source worker pod (e.g. "rsync://10.0.1.5:873/source").
+                      Set during PrepStartingRsyncServer once the daemon is confirmed reachable.
+                    type: string
+                  rsyncDaemonReady:
+                    description: |-
+                      RsyncDaemonReady is true once the rsync daemon is confirmed
+                      running inside the source worker pod.
+                    type: boolean
+                  sizeValidationPassed:
+                    description: SizeValidationPassed indicates whether the data fits
+                      in the target size.
+                    type: boolean
+                  sourcePVCSizeBytes:
+                    description: SourcePVCSizeBytes is the provisioned size of the
+                      source PVC.
+                    format: int64
+                    type: integer
+                  sourceWorkerEndpoint:
+                    description: |-
+                      SourceWorkerEndpoint is the HTTP API base URL of the source
+                      worker pod (e.g. "http://10.0.1.5:8080"). Captured when the
+                      pod reaches Running with a PodIP during PrepStartingSourceMountPod.
+                      Cleared on pod recovery (sub-step regression). Used by subsequent
+                      sub-steps (MeasuringDiskUsage, StartingRsyncServer) to communicate
+                      with the worker.
+                    type: string
+                  sourceWorkerPodName:
+                    description: |-
+                      SourceWorkerPodName is the name of the controller-owned source
+                      worker pod that mounts the source PVC read-only at /mnt/source.
+                      It is set during PrepStartingSourceMountPod and used by
+                      subsequent sub-steps and by rollback for cleanup.
+                    type: string
+                  sourceZone:
+                    description: |-
+                      SourceZone is the availability zone of the source PV, extracted
+                      from its NodeAffinity during ValidatingPVC. Used as a fallback
+                      for scheduling the rsync client pod when TargetTopology.Zone is
+                      not explicitly set.
+                    type: string
+                  subStep:
+                    description: SubStep describes the current preparation sub-step.
+                    enum:
+                    - Pending
+                    - ValidatingPVC
+                    - StartingSourceMountPod
+                    - MeasuringDiskUsage
+                    - StartingRsyncServer
+                    - Complete
+                    - Failed
+                    type: string
+                  usedBytes:
+                    description: UsedBytes is the actual disk usage measured in the
+                      source worker pod.
+                    format: int64
+                    type: integer
+                type: object
+              pvcSwap:
+                description: PVCSwap holds status for the PVCSwap phase.
+                properties:
+                  newPVCBound:
+                    description: NewPVCBound is true once the replacement PVC has
+                      reached Bound state.
+                    type: boolean
+                  newPVName:
+                    description: NewPVName is the name of the PV backing the target
+                      PVC.
+                    type: string
+                  newReclaimPolicy:
+                    description: |-
+                      NewReclaimPolicy records the new PV's reclaim policy
+                      before it was changed to Retain.
+                    type: string
+                  originalPVName:
+                    description: OriginalPVName is the name of the PV backing the
+                      original PVC.
+                    type: string
+                  originalReclaimPolicy:
+                    description: |-
+                      OriginalReclaimPolicy records the original PV's reclaim policy
+                      before it was changed to Retain, so it can be restored if needed.
+                    type: string
+                  sourceAnnotations:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      SourceAnnotations is a snapshot of the source PVC's annotations,
+                      captured during RecordingReclaimPolicies before the source PVC is
+                      deleted, with blocklisted entries (stale binding state, kubectl
+                      last-applied, the controller's own migration annotation, in-flight
+                      operation references, and storage-autoscaler's computed per-disk state) removed
+                      at capture time. Stored non-nil (possibly empty) once captured; nil
+                      means not yet captured.
+                    type: object
+                  sourceLabels:
+                    additionalProperties:
+                      type: string
+                    description: |-
+                      SourceLabels is a snapshot of the source PVC's labels, captured during
+                      RecordingReclaimPolicies before the source PVC is deleted. The
+                      replacement PVC created by the swap (and by rollback) restores them;
+                      controller-managed labels overwrite source labels. Stored non-nil
+                      (possibly empty) once captured; nil means not yet captured.
+                    type: object
+                  subStep:
+                    description: SubStep is the current sub-step in the swap sequence.
+                    enum:
+                    - Pending
+                    - RecordingReclaimPolicies
+                    - CleaningUpPods
+                    - DeletingOriginalPVC
+                    - DeletingTargetPVC
+                    - ClearingClaimRef
+                    - CreatingNewPVC
+                    - VerifyingBinding
+                    - Complete
+                    - Failed
+                    type: string
+                type: object
+              resumingWorkload:
+                description: ResumingWorkload holds status for the ResumingWorkload
+                  phase.
+                properties:
+                  startTime:
+                    description: StartTime is when the ResumingWorkload phase began.
+                    format: date-time
+                    type: string
+                type: object
+              rollback:
+                description: |-
+                  Rollback holds status about an in-progress or completed rollback.
+                  Non-nil when a rollback has been triggered from any phase.
+                properties:
+                  completionTime:
+                    description: CompletionTime is when the rollback finished.
+                    format: date-time
+                    type: string
+                  originalError:
+                    description: |-
+                      OriginalError is the failure that triggered the rollback. It is
+                      preserved here so that, if the rollback handler itself fails,
+                      operators can still see what originally went wrong (the top-level
+                      Status.Error then reflects the rollback failure).
+                    properties:
+                      message:
+                        description: Message is a human-readable error message.
+                        type: string
+                      phase:
+                        description: Phase is the phase in which the error occurred.
+                        enum:
+                        - Pending
+                        - Preparation
+                        - DataMigration
+                        - Cutover
+                        - PVCSwap
+                        - ResumingWorkload
+                        - Monitoring
+                        - Cleanup
+                        - Rollback
+                        - Completed
+                        - Failed
+                        type: string
+                      retryCount:
+                        description: RetryCount is the number of consecutive retries
+                          attempted.
+                        format: int32
+                        type: integer
+                      time:
+                        description: Time is when the error occurred.
+                        format: date-time
+                        type: string
+                    required:
+                    - message
+                    type: object
+                  outcome:
+                    description: |-
+                      Outcome is set when the rollback handler finishes (successfully
+                      or otherwise). It carries the operator-facing distinction that
+                      previously lived in the dropped PhaseRolledBack terminal state.
+                    enum:
+                    - Successful
+                    - Failed
+                    type: string
+                  reason:
+                    description: Reason describes why the rollback was initiated.
+                    type: string
+                  startTime:
+                    description: StartTime is when the rollback was initiated.
+                    format: date-time
+                    type: string
+                  subStep:
+                    description: SubStep is the current sub-step in the rollback sequence.
+                    enum:
+                    - Pending
+                    - StoppingWorkload
+                    - SettingNewPVRetain
+                    - DeletingCurrentPVC
+                    - ClearingOriginalPVClaimRef
+                    - CreatingOriginalPVC
+                    - VerifyingBinding
+                    - RemovingLabels
+                    - Complete
+                    - Failed
+                    type: string
+                  triggerPhase:
+                    description: TriggerPhase is the phase from which the rollback
+                      was triggered.
+                    enum:
+                    - Pending
+                    - Preparation
+                    - DataMigration
+                    - Cutover
+                    - PVCSwap
+                    - ResumingWorkload
+                    - Monitoring
+                    - Cleanup
+                    - Rollback
+                    - Completed
+                    - Failed
+                    type: string
+                  triggered:
+                    description: Triggered is true once a rollback has been initiated.
+                    type: boolean
+                required:
+                - triggered
+                type: object
+              sourcePVCDeleted:
+                description: |-
+                  SourcePVCDeleted is true once the original PVC has been deleted
+                  during the swap phase. After this point, the operation must roll forward.
+                type: boolean
+              startTime:
+                description: StartTime is when the controller first began processing
+                  this migration.
+                format: date-time
+                type: string
+              workloadRefs:
+                description: WorkloadRefs lists the pods discovered mounting the source
+                  PVC.
+                items:
+                  description: WorkloadReference identifies a pod discovered mounting
+                    the source PVC.
+                  properties:
+                    name:
+                      description: Name is the pod name.
+                      type: string
+                    ownerKind:
+                      description: OwnerKind is the kind of the pod's owner (e.g.
+                        Deployment, StatefulSet).
+                      type: string
+                    ownerName:
+                      description: OwnerName is the name of the pod's owner.
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

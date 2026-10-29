@@ -1,0 +1,232 @@
+image:
+  repository: ghcr.io/castai/images/storage-autoscaler
+  tag: v0.3.2
+  pullPolicy: IfNotPresent
+  pullSecrets: []
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+securityContext:
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop:
+      - ALL
+  readOnlyRootFilesystem: true
+castai:
+  enabled: true
+  telemetryAPI: telemetry.prod-master.cast.ai
+  apiURL: "https://api.cast.ai"
+  clusterID: ""
+  organizationID: ""
+  apiKey: ""
+  # clusterIDconfigMapRef is the name of the ConfigMap containing cluster metadata
+  # (CLUSTER_ID). When set, CLUSTER_ID is read from this ConfigMap instead of
+  # the clusterID value below.
+  clusterIDConfigMapRef:
+    name: ""
+    key: "CLUSTER_ID"
+  # orgIDConfigMapRef references the ConfigMap and key that holds the
+  # CAST AI organization ID. When set, ORGANIZATION_ID is read from this
+  # ConfigMap instead of the organizationID value above.
+  orgIDConfigMapRef:
+    name: ""
+    key: "ORGANIZATION_ID"
+  # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["API_KEY"].
+  apiKeySecretRef:
+    name: ""
+    key: "API_KEY"
+controller:
+  enabled: true
+  replicas: 2
+  resources:
+    limits:
+      memory: 512Mi
+    requests:
+      memory: 256Mi
+  metricsHTTPListenPort: 8080
+  extraArgs: {}
+  extraEnv: {}
+  prometheusScrape:
+    enabled: true
+  # affinity -- Soft pod anti-affinity spreading the replicas across nodes.
+  # APP_NAME is replaced with the release's app name at render time, so the
+  # selector only matches this chart's controller pods. Replace the block or
+  # set it to null to opt out.
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - APP_NAME
+                - key: app.kubernetes.io/component
+                  operator: In
+                  values:
+                    - controller
+            topologyKey: kubernetes.io/hostname
+serviceMonitor:
+  enabled: false
+  interval: 30s
+  scrapeTimeout: 10s
+  additionalLabels: {}
+config:
+  logLevel: "INFO"
+  dryRun: true
+  manageVACPVCPerformance: false
+  # When true, the controller starts even on clusters where the cloud
+  # provider can't be detected (k3s, kind). Cloud-disk auto-tuning is
+  # disabled; the migration reconciler still runs. For local dev only.
+  allowUnknownCloudProvider: false
+  crds:
+    # When true, the PVPolicy CRD is annotated with
+    # helm.sh/resource-policy: keep, so `helm uninstall` leaves the CRD
+    # (and any PVPolicy resources) in place.
+    keep: false
+  policySync:
+    enabled: true
+    interval: "5m"
+  # DEPRECATED: use PVPolicy to configure PVC scaling
+  pvcDefaults:
+    storageEnabled: true
+    iopsEnabled: true
+    throughputEnabled: true
+  # DEPRECATED: use PVPolicy to configure PVC scaling
+  storage:
+    # Percentage of storage used before triggering resize (0-100)
+    thresholdPercent: 80
+    # How long threshold must be exceeded before action
+    thresholdPeriod: "5m"
+    # Target size growth percentage on resize
+    growthPercent: 20
+    # Minimum growth step in GiB (used when percentage-based growth would be smaller)
+    minGrowthStepGiB: 5
+    # Minimum time between resize operations on the same PVC.
+    # Must be at least 10 minutes — shorter values risk repeated resizes before
+    # kubelet metrics catch up after a disk expansion (GKE filesystem resize lag).
+    cooldownPeriod: "30m"
+    # How often to check PVC usage
+    checkInterval: "1m"
+    # Minimum time between periodic cloud disk state refreshes; 0 disables periodic sync
+    cloudDiskSyncCooldown: "15m"
+  # DEPRECATED: use PVPolicy to configure PVC scaling
+  namespaces:
+    # Watch all namespaces; when false, only namespaces in watch[] are monitored
+    watchAll: true
+    watch: []
+  # DEPRECATED: use PVPolicy to configure PVC scaling
+  performance:
+    # Which observation to trust for performance scaling.
+    # "max" or "p50"–"p99.9" (WOOP annotation format).
+    target: "max"
+    # Buffer on top of the target observation (0.0–2.5).
+    # target_provisioned = observed × (1 + overhead)
+    overhead: 0.2
+    # How far back to look for cloud performance metrics (1h–24h).
+    lookbackPeriod: "6h"
+    # Minimum wall-clock warm-up window required before acting on performance
+    # metrics. Translated to a per-cloud bucket count at runtime so the same
+    # value yields the same effective warm-up on AWS (5-min CW periods) and GCP
+    # (1-min Prom step). Valid range 15m–24h; 0 disables the check.
+    minWarmupWindow: "30m"
+    # Minimum time between consecutive performance modifications on the same PVC
+    # (per dimension). Stacks on top of cloud-enforced cooldowns so the censored
+    # signal can stabilize at the new ceiling before the next decision.
+    # 0 disables the policy gate (cloud limits still apply).
+    changeCooldown: "15m"
+  # DEPRECATED: use PVPolicy to configure PVC scaling
+  pvc:
+    # Only manage PVCs that have ALL of these labels (empty = no filter).
+    # Mirrored into the default PVPolicy's PVC label selector at startup.
+    # For per-policy PVC selection (different labels per policy), set
+    # spec.selector.pvc.labels on a PVPolicy resource instead.
+    includeLabels: {}
+    # Exclude PVCs that have ANY of these labels (empty = no filter).
+    # Mirrored into the default PVPolicy's PVC label selector at startup.
+    excludeLabels: {}
+# defaultPVPolicy: when enabled, the monitor creates a catch-all PVPolicy
+# (priority 0, dryRun from config.dryRun) on startup if one named "default"
+# doesn't already exist in the release namespace. The policy is NOT recreated
+# on restart if it already exists — operator edits are preserved.
+#
+# Per-PVC configuration (e.g. different storage thresholds, performance
+# targets, dimension toggles, or label-based PVC selection) should be done
+# by creating additional PVPolicy resources with a higher priority and a
+# narrower PVC selector. The global config.* values below only control the
+# defaults baked into this catch-all policy.
+defaultPVPolicy:
+  enabled: true
+rbac:
+  create: true
+serviceAccount:
+  create: true
+  name: castai-storage-autoscaler
+  # Provider-specific annotations go here, e.g.:
+  # AWS Pod Identity / IRSA: eks.amazonaws.com/role-arn: <role-arn>
+  # GCP Workload Identity:   iam.gke.io/gcp-service-account: <sa>@<project>.iam.gserviceaccount.com
+  annotations: {}
+# PV migration components and related configuration
+migration:
+  enabled: false
+  crds:
+    # When true, the PVCMigration CRD is annotated with
+    # helm.sh/resource-policy: keep, so `helm uninstall` leaves the CRD
+    # (and any PVCMigration resources) in place.
+    keep: false
+  # rsyncWorkerPodImage is the container image used for the source/
+  # target worker pods that the controller creates during a migration:
+  # they mount the PVC, run the rsync server/client, and serve the
+  # worker HTTP API (du, daemon control). This is a *different* image
+  # from the controller (image.*) — built from Dockerfile.worker
+  # (alpine + rsync + GNU coreutils) because the controller's
+  # distroless base ships neither rsync nor `du`. Per-migration
+  # overrides via spec.rsyncOptions.image take precedence. Maps to
+  # the RSYNC_WORKER_POD_IMAGE env var on the migration container.
+  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.3.2
+  # rsyncDaemonPort is the TCP port the rsync daemon binds to on the
+  # worker pods created during PVC migration. Maps to the
+  # RSYNC_DAEMON_PORT env var on the migration container.
+  rsyncDaemonPort: 873
+  metricsHTTPListenPort: 8081
+  prometheusScrape:
+    enabled: true
+  resources:
+    requests:
+      memory: 256Mi
+  webhook:
+    replicas: 2
+    port: 9443
+    resources:
+      requests:
+        memory: 128Mi
+    namespaceSelector: {}
+    nodeSelector: {}
+    tolerations: []
+    # affinity -- Soft pod anti-affinity spreading the webhook replicas across
+    # nodes. APP_NAME is replaced with the release's app name at render time,
+    # so the selector only matches this chart's webhook pods. Replace the
+    # block or set it to null to opt out.
+    affinity:
+      podAntiAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                  - key: app.kubernetes.io/name
+                    operator: In
+                    values:
+                      - APP_NAME
+                  - key: app.kubernetes.io/component
+                    operator: In
+                    values:
+                      - webhook
+              topologyKey: kubernetes.io/hostname

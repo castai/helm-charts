@@ -1,0 +1,277 @@
+{{- include "castai-storage-autoscaler.validateCastai" . -}}
+{{- if or .Values.controller.enabled .Values.migration.enabled }}
+{{- $metricsPort := .Values.controller.metricsHTTPListenPort | required ".Values.controller.metricsHTTPListenPort is required" -}}
+{{- $migrationMetricsPort := .Values.migration.metricsHTTPListenPort | required ".Values.migration.metricsHTTPListenPort is required" -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-storage-autoscaler.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.controller.replicas }}
+  selector:
+    matchLabels:
+      {{- include "castai-storage-autoscaler.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-storage-autoscaler.selectorLabels" . | nindent 8 }}
+        {{- include "castai-storage-autoscaler.commonLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "castai-storage-autoscaler.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        {{- if .Values.controller.enabled }}
+        - name: storage-autoscaler
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{.Values.image.pullPolicy}}
+          {{- with $.Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          args:
+            - storage-autoscaler
+        {{- range $key, $value := .Values.controller.extraArgs }}
+            - "--{{ $key }}={{ $value }}"
+        {{- end }}
+          resources:
+            {{- toYaml .Values.controller.resources | nindent 12 }}
+          env:
+            {{- if and .Values.controller.resources.limits .Values.controller.resources.limits.memory }}
+            {{- include "GOMEMLIMITEnv" .Values.controller.resources.limits.memory | nindent 12 }}
+            {{- end }}
+            - name: LEADER_ELECTION_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: LEADER_ELECTION_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: LEADER_ELECTION_LEASE_NAME
+              value: castai-storage-autoscaler
+            - name: METRICS_PORT
+              value: "{{ $metricsPort }}"
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            - name: DRY_RUN
+              value: {{ .Values.config.dryRun | quote }}
+            - name: DEFAULT_PV_POLICY_ENABLED
+              value: {{ .Values.defaultPVPolicy.enabled | quote }}
+            - name: MANAGE_VAC_PVC_PERFORMANCE
+              value: {{ .Values.config.manageVACPVCPerformance | quote }}
+            - name: ALLOW_UNKNOWN_CLOUD_PROVIDER
+              value: {{ .Values.config.allowUnknownCloudProvider | quote }}
+            - name: THRESHOLD_PERCENT
+              value: {{ .Values.config.storage.thresholdPercent | quote }}
+            - name: THRESHOLD_PERIOD
+              value: {{ .Values.config.storage.thresholdPeriod | quote }}
+            - name: GROWTH_PERCENT
+              value: {{ .Values.config.storage.growthPercent | quote }}
+            - name: MIN_GROWTH_STEP_GIB
+              value: {{ .Values.config.storage.minGrowthStepGiB | quote }}
+            - name: COOLDOWN_PERIOD
+              value: {{ .Values.config.storage.cooldownPeriod | quote }}
+            - name: CHECK_INTERVAL
+              value: {{ .Values.config.storage.checkInterval | quote }}
+            - name: CLOUD_DISK_SYNC_COOLDOWN
+              value: {{ .Values.config.storage.cloudDiskSyncCooldown | quote }}
+            - name: WATCH_ALL_NAMESPACES
+              value: {{ .Values.config.namespaces.watchAll | quote }}
+            {{- if .Values.config.namespaces.watch }}
+            - name: WATCH_NAMESPACES
+              value: {{ join "," .Values.config.namespaces.watch | quote }}
+            {{- end }}
+            {{- if .Values.config.pvc.includeLabels }}
+            - name: INCLUDE_LABELS
+              value: {{ include "castai-storage-autoscaler.labelsToEnv" .Values.config.pvc.includeLabels | quote }}
+            {{- end }}
+            {{- if .Values.config.pvc.excludeLabels }}
+            - name: EXCLUDE_LABELS
+              value: {{ include "castai-storage-autoscaler.labelsToEnv" .Values.config.pvc.excludeLabels | quote }}
+            {{- end }}
+            - name: DEFAULT_PVC_CONFIG_STORAGE_ENABLED
+              value: {{ .Values.config.pvcDefaults.storageEnabled | quote }}
+            - name: DEFAULT_PVC_CONFIG_IOPS_ENABLED
+              value: {{ .Values.config.pvcDefaults.iopsEnabled | quote }}
+            - name: DEFAULT_PVC_CONFIG_THROUGHPUT_ENABLED
+              value: {{ .Values.config.pvcDefaults.throughputEnabled | quote }}
+            - name: PERFORMANCE_TARGET
+              value: {{ .Values.config.performance.target | quote }}
+            - name: PERFORMANCE_OVERHEAD
+              value: {{ .Values.config.performance.overhead | quote }}
+            - name: PERFORMANCE_LOOKBACK_PERIOD
+              value: {{ .Values.config.performance.lookbackPeriod | quote }}
+            - name: PERFORMANCE_MIN_WARMUP_WINDOW
+              value: {{ .Values.config.performance.minWarmupWindow | quote }}
+            - name: PERFORMANCE_CHANGE_COOLDOWN
+              value: {{ .Values.config.performance.changeCooldown | quote }}
+            {{- if and .Values.castai .Values.castai.enabled }}
+            - name: TELEMETRY_API
+              value: "{{ .Values.castai.telemetryAPI}}"
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  {{- if and .Values.castai.apiKeySecretRef .Values.castai.apiKeySecretRef.name }}
+                  name: {{ .Values.castai.apiKeySecretRef.name }}
+                  key: {{ .Values.castai.apiKeySecretRef.key }}
+                  {{- else }}
+                  name: castai-api-key
+                  key: API_KEY
+                  {{- end }}
+            - name: CLUSTER_ID
+              {{- if and .Values.castai.clusterIDConfigMapRef .Values.castai.clusterIDConfigMapRef.name }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.clusterIDConfigMapRef.name }}
+                  key: {{ .Values.castai.clusterIDConfigMapRef.key }}
+              {{- else }}
+              value: {{ .Values.castai.clusterID }}
+              {{- end }}
+            - name: API_URL
+              value: {{ .Values.castai.apiURL }}
+            {{- if and .Values.config.policySync.enabled (or (and .Values.castai.orgIDConfigMapRef .Values.castai.orgIDConfigMapRef.name) .Values.castai.organizationID) }}
+            - name: POLICY_SYNC_ENABLED
+              value: {{ .Values.config.policySync.enabled | quote }}
+            - name: POLICY_SYNC_INTERVAL
+              value: {{ .Values.config.policySync.interval | quote }}
+            - name: ORGANIZATION_ID
+              {{- if and .Values.castai.orgIDConfigMapRef .Values.castai.orgIDConfigMapRef.name }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.orgIDConfigMapRef.name }}
+                  key: {{ .Values.castai.orgIDConfigMapRef.key }}
+                  optional: true
+              {{- else }}
+              value: {{ .Values.castai.organizationID }}
+              {{- end }}
+            {{- end }}
+            {{- end }}
+          {{- range $key, $value := .Values.controller.extraEnv }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          ports:
+            - name: metrics
+              containerPort: {{ $metricsPort }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              port: metrics
+              path: /healthz
+            failureThreshold: 6
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              port: metrics
+              path: /healthz
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              port: metrics
+              path: /healthz
+            periodSeconds: 5
+        {{- end }}
+        {{- if .Values.migration.enabled }}
+        - name: migration
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{.Values.image.pullPolicy}}
+          {{- with $.Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          args:
+            - migration-controller
+          resources:
+            {{- toYaml .Values.migration.resources | nindent 12 }}
+          env:
+            {{- if and .Values.migration.resources.limits .Values.migration.resources.limits.memory }}
+            {{- include "GOMEMLIMITEnv" .Values.migration.resources.limits.memory | nindent 12 }}
+            {{- end }}
+            - name: LEADER_ELECTION_POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: LEADER_ELECTION_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: LEADER_ELECTION_LEASE_NAME
+              value: castai-storage-autoscaler-migration
+            - name: METRICS_PORT
+              value: "{{ $migrationMetricsPort }}"
+            - name: LOG_LEVEL
+              value: {{ .Values.config.logLevel | quote }}
+            - name: RSYNC_WORKER_POD_IMAGE
+              value: {{ .Values.migration.rsyncWorkerPodImage | quote }}
+            - name: RSYNC_DAEMON_PORT
+              value: {{ .Values.migration.rsyncDaemonPort | quote }}
+            {{- if and .Values.castai .Values.castai.enabled }}
+            - name: TELEMETRY_API
+              value: "{{ .Values.castai.telemetryAPI}}"
+            - name: API_KEY
+              valueFrom:
+                secretKeyRef:
+                  {{- if and .Values.castai.apiKeySecretRef .Values.castai.apiKeySecretRef.name }}
+                  name: {{ .Values.castai.apiKeySecretRef.name }}
+                  key: {{ .Values.castai.apiKeySecretRef.key }}
+                  {{- else }}
+                  name: castai-api-key
+                  key: API_KEY
+                  {{- end }}
+            - name: CLUSTER_ID
+              {{- if and .Values.castai.clusterIDConfigMapRef .Values.castai.clusterIDConfigMapRef.name }}
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ .Values.castai.clusterIDConfigMapRef.name }}
+                  key: {{ .Values.castai.clusterIDConfigMapRef.key }}
+              {{- else }}
+              value: {{ .Values.castai.clusterID }}
+              {{- end }}
+            - name: API_URL
+              value: {{ .Values.castai.apiURL }}
+            {{- end }}
+          ports:
+            - name: migr-metrics
+              containerPort: {{ $migrationMetricsPort }}
+              protocol: TCP
+          startupProbe:
+            httpGet:
+              port: migr-metrics
+              path: /healthz
+            failureThreshold: 6
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              port: migr-metrics
+              path: /healthz
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              port: migr-metrics
+              path: /healthz
+            periodSeconds: 5
+        {{- end }}
+      terminationGracePeriodSeconds: 10
+      {{- with .Values.controller.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.affinity }}
+      affinity:
+        {{- toYaml . | replace "APP_NAME" (include "castai-storage-autoscaler.fullname" $) | nindent 8 }}
+      {{- end }}
+      {{- with .Values.controller.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

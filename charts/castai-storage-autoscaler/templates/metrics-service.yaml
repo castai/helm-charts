@@ -1,0 +1,45 @@
+{{- if .Values.controller.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-storage-autoscaler.labels" . | nindent 4 }}
+  annotations:
+    prometheus.io/scrape: "{{ .Values.controller.prometheusScrape.enabled }}"
+    prometheus.io/port: "{{ .Values.controller.metricsHTTPListenPort }}"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.controller.metricsHTTPListenPort }}
+      targetPort: metrics
+      protocol: TCP
+      name: metrics
+  selector:
+    {{- include "castai-storage-autoscaler.selectorLabels" . | nindent 4 }}
+{{- end }}
+---
+{{- if .Values.migration.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}-migration-metrics
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-storage-autoscaler.labels" . | nindent 4 }}
+  annotations:
+    prometheus.io/scrape: "{{ .Values.migration.prometheusScrape.enabled }}"
+    prometheus.io/port: "{{ .Values.migration.metricsHTTPListenPort }}"
+    prometheus.io/path: "/metrics"
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ .Values.migration.metricsHTTPListenPort }}
+      targetPort: migr-metrics
+      protocol: TCP
+      name: migr-metrics
+  selector:
+    {{- include "castai-storage-autoscaler.selectorLabels" . | nindent 4 }}
+{{- end }}

@@ -1,0 +1,18 @@
+{{- if .Values.migration.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}-webhook
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-storage-autoscaler.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: 443
+      targetPort: webhook
+      protocol: TCP
+      name: webhook
+  selector:
+    {{- include "castai-storage-autoscaler.webhookSelectorLabels" . | nindent 4 }}
+{{- end }}

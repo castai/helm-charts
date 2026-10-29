@@ -1,0 +1,129 @@
+{{- if .Values.rbac.create }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}
+rules:
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  # Owner resolution for workload pods discovered during Preparation,
+  # plus patching the controller object that directly manages pods to wake
+  # the workload controller out of its client-go rate-limiter backoff after
+  # the migration-in-progress annotation is removed.
+  - apiGroups: ["apps"]
+    resources: ["deployments", "statefulsets", "daemonsets", "replicasets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["statefulsets", "daemonsets", "replicasets"]
+    verbs: ["patch"]
+  - apiGroups: ["batch"]
+    resources: ["jobs", "cronjobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["nodes/proxy"]
+    verbs: ["get"]
+  # StorageClass permissions (for disk type detection)
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+  # VolumeAttachment permissions (for PVC-to-node mapping)
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["volumeattachments"]
+    verbs: ["list", "watch"]
+  # PVCMigration CRD
+  - apiGroups: ["storage.cast.ai"]
+    resources: ["pvcmigrations"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["storage.cast.ai"]
+    resources: ["pvcmigrations/status"]
+    verbs: ["get", "update", "patch"]
+  # Leases for leader election
+  - apiGroups: ["coordination.k8s.io"]
+    resources: ["leases"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+
+---
+# PVPolicy permissions are scoped to the release namespace. PVPolicies are
+# created and consumed in the chart installation namespace (see default-pvpolicy.yaml).
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+rules:
+  - apiGroups: ["storage.cast.ai"]
+    resources: ["pvpolicies"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "castai-storage-autoscaler.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-storage-autoscaler.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+
+{{- if .Values.migration.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}-webhook
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["storage.cast.ai"]
+    resources: ["pvcmigrations"]
+    verbs: ["get", "list", "watch"]
+{{- end }}
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "castai-storage-autoscaler.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-storage-autoscaler.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+
+{{- if .Values.migration.enabled }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}-webhook
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "castai-storage-autoscaler.fullname" . }}-webhook
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "castai-storage-autoscaler.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- end }}

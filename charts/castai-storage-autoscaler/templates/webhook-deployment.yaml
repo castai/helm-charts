@@ -1,0 +1,88 @@
+{{- if .Values.migration.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}-webhook
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-storage-autoscaler.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.migration.webhook.replicas }}
+  selector:
+    matchLabels:
+      {{- include "castai-storage-autoscaler.webhookSelectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "castai-storage-autoscaler.webhookSelectorLabels" . | nindent 8 }}
+        {{- include "castai-storage-autoscaler.commonLabels" . | nindent 8 }}
+      annotations:
+        checksum/webhook-cert: {{ include (print $.Template.BasePath "/webhook-certs.yaml") . | sha256sum }}
+    spec:
+      {{- with .Values.image.pullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "castai-storage-autoscaler.serviceAccountName" . }}
+      {{- with .Values.podSecurityContext }}
+      securityContext:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: webhook
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- with $.Values.securityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          args:
+            - webhook
+            - "--port={{ .Values.migration.webhook.port }}"
+            - "--cert-dir=/etc/certs"
+          resources:
+            {{- toYaml .Values.migration.webhook.resources | nindent 12 }}
+          ports:
+            - name: webhook
+              containerPort: {{ .Values.migration.webhook.port }}
+              protocol: TCP
+            - name: metrics
+              containerPort: 8081
+              protocol: TCP
+          volumeMounts:
+            - name: cert
+              mountPath: /etc/certs
+              readOnly: true
+          startupProbe:
+            httpGet:
+              port: metrics
+              path: /healthz
+            failureThreshold: 6
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              port: metrics
+              path: /healthz
+            periodSeconds: 5
+          readinessProbe:
+            httpGet:
+              port: metrics
+              path: /healthz
+            periodSeconds: 5
+      volumes:
+        - name: cert
+          secret:
+            secretName: {{ include "castai-storage-autoscaler.fullname" . }}-webhook-cert
+      {{- with .Values.migration.webhook.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.migration.webhook.affinity }}
+      affinity:
+        {{- toYaml . | replace "APP_NAME" (include "castai-storage-autoscaler.fullname" $) | nindent 8 }}
+      {{- end }}
+      {{- with .Values.migration.webhook.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{- end }}

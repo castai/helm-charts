@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "castai-storage-autoscaler values",
+  "type": "object",
+  "properties": {
+    "config": {
+      "type": "object",
+      "properties": {
+        "performance": {
+          "type": "object",
+          "properties": {
+            "target": {
+              "type": "string",
+              "description": "Which observation to trust: \"max\" or a percentile p50–p99.9 (WOOP annotation format).",
+              "pattern": "^(max|p(5[0-9](\\.[0-9])?|[6-8][0-9](\\.[0-9])?|9[0-8](\\.[0-9])?|99(\\.[0-9])?))$"
+            },
+            "overhead": {
+              "type": "number",
+              "description": "Buffer on top of the target observation.",
+              "minimum": 0,
+              "maximum": 2.5
+            },
+            "lookbackPeriod": {
+              "type": "string",
+              "description": "How far back to look for cloud performance metrics (Go duration, 1h–24h).",
+              "pattern": "^[0-9]+(ns|us|µs|ms|s|m|h)([0-9]+(ns|us|µs|ms|s|m|h))*$"
+            },
+            "minWarmupWindow": {
+              "type": "string",
+              "description": "Minimum warm-up window before acting on performance metrics (Go duration; 0 or 15m–24h).",
+              "pattern": "^[0-9]+(ns|us|µs|ms|s|m|h)([0-9]+(ns|us|µs|ms|s|m|h))*$"
+            },
+            "changeCooldown": {
+              "type": "string",
+              "description": "Minimum time between consecutive performance modifications on the same PVC (Go duration, 0–24h).",
+              "pattern": "^[0-9]+(ns|us|µs|ms|s|m|h)([0-9]+(ns|us|µs|ms|s|m|h))*$"
+            }
+          },
+          "additionalProperties": true
+        },
+        "storage": {
+          "type": "object",
+          "properties": {
+            "thresholdPercent": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 100
+            },
+            "growthPercent": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "minGrowthStepGiB": {
+              "type": "number",
+              "minimum": 0
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": true
+}

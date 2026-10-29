@@ -1,0 +1,10 @@
+# chart-testing (ct install) values for the castai/helm-charts PR gate.
+#
+# lint-test.yaml installs each changed chart into a kind cluster, once per
+# ci/*-values.yaml file. This file must survive the sync_source unpack of the
+# release package into castai/helm-charts, which is why it lives here in the
+# chart source and is not excluded by .helmignore.
+castai:
+  enabled: false
+config:
+  allowUnknownCloudProvider: true

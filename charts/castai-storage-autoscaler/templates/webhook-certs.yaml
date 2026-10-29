@@ -1,0 +1,73 @@
+{{- if .Values.migration.enabled }}
+{{- $serviceName := printf "%s-webhook" (include "castai-storage-autoscaler.fullname" .) }}
+{{- $altNames := list
+    (printf "%s.%s" $serviceName .Release.Namespace)
+    (printf "%s.%s.svc" $serviceName .Release.Namespace)
+    (printf "%s.%s.svc.cluster.local" $serviceName .Release.Namespace)
+}}
+{{- $ca := genCA "castai-storage-autoscaler-webhook-ca" 3650 }}
+{{- $cert := genSignedCert $serviceName nil $altNames 3650 $ca }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ $serviceName }}-cert
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-storage-autoscaler.labels" . | nindent 4 }}
+type: Opaque
+data:
+  tls.crt: {{ $cert.Cert | b64enc }}
+  tls.key: {{ $cert.Key | b64enc }}
+  ca.crt: {{ $ca.Cert | b64enc }}
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}
+  labels:
+    {{- include "castai-storage-autoscaler.labels" . | nindent 4 }}
+webhooks:
+  - name: pod-migration-guard.castai-storage-autoscaler.cast.ai
+    admissionReviewVersions: ["v1"]
+    clientConfig:
+      service:
+        name: {{ $serviceName }}
+        namespace: {{ .Release.Namespace }}
+        path: /validate-pod
+      caBundle: {{ $ca.Cert | b64enc }}
+    rules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["pods"]
+        scope: "Namespaced"
+    failurePolicy: Ignore
+    sideEffects: None
+    timeoutSeconds: 10
+    {{- with .Values.migration.webhook.namespaceSelector }}
+    namespaceSelector:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  - name: pvc-migration-guard.castai-storage-autoscaler.cast.ai
+    admissionReviewVersions: ["v1"]
+    clientConfig:
+      service:
+        name: {{ $serviceName }}
+        namespace: {{ .Release.Namespace }}
+        path: /validate-pvc
+      caBundle: {{ $ca.Cert | b64enc }}
+    rules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["CREATE"]
+        resources: ["persistentvolumeclaims"]
+        scope: "Namespaced"
+    failurePolicy: Ignore
+    sideEffects: None
+    timeoutSeconds: 10
+    {{- with .Values.migration.webhook.namespaceSelector }}
+    namespaceSelector:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+{{- end }}
