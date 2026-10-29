@@ -1,0 +1,29 @@
+# TEMPORARY (spike, to be removed): placeholder so castai/images can dispatch this workflow.
+# GitHub only dispatches workflows that exist on the default branch; the real steps live on
+# the spike/oci-publish branch, which the dispatch selects with --ref. On main this does nothing.
+name: oci-publish-spike
+run-name: oci-publish-spike ${{ inputs.chart }}:${{ inputs.chart_version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      chart:
+        description: "Chart name (e.g. castai-publish-example)"
+        required: true
+        type: string
+      chart_version:
+        description: "Chart version"
+        required: true
+        type: string
+      digest:
+        description: "Digest of the signed chart in the staging location (sha256:...)"
+        required: true
+        type: string
+
+permissions: {}
+
+jobs:
+  noop:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "placeholder on main; the spike runs from branch spike/oci-publish"
