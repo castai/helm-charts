@@ -290,6 +290,15 @@ pooling:
       memoryLimit: "32Mi"
   # -- Pooler metrics port.
   metricsPort: 9090
+  # -- Ports that bypass the pooler and route straight to configured endpoints.
+  directConnect:
+    # -- Serve the direct ports alongside the pooled ones.
+    enabled: false
+    ports:
+      # -- Port the proxy listens on for direct read-write connections.
+      readWrite: 6143
+      # -- Port the proxy listens on for direct read-only connections. Only used when a read-only endpoint is configured.
+      readOnly: 6144
   # -- Configure the PgDog section to deploy PgDog as the pooler.
   pgdog:
     # -- Log level for PgDog.

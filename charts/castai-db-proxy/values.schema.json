@@ -451,6 +451,31 @@
           "$ref": "#/definitions/port",
           "description": "Pooler metrics port."
         },
+        "directConnect": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Ports that bypass the pooler and route straight to the endpoints.",
+          "properties": {
+            "enabled": {
+              "type": "boolean",
+              "description": "Serve the direct ports alongside the pooled ones."
+            },
+            "ports": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "readWrite": {
+                  "$ref": "#/definitions/port",
+                  "description": "Port the proxy listens on for direct read-write connections."
+                },
+                "readOnly": {
+                  "$ref": "#/definitions/port",
+                  "description": "Port the proxy listens on for direct read-only connections."
+                }
+              }
+            }
+          }
+        },
         "pgdog": {
           "type": ["object", "null"],
           "description": "PgDog pooler. Only used when protocol is PostgreSQL. Set to null to omit it.",
