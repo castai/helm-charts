@@ -51,6 +51,6 @@ dependencies:
   # ── opt-in (disabled by default via castai-storage-autoscaler.enabled=false) ──
   # Enable with --set kent.castai-storage-autoscaler.enabled=true.
   - name: castai-storage-autoscaler
-    version: "0.3.1"
+    version: "0.3.2"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-storage-autoscaler.enabled
