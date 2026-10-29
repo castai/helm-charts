@@ -1,0 +1,7 @@
+# Values produced at install time by:
+#   --set autoscaler.castai-storage-autoscaler.serviceAccount.annotations."eks\.amazonaws\.com/role-arn"=<role-arn>
+castai-storage-autoscaler:
+  enabled: true
+  serviceAccount:
+    annotations:
+      "eks.amazonaws.com/role-arn": "arn:aws:iam::123456789012:role/StorageAutoscalerRole"

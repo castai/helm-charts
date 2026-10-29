@@ -75,6 +75,11 @@ autoscaler:
   castai-live:
     # castai-live resolves images as "<imageRegistry>/<image>"
     imageRegistry: us-docker.pkg.dev/castai-hub/library
+  castai-storage-autoscaler:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/storage-autoscaler
+    migration:
+      rsyncWorkerPodImage: us-docker.pkg.dev/castai-hub/library/storage-migration-worker:v0.3.2
 
 autoscaler-anywhere:
   castai-agent:
@@ -182,3 +187,8 @@ kent:
         repository: us-docker.pkg.dev/castai-hub/library/kvisor-event-generator
   castai-live:
     imageRegistry: us-docker.pkg.dev/castai-hub/library
+  castai-storage-autoscaler:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/storage-autoscaler
+    migration:
+      rsyncWorkerPodImage: us-docker.pkg.dev/castai-hub/library/storage-migration-worker:v0.3.2
