@@ -153,7 +153,7 @@ clusterAutoscaler:
 # jmxExporter -- Configuration for auto-instrumenting JVM pods with the JMX Prometheus Java agent.
 # When enabled, the mutating webhook injects an init container that copies the agent jar into a
 # shared emptyDir volume, sets JDK_JAVA_OPTIONS on every app container, and exposes ports starting
-# from the configured basePort (default: 9404, 9405, ...).
+# from the configured basePort (default: 29404, 29405, ...).
 #
 # The injected init container runs as UID 65532 (non-root) with a SecurityContext matching the
 # Pod Security Standard "restricted" profile. Pods that also enforce runAsNonRoot at the pod
@@ -164,10 +164,11 @@ jmxExporter:
   # enabled -- Global feature flag. When false the webhook never attempts JMX injection.
   enabled: true
   initImage:
-    # repository -- Init container image that contains the JMX exporter isolator and javaagent jars.
-    repository: ghcr.io/castai/images/jmx-exporter-init
-    # tag -- Image tag for the init container. Bundles jmx_prometheus_isolator_javaagent.jar and jmx_prometheus_javaagent.jar.
-    tag: 1.6.0-v2
+    # repository -- Init container image that contains the JMX exporter wrapper agent jar.
+    repository: ghcr.io/castai/images/jmx-exporter-wrapper
+    # tag -- Image tag for the init container. Bundles jmx-exporter-wrapper-all.jar, which loads the
+    # exporter in an isolated classloader and keeps the JVM alive if the exporter fails to start.
+    tag: v0.1.2
   # imagePullSecrets -- secret names appended to each injected pod's imagePullSecrets.
   # Use when the init image is mirrored to a private registry requiring authentication.
   # Existing pull secrets on the pod are preserved; matching names are deduped.
@@ -175,11 +176,13 @@ jmxExporter:
   # - name: my-private-registry
   #
   # basePort -- Initial port for JMX exporter. Each container in a pod gets a unique port
-  # starting from this value (default: 9404, 9405, ...).
-  basePort: 9404
+  # starting from this value (default: 29404, 29405, ...).
+  basePort: 29404
   # javaAgentArgTemplate -- Go text/template for the -javaagent argument injected into the
-  # target JVM environment variable. Supports {{.MountPath}} and {{.Port}}. Leave empty to
-  # use the built-in isolator-based default.
+  # target JVM environment variable. Supports {{.MountPath}} and {{.Port}}. Must match the
+  # init image layout. Leave empty to use the built-in default for the wrapper image. For the
+  # legacy jmx-exporter-init image use the isolator chain:
+  # -javaagent:{{.MountPath}}/jmx_prometheus_isolator_javaagent.jar={{.MountPath}}/jmx_prometheus_javaagent.jar={{.Port}}:{{.MountPath}}/config.yaml
   javaAgentArgTemplate: ""
   # resources -- requests/limits applied to the injected castai-jmx-exporter-init container.
   # Required in clusters with ResourceQuotas that mandate CPU/memory on every container.

@@ -79,6 +79,7 @@ spec:
                     type: array
                     x-kubernetes-list-map-keys:
                     - id
+                    - message
                     x-kubernetes-list-type: map
                 required:
                 - readonly
@@ -1731,6 +1732,15 @@ spec:
                                 resources in a ResourceList.
                               type: string
                             type: array
+                          source:
+                            description: |-
+                              ChangeSource identifies the producer of a RecommendationChange: a
+                              per-container pipeline feature, or a workload-level post-processing
+                              transformer.
+                            enum:
+                            - feature
+                            - transformer
+                            type: string
                         type: object
                       type: array
                   type: object
