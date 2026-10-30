@@ -1,0 +1,328 @@
+# Publishes charts built in GitLab. castai/images starts this workflow and waits for it.
+#   internal registry -> ghcr.io/castai/helm-charts/<chart>:<version>  (signed charts only)
+#                     -> GitHub release + index.yaml                    (every chart)
+# Signed charts are verified against .github/chart-signers.yaml before and after the copy.
+# Releases use an octo-sts token, not GITHUB_TOKEN, so the umbrella update workflow runs.
+name: publish-chart
+run-name: publish-chart ${{ inputs.chart }}:${{ inputs.chart_version }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      chart:
+        description: "Chart name(s), comma-separated, all at chart_version"
+        required: true
+        type: string
+      chart_version:
+        description: "Chart version (e.g. 0.1.2)"
+        required: true
+        type: string
+      source:
+        description: "Entry in .github/chart-signers.yaml: registry and trusted signers"
+        required: false
+        type: choice
+        options: [gitlab]
+        default: gitlab
+      release_notes:
+        description: "Release body in Markdown; empty keeps the chart description"
+        required: false
+        type: string
+        default: ""
+      sync_source:
+        description: "Also unpack the chart into charts/<chart> on main (not for -test versions)"
+        required: false
+        type: boolean
+        default: false
+
+# One group per chart: a shared group would cancel pending releases in a burst.
+concurrency:
+  group: publish-chart-${{ inputs.chart }}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write # push to ghcr.io/castai/helm-charts/<chart>
+      id-token: write # OIDC token for GCP workload identity federation and octo-sts
+    env:
+      # Inputs are read only through env, never interpolated into shell.
+      CHART: ${{ inputs.chart }}
+      CHART_VERSION: ${{ inputs.chart_version }}
+      SOURCE: ${{ inputs.source }}
+      RELEASE_NOTES: ${{ inputs.release_notes }}
+      SYNC_SOURCE: ${{ inputs.sync_source }}
+      GHCR_CHART_REGISTRY: ghcr.io/castai/helm-charts
+      INDEX_BRANCH: gh-pages # branch that holds index.yaml
+      GCP_WORKLOAD_IDENTITY_PROVIDER: projects/865213359973/locations/global/workloadIdentityPools/castai-github-wif-pool/providers/castai-helm-charts
+      GCP_SERVICE_ACCOUNT: chart-reader-helm-charts@cicd-master-oxk5.iam.gserviceaccount.com
+    steps:
+      - name: Validate inputs
+        run: |
+          set -euo pipefail
+          # A branch run would push to GHCR before failing at the release token.
+          [[ "${GITHUB_REF}" == "refs/heads/main" ]] \
+            || { echo "::error::publish-chart runs from main only, not ${GITHUB_REF}"; exit 1; }
+          IFS=',' read -r -a charts <<< "${CHART// /}"
+          (( ${#charts[@]} > 0 )) || { echo "::error::no chart given"; exit 1; }
+          for c in "${charts[@]}"; do
+            [[ "${c}" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] \
+              || { echo "::error::chart '${c}' is not a valid chart name"; exit 1; }
+          done
+          [[ "${CHART_VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] \
+            || { echo "::error::chart_version '${CHART_VERSION}' is not a semantic version"; exit 1; }
+
+      - name: Check out the trust file
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+          path: self
+          sparse-checkout: .github/chart-signers.yaml
+          sparse-checkout-cone-mode: false
+
+      - name: Load the source's signers
+        run: |
+          set -euo pipefail
+          trust=self/.github/chart-signers.yaml
+          registry="$(yq -r '.sources[strenv(SOURCE)].registry // ""' "${trust}")"
+          issuer="$(yq -r '.sources[strenv(SOURCE)].issuer // ""' "${trust}")"
+          identities="$(yq -r '.sources[strenv(SOURCE)].identities // [] | join("|")' "${trust}")"
+          [[ -n "${registry}" && -n "${issuer}" && -n "${identities}" ]] \
+            || { echo "::error::.github/chart-signers.yaml has no complete entry for source '${SOURCE}'"; exit 1; }
+          {
+            echo "SOURCE_REGISTRY=${registry}"
+            echo "SIGNER_ISSUER=${issuer}"
+            echo "SIGNER_IDENTITY_REGEXP=(${identities})"
+          } >> "${GITHUB_ENV}"
+
+      - name: Install oras, cosign and chart-releaser
+        run: |
+          set -euo pipefail
+          # oras copies a chart with its signature; cr makes releases and index.yaml.
+          ORAS_VERSION=1.3.6
+          curl -fsSL "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin oras
+          COSIGN_VERSION=3.1.4
+          sudo curl -fsSL "https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64" \
+            -o /usr/local/bin/cosign
+          sudo chmod +x /usr/local/bin/cosign
+          CR_VERSION=1.8.1
+          curl -fsSL "https://github.com/helm/chart-releaser/releases/download/v${CR_VERSION}/chart-releaser_${CR_VERSION}_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin cr
+
+      - name: Authenticate to GCP as the chart reader
+        id: gcp
+        uses: google-github-actions/auth@v3
+        with:
+          workload_identity_provider: ${{ env.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ env.GCP_SERVICE_ACCOUNT }}
+          # The only audience the provider accepts.
+          audience: https://cloud.google.com
+          token_format: access_token
+
+      - name: Log in to the registries
+        env:
+          GCP_TOKEN: ${{ steps.gcp.outputs.access_token }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          helm registry login "${SOURCE_REGISTRY%%/*}" -u oauth2accesstoken --password-stdin <<< "${GCP_TOKEN}"
+          oras login "${SOURCE_REGISTRY%%/*}" -u oauth2accesstoken --password-stdin <<< "${GCP_TOKEN}"
+          oras login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin <<< "${GITHUB_TOKEN}"
+
+      - name: Pull the chart(s) from the source registry
+        run: |
+          set -euo pipefail
+          mkdir -p .cr-release-packages
+          # helm pull returns the exact .tgz the pipeline pushed.
+          IFS=',' read -r -a charts <<< "${CHART// /}"
+          for c in "${charts[@]}"; do
+            helm pull "oci://${SOURCE_REGISTRY}/${c}" --version "${CHART_VERSION}" --destination .cr-release-packages
+            [[ -f ".cr-release-packages/${c}-${CHART_VERSION}.tgz" ]] \
+              || { echo "::error::expected .cr-release-packages/${c}-${CHART_VERSION}.tgz after helm pull"; exit 1; }
+          done
+          ls -l .cr-release-packages
+
+      # Before the release: a chart that fails verification is released nowhere.
+      - name: Copy the signed chart(s) to GHCR
+        run: |
+          set -euo pipefail
+          verify() {
+            cosign verify --certificate-oidc-issuer "${SIGNER_ISSUER}" \
+              --certificate-identity-regexp "${SIGNER_IDENTITY_REGEXP}" "$1" >/dev/null
+          }
+          # Succeeds only for a public package.
+          anonymous_pull() {
+            local repo="${GHCR_CHART_REGISTRY#ghcr.io/}/$1" token
+            token="$(curl -fsS "https://ghcr.io/token?scope=repository:${repo}:pull" | jq -r .token)" || return 1
+            curl -fsS -o /dev/null -H "Authorization: Bearer ${token}" \
+              -H "Accept: application/vnd.oci.image.manifest.v1+json" \
+              "https://ghcr.io/v2/${repo}/manifests/$2"
+          }
+
+          IFS=',' read -r -a charts <<< "${CHART// /}"
+          for c in "${charts[@]}"; do
+            src="${SOURCE_REGISTRY}/${c}"
+            target="${GHCR_CHART_REGISTRY}/${c}:${CHART_VERSION}"
+            digest="$(oras resolve "${src}:${CHART_VERSION}")"
+            {
+              echo "## Chart \`${c}:${CHART_VERSION}\`"
+              echo
+              echo "- source: \`${src}@${digest}\`"
+            } >> "${GITHUB_STEP_SUMMARY}"
+
+            # The HTTPS package must be the same bytes as the signed OCI chart.
+            layer="$(oras manifest fetch "${src}@${digest}" \
+              | jq -r '.layers[] | select(.mediaType == "application/vnd.cncf.helm.chart.content.v1.tar+gzip") | .digest')"
+            tgz="sha256:$(sha256sum ".cr-release-packages/${c}-${CHART_VERSION}.tgz" | cut -d' ' -f1)"
+            [[ "${layer}" == "${tgz}" ]] \
+              || { echo "::error::${c}-${CHART_VERSION}.tgz (${tgz}) is not the chart layer of ${src}@${digest} (${layer})"; exit 1; }
+
+            signatures="$(oras discover --format json \
+              --artifact-type application/vnd.dev.sigstore.bundle.v0.3+json \
+              "${src}@${digest}" | jq '.referrers | length')"
+            if [[ "${signatures}" -eq 0 ]]; then
+              echo "${c}:${CHART_VERSION} is not signed: not copied to GHCR, HTTPS release only"
+              echo "- not signed: released over HTTPS only" >> "${GITHUB_STEP_SUMMARY}"
+              continue
+            fi
+            verify "${src}@${digest}"
+
+            # -r copies the signature too; re-runs skip what exists.
+            oras cp -r "${src}@${digest}" "${target}"
+            actual="$(oras resolve "${target}")"
+            [[ "${actual}" == "${digest}" ]] \
+              || { echo "::error::${target} resolves to ${actual} after copy, expected ${digest}"; exit 1; }
+            verify "${GHCR_CHART_REGISTRY}/${c}@${digest}"
+            {
+              echo "- target: \`oci://${target}\`"
+              echo "- signature: verified in source and target (issuer ${SIGNER_ISSUER})"
+            } >> "${GITHUB_STEP_SUMMARY}"
+
+            # Expected public from creation; warn, not fail, until that is proven.
+            public=false
+            for _ in 1 2 3; do
+              if anonymous_pull "${c}" "${digest}"; then public=true; break; fi
+              sleep 5
+            done
+            if [[ "${public}" == "true" ]]; then
+              echo "- anonymous pull: OK" >> "${GITHUB_STEP_SUMMARY}"
+            else
+              echo "::warning::${target} is not anonymously pullable: make the package public"
+              echo "- anonymous pull: FAILED, package is not public" >> "${GITHUB_STEP_SUMMARY}"
+            fi
+          done
+
+      # contents: write, see .github/chainguard/chart-publish.sts.yaml.
+      - name: Get a release token
+        id: release_token
+        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+        with:
+          scope: ${{ github.repository }}
+          identity: chart-publish
+
+      # cr index needs a checkout of the index branch; the stored token lets it push.
+      - name: Check out the index branch
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.INDEX_BRANCH }}
+          token: ${{ steps.release_token.outputs.token }}
+          path: helm-charts
+
+      - name: Create the GitHub release(s) and update index.yaml
+        env:
+          CR_TOKEN: ${{ steps.release_token.outputs.token }}
+        working-directory: helm-charts
+        run: |
+          set -euo pipefail
+          git config user.name "octo-sts[bot]"
+          git config user.email "157150467+octo-sts[bot]@users.noreply.github.com"
+          repo="${GITHUB_REPOSITORY#*/}"
+
+          # --skip-existing makes re-runs safe.
+          cr upload --owner "${GITHUB_REPOSITORY_OWNER}" --git-repo "${repo}" --token "${CR_TOKEN}" \
+            --package-path ../.cr-release-packages --commit "${GITHUB_SHA}" \
+            --release-name-template "{{ .Name }}-{{ .Version }}" --skip-existing
+
+          # Notes come from the caller and are patched in, since cr cannot set them.
+          IFS=',' read -r -a charts <<< "${CHART// /}"
+          if [[ -n "${RELEASE_NOTES}" ]]; then
+            printf '%s' "${RELEASE_NOTES}" > ../release-notes.md
+            for c in "${charts[@]}"; do
+              release_tag="${c}-${CHART_VERSION}"
+              release_id="$(GH_TOKEN="${CR_TOKEN}" gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${release_tag}" --jq .id)"
+              GH_TOKEN="${CR_TOKEN}" gh api --method PATCH "repos/${GITHUB_REPOSITORY}/releases/${release_id}" \
+                -F body=@../release-notes.md --silent
+              echo "release notes set on ${release_tag} ($(wc -c < ../release-notes.md) bytes)"
+            done
+          fi
+
+          # Concurrent releases race for the index branch: fetch and retry.
+          mkdir -p .cr-index
+          attempt=1
+          while true; do
+            if cr index --owner "${GITHUB_REPOSITORY_OWNER}" --git-repo "${repo}" --token "${CR_TOKEN}" \
+                 --package-path ../.cr-release-packages \
+                 --pages-branch "${INDEX_BRANCH}" --push; then
+              echo "index.yaml pushed to ${INDEX_BRANCH} (attempt ${attempt})"
+              break
+            fi
+            if (( attempt >= 5 )); then
+              echo "::error::failed to push index.yaml after ${attempt} attempts"
+              exit 1
+            fi
+            sleep $(( attempt * 10 + RANDOM % 15 ))
+            git fetch origin "${INDEX_BRANCH}" || echo "fetch failed, retrying anyway"
+            attempt=$(( attempt + 1 ))
+          done
+          {
+            echo "## HTTPS release"
+            echo
+            for c in "${charts[@]}"; do
+              echo "- release: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${c}-${CHART_VERSION}"
+            done
+            echo "- index: \`${INDEX_BRANCH}\`"
+            [[ -z "${RELEASE_NOTES}" ]] || echo "- release notes: $(wc -c < ../release-notes.md) bytes from the caller"
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      # After the index push, so main never shows a version that is not installable.
+      - name: Sync the chart source to main
+        if: env.SYNC_SOURCE == 'true'
+        working-directory: helm-charts
+        run: |
+          set -euo pipefail
+          if [[ "${CHART_VERSION}" == *-test* ]]; then
+            echo "test version ${CHART_VERSION}: main left alone"
+            exit 0
+          fi
+          fetch_main() { git fetch --depth=1 origin +refs/heads/main:refs/remotes/origin/main; }
+          fetch_main
+          git worktree add --detach ../helm-charts-main origin/main
+          cd ../helm-charts-main
+          IFS=',' read -r -a charts <<< "${CHART// /}"
+          # main moves often: rebuild on the latest main and retry.
+          attempt=1
+          while true; do
+            git reset -q --hard origin/main
+            for c in "${charts[@]}"; do
+              rm -rf "charts/${c}"
+              mkdir -p "charts/${c}"
+              tar -xzf "../.cr-release-packages/${c}-${CHART_VERSION}.tgz" -C "charts/${c}" --strip-components=1
+              git add -A "charts/${c}"
+              git diff --cached --quiet || git commit -q -m "[${c}] Update ${c} chart to v${CHART_VERSION}"
+            done
+            if git push origin HEAD:main; then
+              echo "chart source pushed to main (attempt ${attempt})"
+              break
+            fi
+            if (( attempt >= 5 )); then
+              echo "::error::failed to push the chart source to main after ${attempt} attempts"
+              exit 1
+            fi
+            sleep $(( attempt * 10 + RANDOM % 15 ))
+            fetch_main || echo "fetch failed, retrying anyway"
+            attempt=$(( attempt + 1 ))
+          done
+          for c in "${charts[@]}"; do
+            echo "- source: \`charts/${c}\` on main" >> "${GITHUB_STEP_SUMMARY}"
+          done
