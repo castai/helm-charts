@@ -1,0 +1,12 @@
+# Trusted chart signers, per source. publish-chart.yml copies a chart to GHCR only when
+# its cosign signature matches the issuer and one of the identities of its source.
+# A source is a registry plus the pipelines allowed to sign what is in it.
+sources:
+  # Our GitLab pipelines (kubecast, clm, pv-monitor), via the internal chart registry.
+  gitlab:
+    registry: us-central1-docker.pkg.dev/cicd-master-oxk5/helm-charts
+    issuer: https://gitlab.com
+    identities:
+      - ^https://gitlab\.com/castai/kubecast//\.gitlab-ci\.yml@
+      - ^https://gitlab\.com/castai/live/clm//\.gitlab-ci\.yml@
+      - ^https://gitlab\.com/castai/stop/pv-monitor//\.gitlab-ci\.yml@
