@@ -97,7 +97,7 @@ data:
     {{- end }}
 
     {{- if .Values.pooling.directConnect.enabled }}
-    [pooling.direct_connect_port]
+    [pooling.direct_connect_ports]
     read_write = {{ .Values.pooling.directConnect.ports.readWrite }}
     readonly = {{ .Values.pooling.directConnect.ports.readOnly }}
     {{- end }}
