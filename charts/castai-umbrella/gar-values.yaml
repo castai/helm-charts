@@ -58,7 +58,7 @@ autoscaler:
       repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
     jmxExporter:
       initImage:
-        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-wrapper
     test:
       image:
         repository: us-docker.pkg.dev/castai-hub/library/busybox
@@ -101,7 +101,7 @@ autoscaler-anywhere:
       repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
     jmxExporter:
       initImage:
-        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-wrapper
     test:
       image:
         repository: us-docker.pkg.dev/castai-hub/library/busybox
@@ -146,7 +146,7 @@ kent:
       repository: us-docker.pkg.dev/castai-hub/library/workload-autoscaler
     jmxExporter:
       initImage:
-        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-init
+        repository: us-docker.pkg.dev/castai-hub/library/jmx-exporter-wrapper
     test:
       image:
         repository: us-docker.pkg.dev/castai-hub/library/busybox
