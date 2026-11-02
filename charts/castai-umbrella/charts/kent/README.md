@@ -1,6 +1,6 @@
 # kent
 
-![Version: 0.16.0](https://img.shields.io/badge/Version-0.16.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.17.0](https://img.shields.io/badge/Version-0.17.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 Wrapper chart for CAST AI Kent profile.
 
@@ -17,9 +17,9 @@ Wrapper chart for CAST AI Kent profile.
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.17.13 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.14 |
 | https://castai.github.io/helm-charts | castai-storage-autoscaler | 0.3.3 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.20.1 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.20.1 |
-| https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.13.0 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.20.2 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.20.2 |
+| https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.14.0 |
 
 ## Values
 
@@ -75,6 +75,15 @@ Wrapper chart for CAST AI Kent profile.
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.key | string | `"CLUSTER_ID"` |  |
 | castai-spot-handler.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-spot-handler.enabled | bool | `true` |  |
+| castai-storage-autoscaler.castai.apiKeySecretRef.key | string | `"API_KEY"` |  |
+| castai-storage-autoscaler.castai.apiKeySecretRef.name | string | `"castai-credentials"` |  |
+| castai-storage-autoscaler.castai.clusterIDConfigMapRef.key | string | `"CLUSTER_ID"` |  |
+| castai-storage-autoscaler.castai.clusterIDConfigMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-storage-autoscaler.castai.enabled | bool | `true` |  |
+| castai-storage-autoscaler.castai.orgIDConfigMapRef.key | string | `"ORGANIZATION_ID"` |  |
+| castai-storage-autoscaler.castai.orgIDConfigMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-storage-autoscaler.fullnameOverride | string | `"castai-storage-autoscaler"` |  |
+| castai-storage-autoscaler.serviceAccount.annotations | object | `{}` |  |
 | castai-workload-autoscaler-exporter.castai.apiKeySecretRef | string | `""` |  |
 | castai-workload-autoscaler-exporter.castai.configMapRef | string | `"castai-agent-metadata"` |  |
 | castai-workload-autoscaler-exporter.containerSecurityContext | object | `{}` |  |

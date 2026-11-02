@@ -37,7 +37,7 @@ dependencies:
     repository: "https://castai.github.io/helm-charts"
     condition: castai-spot-handler.enabled
   - name: metrics-server
-    version: "3.13.0"
+    version: "3.14.0"
     repository: "https://kubernetes-sigs.github.io/metrics-server/"
     condition: metrics-server.enabled
   - name: castai-kvisor
@@ -51,6 +51,6 @@ dependencies:
   # ── opt-in (disabled by default via castai-storage-autoscaler.enabled=false) ──
   # Enable with --set kent.castai-storage-autoscaler.enabled=true.
   - name: castai-storage-autoscaler
-    version: "0.3.2"
+    version: "0.3.3"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-storage-autoscaler.enabled
