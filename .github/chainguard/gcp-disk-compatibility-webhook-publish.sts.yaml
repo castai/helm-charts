@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
+#
+# octo-sts trust policy "gcp-disk-compatibility-webhook-publish": lets release.yaml of
+# github.com/castai/gcp-disk-compatibility-webhook, on tag refs only, start publish-chart.yml and
+# follow its run (actions: write). The chart itself is verified by publish-chart.yml against
+# .github/chart-signers.yaml (source: gcp-disk-compatibility-webhook).
+#
+# octo-sts reads this file from the default branch only. Changing it changes who may start
+# workflows in this repository, so it goes through review like the workflows do.
+issuer: https://token.actions.githubusercontent.com
+subject_pattern: 'repo:castai(@44625431)?/gcp-disk-compatibility-webhook(@1098303703)?:ref:refs/tags/.*'
+claim_pattern:
+  repository: castai/gcp-disk-compatibility-webhook
+  repository_id: "1098303703"
+  job_workflow_ref: castai/gcp-disk-compatibility-webhook/\.github/workflows/release\.yaml@refs/tags/.*
+permissions:
+  actions: write

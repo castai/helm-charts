@@ -41,3 +41,10 @@ sources:
     issuer: https://token.actions.githubusercontent.com
     identities:
       - ^https://github\.com/castai/kontext/\.github/workflows/release[-_][a-z_-]+\.yaml@refs/tags/
+  # castai/gcp-disk-compatibility-webhook: release.yaml (on a published release, i.e. a tag) pushes and
+  # signs into the repository's own GHCR namespace with the remote-release action.
+  gcp-disk-compatibility-webhook:
+    registry: ghcr.io/castai/gcp-disk-compatibility-webhook/helm-charts
+    issuer: https://token.actions.githubusercontent.com
+    identities:
+      - ^https://github\.com/castai/gcp-disk-compatibility-webhook/\.github/workflows/release\.yaml@refs/tags/
