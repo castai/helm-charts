@@ -1,0 +1,17 @@
+# Shared base values for all unittest suites in this chart.
+global:
+  castai:
+    provider: eks
+    apiKey: dummy
+    apiKeySecretRef: castai-credentials
+    apiURL: "https://api.cast.ai"
+    grpcURL: "grpc.cast.ai:443"
+castai-pod-pinner:
+  castai:
+    apiKeySecretRef: castai-credentials
+castai-workload-autoscaler:
+  castai:
+    apiKeySecretRef: castai-credentials
+castai-workload-autoscaler-exporter:
+  castai:
+    apiKeySecretRef: castai-credentials

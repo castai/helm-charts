@@ -1,0 +1,7 @@
+# Values produced at install time by:
+#   --set autoscaler.castai-storage-autoscaler.serviceAccount.annotations."iam\.gke\.io/gcp-service-account"=<sa>@<project>.iam.gserviceaccount.com
+castai-storage-autoscaler:
+  enabled: true
+  serviceAccount:
+    annotations:
+      "iam.gke.io/gcp-service-account": "storage-autoscaler@project.iam.gserviceaccount.com"

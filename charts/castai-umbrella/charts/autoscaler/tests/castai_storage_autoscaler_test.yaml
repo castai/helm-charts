@@ -1,0 +1,114 @@
+suite: castai-storage-autoscaler opt-in configuration
+values:
+  - ./values-test-base.yaml
+set:
+  castai-storage-autoscaler.enabled: true
+# Note: there is no "renders nothing when disabled" test — once the chart is
+# disabled via the condition, its template paths are unregistered with
+# helm-unittest, so pointing a test at them errors out. The opt-in guarantee is
+# verified by rendering the umbrella per mode tag (0 storage-autoscaler refs).
+tests:
+  - it: controller reads API key from the shared castai-credentials secret
+    template: charts/castai-storage-autoscaler/templates/deployment.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: castai-credentials
+                key: API_KEY
+
+  - it: controller reads CLUSTER_ID from castai-agent-metadata ConfigMap
+    template: charts/castai-storage-autoscaler/templates/deployment.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: CLUSTER_ID
+            valueFrom:
+              configMapKeyRef:
+                name: castai-agent-metadata
+                key: CLUSTER_ID
+
+  - it: controller reads ORGANIZATION_ID from castai-agent-metadata ConfigMap
+    template: charts/castai-storage-autoscaler/templates/deployment.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: ORGANIZATION_ID
+            valueFrom:
+              configMapKeyRef:
+                name: castai-agent-metadata
+                key: ORGANIZATION_ID
+                optional: true
+
+  - it: does not fall back to the chart-default castai-api-key secret
+    template: charts/castai-storage-autoscaler/templates/deployment.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: API_KEY
+            valueFrom:
+              secretKeyRef:
+                name: castai-api-key
+                key: API_KEY
+
+  - it: service account is named castai-storage-autoscaler
+    template: charts/castai-storage-autoscaler/templates/serviceaccount.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: castai-storage-autoscaler
+      # no annotations by default — nothing hardcoded in the umbrella
+      - isNull:
+          path: metadata.annotations
+
+  - it: passes the IRSA role ARN annotation through the serviceAccount.annotations flag
+    values:
+      - ./values-csa-irsa.yaml
+    template: charts/castai-storage-autoscaler/templates/serviceaccount.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: castai-storage-autoscaler
+      - equal:
+          path: metadata.annotations["eks.amazonaws.com/role-arn"]
+          value: "arn:aws:iam::123456789012:role/StorageAutoscalerRole"
+
+  - it: passes the GKE workload identity annotation through the serviceAccount.annotations flag
+    values:
+      - ./values-csa-gke-wi.yaml
+    template: charts/castai-storage-autoscaler/templates/serviceaccount.yaml
+    asserts:
+      - equal:
+          path: metadata.name
+          value: castai-storage-autoscaler
+      - equal:
+          path: metadata.annotations["iam.gke.io/gcp-service-account"]
+          value: "storage-autoscaler@project.iam.gserviceaccount.com"
+
+  - it: deployment pods use the castai-storage-autoscaler service account
+    template: charts/castai-storage-autoscaler/templates/deployment.yaml
+    documentSelector:
+      path: kind
+      value: Deployment
+    asserts:
+      - equal:
+          path: spec.template.spec.serviceAccountName
+          value: castai-storage-autoscaler
