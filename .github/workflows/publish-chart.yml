@@ -329,8 +329,9 @@ jobs:
               mkdir -p "charts/${c}"
               tar -xzf "../.cr-release-packages/${c}-${CHART_VERSION}.tgz" -C "charts/${c}" --strip-components=1
               git add -A "charts/${c}"
-              # [skip ci]: the copy is released already; it must not start release.yaml.
-              git diff --cached --quiet || git commit -q -m "[${c}] Update ${c} chart to v${CHART_VERSION} [skip ci]"
+              # No [skip ci]: release.yaml's update-umbrella job is the fallback when the on-release
+              # umbrella workflow loses a push race (seen 2026-11-02, workload-autoscaler 1.20.2).
+              git diff --cached --quiet || git commit -q -m "[${c}] Update ${c} chart to v${CHART_VERSION}"
             done
             if git push origin HEAD:main; then
               echo "chart source pushed to main (attempt ${attempt})"
