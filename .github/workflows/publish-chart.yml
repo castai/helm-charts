@@ -24,7 +24,7 @@ on:
         description: "Entry in .github/chart-signers.yaml: registry and trusted signers"
         required: false
         type: choice
-        options: [gitlab, github, kontext, gcp-disk-compatibility-webhook]
+        options: [gitlab, github, kontext, gcp-disk-compatibility-webhook, castware-operator]
         default: gitlab
       release_notes:
         description: "Release body in Markdown; empty keeps the chart description"

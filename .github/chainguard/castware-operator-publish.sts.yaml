@@ -1,0 +1,17 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
+#
+# octo-sts trust policy "castware-operator-publish": lets build.yaml of
+# github.com/castai/castware-operator, on tag refs only (release events and the components
+# dispatch from a tag), start publish-chart.yml and follow its run (actions: write). The chart
+# itself is verified by publish-chart.yml against .github/chart-signers.yaml (source: castware-operator).
+#
+# octo-sts reads this file from the default branch only. Changing it changes who may start
+# workflows in this repository, so it goes through review like the workflows do.
+issuer: https://token.actions.githubusercontent.com
+subject_pattern: 'repo:castai(@44625431)?/castware-operator(@999526441)?:ref:refs/tags/.*'
+claim_pattern:
+  repository: castai/castware-operator
+  repository_id: "999526441"
+  job_workflow_ref: castai/castware-operator/\.github/workflows/build\.yaml@refs/tags/.*
+permissions:
+  actions: write
