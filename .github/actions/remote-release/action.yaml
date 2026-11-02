@@ -1,201 +1,323 @@
 name: "Remote Release"
-description: "Used to enable releasing a CAST AI chart from a different repository. Mostly used when you want just one source of truth for your app's chart."
+description: >-
+  Releases a chart that lives in another CAST AI repository through castai/helm-charts.
+  The chart is packaged, pushed to the caller's own GHCR namespace and signed keyless; then
+  publish-chart.yml in castai/helm-charts is started for it and awaited: it verifies the signature
+  against .github/chart-signers.yaml, copies the chart to ghcr.io/castai/helm-charts/<chart>, creates
+  the GitHub release and updates index.yaml. See README.md next to this file for what a caller needs.
 
 inputs:
-  helm-charts-repo-token:
-    description: "GitHub token with permissions to do actions on the castai/helm-charts repo"
-    required: true
   chart-path:
-    description: "Path to the chart to be released"
+    description: "Path to the chart directory"
     required: true
-  chart-releaser-configfile:
-    description: "Path to a cr.yaml file"
-    required: true
-  chart-releaser-index-path:
-    description: "Path to index file"
-    required: true
-    default: "${{ github.workspace }}/.cr-index"
-  chart-releaser-package-path:
-    description: "Path to where the chart packages will be stored"
-    required: true
-    default: "${{ github.workspace }}/.cr-release-packages"
-  chart-releaser-tool-path:
-    description: "Path to where the chart releaser tool will be stored"
-    required: true
-    default: "${{ github.workspace }}/.cr-tool"
-  helm-upgrade-summary:
-    description: "Override the default helm upgrade summary"
-    required: false
-  sync-chart:
-    description: "Sync chart with helm-charts github"
-    required: true
-    default: "false"
   release-tag:
-    description: "Release tag to be used. If not provided, the tag will be taken from the GITHUB_REF"
+    description: "Release tag; default: the tag of GITHUB_REF (e.g. v1.2.3). Becomes appVersion (auto-bump mode) or the chart version"
     required: false
   chart-version-from-tag:
-    description: "If true, set chart version from release tag instead of auto-incrementing patch. Default: false (backwards compatible)"
+    description: "true: chart version = release tag (without v). false: bump the chart's patch version and set appVersion to the tag"
     required: false
     default: "false"
+  source:
+    description: "Entry in castai/helm-charts .github/chart-signers.yaml for this repository (registry, issuer, identities)"
+    required: false
+    default: ${{ github.event.repository.name }}
+  chart-registry:
+    description: "OCI registry the chart is pushed to and signed in; must equal the source's registry in chart-signers.yaml"
+    required: false
+    default: ghcr.io/castai/${{ github.event.repository.name }}/charts
+  release-notes:
+    description: "Release body in Markdown; default: the chart description and the source commit"
+    required: false
+    default: ""
+  sync-chart:
+    description: "Also unpack the released chart into charts/<chart> on main of castai/helm-charts"
+    required: false
+    default: "false"
+  helm-upgrade-summary:
+    description: "Override the default helm upgrade line in the job summary"
+    required: false
+  commit-chart-changes:
+    description: "Commit the Chart.yaml version bump back to this repository's main"
+    required: false
+    default: "true"
+  source-repo-token:
+    description: "Token that may push to this repository (for commit-chart-changes); default: the job's token"
+    required: false
   git-author-name:
-    description: "Git author name for commits (defaults to github actor). Can be used to set github app as commit author"
+    description: "Git author for the Chart.yaml commit; default: the actor"
     required: false
     default: ""
   git-author-email:
-    description: "Git author email for commits (defaults to github actor email). Can be used to set github app as commit author"
+    description: "Git author email for the Chart.yaml commit; default: the actor's noreply address"
     required: false
     default: ""
-  source-repo-token:
-    description: "GitHub token with permissions to push to the source repository"
+  github-token:
+    description: "Token for GHCR (packages: write) and the GitHub API of this repository"
     required: false
-  commit-chart-changes:
-    description: "If false, skip committing Chart.yaml changes back to source repo. Default: true"
-    required: false
-    default: "true"
+    default: ${{ github.token }}
 
-outputs: {}
+outputs:
+  chart:
+    description: "Chart name"
+    value: ${{ steps.parse.outputs.name }}
+  version:
+    description: "Released chart version"
+    value: ${{ steps.parse.outputs.version }}
+  digest:
+    description: "Digest of the signed OCI chart"
+    value: ${{ steps.sign.outputs.digest }}
+  publish-run-url:
+    description: "The publish-chart.yml run in castai/helm-charts"
+    value: ${{ steps.publish.outputs.run_url }}
 
 runs:
   using: "composite"
-
   steps:
-
     - name: Get release tag
       shell: bash
+      env:
+        RELEASE_TAG_INPUT: ${{ inputs.release-tag }}
       run: |
-        if [ -n "${{ inputs.release-tag }}" ]; then
-          echo "RELEASE_TAG=${{ inputs.release-tag }}" >> $GITHUB_ENV
+        set -euo pipefail
+        if [[ -n "${RELEASE_TAG_INPUT}" ]]; then
+          tag="${RELEASE_TAG_INPUT}"
         else
-          echo "RELEASE_TAG=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+          tag="${GITHUB_REF#refs/*/}"
         fi
-
-    - name: Checkout helm-charts
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-        repository: castai/helm-charts
-        path: helm-charts
-        token: ${{ inputs.helm-charts-repo-token }}
-
-    - name: Configure Git for helm-charts
-      shell: bash
-      run: |
-        cd helm-charts
-        GIT_AUTHOR_NAME="${{ inputs.git-author-name }}"
-        GIT_AUTHOR_EMAIL="${{ inputs.git-author-email }}"
-        git config user.name "${GIT_AUTHOR_NAME:-$GITHUB_ACTOR}"
-        git config user.email "${GIT_AUTHOR_EMAIL:-$GITHUB_ACTOR@users.noreply.github.com}"
-
-    - name: Install Helm
-      uses: azure/setup-helm@b9e51907a09c216f16ebe8536097933489208112 # v4
-      with:
-        version: v3.5.2
-
-    - name: Install CR tool
-      shell: bash
-      run: |
-        mkdir "${{ inputs.chart-releaser-tool-path }}"
-        mkdir "${{ inputs.chart-releaser-package-path }}"
-        mkdir "${{ inputs.chart-releaser-index-path }}"
-        curl -sSLo cr.tar.gz "https://github.com/helm/chart-releaser/releases/download/v1.4.0/chart-releaser_1.4.0_linux_amd64.tar.gz"
-        tar -xzf cr.tar.gz -C "${{ inputs.chart-releaser-tool-path }}"
-        rm -f cr.tar.gz
+        echo "RELEASE_TAG=${tag}" >> "${GITHUB_ENV}"
+        echo "release tag: ${tag}"
 
     - name: Bump chart version
       shell: bash
+      env:
+        CHART_PATH: ${{ inputs.chart-path }}
+        FROM_TAG: ${{ inputs.chart-version-from-tag }}
+        ACTION_PATH: ${{ github.action_path }}
       run: |
-        if [ "${{ inputs.chart-version-from-tag }}" == "true" ]; then
-          python ${{ github.action_path }}/chart_version_from_tag.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+        set -euo pipefail
+        if [[ "${FROM_TAG}" == "true" ]]; then
+          python3 "${ACTION_PATH}/chart_version_from_tag.py" "${CHART_PATH}/Chart.yaml" "${RELEASE_TAG}"
         else
-          python ${{ github.action_path }}/bump_chart.py ${{ inputs.chart-path }}/Chart.yaml ${{env.RELEASE_TAG}}
+          python3 "${ACTION_PATH}/bump_chart.py" "${CHART_PATH}/Chart.yaml" "${RELEASE_TAG}"
         fi
 
     - name: Parse Chart.yaml
-      id: parse-chart
+      id: parse
       shell: bash
+      env:
+        CHART_PATH: ${{ inputs.chart-path }}
       run: |
-        description=$(yq ".description" < ${{ inputs.chart-path }}/Chart.yaml)
-        name=$(yq ".name" < ${{ inputs.chart-path }}/Chart.yaml)
-        version=$(yq ".version" < ${{ inputs.chart-path }}/Chart.yaml)
-        echo "chartpath=${{ inputs.chart-path }}" >> $GITHUB_OUTPUT
-        echo "desc=${description}" >> $GITHUB_OUTPUT
-        echo "tagname=${name}-${version}" >> $GITHUB_OUTPUT
-        echo "packagename=${name}-${version}" >> $GITHUB_OUTPUT
-        echo "name=${name}" >> $GITHUB_OUTPUT
+        set -euo pipefail
+        name="$(yq -r '.name' "${CHART_PATH}/Chart.yaml")"
+        version="$(yq -r '.version' "${CHART_PATH}/Chart.yaml")"
+        description="$(yq -r '.description // ""' "${CHART_PATH}/Chart.yaml")"
+        [[ "${name}" =~ ^[a-z0-9]+(-[a-z0-9]+)*$ ]] \
+          || { echo "::error::chart name '${name}' is not a valid chart name"; exit 1; }
+        [[ "${version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] \
+          || { echo "::error::chart version '${version}' is not a semantic version"; exit 1; }
+        {
+          echo "name=${name}"
+          echo "version=${version}"
+          echo "description=${description}"
+        } >> "${GITHUB_OUTPUT}"
+        echo "chart: ${name}-${version}"
 
-    - name: Create helm package
-      shell: bash
-      run: |
-        "${{ inputs.chart-releaser-tool-path }}/cr" package "${{ steps.parse-chart.outputs.chartpath }}" --config "${{ inputs.chart-releaser-configfile }}" --package-path "${{ inputs.chart-releaser-package-path }}"
-        echo "Result of chart package:"
-        ls -l "${{ inputs.chart-releaser-package-path }}"
-        git status
-
-    - name: Make helm charts github release
-      uses: softprops/action-gh-release@c95fe1489396fe8a9eb87c0abf8aa5b2ef267fda # v2
+    - name: Install Helm
+      uses: azure/setup-helm@v4.3.1
       with:
-        body: |
-          ${{ steps.parse-chart.outputs.desc }}
+        version: v3.17.0
 
-          Source commit: https://github.com/${{ github.repository }}/commit/${{ github.sha }}
-        files: |
-          ${{ inputs.chart-releaser-package-path }}/${{ steps.parse-chart.outputs.packagename }}.tgz
-          ${{ inputs.chart-releaser-package-path }}/${{ steps.parse-chart.outputs.packagename }}.tgz.prov
+    - name: Install oras and cosign
+      shell: bash
+      run: |
+        set -euo pipefail
+        ORAS_VERSION=1.3.6
+        curl -fsSL "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" \
+          | sudo tar -xz -C /usr/local/bin oras
+        COSIGN_VERSION=3.1.4
+        sudo curl -fsSL "https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64" \
+          -o /usr/local/bin/cosign
+        sudo chmod +x /usr/local/bin/cosign
+
+    # The trust file is public; it says which registry and signing identity publish-chart expects
+    # for this source, so a wrong input fails here and not in castai/helm-charts.
+    - name: Check out the trust file of castai/helm-charts
+      uses: actions/checkout@v6
+      with:
         repository: castai/helm-charts
-        tag_name: ${{ steps.parse-chart.outputs.tagname }}
-        token: ${{ inputs.helm-charts-repo-token }}
+        ref: main
+        persist-credentials: false
+        path: .remote-release/helm-charts
+        sparse-checkout: .github/chart-signers.yaml
+        sparse-checkout-cone-mode: false
 
-    - name: Update helm repo index.yaml
+    - name: Package, push and sign
+      id: sign
       shell: bash
+      env:
+        CHART_PATH: ${{ inputs.chart-path }}
+        CHART: ${{ steps.parse.outputs.name }}
+        CHART_VERSION: ${{ steps.parse.outputs.version }}
+        SOURCE: ${{ inputs.source }}
+        CHART_REGISTRY: ${{ inputs.chart-registry }}
+        GITHUB_TOKEN: ${{ inputs.github-token }}
       run: |
-        cd helm-charts
-        "${{ inputs.chart-releaser-tool-path}}/cr" index --config "${{ inputs.chart-releaser-configfile }}" --token "${{ inputs.helm-charts-repo-token }}" --index-path "${{ inputs.chart-releaser-index-path }}" --package-path "${{ inputs.chart-releaser-package-path }}" --push
+        set -euo pipefail
+        trust=.remote-release/helm-charts/.github/chart-signers.yaml
+        registry="$(yq -r '.sources[strenv(SOURCE)].registry // ""' "${trust}")"
+        issuer="$(yq -r '.sources[strenv(SOURCE)].issuer // ""' "${trust}")"
+        identities="$(yq -r '.sources[strenv(SOURCE)].identities // [] | join("|")' "${trust}")"
+        [[ -n "${registry}" && -n "${issuer}" && -n "${identities}" ]] \
+          || { echo "::error::castai/helm-charts .github/chart-signers.yaml has no complete entry for source '${SOURCE}'"; exit 1; }
+        [[ "${registry}" == "${CHART_REGISTRY}" ]] \
+          || { echo "::error::chart-registry '${CHART_REGISTRY}' is not the registry of source '${SOURCE}' (${registry})"; exit 1; }
 
-    - name: Commit Chart.yaml changes
-      shell: bash
-      if: inputs.commit-chart-changes == 'true'
-      run: |
-        git status
-        git diff
-        GIT_AUTHOR_NAME="${{ inputs.git-author-name }}"
-        GIT_AUTHOR_EMAIL="${{ inputs.git-author-email }}"
-        git config user.name "${GIT_AUTHOR_NAME:-$GITHUB_ACTOR}"
-        git config user.email "${GIT_AUTHOR_EMAIL:-$GITHUB_ACTOR@users.noreply.github.com}"
-        git checkout main
-        git add ${{ inputs.chart-path }}/Chart.yaml
-        git commit -m "[Release] Update ${{ steps.parse-chart.outputs.name }} Chart.yaml"
-        if [ -n "${{ inputs.source-repo-token }}" ]; then
-          git remote set-url origin https://x-access-token:${{ inputs.source-repo-token }}@github.com/${{ github.repository }}.git
+        signed() {
+          oras discover --format json --artifact-type application/vnd.dev.sigstore.bundle.v0.3+json "$1" \
+            | jq -e '.referrers | length > 0' >/dev/null
+        }
+        verify() {
+          cosign verify --certificate-oidc-issuer "${issuer}" \
+            --certificate-identity-regexp "(${identities})" "$1" >/dev/null
+        }
+        # Succeeds only for a public package.
+        anonymous_pull() {
+          local repo="${CHART_REGISTRY#ghcr.io/}/${CHART}" token
+          token="$(curl -fsS "https://ghcr.io/token?scope=repository:${repo}:pull" | jq -r .token)" || return 1
+          curl -fsS -o /dev/null -H "Authorization: Bearer ${token}" \
+            -H "Accept: application/vnd.oci.image.manifest.v1+json" \
+            "https://ghcr.io/v2/${repo}/manifests/$1"
+        }
+
+        packages="${RUNNER_TEMP}/remote-release/packages"
+        mkdir -p "${packages}"
+        helm registry login "${CHART_REGISTRY%%/*}" -u "${GITHUB_ACTOR}" --password-stdin <<< "${GITHUB_TOKEN}"
+        oras login "${CHART_REGISTRY%%/*}" -u "${GITHUB_ACTOR}" --password-stdin <<< "${GITHUB_TOKEN}"
+
+        target="${CHART_REGISTRY}/${CHART}:${CHART_VERSION}"
+        # A re-run after a failed publish reuses what is pushed and signed already.
+        if digest="$(oras resolve "${target}" 2>/dev/null)" && signed "${CHART_REGISTRY}/${CHART}@${digest}"; then
+          echo "${target} exists and is signed: reusing ${digest}"
+        else
+          helm dependency build "${CHART_PATH}"
+          helm package "${CHART_PATH}" --destination "${packages}"
+          helm push "${packages}/${CHART}-${CHART_VERSION}.tgz" "oci://${CHART_REGISTRY}"
+          digest="$(oras resolve "${target}")"
+          # Keyless, by digest: the certificate names this workflow; one signature covers every tag at that digest.
+          cosign sign --yes "${CHART_REGISTRY}/${CHART}@${digest}"
         fi
-        git push
+        verify "${CHART_REGISTRY}/${CHART}@${digest}"
+        echo "digest=${digest}" >> "${GITHUB_OUTPUT}"
+        echo "signed and verified: ${target}@${digest}"
+
+        # publish-chart.yml reads the chart anonymously. GitHub creates a package of a private
+        # repository as private and has no API to change that: it is made public once, by hand.
+        if ! anonymous_pull "${digest}"; then
+          echo "::error::${CHART_REGISTRY}/${CHART} is not public. Make the package public once (GitHub: Packages -> ${CHART_REGISTRY#ghcr.io/castai/}/${CHART} -> Package settings -> Change visibility), then re-run this job: the pushed, signed chart is reused."
+          exit 1
+        fi
+
+    # actions: write on castai/helm-charts, from its policy .github/chainguard/<source>-publish.sts.yaml.
+    - name: Get a token for castai/helm-charts
+      id: charts_token
+      uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+      with:
+        scope: castai/helm-charts
+        identity: ${{ inputs.source }}-publish
+
+    # castai/helm-charts verifies and publishes the chart; this step waits so that the caller's
+    # run shows one outcome per release.
+    - name: Publish the chart in castai/helm-charts and wait
+      id: publish
+      shell: bash
+      env:
+        GH_TOKEN: ${{ steps.charts_token.outputs.token }}
+        CHART: ${{ steps.parse.outputs.name }}
+        CHART_VERSION: ${{ steps.parse.outputs.version }}
+        CHART_DESCRIPTION: ${{ steps.parse.outputs.description }}
+        CHART_REGISTRY: ${{ inputs.chart-registry }}
+        SOURCE: ${{ inputs.source }}
+        RELEASE_NOTES: ${{ inputs.release-notes }}
+        SYNC_SOURCE: ${{ inputs.sync-chart }}
+        CHARTS_REPO: castai/helm-charts
+      run: |
+        set -euo pipefail
+        if [[ -z "${RELEASE_NOTES}" ]]; then
+          RELEASE_NOTES="$(printf '%s\n\nSource commit: %s/%s/commit/%s\n' \
+            "${CHART_DESCRIPTION}" "${GITHUB_SERVER_URL}" "${GITHUB_REPOSITORY}" "${GITHUB_SHA}")"
+        fi
+        [[ "${SYNC_SOURCE}" == "true" ]] || SYNC_SOURCE=false
+        # return_run_details: the API answers with the run id instead of an empty 204.
+        # -f sends values raw, so free text in release_notes is passed as is.
+        run="$(gh api -X POST "repos/${CHARTS_REPO}/actions/workflows/publish-chart.yml/dispatches" \
+          -f ref=main \
+          -f "inputs[chart]=${CHART}" \
+          -f "inputs[chart_version]=${CHART_VERSION}" \
+          -f "inputs[source]=${SOURCE}" \
+          -f "inputs[release_notes]=${RELEASE_NOTES}" \
+          -f "inputs[sync_source]=${SYNC_SOURCE}" \
+          -F return_run_details=true)"
+        run_id="$(jq -r '.workflow_run_id // ""' <<< "${run}")"
+        run_url="$(jq -r '.html_url // ""' <<< "${run}")"
+        [[ "${run_id}" =~ ^[0-9]+$ ]] || { echo "::error::dispatch returned no run id: ${run}"; exit 1; }
+        echo "run_url=${run_url}" >> "${GITHUB_OUTPUT}"
+        echo "castai/helm-charts run: ${run_url}"
+
+        # A stuck run must not hold this job forever.
+        status=0
+        timeout 20m gh run watch "${run_id}" --repo "${CHARTS_REPO}" --exit-status --interval 10 >/dev/null || status=$?
+        conclusion="$(gh run view "${run_id}" --repo "${CHARTS_REPO}" --json conclusion --jq .conclusion)"
+        {
+          echo "## Chart \`${CHART}:${CHART_VERSION}\`"
+          echo
+          echo "- signed: \`oci://${CHART_REGISTRY}/${CHART}:${CHART_VERSION}\`"
+          echo "- publish-chart run: ${run_url} (${conclusion:-still running})"
+          echo "- release: https://github.com/${CHARTS_REPO}/releases/tag/${CHART}-${CHART_VERSION}"
+          echo "- public chart: \`oci://ghcr.io/castai/helm-charts/${CHART}:${CHART_VERSION}\`"
+        } >> "${GITHUB_STEP_SUMMARY}"
+        if (( status == 124 )); then
+          echo "::error::castai/helm-charts run did not finish in 20 minutes: ${run_url}"
+          exit 1
+        fi
+        (( status == 0 )) || { echo "::error::castai/helm-charts run failed (${conclusion}): ${run_url}"; exit 1; }
 
     - name: Summary
       shell: bash
+      env:
+        CHART: ${{ steps.parse.outputs.name }}
+        HELM_UPGRADE_SUMMARY: ${{ inputs.helm-upgrade-summary }}
       run: |
-        echo "**Upgrade with helm:**" >> $GITHUB_STEP_SUMMARY
-        
-        if [ -n "${{ inputs.helm-upgrade-summary }}" ]; then
-          echo "${{ inputs.helm-upgrade-summary }}" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "helm repo update && helm upgrade -i ${{ steps.parse-chart.outputs.name }} castai-helm/${{ steps.parse-chart.outputs.name }} --reset-then-reuse-values" >> $GITHUB_STEP_SUMMARY
-        fi
+        set -euo pipefail
+        {
+          echo
+          echo "**Upgrade with helm:**"
+          echo
+          if [[ -n "${HELM_UPGRADE_SUMMARY}" ]]; then
+            echo "${HELM_UPGRADE_SUMMARY}"
+          else
+            echo "helm repo update && helm upgrade -i ${CHART} castai-helm/${CHART} --reset-then-reuse-values"
+          fi
+        } >> "${GITHUB_STEP_SUMMARY}"
 
-    - name: Sync chart with helm-charts github
+    - name: Commit Chart.yaml changes
+      if: inputs.commit-chart-changes == 'true'
       shell: bash
+      env:
+        CHART_PATH: ${{ inputs.chart-path }}
+        CHART: ${{ steps.parse.outputs.name }}
+        GIT_AUTHOR_NAME_INPUT: ${{ inputs.git-author-name }}
+        GIT_AUTHOR_EMAIL_INPUT: ${{ inputs.git-author-email }}
+        SOURCE_REPO_TOKEN: ${{ inputs.source-repo-token }}
       run: |
-        if [ "${{ inputs.sync-chart }}" != "true" ]; then
-          echo "Sync chart with helm-charts github is disabled"
-          exit 0
-        fi
-
-        cd helm-charts
-        GIT_AUTHOR_NAME="${{ inputs.git-author-name }}"
-        GIT_AUTHOR_EMAIL="${{ inputs.git-author-email }}"
-        git config user.name "${GIT_AUTHOR_NAME:-$GITHUB_ACTOR}"
-        git config user.email "${GIT_AUTHOR_EMAIL:-$GITHUB_ACTOR@users.noreply.github.com}"
+        set -euo pipefail
+        git status --short
+        git diff
+        git config user.name "${GIT_AUTHOR_NAME_INPUT:-${GITHUB_ACTOR}}"
+        git config user.email "${GIT_AUTHOR_EMAIL_INPUT:-${GITHUB_ACTOR}@users.noreply.github.com}"
         git checkout main
-        mkdir -p ./charts/${{ steps.parse-chart.outputs.name }}
-        cp -r ${{ inputs.chart-path }}/* ./charts/${{ steps.parse-chart.outputs.name }}
-        git add charts/${{ steps.parse-chart.outputs.name }}
-        git commit -m "[${{ steps.parse-chart.outputs.name }}] Update ${{ steps.parse-chart.outputs.name }} chart to ${{env.RELEASE_TAG}}"
+        git add "${CHART_PATH}/Chart.yaml"
+        git commit -m "[Release] Update ${CHART} Chart.yaml"
+        if [[ -n "${SOURCE_REPO_TOKEN}" ]]; then
+          git remote set-url origin "https://x-access-token:${SOURCE_REPO_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+        fi
         git push

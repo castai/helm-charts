@@ -24,7 +24,7 @@ on:
         description: "Entry in .github/chart-signers.yaml: registry and trusted signers"
         required: false
         type: choice
-        options: [gitlab, github]
+        options: [gitlab, github, kontext]
         default: gitlab
       release_notes:
         description: "Release body in Markdown; empty keeps the chart description"
