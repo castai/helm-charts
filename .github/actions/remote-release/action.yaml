@@ -24,7 +24,7 @@ inputs:
   chart-registry:
     description: "OCI registry the chart is pushed to and signed in; must equal the source's registry in chart-signers.yaml"
     required: false
-    default: ghcr.io/castai/${{ github.event.repository.name }}/charts
+    default: ghcr.io/castai/${{ github.event.repository.name }}/helm-charts
   release-notes:
     description: "Release body in Markdown; default: the chart description and the source commit"
     required: false
