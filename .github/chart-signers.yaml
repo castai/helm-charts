@@ -10,3 +10,27 @@ sources:
       - ^https://gitlab\.com/castai/kubecast//\.gitlab-ci\.yml@
       - ^https://gitlab\.com/castai/live/clm//\.gitlab-ci\.yml@
       - ^https://gitlab\.com/castai/stop/pv-monitor//\.gitlab-ci\.yml@
+  # Charts built in this repository: publish-chart.yml packages, pushes and signs them on a push
+  # to main, straight into GHCR, so the source registry is the target.
+  github:
+    registry: ghcr.io/castai/helm-charts
+    issuer: https://token.actions.githubusercontent.com
+    identities:
+      - ^https://github\.com/castai/helm-charts/\.github/workflows/publish-chart\.yml@refs/heads/main$
+    # Only these charts are built here (by chart name, as in Chart.yaml). Every other charts/<dir>
+    # is a copy of a chart built and released elsewhere, and is never built or released from here.
+    charts:
+      - castai # charts/castai-umbrella
+      - castai-audit-logs-receiver
+      - castai-chart-upgrader
+      - castai-cloud-proxy
+      - castai-db-agent
+      - castai-db-optimizer
+      - castai-db-proxy
+      - castai-dbo
+      - castai-hibernate
+      - castai-hosted-model
+      - castai-pod-node-lifecycle
+      - castai-publish-example-github # test chart for this pipeline; removed after the rollout
+      - castai-scheduling-policies-controller
+      - gpu-metrics-exporter

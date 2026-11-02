@@ -1,7 +1,10 @@
-# Publishes charts built in GitLab. castai/images starts this workflow and waits for it.
-#   internal registry -> ghcr.io/castai/helm-charts/<chart>:<version>  (signed charts only)
-#                     -> GitHub release + index.yaml                    (every chart)
+# Publishes a chart that a builder pipeline has pushed and signed. The builder starts this
+# workflow and waits for it: castai/images for charts built in GitLab (source=gitlab),
+# release.yaml for charts built in this repository (source=github).
+#   source registry -> ghcr.io/castai/helm-charts/<chart>:<version>  (signed charts only)
+#                   -> GitHub release + index.yaml                    (every chart)
 # Signed charts are verified against .github/chart-signers.yaml before and after the copy.
+# A chart built here is pushed straight to GHCR, so it is verified in place instead of copied.
 # Releases use an octo-sts token, not GITHUB_TOKEN, so the umbrella update workflow runs.
 name: publish-chart
 run-name: publish-chart ${{ inputs.chart }}:${{ inputs.chart_version }}
@@ -21,7 +24,7 @@ on:
         description: "Entry in .github/chart-signers.yaml: registry and trusted signers"
         required: false
         type: choice
-        options: [gitlab]
+        options: [gitlab, github]
         default: gitlab
       release_notes:
         description: "Release body in Markdown; empty keeps the chart description"
@@ -89,10 +92,14 @@ jobs:
           identities="$(yq -r '.sources[strenv(SOURCE)].identities // [] | join("|")' "${trust}")"
           [[ -n "${registry}" && -n "${issuer}" && -n "${identities}" ]] \
             || { echo "::error::.github/chart-signers.yaml has no complete entry for source '${SOURCE}'"; exit 1; }
+          # Only a Google Artifact Registry source needs the GCP identity.
+          source_in_gcp=false
+          [[ "${registry}" == *.pkg.dev/* ]] && source_in_gcp=true
           {
             echo "SOURCE_REGISTRY=${registry}"
             echo "SIGNER_ISSUER=${issuer}"
             echo "SIGNER_IDENTITY_REGEXP=(${identities})"
+            echo "SOURCE_IN_GCP=${source_in_gcp}"
           } >> "${GITHUB_ENV}"
 
       - name: Install oras, cosign and chart-releaser
@@ -111,6 +118,7 @@ jobs:
             | sudo tar -xz -C /usr/local/bin cr
 
       - name: Authenticate to GCP as the chart reader
+        if: env.SOURCE_IN_GCP == 'true'
         id: gcp
         uses: google-github-actions/auth@v3
         with:
@@ -126,8 +134,11 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          helm registry login "${SOURCE_REGISTRY%%/*}" -u oauth2accesstoken --password-stdin <<< "${GCP_TOKEN}"
-          oras login "${SOURCE_REGISTRY%%/*}" -u oauth2accesstoken --password-stdin <<< "${GCP_TOKEN}"
+          if [[ "${SOURCE_IN_GCP}" == "true" ]]; then
+            helm registry login "${SOURCE_REGISTRY%%/*}" -u oauth2accesstoken --password-stdin <<< "${GCP_TOKEN}"
+            oras login "${SOURCE_REGISTRY%%/*}" -u oauth2accesstoken --password-stdin <<< "${GCP_TOKEN}"
+          fi
+          helm registry login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin <<< "${GITHUB_TOKEN}"
           oras login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin <<< "${GITHUB_TOKEN}"
 
       - name: Pull the chart(s) from the source registry
@@ -164,6 +175,8 @@ jobs:
           for c in "${charts[@]}"; do
             src="${SOURCE_REGISTRY}/${c}"
             target="${GHCR_CHART_REGISTRY}/${c}:${CHART_VERSION}"
+            built_here=false
+            [[ "${src}" == "${GHCR_CHART_REGISTRY}/${c}" ]] && built_here=true
             digest="$(oras resolve "${src}:${CHART_VERSION}")"
             {
               echo "## Chart \`${c}:${CHART_VERSION}\`"
@@ -182,22 +195,29 @@ jobs:
               --artifact-type application/vnd.dev.sigstore.bundle.v0.3+json \
               "${src}@${digest}" | jq '.referrers | length')"
             if [[ "${signatures}" -eq 0 ]]; then
+              # A chart built here is in GHCR already; unsigned there breaks "GHCR holds signed charts only".
+              [[ "${built_here}" == "false" ]] \
+                || { echo "::error::${target} was built here but is not signed"; exit 1; }
               echo "${c}:${CHART_VERSION} is not signed: not copied to GHCR, HTTPS release only"
               echo "- not signed: released over HTTPS only" >> "${GITHUB_STEP_SUMMARY}"
               continue
             fi
             verify "${src}@${digest}"
 
-            # -r copies the signature too; re-runs skip what exists.
-            oras cp -r "${src}@${digest}" "${target}"
-            actual="$(oras resolve "${target}")"
-            [[ "${actual}" == "${digest}" ]] \
-              || { echo "::error::${target} resolves to ${actual} after copy, expected ${digest}"; exit 1; }
-            verify "${GHCR_CHART_REGISTRY}/${c}@${digest}"
-            {
-              echo "- target: \`oci://${target}\`"
-              echo "- signature: verified in source and target (issuer ${SIGNER_ISSUER})"
-            } >> "${GITHUB_STEP_SUMMARY}"
+            if [[ "${built_here}" == "true" ]]; then
+              echo "- target: \`oci://${target}\` (built here, verified in place, issuer ${SIGNER_ISSUER})" >> "${GITHUB_STEP_SUMMARY}"
+            else
+              # -r copies the signature too; re-runs skip what exists.
+              oras cp -r "${src}@${digest}" "${target}"
+              actual="$(oras resolve "${target}")"
+              [[ "${actual}" == "${digest}" ]] \
+                || { echo "::error::${target} resolves to ${actual} after copy, expected ${digest}"; exit 1; }
+              verify "${GHCR_CHART_REGISTRY}/${c}@${digest}"
+              {
+                echo "- target: \`oci://${target}\`"
+                echo "- signature: verified in source and target (issuer ${SIGNER_ISSUER})"
+              } >> "${GITHUB_STEP_SUMMARY}"
+            fi
 
             # Expected public from creation; warn, not fail, until that is proven.
             public=false
@@ -309,7 +329,8 @@ jobs:
               mkdir -p "charts/${c}"
               tar -xzf "../.cr-release-packages/${c}-${CHART_VERSION}.tgz" -C "charts/${c}" --strip-components=1
               git add -A "charts/${c}"
-              git diff --cached --quiet || git commit -q -m "[${c}] Update ${c} chart to v${CHART_VERSION}"
+              # [skip ci]: the copy is released already; it must not start release.yaml.
+              git diff --cached --quiet || git commit -q -m "[${c}] Update ${c} chart to v${CHART_VERSION} [skip ci]"
             done
             if git push origin HEAD:main; then
               echo "chart source pushed to main (attempt ${attempt})"

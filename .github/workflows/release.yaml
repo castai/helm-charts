@@ -1,3 +1,9 @@
+# Releases the charts built in this repository (charts/<dir>, listed under sources.github.charts
+# in .github/chart-signers.yaml). On a push to main, every listed chart whose <name>-<version>
+# release does not exist yet is packaged, pushed to ghcr.io/castai/helm-charts and signed keyless;
+# then publish-chart.yml is started for it (source=github) and awaited: it verifies the signature,
+# creates the GitHub release and updates index.yaml. Charts built elsewhere (GitLab) are only
+# copies here and are released by their own pipelines through publish-chart.yml.
 name: Release Charts
 
 on:
@@ -7,39 +13,97 @@ on:
   workflow_dispatch:
     inputs:
       use_default_token:
-        description: 'Use GITHUB_TOKEN instead of PAT (no downstream workflows will be triggered)'
+        description: 'Use GITHUB_TOKEN instead of PAT for the umbrella bump (no downstream workflows will be triggered)'
         type: boolean
         default: false
 
-permissions:
-  contents: write
-
 env:
   RELEASE_TOKEN: ${{ (github.event_name == 'workflow_dispatch' && inputs.use_default_token) && secrets.GITHUB_TOKEN || secrets.PAT_CICD }}
+  GHCR_CHART_REGISTRY: ghcr.io/castai/helm-charts
 
 jobs:
   release:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        charts_dir:
-          - charts
-          - charts/castai-cluster-controller/child-charts
-          - charts/castai-pod-pinner/child-charts
+    permissions:
+      contents: read
+      packages: write # push to ghcr.io/castai/helm-charts/<chart>
+      id-token: write # keyless cosign signature
+      actions: write # start publish-chart.yml
     steps:
       - name: Checkout
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          persist-credentials: false
 
-      - name: Configure Git
-        run: |
-          git config user.name "$GITHUB_ACTOR"
-          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+      - name: Install Helm
+        uses: azure/setup-helm@v4.3.1
+        with:
+          version: v3.17.0
 
-      # We need to manually add repos for deps due to bug in https://github.com/helm/chart-releaser/issues/135
-      - name: Add dependencies
+      - name: Install oras and cosign
         run: |
+          set -euo pipefail
+          ORAS_VERSION=1.3.6
+          curl -fsSL "https://github.com/oras-project/oras/releases/download/v${ORAS_VERSION}/oras_${ORAS_VERSION}_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin oras
+          COSIGN_VERSION=3.1.4
+          sudo curl -fsSL "https://github.com/sigstore/cosign/releases/download/v${COSIGN_VERSION}/cosign-linux-amd64" \
+            -o /usr/local/bin/cosign
+          sudo chmod +x /usr/local/bin/cosign
+
+      - name: Find the charts without a release
+        id: find
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          trust=.github/chart-signers.yaml
+          mapfile -t allowed < <(yq -r '.sources.github.charts[]' "${trust}")
+          (( ${#allowed[@]} > 0 )) || { echo "::error::sources.github.charts is empty in ${trust}"; exit 1; }
+          released() { gh release view "$1" --json tagName >/dev/null 2>&1; }
+
+          # Only listed charts are built here: any other charts/<dir> is a copy of a chart built
+          # and released elsewhere, and a version bump in it must not produce a release from here.
+          to_build=()
+          for chart_yaml in charts/*/Chart.yaml; do
+            dir="$(dirname "${chart_yaml}")"
+            name="$(yq -r '.name' "${chart_yaml}")"
+            version="$(yq -r '.version' "${chart_yaml}")"
+            released "${name}-${version}" && continue
+            if printf '%s\n' "${allowed[@]}" | grep -qx "${name}"; then
+              to_build+=("${dir}:${name}:${version}")
+            else
+              echo "::warning::${dir} is at ${name}-${version}, which has no release, but ${name} is not in sources.github.charts of ${trust}: not built here"
+            fi
+          done
+          if (( ${#to_build[@]} == 0 )); then
+            echo "every in-repo chart is released already: nothing to do"
+          else
+            echo "to build: ${to_build[*]}"
+          fi
+          echo "charts=${to_build[*]:-}" >> "${GITHUB_OUTPUT}"
+
+      - name: Package, push to GHCR and sign
+        if: steps.find.outputs.charts != ''
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TO_BUILD: ${{ steps.find.outputs.charts }}
+        run: |
+          set -euo pipefail
+          trust=.github/chart-signers.yaml
+          issuer="$(yq -r '.sources.github.issuer' "${trust}")"
+          identities="$(yq -r '.sources.github.identities | join("|")' "${trust}")"
+          signed() {
+            oras discover --format json --artifact-type application/vnd.dev.sigstore.bundle.v0.3+json "$1" \
+              | jq -e '.referrers | length > 0' >/dev/null
+          }
+          verify() {
+            cosign verify --certificate-oidc-issuer "${issuer}" \
+              --certificate-identity-regexp "(${identities})" "$1" >/dev/null
+          }
+
+          # Dependency repositories: chart-releaser needed them added by hand (helm/chart-releaser#135),
+          # and so does helm dependency build.
           helm repo add vector https://helm.vector.dev &
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts &
           helm repo add incubator https://charts.helm.sh/incubator &
@@ -48,36 +112,85 @@ jobs:
           helm repo add castai-helm https://castai.github.io/helm-charts &
           helm repo add metrics-server https://kubernetes-sigs.github.io/metrics-server/ &
           wait
+          helm registry login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin <<< "${GITHUB_TOKEN}"
+          oras login ghcr.io -u "${GITHUB_ACTOR}" --password-stdin <<< "${GITHUB_TOKEN}"
 
-      - name: Install Helm
-        uses: azure/setup-helm@v4.3.1
-        with:
-          version: v3.17.0
+          mkdir -p .cr-release-packages
+          for entry in ${TO_BUILD}; do
+            IFS=':' read -r dir name version <<< "${entry}"
+            target="${GHCR_CHART_REGISTRY}/${name}:${version}"
+            echo "::group::${name}-${version}"
+            # A re-run after a failed publish reuses what is pushed and signed already.
+            if digest="$(oras resolve "${target}" 2>/dev/null)" && signed "${GHCR_CHART_REGISTRY}/${name}@${digest}"; then
+              echo "${target} exists and is signed: reusing ${digest}"
+            else
+              # Sub-charts with remote dependencies of their own first (the umbrella's profiles), then the chart.
+              for sub in "${dir}"/charts/*/Chart.yaml; do
+                [[ -f "${sub}" && "$(yq -r '.dependencies // [] | length' "${sub}")" != "0" ]] || continue
+                helm dependency update "$(dirname "${sub}")"
+              done
+              helm dependency build "${dir}"
+              helm package "${dir}" --destination .cr-release-packages
+              helm push ".cr-release-packages/${name}-${version}.tgz" "oci://${GHCR_CHART_REGISTRY}"
+              digest="$(oras resolve "${target}")"
+              # Keyless, by digest: one signature covers every tag at that digest.
+              cosign sign --yes "${GHCR_CHART_REGISTRY}/${name}@${digest}"
+            fi
+            verify "${GHCR_CHART_REGISTRY}/${name}@${digest}"
+            echo "signed and verified: ${target}@${digest}"
+            echo "::endgroup::"
+          done
 
-      - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.8.0
-
-      # Only the main charts dir needs umbrella deps; child-chart jobs can skip this.
-      - name: Update umbrella subchart dependencies
-        if: matrix.charts_dir == 'charts'
-        run: |
-          helm dependency update charts/castai-umbrella/charts/kent
-          helm dependency update charts/castai-umbrella/charts/autoscaler
-          helm dependency update charts/castai-umbrella/charts/autoscaler-anywhere
-          helm dependency update charts/castai-umbrella/charts/autoscaler-openshift
-
-      - name: Run chart-releaser
-        uses: helm/chart-releaser-action@v1.7.0
-        with:
-          charts_dir: ${{ matrix.charts_dir }}
-          config: cr.yaml
-          skip_existing: true
+      # publish-chart.yml verifies the chart against .github/chart-signers.yaml, creates the GitHub
+      # release and updates index.yaml. This job waits so that the push shows one outcome per chart.
+      - name: Publish each chart and wait
+        if: steps.find.outputs.charts != ''
         env:
-          CR_TOKEN: "${{ env.RELEASE_TOKEN }}"
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TO_BUILD: ${{ steps.find.outputs.charts }}
+        run: |
+          set -euo pipefail
+          failed=0
+          for entry in ${TO_BUILD}; do
+            IFS=':' read -r _ name version <<< "${entry}"
+            # return_run_details: the API answers with the run id instead of an empty 204.
+            run="$(gh api -X POST "repos/${GITHUB_REPOSITORY}/actions/workflows/publish-chart.yml/dispatches" \
+              -f ref=main \
+              -f "inputs[chart]=${name}" \
+              -f "inputs[chart_version]=${version}" \
+              -f "inputs[source]=github" \
+              -F return_run_details=true)"
+            run_id="$(jq -r '.workflow_run_id // ""' <<< "${run}")"
+            run_url="$(jq -r '.html_url // ""' <<< "${run}")"
+            [[ "${run_id}" =~ ^[0-9]+$ ]] || { echo "::error::dispatch for ${name}-${version} returned no run id: ${run}"; exit 1; }
+            echo "${name}-${version}: publish-chart run ${run_url}"
+
+            # Charts of one push are published one after another: they share index.yaml.
+            status=0
+            timeout 20m gh run watch "${run_id}" --exit-status --interval 10 >/dev/null || status=$?
+            conclusion="$(gh run view "${run_id}" --json conclusion --jq .conclusion)"
+            {
+              echo "## Chart \`${name}:${version}\`"
+              echo
+              echo "- oci: \`oci://${GHCR_CHART_REGISTRY}/${name}:${version}\`"
+              echo "- publish-chart run: ${run_url} (${conclusion:-still running})"
+              echo "- release: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${name}-${version}"
+            } >> "${GITHUB_STEP_SUMMARY}"
+            if (( status == 124 )); then
+              echo "::error::publish-chart run for ${name}-${version} did not finish in 20 minutes: ${run_url}"
+              failed=1
+            elif (( status != 0 )); then
+              echo "::error::publish-chart run for ${name}-${version} failed (${conclusion}): ${run_url}"
+              failed=1
+            fi
+          done
+          exit "${failed}"
 
   update-umbrella:
     needs: release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
