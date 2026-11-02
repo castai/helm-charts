@@ -48,3 +48,10 @@ sources:
     issuer: https://token.actions.githubusercontent.com
     identities:
       - ^https://github\.com/castai/gcp-disk-compatibility-webhook/\.github/workflows/release\.yaml@refs/tags/
+  # castai/castware-operator: build.yaml (release events and the components dispatch, both on a
+  # tag) pushes and signs into the repository's own GHCR namespace with the remote-release action.
+  castware-operator:
+    registry: ghcr.io/castai/castware-operator/helm-charts
+    issuer: https://token.actions.githubusercontent.com
+    identities:
+      - ^https://github\.com/castai/castware-operator/\.github/workflows/build\.yaml@refs/tags/
