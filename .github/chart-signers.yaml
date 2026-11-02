@@ -34,3 +34,10 @@ sources:
       - castai-publish-example-github # test chart for this pipeline; removed after the rollout
       - castai-scheduling-policies-controller
       - gpu-metrics-exporter
+  # castai/kontext: its release workflows (tags) push and sign into the repository's own GHCR
+  # namespace with the remote-release action; the package is made public once, by hand.
+  kontext:
+    registry: ghcr.io/castai/kontext/charts
+    issuer: https://token.actions.githubusercontent.com
+    identities:
+      - ^https://github\.com/castai/kontext/\.github/workflows/release[-_][a-z_-]+\.yaml@refs/tags/
