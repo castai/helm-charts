@@ -30,3 +30,14 @@ Behavior is driven by `PVPolicy` custom resources (see `templates/pvpolicy-crd.y
   guard against thrashing and acting on noisy signals.
 
 Visit https://docs.cast.ai/docs/storage-introduction for detailed documentation.
+
+## Custom resource definitions
+
+The chart ships two CRDs — `pvpolicies.storage.cast.ai` and
+`pvcmigrations.storage.cast.ai` — and installs them by default. When the CRDs
+are already present on the cluster (installed out-of-band, e.g. by a platform
+operator or a previous release), set `crds.install: false` to skip installing
+them. Set `crds.keep: true` to annotate the CRDs with
+`helm.sh/resource-policy: keep`, so `helm uninstall` leaves them (and any
+PVPolicy/PVCMigration resources) in place. The controller will fail to start
+if the CRDs are missing.

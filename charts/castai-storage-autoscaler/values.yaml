@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/castai/images/storage-autoscaler
-  tag: v0.3.2
+  tag: v0.3.3
   pullPolicy: IfNotPresent
   pullSecrets: []
 podSecurityContext:
@@ -15,6 +15,19 @@ securityContext:
     drop:
       - ALL
   readOnlyRootFilesystem: true
+# crds controls the CustomResourceDefinitions shipped with the chart
+# (PVPolicy and PVCMigration).
+crds:
+  # install -- When true (default), the chart installs the PVPolicy and
+  # PVCMigration CRDs. Set to false to skip installing them, assuming they
+  # are already present on the cluster. The controller will fail to
+  # start if the CRDs are missing.
+  install: true
+  # keep -- When true, the chart's CRDs are annotated with
+  # helm.sh/resource-policy: keep, so `helm uninstall` leaves the CRDs
+  # (and any PVPolicy/PVCMigration resources) in place. Combine with
+  # install: false when the CRDs are managed out-of-band.
+  keep: false
 castai:
   enabled: true
   telemetryAPI: telemetry.prod-master.cast.ai
@@ -44,10 +57,11 @@ controller:
   enabled: true
   replicas: 2
   resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
     limits:
       memory: 512Mi
-    requests:
-      memory: 256Mi
   metricsHTTPListenPort: 8080
   extraArgs: {}
   extraEnv: {}
@@ -86,11 +100,6 @@ config:
   # provider can't be detected (k3s, kind). Cloud-disk auto-tuning is
   # disabled; the migration reconciler still runs. For local dev only.
   allowUnknownCloudProvider: false
-  crds:
-    # When true, the PVPolicy CRD is annotated with
-    # helm.sh/resource-policy: keep, so `helm uninstall` leaves the CRD
-    # (and any PVPolicy resources) in place.
-    keep: false
   policySync:
     enabled: true
     interval: "5m"
@@ -176,11 +185,6 @@ serviceAccount:
 # PV migration components and related configuration
 migration:
   enabled: false
-  crds:
-    # When true, the PVCMigration CRD is annotated with
-    # helm.sh/resource-policy: keep, so `helm uninstall` leaves the CRD
-    # (and any PVCMigration resources) in place.
-    keep: false
   # rsyncWorkerPodImage is the container image used for the source/
   # target worker pods that the controller creates during a migration:
   # they mount the PVC, run the rsync server/client, and serve the
@@ -190,7 +194,7 @@ migration:
   # distroless base ships neither rsync nor `du`. Per-migration
   # overrides via spec.rsyncOptions.image take precedence. Maps to
   # the RSYNC_WORKER_POD_IMAGE env var on the migration container.
-  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.3.2
+  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.3.3
   # rsyncDaemonPort is the TCP port the rsync daemon binds to on the
   # worker pods created during PVC migration. Maps to the
   # RSYNC_DAEMON_PORT env var on the migration container.
@@ -200,13 +204,17 @@ migration:
     enabled: true
   resources:
     requests:
+      cpu: 100m
       memory: 256Mi
+    limits:
+      memory: 512Mi
   webhook:
     replicas: 2
     port: 9443
     resources:
       requests:
-        memory: 128Mi
+        cpu: 10m
+        memory: 64Mi
     namespaceSelector: {}
     nodeSelector: {}
     tolerations: []

@@ -3,6 +3,22 @@
   "title": "castai-storage-autoscaler values",
   "type": "object",
   "properties": {
+    "crds": {
+      "type": "object",
+      "properties": {
+        "install": {
+          "type": "boolean",
+          "description": "Install the chart's CRDs (PVPolicy, PVCMigration). Set to false when the CRDs are already present on the cluster.",
+          "default": true
+        },
+        "keep": {
+          "type": "boolean",
+          "description": "Annotate the chart's CRDs with helm.sh/resource-policy: keep so helm uninstall leaves them (and any PVPolicy/PVCMigration resources) in place.",
+          "default": false
+        }
+      },
+      "additionalProperties": true
+    },
     "config": {
       "type": "object",
       "properties": {
