@@ -1,9 +1,6 @@
-# Releases the charts built in this repository (charts/<dir>, listed under sources.github.charts
-# in .github/chart-signers.yaml). On a push to main, every listed chart whose <name>-<version>
-# release does not exist yet is packaged, pushed to ghcr.io/castai/helm-charts and signed keyless;
-# then publish-chart.yml is started for it (source=github) and awaited: it verifies the signature,
-# creates the GitHub release and updates index.yaml. Charts built elsewhere (GitLab) are only
-# copies here and are released by their own pipelines through publish-chart.yml.
+# Releases the charts built in this repository (sources.helm-charts.charts in .github/chart-signers.yaml):
+# on a push to main, package, push to GHCR, sign, then start and await publish-chart.yml.
+# See .github/README.md.
 name: Release Charts
 
 on:
@@ -58,12 +55,11 @@ jobs:
         run: |
           set -euo pipefail
           trust=.github/chart-signers.yaml
-          mapfile -t allowed < <(yq -r '.sources.github.charts[]' "${trust}")
-          (( ${#allowed[@]} > 0 )) || { echo "::error::sources.github.charts is empty in ${trust}"; exit 1; }
+          mapfile -t allowed < <(yq -r '.sources.helm-charts.charts[]' "${trust}")
+          (( ${#allowed[@]} > 0 )) || { echo "::error::sources.helm-charts.charts is empty in ${trust}"; exit 1; }
           released() { gh release view "$1" --json tagName >/dev/null 2>&1; }
 
-          # Only listed charts are built here: any other charts/<dir> is a copy of a chart built
-          # and released elsewhere, and a version bump in it must not produce a release from here.
+          # Only listed charts are built here; the others are copies released elsewhere.
           to_build=()
           for chart_yaml in charts/*/Chart.yaml; do
             dir="$(dirname "${chart_yaml}")"
@@ -73,7 +69,7 @@ jobs:
             if printf '%s\n' "${allowed[@]}" | grep -qx "${name}"; then
               to_build+=("${dir}:${name}:${version}")
             else
-              echo "::warning::${dir} is at ${name}-${version}, which has no release, but ${name} is not in sources.github.charts of ${trust}: not built here"
+              echo "::warning::${dir} is at ${name}-${version}, which has no release, but ${name} is not in sources.helm-charts.charts of ${trust}: not built here"
             fi
           done
           if (( ${#to_build[@]} == 0 )); then
@@ -91,8 +87,8 @@ jobs:
         run: |
           set -euo pipefail
           trust=.github/chart-signers.yaml
-          issuer="$(yq -r '.sources.github.issuer' "${trust}")"
-          identities="$(yq -r '.sources.github.identities | join("|")' "${trust}")"
+          issuer="$(yq -r '.sources.helm-charts.issuer' "${trust}")"
+          identities="$(yq -r '.sources.helm-charts.identities | join("|")' "${trust}")"
           signed() {
             oras discover --format json --artifact-type application/vnd.dev.sigstore.bundle.v0.3+json "$1" \
               | jq -e '.referrers | length > 0' >/dev/null
@@ -102,8 +98,7 @@ jobs:
               --certificate-identity-regexp "(${identities})" "$1" >/dev/null
           }
 
-          # Dependency repositories: chart-releaser needed them added by hand (helm/chart-releaser#135),
-          # and so does helm dependency build.
+          # helm dependency build needs the dependency repositories added.
           helm repo add vector https://helm.vector.dev &
           helm repo add prometheus-community https://prometheus-community.github.io/helm-charts &
           helm repo add incubator https://charts.helm.sh/incubator &
@@ -141,8 +136,7 @@ jobs:
             echo "::endgroup::"
           done
 
-      # publish-chart.yml verifies the chart against .github/chart-signers.yaml, creates the GitHub
-      # release and updates index.yaml. This job waits so that the push shows one outcome per chart.
+      # Wait for publish-chart.yml so that the push shows one outcome per chart.
       - name: Publish each chart and wait
         if: steps.find.outputs.charts != ''
         env:
@@ -158,7 +152,7 @@ jobs:
               -f ref=main \
               -f "inputs[chart]=${name}" \
               -f "inputs[chart_version]=${version}" \
-              -f "inputs[source]=github" \
+              -f "inputs[source]=helm-charts" \
               -F return_run_details=true)"
             run_id="$(jq -r '.workflow_run_id // ""' <<< "${run}")"
             run_url="$(jq -r '.html_url // ""' <<< "${run}")"

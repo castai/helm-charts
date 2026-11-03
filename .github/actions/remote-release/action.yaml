@@ -139,8 +139,7 @@ runs:
           -o /usr/local/bin/cosign
         sudo chmod +x /usr/local/bin/cosign
 
-    # The trust file is public; it says which registry and signing identity publish-chart expects
-    # for this source, so a wrong input fails here and not in castai/helm-charts.
+    # The trust file says what publish-chart expects for this source: fail here, not there.
     - name: Check out the trust file of castai/helm-charts
       uses: actions/checkout@v6
       with:
@@ -210,8 +209,7 @@ runs:
         echo "digest=${digest}" >> "${GITHUB_OUTPUT}"
         echo "signed and verified: ${target}@${digest}"
 
-        # publish-chart.yml reads the chart anonymously. GitHub creates a package of a private
-        # repository as private and has no API to change that: it is made public once, by hand.
+        # publish-chart.yml reads the chart anonymously; a new package is private until flipped by hand.
         if ! anonymous_pull "${digest}"; then
           echo "::error::${CHART_REGISTRY}/${CHART} is not public. Make the package public once (GitHub: Packages -> ${CHART_REGISTRY#ghcr.io/castai/}/${CHART} -> Package settings -> Change visibility), then re-run this job: the pushed, signed chart is reused."
           exit 1
@@ -225,8 +223,7 @@ runs:
         scope: castai/helm-charts
         identity: ${{ inputs.source }}-publish
 
-    # castai/helm-charts verifies and publishes the chart; this step waits so that the caller's
-    # run shows one outcome per release.
+    # Wait for publish-chart.yml so that the caller's run shows one outcome per release.
     - name: Publish the chart in castai/helm-charts and wait
       id: publish
       shell: bash

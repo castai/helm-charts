@@ -1,11 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
-#
-# octo-sts trust policy "kontext-publish": lets the release workflows of github.com/castai/kontext,
-# on tag refs only, start publish-chart.yml and follow its run (actions: write). The chart itself
-# is verified by publish-chart.yml against .github/chart-signers.yaml (source: kontext).
-#
-# octo-sts reads this file from the default branch only. Changing it changes who may start
-# workflows in this repository, so it goes through review like the workflows do.
+# octo-sts: the release workflows of castai/kontext, on a tag, may start publish-chart.yml. See .github/README.md.
 issuer: https://token.actions.githubusercontent.com
 subject_pattern: 'repo:castai(@44625431)?/kontext(@927086841)?:ref:refs/tags/.*'
 claim_pattern:

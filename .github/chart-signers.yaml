@@ -1,8 +1,6 @@
-# Trusted chart signers, per source. publish-chart.yml copies a chart to GHCR only when
-# its cosign signature matches the issuer and one of the identities of its source.
-# A source is a registry plus the pipelines allowed to sign what is in it.
+# Trusted chart signers per source: registry, OIDC issuer, identities. See .github/README.md.
 sources:
-  # Our GitLab pipelines (kubecast, clm, pv-monitor), via the internal chart registry.
+  # GitLab pipelines (kubecast, clm, pv-monitor).
   gitlab:
     registry: us-central1-docker.pkg.dev/cicd-master-oxk5/helm-charts
     issuer: https://gitlab.com
@@ -10,15 +8,13 @@ sources:
       - ^https://gitlab\.com/castai/kubecast//\.gitlab-ci\.yml@
       - ^https://gitlab\.com/castai/live/clm//\.gitlab-ci\.yml@
       - ^https://gitlab\.com/castai/stop/pv-monitor//\.gitlab-ci\.yml@
-  # Charts built in this repository: release.yaml packages, pushes and signs them on a push to
-  # main, straight into GHCR, so the source registry is the target; publish-chart.yml releases them.
-  github:
+  # Charts built here by release.yaml, pushed straight to GHCR.
+  helm-charts:
     registry: ghcr.io/castai/helm-charts
     issuer: https://token.actions.githubusercontent.com
     identities:
       - ^https://github\.com/castai/helm-charts/\.github/workflows/release\.yaml@refs/heads/main$
-    # Only these charts are built here (by chart name, as in Chart.yaml). Every other charts/<dir>
-    # is a copy of a chart built and released elsewhere, and is never built or released from here.
+    # Only these charts are built here; every other charts/<dir> is a copy released elsewhere.
     charts:
       - castai # charts/castai-umbrella
       - castai-audit-logs-receiver
@@ -33,29 +29,25 @@ sources:
       - castai-pod-node-lifecycle
       - castai-scheduling-policies-controller
       - gpu-metrics-exporter
-  # castai/kontext: its release workflows (tags) push and sign into the repository's own GHCR
-  # namespace with the remote-release action; the package is made public once, by hand.
+  # castai/kontext, via the remote-release action.
   kontext:
     registry: ghcr.io/castai/kontext/helm-charts
     issuer: https://token.actions.githubusercontent.com
     identities:
       - ^https://github\.com/castai/kontext/\.github/workflows/release[-_][a-z_-]+\.yaml@refs/tags/
-  # castai/gcp-disk-compatibility-webhook: release.yaml (on a published release, i.e. a tag) pushes and
-  # signs into the repository's own GHCR namespace with the remote-release action.
+  # castai/gcp-disk-compatibility-webhook, via the remote-release action.
   gcp-disk-compatibility-webhook:
     registry: ghcr.io/castai/gcp-disk-compatibility-webhook/helm-charts
     issuer: https://token.actions.githubusercontent.com
     identities:
       - ^https://github\.com/castai/gcp-disk-compatibility-webhook/\.github/workflows/release\.yaml@refs/tags/
-  # castai/castware-operator: build.yaml (release events and the components dispatch, both on a
-  # tag) pushes and signs into the repository's own GHCR namespace with the remote-release action.
+  # castai/castware-operator, via the remote-release action.
   castware-operator:
     registry: ghcr.io/castai/castware-operator/helm-charts
     issuer: https://token.actions.githubusercontent.com
     identities:
       - ^https://github\.com/castai/castware-operator/\.github/workflows/build\.yaml@refs/tags/
-  # castai/ai-enabler: build-proxy.yaml and build-batch-processor.yaml (on a published release,
-  # i.e. a tag) push and sign into the repository's own GHCR namespace with the remote-release action.
+  # castai/ai-enabler, via the remote-release action.
   ai-enabler:
     registry: ghcr.io/castai/ai-enabler/helm-charts
     issuer: https://token.actions.githubusercontent.com
