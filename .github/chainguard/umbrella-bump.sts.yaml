@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
+# octo-sts: the two umbrella-bump workflows may push the bump commit to main. See .github/README.md.
+issuer: https://token.actions.githubusercontent.com
+subject_pattern: 'repo:castai(@44625431)?/helm-charts(@427274423)?:ref:refs/(heads/main|tags/.*)'
+claim_pattern:
+  repository: castai/helm-charts
+  repository_id: "427274423"
+  job_workflow_ref: castai/helm-charts/\.github/workflows/(release\.yaml@refs/heads/main|update-umbrella-on-child-release\.yaml@refs/(heads/main|tags/.*))
+permissions:
+  contents: write
