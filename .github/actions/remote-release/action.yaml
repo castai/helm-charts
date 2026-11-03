@@ -315,6 +315,10 @@ runs:
         git add "${CHART_PATH}/Chart.yaml"
         git commit -m "[Release] Update ${CHART} Chart.yaml"
         if [[ -n "${SOURCE_REPO_TOKEN}" ]]; then
-          git remote set-url origin "https://x-access-token:${SOURCE_REPO_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          # actions/checkout stores the job token as an http.extraheader, and git sends that
+          # header even when the URL carries another token: drop it for this push.
+          git config --unset-all "http.https://github.com/.extraheader" || true
+          git push "https://x-access-token:${SOURCE_REPO_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:main
+        else
+          git push
         fi
-        git push
