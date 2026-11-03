@@ -29,7 +29,7 @@ every build shows one outcome. It can also be started by hand from the Actions t
 | Built in | Pushed and signed to | Who starts `publish-chart.yml` | `source` |
 |---|---|---|---|
 | GitLab: kubecast, clm, pv-monitor | the internal chart registry, signed by the project's CI identity | [castai/images](https://github.com/castai/images) `publish.yml`, which also publishes the images | `gitlab` |
-| this repository: the charts listed under `sources.github.charts` in `chart-signers.yaml`, the umbrella among them | `ghcr.io/castai/helm-charts/<chart>`, signed by [`release.yaml`](workflows/release.yaml) | `release.yaml`, on every push to `main`, for each listed chart whose version has no release yet | `github` |
+| this repository: the charts listed under `sources.helm-charts.charts` in `chart-signers.yaml`, the umbrella among them | `ghcr.io/castai/helm-charts/<chart>`, signed by [`release.yaml`](workflows/release.yaml) | `release.yaml`, on every push to `main`, for each listed chart whose version has no release yet | `helm-charts` |
 | another GitHub repository: kontext, castware-operator, gcp-disk-compatibility-webhook, ai-enabler | `ghcr.io/castai/<repo>/helm-charts/<chart>`, signed by that repository's release workflow | the [`remote-release`](actions/remote-release/README.md) action, from the repository's own workflow | the repository name |
 
 Every other directory under `charts/` is a copy of a chart built elsewhere. `release.yaml` never
@@ -55,7 +55,7 @@ go through review like code.
 
 ## Adding a chart
 
-**Built in this repository.** Add its name to `sources.github.charts` in `chart-signers.yaml`.
+**Built in this repository.** Add its name to `sources.helm-charts.charts` in `chart-signers.yaml`.
 From then on, every merged version bump releases it. Dependencies from Helm repositories must be
 reachable with the repositories `release.yaml` adds.
 
@@ -85,7 +85,7 @@ skipped, the index push retries. Re-run the failed job, not the whole workflow.
 |---|---|
 | `… is not public. Make the package public once …` | First release from a GitHub repository, see above. |
 | `no signature …` or `verification failed` for a GitLab chart | The pipeline did not sign, or signed with an identity not in `chart-signers.yaml`. The chart is not released. |
-| `… has no release, but <chart> is not in sources.github.charts` (warning) | A version bump in a copied chart. Release it from where it is built. |
+| `… has no release, but <chart> is not in sources.helm-charts.charts` (warning) | A version bump in a copied chart. Release it from where it is built. |
 | the chart is released but the umbrella did not move | Look at `update-umbrella-on-child-release.yaml` for that release; `release.yaml` on the next push to `main` is the fallback. |
 | `publish-chart run … failed` in the builder's log | Open the linked run; the builder only reports it. |
 
