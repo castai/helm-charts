@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
-# octo-sts: publish-chart.yml on main may create releases and push to gh-pages and main. See .github/README.md.
+# octo-sts: publish-chart.yml on main may create releases and push to gh-pages and main. See .github/RELEASING.md.
 issuer: https://token.actions.githubusercontent.com
 subject_pattern: 'repo:castai(@44625431)?/helm-charts(@427274423)?:ref:refs/heads/main'
 claim_pattern:

@@ -17,7 +17,7 @@ You can then run `helm search repo castai-helm` to see the charts.
 
 ## Releasing
 
-How charts are built, signed and published, and how to verify one: [.github/README.md](.github/README.md).
+How charts are built, signed and published, and how to verify one: [.github/RELEASING.md](.github/RELEASING.md).
 
 ## Contribution
 

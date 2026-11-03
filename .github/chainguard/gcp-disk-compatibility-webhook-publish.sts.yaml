@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/octo-sts/app/refs/heads/main/pkg/octosts/octosts.TrustPolicy.json
-# octo-sts: release.yaml of castai/gcp-disk-compatibility-webhook, on a tag, may start publish-chart.yml. See .github/README.md.
+# octo-sts: release.yaml of castai/gcp-disk-compatibility-webhook, on a tag, may start publish-chart.yml. See .github/RELEASING.md.
 issuer: https://token.actions.githubusercontent.com
 subject_pattern: 'repo:castai(@44625431)?/gcp-disk-compatibility-webhook(@1098303703)?:ref:refs/tags/.*'
 claim_pattern:
