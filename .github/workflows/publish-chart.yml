@@ -1,11 +1,6 @@
-# Publishes a chart that a builder pipeline has pushed and signed. The builder starts this
-# workflow and waits for it: castai/images for charts built in GitLab (source=gitlab),
-# release.yaml for charts built in this repository (source=github).
-#   source registry -> ghcr.io/castai/helm-charts/<chart>:<version>  (signed charts only)
-#                   -> GitHub release + index.yaml                    (every chart)
-# Signed charts are verified against .github/chart-signers.yaml before and after the copy.
-# A chart built here is pushed straight to GHCR, so it is verified in place instead of copied.
-# Releases use an octo-sts token, not GITHUB_TOKEN, so the umbrella update workflow runs.
+# Publishes a chart that a builder pipeline has pushed and signed: verify against
+# .github/chart-signers.yaml, copy to ghcr.io/castai/helm-charts, GitHub release + index.yaml.
+# Started and awaited by the builder. See .github/README.md.
 name: publish-chart
 run-name: publish-chart ${{ inputs.chart }}:${{ inputs.chart_version }}
 
@@ -195,7 +190,7 @@ jobs:
               --artifact-type application/vnd.dev.sigstore.bundle.v0.3+json \
               "${src}@${digest}" | jq '.referrers | length')"
             if [[ "${signatures}" -eq 0 ]]; then
-              # A chart built here is in GHCR already; unsigned there breaks "GHCR holds signed charts only".
+              # Built here means already in GHCR: it must be signed.
               [[ "${built_here}" == "false" ]] \
                 || { echo "::error::${target} was built here but is not signed"; exit 1; }
               echo "${c}:${CHART_VERSION} is not signed: not copied to GHCR, HTTPS release only"
@@ -329,8 +324,7 @@ jobs:
               mkdir -p "charts/${c}"
               tar -xzf "../.cr-release-packages/${c}-${CHART_VERSION}.tgz" -C "charts/${c}" --strip-components=1
               git add -A "charts/${c}"
-              # No [skip ci]: release.yaml's update-umbrella job is the fallback when the on-release
-              # umbrella workflow loses a push race (seen 2026-11-02, workload-autoscaler 1.20.2).
+              # No [skip ci]: release.yaml's umbrella job is the fallback for a lost push race.
               git diff --cached --quiet || git commit -q -m "[${c}] Update ${c} chart to v${CHART_VERSION}"
             done
             if git push origin HEAD:main; then
