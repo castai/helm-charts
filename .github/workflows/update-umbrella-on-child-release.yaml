@@ -13,15 +13,13 @@ on:
         description: 'Version (e.g. 0.115.0)'
         required: true
       use_default_token:
-        description: 'Use GITHUB_TOKEN instead of PAT (no downstream workflows will be triggered)'
+        description: 'Use GITHUB_TOKEN instead of the octo-sts token (no downstream workflows will be triggered)'
         type: boolean
         default: false
 
 permissions:
   contents: write
-
-env:
-  RELEASE_TOKEN: ${{ (github.event_name == 'workflow_dispatch' && inputs.use_default_token) && secrets.GITHUB_TOKEN || secrets.PAT_CICD }}
+  id-token: write
 
 jobs:
   parse-release-tag:
@@ -66,12 +64,20 @@ jobs:
       CHART_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.chart_name || needs.parse-release-tag.outputs.chart_name }}
       VERSION: ${{ github.event_name == 'workflow_dispatch' && inputs.version || needs.parse-release-tag.outputs.version }}
     steps:
+      - name: Get a token to push the bump
+        id: bump_token
+        if: ${{ !(github.event_name == 'workflow_dispatch' && inputs.use_default_token) }}
+        uses: octo-sts/action@f603d3be9d8dd9871a265776e625a27b00effe05 # v1.1.1
+        with:
+          scope: ${{ github.repository }}
+          identity: umbrella-bump
+
       - name: Checkout
         uses: actions/checkout@v6
         with:
           ref: main
           fetch-depth: 0
-          token: ${{ env.RELEASE_TOKEN }}
+          token: ${{ steps.bump_token.outputs.token || github.token }}
 
       - name: Configure Git
         run: |
