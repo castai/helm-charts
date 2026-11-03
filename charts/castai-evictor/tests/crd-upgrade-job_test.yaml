@@ -236,6 +236,77 @@ tests:
       - notExists:
           path: spec.template.spec.containers[0].securityContext.runAsUser
 
+  - it: does not set appArmorProfile by default (node support varies; opt in via values)
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - notExists:
+          path: spec.template.spec.initContainers[0].securityContext.appArmorProfile
+      - notExists:
+          path: spec.template.spec.initContainers[1].securityContext.appArmorProfile
+      - notExists:
+          path: spec.template.spec.containers[0].securityContext.appArmorProfile
+
+  - it: applies appArmorProfile to the crd-upgrade containers when set via values
+    set:
+      crdUpgrade:
+        enabled: true
+        containerSecurityContext:
+          appArmorProfile:
+            type: RuntimeDefault
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.template.spec.initContainers[0].securityContext.appArmorProfile.type
+          value: RuntimeDefault
+      - equal:
+          path: spec.template.spec.initContainers[1].securityContext.appArmorProfile.type
+          value: RuntimeDefault
+      - equal:
+          path: spec.template.spec.containers[0].securityContext.appArmorProfile.type
+          value: RuntimeDefault
+
+  # ── Job spec: activeDeadlineSeconds ─────────────────────────────────────
+
+  - it: sets activeDeadlineSeconds to 240 by default
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.activeDeadlineSeconds
+          value: 240
+
+  - it: falls back to 240 when crdUpgrade.activeDeadlineSeconds is unset
+    set:
+      crdUpgrade:
+        enabled: true
+        activeDeadlineSeconds: null
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.activeDeadlineSeconds
+          value: 240
+
+  - it: reflects overridden crdUpgrade.activeDeadlineSeconds
+    set:
+      crdUpgrade:
+        enabled: true
+        activeDeadlineSeconds: 60
+    template: crd-upgrade-job.yaml
+    documentIndex: 4
+    asserts:
+      - equal:
+          path: spec.activeDeadlineSeconds
+          value: 60
+
   # ── Overridable security context ────────────────────────────────────────────
 
   - it: reflects overridden crdUpgrade.securityContext values

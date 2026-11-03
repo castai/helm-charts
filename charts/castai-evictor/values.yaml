@@ -284,7 +284,7 @@ apiKeySecretRef: ""
 clusterVPA:
   repository: "ghcr.io/castai/images/cpa/cpvpa"
   enabled: true
-  version: v0.8.14
+  version: v0.8.16
   pollPeriodSeconds: 300
   resources: {}
   # configOverride -- Override the default ClusterVPA calculation configuration.
@@ -368,6 +368,10 @@ openshift:
 # Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job.
 crdUpgrade:
   enabled: true
+  # crdUpgrade.activeDeadlineSeconds -- Overall deadline for the CRD upgrade Job. Bounds hook runtime so a stuck
+  # pod (e.g. image pull backoff) fails fast with a real error instead of Helm's generic timeout.
+  # Keep below the deploying pipeline's Helm --timeout (default 5m) so the Job fails first.
+  activeDeadlineSeconds: 240
   image:
     repository: registry.k8s.io/kubectl
     tag: "v1.35.6"

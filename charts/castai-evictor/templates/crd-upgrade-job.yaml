@@ -97,6 +97,7 @@ metadata:
     {{- include "evictor.annotations" . | nindent 4 }}
 spec:
   backoffLimit: 3
+  activeDeadlineSeconds: {{ default 240 .Values.crdUpgrade.activeDeadlineSeconds }}
   template:
     metadata:
       name: {{ include "evictor.fullname" . }}-crd-upgrade
