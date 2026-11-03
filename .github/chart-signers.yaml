@@ -55,3 +55,10 @@ sources:
     issuer: https://token.actions.githubusercontent.com
     identities:
       - ^https://github\.com/castai/castware-operator/\.github/workflows/build\.yaml@refs/tags/
+  # castai/ai-enabler: build-proxy.yaml and build-batch-processor.yaml (on a published release,
+  # i.e. a tag) push and sign into the repository's own GHCR namespace with the remote-release action.
+  ai-enabler:
+    registry: ghcr.io/castai/ai-enabler/helm-charts
+    issuer: https://token.actions.githubusercontent.com
+    identities:
+      - ^https://github\.com/castai/ai-enabler/\.github/workflows/build-(proxy|batch-processor)\.yaml@refs/tags/
