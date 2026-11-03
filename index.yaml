@@ -78676,6 +78676,16 @@ entries:
     version: 0.1.0
   castai-workload-autoscaler:
   - apiVersion: v2
+    appVersion: v1.21.0
+    created: "2026-11-03T12:25:24.411599552Z"
+    description: CAST AI workload autoscaler.
+    digest: f29ef1fdb86b37fa92f28d27a75f07967239fe2c7e89842b6ee38f6f6b599ac1
+    name: castai-workload-autoscaler
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-workload-autoscaler-1.21.0/castai-workload-autoscaler-1.21.0.tgz
+    version: 1.21.0
+  - apiVersion: v2
     appVersion: v1.20.2
     created: "2026-11-02T10:41:55.412684955Z"
     description: CAST AI workload autoscaler.
@@ -81596,6 +81606,16 @@ entries:
     - https://github.com/castai/helm-charts/releases/download/castai-workload-autoscaler-0.0.6-test/castai-workload-autoscaler-0.0.6-test.tgz
     version: 0.0.6-test
   castai-workload-autoscaler-exporter:
+  - apiVersion: v2
+    appVersion: v1.21.0
+    created: "2026-11-03T12:25:24.555170601Z"
+    description: CAST AI workload autoscaler exporter.
+    digest: 7d2c5d5337d319f930b3f684b652c4edfddb28b0aa89d2801c2cfb0f60a49384
+    name: castai-workload-autoscaler-exporter
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-workload-autoscaler-exporter-1.21.0/castai-workload-autoscaler-exporter-1.21.0.tgz
+    version: 1.21.0
   - apiVersion: v2
     appVersion: v1.20.2
     created: "2026-11-02T10:41:55.691921978Z"
@@ -88330,4 +88350,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-11-03T11:53:24.480298782Z"
+generated: "2026-11-03T12:25:24.562261723Z"
