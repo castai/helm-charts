@@ -1,6 +1,6 @@
 # Publishes a chart that a builder pipeline has pushed and signed: verify against
 # .github/chart-signers.yaml, copy to ghcr.io/castai/helm-charts, GitHub release + index.yaml.
-# Started and awaited by the builder. See .github/README.md.
+# Started and awaited by the builder. See .github/RELEASING.md.
 name: publish-chart
 run-name: publish-chart ${{ inputs.chart }}:${{ inputs.chart_version }}
 

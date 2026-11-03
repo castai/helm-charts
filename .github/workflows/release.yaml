@@ -1,6 +1,6 @@
 # Releases the charts built in this repository (sources.helm-charts.charts in .github/chart-signers.yaml):
 # on a push to main, package, push to GHCR, sign, then start and await publish-chart.yml.
-# See .github/README.md.
+# See .github/RELEASING.md.
 name: Release Charts
 
 on:
