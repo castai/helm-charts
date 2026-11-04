@@ -12,6 +12,18 @@ metadata:
   {{- end }}
 rules:
   # ------------------------------------------------
+  # List namespaces so the drain simulation can enforce
+  # pod anti-affinity terms that use namespaceSelector
+  # ------------------------------------------------
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+      - watch
+  # ------------------------------------------------
   # Volume objects
   # ------------------------------------------------
   - apiGroups:
