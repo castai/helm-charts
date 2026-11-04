@@ -32,6 +32,11 @@ Releases a chart that lives in another CAST AI repository through `castai/helm-c
   package (your repository is private) and has no API to change that. The first run stops after the
   push with the instruction; make the package public (Packages → the package → Package settings →
   Change visibility), then re-run the job. The pushed, signed chart is reused.
+  - Alternative for sources that must stay private: set `private: true` on the source in
+    `.github/chart-signers.yaml`, grant the `castai/helm-charts` repository read access to the
+    package (Package settings → Manage Actions access), and skip the visibility flip. publish-chart
+    pulls the chart with its own GITHUB_TOKEN; the anonymous-pull check in this action is skipped
+    and downgraded to a warning in publish-chart's job summary.
 
 ## Example
 
