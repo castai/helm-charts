@@ -89,6 +89,22 @@ Convert a map[string]string to envconfig map format: "key1:val1,key2:val2"
 {{- end -}}
 {{- end -}}
 
+{{- define "castai-storage-autoscaler.validateWorkerAuth" -}}
+{{- if and .Values.migration.enabled .Values.migration.workerAuth.enabled -}}
+  {{- $token := .Values.migration.workerAuth.token | default "" -}}
+  {{- $refName := "" -}}
+  {{- if .Values.migration.workerAuth.tokenSecretRef -}}
+    {{- $refName = .Values.migration.workerAuth.tokenSecretRef.name | default "" -}}
+  {{- end -}}
+  {{- if and $token $refName -}}
+    {{- fail "migration.workerAuth: set either token or tokenSecretRef.name, not both" -}}
+  {{- end -}}
+  {{- if and (not $token) (not $refName) -}}
+    {{- fail "migration.workerAuth: provide tokenSecretRef.name (recommended, GitOps-safe) or token (inline); create the secret with: kubectl -n <release-namespace> create secret generic castai-storage-autoscaler-migration-worker-token --from-literal=worker-token=$(openssl rand -hex 32); or set migration.workerAuth.enabled=false to run without worker auth" -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
 {{/*https://github.com/kubernetes/kubernetes/issues/91514#issuecomment-2209311103*/}}
 {{- define "GOMEMLIMITEnv" -}}
 {{- $memory := . -}}

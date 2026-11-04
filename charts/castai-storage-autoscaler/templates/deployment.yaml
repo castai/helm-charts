@@ -1,4 +1,5 @@
 {{- include "castai-storage-autoscaler.validateCastai" . -}}
+{{- include "castai-storage-autoscaler.validateWorkerAuth" . -}}
 {{- if or .Values.controller.enabled .Values.migration.enabled }}
 {{- $metricsPort := .Values.controller.metricsHTTPListenPort | required ".Values.controller.metricsHTTPListenPort is required" -}}
 {{- $migrationMetricsPort := .Values.migration.metricsHTTPListenPort | required ".Values.migration.metricsHTTPListenPort is required" -}}
@@ -215,6 +216,18 @@ spec:
               value: {{ .Values.migration.rsyncWorkerPodImage | quote }}
             - name: RSYNC_DAEMON_PORT
               value: {{ .Values.migration.rsyncDaemonPort | quote }}
+            {{- if .Values.migration.workerAuth.enabled }}
+            - name: MIGRATION_WORKER_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  {{- if and .Values.migration.workerAuth.tokenSecretRef .Values.migration.workerAuth.tokenSecretRef.name }}
+                  name: {{ .Values.migration.workerAuth.tokenSecretRef.name }}
+                  key: {{ .Values.migration.workerAuth.tokenSecretRef.key }}
+                  {{- else }}
+                  name: {{ include "castai-storage-autoscaler.fullname" . }}-migration-worker-token
+                  key: worker-token
+                  {{- end }}
+            {{- end }}
             {{- if and .Values.castai .Values.castai.enabled }}
             - name: TELEMETRY_API
               value: "{{ .Values.castai.telemetryAPI}}"

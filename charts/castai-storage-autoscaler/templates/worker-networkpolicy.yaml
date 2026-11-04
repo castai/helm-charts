@@ -1,0 +1,51 @@
+{{- if and .Values.migration.enabled .Values.migration.networkPolicy.enabled }}
+{{- if empty .Values.migration.networkPolicy.probeSourceCIDRs }}
+{{- fail "migration.networkPolicy.probeSourceCIDRs is required when migration.networkPolicy.enabled is true: kubelet readiness probes originate from node IPs and must be allowed to reach worker pods on port 8080, otherwise migrations stall in Preparation" }}
+{{- end }}
+{{- /* Worker pods run in the migration's namespace, so this policy
+      protects migrations whose PVCs live in the release namespace.
+      Worker pods elsewhere are protected by the per-migration bearer
+      token instead. */}}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "castai-storage-autoscaler.fullname" . }}-migration-worker
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "castai-storage-autoscaler.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchExpressions:
+      - key: storage.cast.ai/migration
+        operator: Exists
+  policyTypes:
+    - Ingress
+  ingress:
+    # Migration controller -> worker HTTP API (du, daemon control, jobs).
+    - from:
+        - podSelector:
+            matchLabels:
+              {{- include "castai-storage-autoscaler.selectorLabels" . | nindent 14 }}
+      ports:
+        - protocol: TCP
+          port: 8080
+    {{- range .Values.migration.networkPolicy.probeSourceCIDRs }}
+    # Kubelet readiness probes originate from node IPs.
+    - from:
+        - ipBlock:
+            cidr: {{ . | quote }}
+      ports:
+        - protocol: TCP
+          port: 8080
+    {{- end }}
+    # Target client worker -> source worker rsync daemon. This policy is
+    # namespace-scoped: it only protects workers in the release
+    # namespace; workers elsewhere rely on the bearer token (see README).
+    - from:
+        - podSelector:
+            matchLabels:
+              storage.cast.ai/role: target-client
+      ports:
+        - protocol: TCP
+          port: {{ .Values.migration.rsyncDaemonPort }}
+{{- end }}

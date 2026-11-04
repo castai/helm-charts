@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/castai/images/storage-autoscaler
-  tag: v0.3.3
+  tag: v0.4.0
   pullPolicy: IfNotPresent
   pullSecrets: []
 podSecurityContext:
@@ -194,11 +194,47 @@ migration:
   # distroless base ships neither rsync nor `du`. Per-migration
   # overrides via spec.rsyncOptions.image take precedence. Maps to
   # the RSYNC_WORKER_POD_IMAGE env var on the migration container.
-  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.3.3
+  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.4.0
   # rsyncDaemonPort is the TCP port the rsync daemon binds to on the
   # worker pods created during PVC migration. Maps to the
   # RSYNC_DAEMON_PORT env var on the migration container.
   rsyncDaemonPort: 873
+  # workerAuth protects the worker HTTP API with a per-migration bearer
+  # token: the controller derives base64url(HMAC-SHA256(secret,
+  # namespace/name/uid)), injects it into worker pods as
+  # WORKER_AUTH_TOKEN, and sends it as the Authorization header.
+  # Exactly one of workerAuth.token or workerAuth.tokenSecretRef.name is
+  # required when enabled=true; the chart never generates secret values,
+  # so renders stay identical across GitOps/Terraform re-renders.
+  workerAuth:
+    enabled: true
+    # token is the inline HMAC key for quick setups; it is rendered into
+    # a chart-managed Secret, so do not commit it in plain form. Generate
+    # one with: openssl rand -hex 32
+    token: ""
+    # tokenSecretRef points at an operator-managed Secret (recommended).
+    # Create it before enabling migrations:
+    #   kubectl -n <release-namespace> create secret generic \
+    #     castai-storage-autoscaler-migration-worker-token \
+    #     --from-literal=worker-token="$(openssl rand -hex 32)"
+    tokenSecretRef:
+      # name of the Secret; empty falls back to the chart-managed
+      # <fullname>-migration-worker-token Secret, which only exists when
+      # token is set.
+      name: ""
+      key: worker-token
+  # networkPolicy adds ingress isolation for migration worker pods in
+  # the release namespace (worker pods run in the migration's
+  # namespace; migrations elsewhere rely on workerAuth alone). Disabled
+  # by default: needs a CNI that enforces NetworkPolicy and correctly
+  # sized probeSourceCIDRs — a wrong value stalls migrations in
+  # Preparation because kubelet probes cannot reach worker pods.
+  networkPolicy:
+    enabled: false
+    # probeSourceCIDRs is REQUIRED when enabled: kubelet readiness
+    # probes originate from node IPs and must reach worker pods on port
+    # 8080, e.g. ["10.0.0.0/16"] for EKS or ["10.128.0.0/9"] for GKE.
+    probeSourceCIDRs: []
   metricsHTTPListenPort: 8081
   prometheusScrape:
     enabled: true
