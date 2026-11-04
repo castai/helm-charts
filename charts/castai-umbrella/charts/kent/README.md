@@ -57,7 +57,6 @@ Wrapper chart for CAST AI Kent profile.
 | castai-kvisor.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-kvisor.controller.containerSecurityContext | object | `{}` |  |
 | castai-kvisor.controller.enabled | bool | `true` |  |
-| castai-kvisor.controller.extraArgs.cluster-proxy-enabled | string | `"true"` |  |
 | castai-kvisor.controller.extraArgs.log-level | string | `"info"` |  |
 | castai-kvisor.enabled | bool | `true` |  |
 | castai-live.castai.apiKeySecretRef | string | `""` |  |
