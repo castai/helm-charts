@@ -93,7 +93,7 @@ castai-spot-handler:
 metrics-server:
   enabled: false
 
-# castai-kvisor with just cluster proxy for OpsPilot debugging
+# castai-kvisor controller only
 castai-kvisor:
   enabled: true
   castai:
@@ -112,7 +112,6 @@ castai-kvisor:
     containerSecurityContext: {}
     extraArgs:
       log-level: info
-      cluster-proxy-enabled: "true"
 
 castai-chart-upgrader:
   enabled: false

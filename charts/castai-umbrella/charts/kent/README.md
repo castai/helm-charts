@@ -8,17 +8,17 @@ Wrapper chart for CAST AI Kent profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.163.0 |
+| https://castai.github.io/helm-charts | castai-agent | 0.164.0 |
 | https://castai.github.io/helm-charts | castai-chart-upgrader | 0.2.1 |
-| https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.23 |
+| https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.24 |
 | https://castai.github.io/helm-charts | castai-kentroller | 0.34.4 |
 | https://castai.github.io/helm-charts | castai-kvisor | 1.166.2 |
-| https://castai.github.io/helm-charts | castai-live | 0.144.1 |
+| https://castai.github.io/helm-charts | castai-live | 0.145.0 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.17.13 |
-| https://castai.github.io/helm-charts | castai-spot-handler | 0.35.14 |
+| https://castai.github.io/helm-charts | castai-spot-handler | 0.35.15 |
 | https://castai.github.io/helm-charts | castai-storage-autoscaler | 0.3.3 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.20.2 |
-| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.20.2 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.21.0 |
+| https://castai.github.io/helm-charts | castai-workload-autoscaler-exporter | 1.21.0 |
 | https://kubernetes-sigs.github.io/metrics-server/ | metrics-server | 3.14.0 |
 
 ## Values
@@ -57,7 +57,6 @@ Wrapper chart for CAST AI Kent profile.
 | castai-kvisor.castai.clusterIdConfigMapKeyRef.name | string | `"castai-agent-metadata"` |  |
 | castai-kvisor.controller.containerSecurityContext | object | `{}` |  |
 | castai-kvisor.controller.enabled | bool | `true` |  |
-| castai-kvisor.controller.extraArgs.cluster-proxy-enabled | string | `"true"` |  |
 | castai-kvisor.controller.extraArgs.log-level | string | `"info"` |  |
 | castai-kvisor.enabled | bool | `true` |  |
 | castai-live.castai.apiKeySecretRef | string | `""` |  |
