@@ -1,7 +1,12 @@
 image:
+  # repository is prepended with global.registry when this chart is installed
+  # as a sub-chart of the CAST AI umbrella chart with that value set.
   repository: ghcr.io/castai/images/storage-autoscaler
-  tag: v0.4.0
+  tag: v0.4.1
   pullPolicy: IfNotPresent
+  # pullSecrets is merged with global.imagePullSecrets under the CAST AI
+  # umbrella chart. Pod tolerations are likewise merged with
+  # global.tolerations on controller and migration webhook pods.
   pullSecrets: []
 podSecurityContext:
   runAsNonRoot: true
@@ -31,6 +36,8 @@ crds:
 castai:
   enabled: true
   telemetryAPI: telemetry.prod-master.cast.ai
+  # apiURL is overridden by global.castai.apiURL under the CAST AI umbrella
+  # chart (the umbrella value wins over this chart-local default).
   apiURL: "https://api.cast.ai"
   clusterID: ""
   organizationID: ""
@@ -50,6 +57,8 @@ castai:
   # apiKeySecretRef -- Name of secret with Token to be used for authorizing agent access to the API
   # apiKey and apiKeySecretRef are mutually exclusive
   # The referenced secret must provide the token in .data["API_KEY"].
+  # When name is empty, the CAST AI umbrella chart's global.castai.apiKeySecretRef
+  # (a bare secret name, key API_KEY) is used if present.
   apiKeySecretRef:
     name: ""
     key: "API_KEY"
@@ -194,7 +203,7 @@ migration:
   # distroless base ships neither rsync nor `du`. Per-migration
   # overrides via spec.rsyncOptions.image take precedence. Maps to
   # the RSYNC_WORKER_POD_IMAGE env var on the migration container.
-  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.4.0
+  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.4.1
   # rsyncDaemonPort is the TCP port the rsync daemon binds to on the
   # worker pods created during PVC migration. Maps to the
   # RSYNC_DAEMON_PORT env var on the migration container.

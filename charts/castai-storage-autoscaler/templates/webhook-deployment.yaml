@@ -19,9 +19,9 @@ spec:
       annotations:
         checksum/webhook-cert: {{ include (print $.Template.BasePath "/webhook-certs.yaml") . | sha256sum }}
     spec:
-      {{- with .Values.image.pullSecrets }}
+      {{- with include "castai-storage-autoscaler.imagePullSecrets" . }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "castai-storage-autoscaler.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
@@ -30,7 +30,7 @@ spec:
       {{- end }}
       containers:
         - name: webhook
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "castai-storage-autoscaler.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           {{- with $.Values.securityContext }}
           securityContext:
@@ -81,8 +81,8 @@ spec:
       affinity:
         {{- toYaml . | replace "APP_NAME" (include "castai-storage-autoscaler.fullname" $) | nindent 8 }}
       {{- end }}
-      {{- with .Values.migration.webhook.tolerations }}
+      {{- with include "castai-storage-autoscaler.tolerations" (dict "global" .Values.global "local" .Values.migration.webhook.tolerations) }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
 {{- end }}

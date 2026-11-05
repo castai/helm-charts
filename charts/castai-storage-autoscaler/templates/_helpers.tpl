@@ -73,13 +73,88 @@ Convert a map[string]string to envconfig map format: "key1:val1,key2:val2"
 {{- join "," $pairs -}}
 {{- end -}}
 
+{{/*
+Resolve image.repository, prepending global.registry when the CAST AI
+umbrella chart provides one.
+*/}}
+{{- define "castai-storage-autoscaler.imageRepository" -}}
+{{- $repository := required "image.repository must be provided" .Values.image.repository -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) $repository -}}
+{{- else -}}
+{{- $repository -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Resolve migration.rsyncWorkerPodImage, prepending global.registry when set.
+*/}}
+{{- define "castai-storage-autoscaler.workerPodImage" -}}
+{{- $image := required "migration.rsyncWorkerPodImage must be provided" .Values.migration.rsyncWorkerPodImage -}}
+{{- $registry := ((.Values.global | default dict).registry) | default "" -}}
+{{- if $registry -}}
+{{- printf "%s/%s" (trimSuffix "/" $registry) $image -}}
+{{- else -}}
+{{- $image -}}
+{{- end -}}
+{{- end }}
+
+{{/*
+Resolve imagePullSecrets: merge global.imagePullSecrets with image.pullSecrets.
+*/}}
+{{- define "castai-storage-autoscaler.imagePullSecrets" -}}
+{{- $global := .Values.global | default dict -}}
+{{- $combined := concat ($global.imagePullSecrets | default list) (.Values.image.pullSecrets | default list) -}}
+{{- if $combined -}}
+{{ toYaml $combined }}
+{{- end -}}
+{{- end }}
+
+{{/*
+Merge global.tolerations with a chart-local tolerations list.
+*/}}
+{{- define "castai-storage-autoscaler.tolerations" -}}
+{{- $global := .global | default dict -}}
+{{- with concat ($global.tolerations | default list) (.local | default list) -}}
+{{ toYaml . }}
+{{- end -}}
+{{- end }}
+
+{{/*
+Resolve the CAST AI API URL: an umbrella-provided global.castai.apiURL wins
+over the chart-local default.
+*/}}
+{{- define "castai-storage-autoscaler.apiURL" -}}
+{{- coalesce (dig "castai" "apiURL" "" (.Values.global | default dict)) .Values.castai.apiURL -}}
+{{- end }}
+
+{{/*
+Resolve the API_KEY secretKeyRef: chart-local castai.apiKeySecretRef wins, then
+the umbrella global.castai.apiKeySecretRef (name only), then the chart-managed
+castai-api-key Secret.
+*/}}
+{{- define "castai-storage-autoscaler.apiKeySecretRef" -}}
+{{- if and .Values.castai.apiKeySecretRef .Values.castai.apiKeySecretRef.name -}}
+name: {{ .Values.castai.apiKeySecretRef.name }}
+key: {{ .Values.castai.apiKeySecretRef.key | default "API_KEY" }}
+{{- else if dig "castai" "apiKeySecretRef" "" (.Values.global | default dict) -}}
+name: {{ dig "castai" "apiKeySecretRef" "" (.Values.global | default dict) }}
+key: API_KEY
+{{- else -}}
+name: castai-api-key
+key: API_KEY
+{{- end }}
+{{- end }}
+
 {{- define "castai-storage-autoscaler.validateCastai" -}}
 {{- if and .Values.castai .Values.castai.enabled -}}
+  {{- $globalApiKeyRef := dig "castai" "apiKeySecretRef" "" (.Values.global | default dict) -}}
   {{- if and (not (and .Values.castai.clusterIDConfigMapRef .Values.castai.clusterIDConfigMapRef.name)) (not .Values.castai.clusterID) -}}
     {{- fail "castai.clusterID or castai.clusterIDConfigMapRef.name is required when castai.enabled=true" -}}
   {{- end -}}
-  {{- if and (not .Values.castai.apiKey) (not (and .Values.castai.apiKeySecretRef .Values.castai.apiKeySecretRef.name)) -}}
-    {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided when castai.enabled=true" -}}
+  {{- if and (not .Values.castai.apiKey) (not (and .Values.castai.apiKeySecretRef .Values.castai.apiKeySecretRef.name)) (not $globalApiKeyRef) -}}
+    {{- fail "castai.apiKey, castai.apiKeySecretRef or the umbrella's global.castai.apiKeySecretRef must be provided when castai.enabled=true" -}}
   {{- end -}}
   {{- if and .Values.config.policySync.enabled -}}
     {{- if and (not (and .Values.castai.orgIDConfigMapRef .Values.castai.orgIDConfigMapRef.name)) (not .Values.castai.organizationID) -}}

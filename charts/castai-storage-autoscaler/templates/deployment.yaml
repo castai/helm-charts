@@ -21,9 +21,9 @@ spec:
         {{- include "castai-storage-autoscaler.selectorLabels" . | nindent 8 }}
         {{- include "castai-storage-autoscaler.commonLabels" . | nindent 8 }}
     spec:
-      {{- with .Values.image.pullSecrets }}
+      {{- with include "castai-storage-autoscaler.imagePullSecrets" . }}
       imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
       serviceAccountName: {{ include "castai-storage-autoscaler.serviceAccountName" . }}
       {{- with .Values.podSecurityContext }}
@@ -33,7 +33,7 @@ spec:
       containers:
         {{- if .Values.controller.enabled }}
         - name: storage-autoscaler
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "castai-storage-autoscaler.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{.Values.image.pullPolicy}}
           {{- with $.Values.securityContext }}
           securityContext:
@@ -122,13 +122,7 @@ spec:
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  {{- if and .Values.castai.apiKeySecretRef .Values.castai.apiKeySecretRef.name }}
-                  name: {{ .Values.castai.apiKeySecretRef.name }}
-                  key: {{ .Values.castai.apiKeySecretRef.key }}
-                  {{- else }}
-                  name: castai-api-key
-                  key: API_KEY
-                  {{- end }}
+                  {{- include "castai-storage-autoscaler.apiKeySecretRef" . | nindent 18 }}
             - name: CLUSTER_ID
               {{- if and .Values.castai.clusterIDConfigMapRef .Values.castai.clusterIDConfigMapRef.name }}
               valueFrom:
@@ -139,7 +133,7 @@ spec:
               value: {{ .Values.castai.clusterID }}
               {{- end }}
             - name: API_URL
-              value: {{ .Values.castai.apiURL }}
+              value: {{ include "castai-storage-autoscaler.apiURL" . | quote }}
             {{- if and .Values.config.policySync.enabled (or (and .Values.castai.orgIDConfigMapRef .Values.castai.orgIDConfigMapRef.name) .Values.castai.organizationID) }}
             - name: POLICY_SYNC_ENABLED
               value: {{ .Values.config.policySync.enabled | quote }}
@@ -184,7 +178,7 @@ spec:
         {{- end }}
         {{- if .Values.migration.enabled }}
         - name: migration
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          image: "{{ include "castai-storage-autoscaler.imageRepository" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{.Values.image.pullPolicy}}
           {{- with $.Values.securityContext }}
           securityContext:
@@ -213,7 +207,7 @@ spec:
             - name: LOG_LEVEL
               value: {{ .Values.config.logLevel | quote }}
             - name: RSYNC_WORKER_POD_IMAGE
-              value: {{ .Values.migration.rsyncWorkerPodImage | quote }}
+              value: {{ include "castai-storage-autoscaler.workerPodImage" . | quote }}
             - name: RSYNC_DAEMON_PORT
               value: {{ .Values.migration.rsyncDaemonPort | quote }}
             {{- if .Values.migration.workerAuth.enabled }}
@@ -234,13 +228,7 @@ spec:
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
-                  {{- if and .Values.castai.apiKeySecretRef .Values.castai.apiKeySecretRef.name }}
-                  name: {{ .Values.castai.apiKeySecretRef.name }}
-                  key: {{ .Values.castai.apiKeySecretRef.key }}
-                  {{- else }}
-                  name: castai-api-key
-                  key: API_KEY
-                  {{- end }}
+                  {{- include "castai-storage-autoscaler.apiKeySecretRef" . | nindent 18 }}
             - name: CLUSTER_ID
               {{- if and .Values.castai.clusterIDConfigMapRef .Values.castai.clusterIDConfigMapRef.name }}
               valueFrom:
@@ -251,7 +239,7 @@ spec:
               value: {{ .Values.castai.clusterID }}
               {{- end }}
             - name: API_URL
-              value: {{ .Values.castai.apiURL }}
+              value: {{ include "castai-storage-autoscaler.apiURL" . | quote }}
             {{- end }}
           ports:
             - name: migr-metrics
@@ -283,8 +271,8 @@ spec:
       affinity:
         {{- toYaml . | replace "APP_NAME" (include "castai-storage-autoscaler.fullname" $) | nindent 8 }}
       {{- end }}
-      {{- with .Values.controller.tolerations }}
+      {{- with include "castai-storage-autoscaler.tolerations" (dict "global" .Values.global "local" .Values.controller.tolerations) }}
       tolerations:
-        {{- toYaml . | nindent 8 }}
+        {{- . | nindent 8 }}
       {{- end }}
 {{- end }}

@@ -18,6 +18,25 @@ custom resources that scope its behavior to a selected set of PVCs.
 AWS and GCP. The controller auto-detects the cloud provider from the cluster;
 see `config.allowUnknownCloudProvider` for local-dev (k3s/kind) clusters.
 
+## CAST AI umbrella chart
+
+The chart works standalone and as a sub-chart of the CAST AI umbrella chart
+(`castai-umbrella`). Under the umbrella, chart values fall back to the shared
+globals — standalone installs that never set them render exactly as before:
+
+- `global.registry` is prepended to `image.repository` and
+  `migration.rsyncWorkerPodImage`.
+- `global.imagePullSecrets` is merged with `image.pullSecrets`;
+  `global.tolerations` is merged into controller and migration webhook pods.
+- `global.castai.apiURL` overrides `castai.apiURL`.
+- `global.castai.apiKeySecretRef` (a bare Secret name, key `API_KEY`) is used
+  when `castai.apiKeySecretRef.name` is unset, e.g. to consume the umbrella's
+  shared `castai-credentials` Secret.
+
+Chart-local values win over or are appended to the globals on a key-by-key
+basis; `global.castai.apiURL` is the one exception and overrides the
+chart-local default.
+
 ## Policies
 
 Behavior is driven by `PVPolicy` custom resources (see `templates/pvpolicy-crd.yaml`):
