@@ -266,7 +266,10 @@ prometheus:
         - ALL
   image:
     repository: ghcr.io/castai/images/prom/prometheus
-    tag: v3.11.3
+    # Must be v3.11.0 or newer, or rendering fails: prometheus.yml sets storage.tsdb.retention, which
+    # v3.7 and older reject at startup and v3.8-v3.10 silently apply 1e6 times too long.
+    # Tags that don't start with a version, such as a custom mirror tag, aren't checked.
+    tag: v3.16.0
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP

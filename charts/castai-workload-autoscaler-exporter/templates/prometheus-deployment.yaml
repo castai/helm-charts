@@ -1,4 +1,8 @@
 {{- if .Values.prometheus.enabled }}
+{{- $prometheusVersion := regexFind "^v?[0-9]+\\.[0-9]+" (toString .Values.prometheus.image.tag) }}
+{{- if and $prometheusVersion (semverCompare "<3.11.0-0" $prometheusVersion) }}
+  {{- fail (printf "prometheus.image.tag must be v3.11.0 or newer, got %q: prometheus.yml sets storage.tsdb.retention, which older versions reject or apply 1e6 times too long" (toString .Values.prometheus.image.tag)) }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -45,7 +49,6 @@ spec:
           imagePullPolicy: {{ .Values.prometheus.image.pullPolicy }}
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"
-            - "--storage.tsdb.retention.time={{ .Values.prometheus.storage.retention }}"
             - "--storage.tsdb.path=/prometheus/data"
           ports:
             - containerPort: 9090

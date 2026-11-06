@@ -20,6 +20,10 @@ data:
     global:
       scrape_interval: {{ .Values.prometheus.scrape_interval | default "15s" | quote }}
       evaluation_interval: {{ .Values.prometheus.evaluation_interval | default "15s" | quote }}
+    storage:
+      tsdb:
+        retention:
+          time: {{ .Values.prometheus.storage.retention | quote }}
     scrape_configs:
       {{- range .Values.prometheus.scrape }}
       {{- $labelHash := "" }}
