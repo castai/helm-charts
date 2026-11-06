@@ -166,6 +166,10 @@ runs:
         registry="$(yq -r '.sources[strenv(SOURCE)].registry // ""' "${trust}")"
         issuer="$(yq -r '.sources[strenv(SOURCE)].issuer // ""' "${trust}")"
         identities="$(yq -r '.sources[strenv(SOURCE)].identities // [] | join("|")' "${trust}")"
+        # Private sources keep their GHCR staging package private: publish-chart
+        # pulls it with the helm-charts repository's GITHUB_TOKEN, which the
+        # package grants read access (Package settings -> Manage Actions access).
+        private="$(yq -r '.sources[strenv(SOURCE)].private // "false"' "${trust}")"
         [[ -n "${registry}" && -n "${issuer}" && -n "${identities}" ]] \
           || { echo "::error::castai/helm-charts .github/chart-signers.yaml has no complete entry for source '${SOURCE}'"; exit 1; }
         [[ "${registry}" == "${CHART_REGISTRY}" ]] \
@@ -209,8 +213,11 @@ runs:
         echo "digest=${digest}" >> "${GITHUB_OUTPUT}"
         echo "signed and verified: ${target}@${digest}"
 
-        # publish-chart.yml reads the chart anonymously; a new package is private until flipped by hand.
-        if ! anonymous_pull "${digest}"; then
+        # publish-chart.yml reads the chart with the helm-charts repository's
+        # GITHUB_TOKEN (the source package grants it read access). A new GHCR
+        # package is private until its visibility is flipped by hand, so the
+        # anonymous check only applies to public sources.
+        if [[ "${private}" != "true" ]] && ! anonymous_pull "${digest}"; then
           echo "::error::${CHART_REGISTRY}/${CHART} is not public. Make the package public once (GitHub: Packages -> ${CHART_REGISTRY#ghcr.io/castai/}/${CHART} -> Package settings -> Change visibility), then re-run this job: the pushed, signed chart is reused."
           exit 1
         fi
