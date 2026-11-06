@@ -2,7 +2,7 @@ image:
   # repository is prepended with global.registry when this chart is installed
   # as a sub-chart of the CAST AI umbrella chart with that value set.
   repository: ghcr.io/castai/images/storage-autoscaler
-  tag: v0.4.1
+  tag: v0.5.0
   pullPolicy: IfNotPresent
   # pullSecrets is merged with global.imagePullSecrets under the CAST AI
   # umbrella chart. Pod tolerations are likewise merged with
@@ -35,7 +35,14 @@ crds:
   keep: false
 castai:
   enabled: true
-  telemetryAPI: telemetry.prod-master.cast.ai
+  # telemetryURL -- CAST AI telemetry endpoint host for metrics ingestion.
+  # When "auto" (default), the app derives it from the apiURL at runtime:
+  # - api.cast.ai -> telemetry.prod-master.cast.ai
+  # - api.eu.cast.ai -> telemetry.prod-eu.cast.ai
+  # - api.india.cast.ai -> telemetry.prod-india.cast.ai
+  # Unrecognized apiURL hosts fall back to telemetry.prod-master.cast.ai.
+  # Set a host explicitly to bypass derivation (e.g. for self-hosted).
+  telemetryURL: "auto"
   # apiURL is overridden by global.castai.apiURL under the CAST AI umbrella
   # chart (the umbrella value wins over this chart-local default).
   apiURL: "https://api.cast.ai"
@@ -203,7 +210,7 @@ migration:
   # distroless base ships neither rsync nor `du`. Per-migration
   # overrides via spec.rsyncOptions.image take precedence. Maps to
   # the RSYNC_WORKER_POD_IMAGE env var on the migration container.
-  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.4.1
+  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.5.0
   # rsyncDaemonPort is the TCP port the rsync daemon binds to on the
   # worker pods created during PVC migration. Maps to the
   # RSYNC_DAEMON_PORT env var on the migration container.
@@ -216,7 +223,7 @@ migration:
   # required when enabled=true; the chart never generates secret values,
   # so renders stay identical across GitOps/Terraform re-renders.
   workerAuth:
-    enabled: true
+    enabled: false
     # token is the inline HMAC key for quick setups; it is rendered into
     # a chart-managed Secret, so do not commit it in plain form. Generate
     # one with: openssl rand -hex 32

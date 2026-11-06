@@ -28,7 +28,10 @@ globals — standalone installs that never set them render exactly as before:
   `migration.rsyncWorkerPodImage`.
 - `global.imagePullSecrets` is merged with `image.pullSecrets`;
   `global.tolerations` is merged into controller and migration webhook pods.
-- `global.castai.apiURL` overrides `castai.apiURL`.
+- `global.castai.apiURL` overrides `castai.apiURL`. With the default
+  `castai.telemetryURL: "auto"`, the controller derives the telemetry endpoint
+  from the resolved API URL at runtime, so an umbrella-provided API URL also
+  redirects metrics to the matching environment.
 - `global.castai.apiKeySecretRef` (a bare Secret name, key `API_KEY`) is used
   when `castai.apiKeySecretRef.name` is unset, e.g. to consume the umbrella's
   shared `castai-credentials` Secret.

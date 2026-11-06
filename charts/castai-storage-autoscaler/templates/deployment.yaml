@@ -117,8 +117,8 @@ spec:
             - name: PERFORMANCE_CHANGE_COOLDOWN
               value: {{ .Values.config.performance.changeCooldown | quote }}
             {{- if and .Values.castai .Values.castai.enabled }}
-            - name: TELEMETRY_API
-              value: "{{ .Values.castai.telemetryAPI}}"
+            - name: TELEMETRY_URL
+              value: "{{ .Values.castai.telemetryURL }}"
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
@@ -223,8 +223,8 @@ spec:
                   {{- end }}
             {{- end }}
             {{- if and .Values.castai .Values.castai.enabled }}
-            - name: TELEMETRY_API
-              value: "{{ .Values.castai.telemetryAPI}}"
+            - name: TELEMETRY_URL
+              value: "{{ .Values.castai.telemetryURL }}"
             - name: API_KEY
               valueFrom:
                 secretKeyRef:
