@@ -78,11 +78,11 @@ spec:
             - -c
             - |
               echo "KENT preflight: validating Karpenter installation."
-              echo "Gates (must pass): Karpenter CRDs. The in-cluster controller probe below is informational and never gates the install."
+              echo "Gates (must pass): Karpenter CRDs. Managed control planes (AKS NAP, EKS Auto Mode) are detected via their node class CRDs. The in-cluster controller probe below is informational and never gates the install."
 
               echo "[gate] Checking for CRD nodepools.karpenter.sh..."
               if ! kubectl get crd nodepools.karpenter.sh --ignore-not-found \
-                | grep -q nodepools.karpenter.sh; then
+                | grep -qF 'nodepools.karpenter.sh'; then
                 echo "ERROR: CRD nodepools.karpenter.sh not found in cluster."
                 echo "Karpenter (self-hosted or cloud-managed, e.g. AKS NAP) must be installed before enabling KENT."
                 exit 1
@@ -94,12 +94,12 @@ spec:
                 echo "ERROR: unable to list CRDs for AKS detection: $aks_crds"
                 exit 1
               fi
-              if printf '%s\n' "$aks_crds" | grep -q 'karpenter\.azure\.com'; then
+              if printf '%s\n' "$aks_crds" | grep -qF 'karpenter.azure.com'; then
                 aks=1
                 echo "[info] AKS cluster detected: CRDs in group karpenter.azure.com present."
                 echo "[gate] Checking for CRD aksnodeclasses.karpenter.azure.com..."
                 if ! kubectl get crd aksnodeclasses.karpenter.azure.com --ignore-not-found \
-                  | grep -q aksnodeclasses.karpenter.azure.com; then
+                  | grep -qF 'aksnodeclasses.karpenter.azure.com'; then
                   echo "ERROR: AKS cluster detected but CRD aksnodeclasses.karpenter.azure.com not found."
                   echo "Ensure Karpenter (AKS NAP or self-hosted) is fully installed before enabling KENT."
                   exit 1
@@ -109,11 +109,31 @@ spec:
                 aks=0
                 echo "[info] Not an AKS Karpenter cluster; skipping the AKS CRD gate."
               fi
+
+              # EKS Auto Mode is detected by its NodeClass CRD directly: the
+              # eks.amazonaws.com API group cannot be used for detection because
+              # it also hosts CRDs present on every EKS cluster (cninodes,
+              # ingressclassparams), and pod.eks.amazonaws.com (EKS Pod Identity)
+              # is a substring match for any group-based grep.
+              echo "[info] Checking for EKS Auto Mode (CRD nodeclasses.eks.amazonaws.com)..."
+              if ! eks_crd="$(kubectl get crd nodeclasses.eks.amazonaws.com --ignore-not-found 2>&1)"; then
+                echo "[warn] CRD check failed, assuming not EKS Auto Mode: ${eks_crd}"
+                eks=0
+              elif printf '%s\n' "${eks_crd}" | grep -qF 'nodeclasses.eks.amazonaws.com'; then
+                eks=1
+                echo "[info] EKS Auto Mode cluster detected: CRD nodeclasses.eks.amazonaws.com present."
+                echo "[gate] OK: CRD nodeclasses.eks.amazonaws.com found."
+              else
+                eks=0
+                echo "[info] Not an EKS Auto Mode cluster; skipping the EKS Auto Mode gate."
+              fi
               {{- if .Values.kent.managedKarpenter }}
               echo "[info] kent.managedKarpenter=true: Karpenter controller is cloud-managed out-of-band (e.g. AKS NAP); skipping the in-cluster controller lookup."
               {{- else }}
               if [ "${aks:-0}" -eq 1 ]; then
                 echo "[info] AKS cluster: Karpenter controller runs in the AKS-managed control plane out-of-band; skipping the in-cluster controller lookup."
+              elif [ "${eks:-0}" -eq 1 ]; then
+                echo "[info] EKS Auto Mode cluster: Karpenter controller runs in the EKS-managed control plane out-of-band; skipping the in-cluster controller lookup."
               else
                 echo "[info] Checking for in-cluster Karpenter controller deployment (informational only)..."
                 if kubectl get deployment -l app.kubernetes.io/name=karpenter -A --ignore-not-found \
