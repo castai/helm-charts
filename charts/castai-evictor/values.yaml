@@ -374,7 +374,7 @@ crdUpgrade:
   activeDeadlineSeconds: 240
   image:
     repository: registry.k8s.io/kubectl
-    tag: "v1.35.6"
+    tag: "v1.35.10"
     # crdUpgrade.image.digest -- Image digest for pinning (e.g. sha256:abc...). When set, appended to the image reference.
     digest: ""
     pullPolicy: IfNotPresent
