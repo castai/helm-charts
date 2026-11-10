@@ -137,18 +137,56 @@ spec:
                               Sharing defines optional GPU sharing configuration.
                               When nil, each pod gets a dedicated GPU.
                             properties:
+                              resources:
+                                description: |-
+                                  Resources defines the capacity dimensions for the shared strategy
+                                  (memory + utilization). Required for TimeSlicing and MPS.
+                                properties:
+                                  memory:
+                                    anyOf:
+                                    - type: integer
+                                    - type: string
+                                    description: Memory is the actual GPU memory needed
+                                      (e.g. "10Gi").
+                                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                    x-kubernetes-int-or-string: true
+                                  totalMemory:
+                                    anyOf:
+                                    - type: integer
+                                    - type: string
+                                    description: TotalMemory is the total GPU memory
+                                      for model targeting.
+                                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                    x-kubernetes-int-or-string: true
+                                  utilization:
+                                    anyOf:
+                                    - type: integer
+                                    - type: string
+                                    description: |-
+                                      Utilization is the fraction of GPU compute the workload needs
+                                      (e.g. "0.25"); summed across pods sharing a GPU, capped at 1.0.
+                                    pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                    x-kubernetes-int-or-string: true
+                                required:
+                                - memory
+                                - utilization
+                                type: object
                               strategy:
                                 description: Strategy defines the sharing strategy.
                                 enum:
                                 - TimeSlicing
+                                - MPS
                                 type: string
                               timeSlicing:
                                 description: |-
-                                  TimeSlicing is the configuration for time-slicing sharing.
-                                  Required when strategy is TimeSlicing.
+                                  TimeSlicing holds TimeSlicing-specific settings.
+                                  Deprecated: capacity lives in Resources; timeSlicing.resources is
+                                  still accepted for recommendations written before it moved.
                                 properties:
                                   interval:
-                                    description: Interval defines the scheduling interval.
+                                    description: |-
+                                      Interval defines the scheduling interval. Applies to the TimeSlicing
+                                      strategy only; ignored for MPS.
                                     enum:
                                     - Default
                                     - Short
@@ -156,8 +194,9 @@ spec:
                                     - Long
                                     type: string
                                   resources:
-                                    description: Resources defines the capacity dimensions
-                                      for time-slicing.
+                                    description: |-
+                                      Resources defines the capacity dimensions.
+                                      Deprecated: use GpuSharing.Resources.
                                     properties:
                                       memory:
                                         anyOf:
@@ -179,21 +218,23 @@ spec:
                                         anyOf:
                                         - type: integer
                                         - type: string
-                                        description: Utilization is the fraction of
-                                          SM active time (e.g. "0.25").
+                                        description: |-
+                                          Utilization is the fraction of GPU compute the workload needs
+                                          (e.g. "0.25"); summed across pods sharing a GPU, capped at 1.0.
                                         pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
                                         x-kubernetes-int-or-string: true
                                     required:
                                     - memory
                                     - utilization
                                     type: object
-                                required:
-                                - interval
-                                - resources
                                 type: object
                             required:
                             - strategy
                             type: object
+                            x-kubernetes-validations:
+                            - message: resources is required for shared strategies
+                              rule: '!(self.strategy in [''TimeSlicing'',''MPS''])
+                                || has(self.resources) || has(self.timeSlicing.resources)'
                         required:
                         - count
                         - deviceClassName
