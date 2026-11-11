@@ -41,6 +41,9 @@ spec:
         {{- toYaml . | nindent 8 }}
         {{- end }}
     spec:
+      {{- with .Values.priorityClass.name }}
+      priorityClassName: {{ . }}
+      {{- end }}
       # 60s pgdog shutdown_timeout + 5s margin, plus the preStop sleep above.
       terminationGracePeriodSeconds: {{ add .Values.connection_draining.pre_stop_sleep_seconds 65 }}
       {{- with .Values.pooling.topologySpreadConstraints }}
