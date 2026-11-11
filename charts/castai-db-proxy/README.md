@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.36.0](https://img.shields.io/badge/Version-0.36.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.37.0](https://img.shields.io/badge/Version-0.37.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -71,6 +71,9 @@ CAST AI database proxy cache deployment.
 | ports.metrics | int | `9090` | Prometheus metrics port. |
 | ports.readOnly | int | `6142` | Port the proxy listens on for read-only connections. Only used when a read-only upstream endpoint is configured: clients then connect through the `<release>-ro` service, which exposes the protocol's default port targeting this port. |
 | ports.readWrite | int | `6141` | Port the proxy listens on for read-write connections. Clients connect through the release service, which exposes the protocol's default port (5432 PostgreSQL, 3306 MySQL) targeting this port. |
+| priorityClass.create | bool | `true` | Whether the chart creates the PriorityClass. Set to false to reference a PriorityClass that already exists in the cluster. |
+| priorityClass.name | string | `"castai-db-proxy"` | Name of the PriorityClass assigned to the proxy and pooler pods. When installing multiple releases into one cluster, set a unique name per release to avoid collisions over the shared cluster-scoped resource. Set to "" to disable entirely: pods then keep the cluster default priority. |
+| priorityClass.value | int | `1000000000` | Priority value of the created class (only used with create: true). 1,000,000,000 is the maximum user-definable value; higher values are reserved for kube-system. |
 | protocol | string | `"PostgreSQL"` | Database protocol. |
 | proxyID | string | `""` | ID of this proxy instance. |
 | queryMetricsBufferSize | int | `50000` | Maximum query metrics queued before new ones are dropped |

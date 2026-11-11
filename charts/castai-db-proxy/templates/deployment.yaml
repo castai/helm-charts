@@ -33,6 +33,9 @@ spec:
       {{- if .Values.serviceAccountName }}
       serviceAccountName: {{ .Values.serviceAccountName }}
       {{- end }}
+      {{- with .Values.priorityClass.name }}
+      priorityClassName: {{ . }}
+      {{- end }}
       terminationGracePeriodSeconds: {{ add .Values.connection_draining.grace_period_seconds .Values.connection_draining.graceful_shutdown_timeout_seconds .Values.connection_draining.pre_stop_sleep_seconds 5 }}
       {{- with .Values.dnsPolicy }}
       dnsPolicy: {{ . }}

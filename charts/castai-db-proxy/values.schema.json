@@ -311,6 +311,24 @@
     "serviceAccountName": {
       "type": "string"
     },
+    "priorityClass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "create", "value"],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "create": {
+          "type": "boolean"
+        },
+        "value": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000000
+        }
+      }
+    },
     "tolerations": {
       "type": ["array", "null"],
       "items": {

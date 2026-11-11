@@ -110,6 +110,20 @@ image:
 # -- The name of the service account to be used by the pod.
 serviceAccountName: ""
 
+# PriorityClass configuration for the proxy and pooler pods. Priority determines eviction order during scheduler
+# preemption (e.g. routine node maintenance): higher-priority pods are evicted last.
+priorityClass:
+  # -- Name of the PriorityClass assigned to the proxy and pooler pods. When installing multiple releases into one
+  # cluster, set a unique name per release to avoid collisions over the shared cluster-scoped resource. Set to "" to
+  # disable entirely: pods then keep the cluster default priority.
+  name: "castai-db-proxy"
+  # -- Whether the chart creates the PriorityClass. Set to false to reference a PriorityClass that already exists in
+  # the cluster.
+  create: true
+  # -- Priority value of the created class (only used with create: true). 1,000,000,000 is the maximum user-definable
+  # value; higher values are reserved for kube-system.
+  value: 1000000000
+
 # -- Pod toleration rules.
 tolerations: []
 

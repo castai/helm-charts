@@ -1,0 +1,12 @@
+{{- if and .Values.priorityClass.name .Values.priorityClass.create }}
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: {{ .Values.priorityClass.name }}
+  labels:
+    {{- include "castai-db-proxy.labels" . | nindent 4 }}
+value: {{ .Values.priorityClass.value | int }}
+preemptionPolicy: PreemptLowerPriority
+globalDefault: false
+description: "CAST AI database proxy pods. Evict only if nothing else fits on the node."
+{{- end }}
