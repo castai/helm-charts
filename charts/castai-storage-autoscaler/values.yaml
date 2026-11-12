@@ -2,7 +2,7 @@ image:
   # repository is prepended with global.registry when this chart is installed
   # as a sub-chart of the CAST AI umbrella chart with that value set.
   repository: ghcr.io/castai/images/storage-autoscaler
-  tag: v0.5.0
+  tag: v0.6.0
   pullPolicy: IfNotPresent
   # pullSecrets is merged with global.imagePullSecrets under the CAST AI
   # umbrella chart. Pod tolerations are likewise merged with
@@ -201,16 +201,20 @@ serviceAccount:
 # PV migration components and related configuration
 migration:
   enabled: false
-  # rsyncWorkerPodImage is the container image used for the source/
-  # target worker pods that the controller creates during a migration:
-  # they mount the PVC, run the rsync server/client, and serve the
-  # worker HTTP API (du, daemon control). This is a *different* image
-  # from the controller (image.*) — built from Dockerfile.worker
-  # (alpine + rsync + GNU coreutils) because the controller's
-  # distroless base ships neither rsync nor `du`. Per-migration
-  # overrides via spec.rsyncOptions.image take precedence. Maps to
-  # the RSYNC_WORKER_POD_IMAGE env var on the migration container.
-  rsyncWorkerPodImage: ghcr.io/castai/images/storage-migration-worker:v0.5.0
+  # workerImage is the container image used for the source/target
+  # worker pods that the controller creates during a migration: they
+  # mount the PVC, run the rsync server/client, and serve the worker
+  # HTTP API (du, daemon control). This is a *different* image from
+  # the controller (image.*) — built from Dockerfile.worker (alpine +
+  # rsync + GNU coreutils) because the controller's distroless base
+  # ships neither rsync nor `du`. Per-migration overrides via
+  # spec.rsyncOptions.image take precedence. An empty tag falls back
+  # to .Chart.AppVersion; the release pipeline pins the tag in the
+  # packaged chart. Maps to the RSYNC_WORKER_POD_IMAGE env var on the
+  # migration container.
+  workerImage:
+    repository: ghcr.io/castai/images/storage-migration-worker
+    tag: "v0.6.0"
   # rsyncDaemonPort is the TCP port the rsync daemon binds to on the
   # worker pods created during PVC migration. Maps to the
   # RSYNC_DAEMON_PORT env var on the migration container.

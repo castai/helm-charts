@@ -25,7 +25,7 @@ The chart works standalone and as a sub-chart of the CAST AI umbrella chart
 globals — standalone installs that never set them render exactly as before:
 
 - `global.registry` is prepended to `image.repository` and
-  `migration.rsyncWorkerPodImage`.
+  `migration.workerImage.repository`.
 - `global.imagePullSecrets` is merged with `image.pullSecrets`;
   `global.tolerations` is merged into controller and migration webhook pods.
 - `global.castai.apiURL` overrides `castai.apiURL`. With the default

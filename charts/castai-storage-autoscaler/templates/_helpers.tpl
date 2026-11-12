@@ -88,16 +88,19 @@ umbrella chart provides one.
 {{- end }}
 
 {{/*
-Resolve migration.rsyncWorkerPodImage, prepending global.registry when set.
+Resolve migration.workerImage: prepends global.registry to the repository
+when set; an empty tag falls back to .Chart.AppVersion.
 */}}
 {{- define "castai-storage-autoscaler.workerPodImage" -}}
-{{- $image := required "migration.rsyncWorkerPodImage must be provided" .Values.migration.rsyncWorkerPodImage -}}
+{{- if .Values.migration.rsyncWorkerPodImage -}}
+{{- fail "migration.rsyncWorkerPodImage was removed: use migration.workerImage.repository and migration.workerImage.tag" -}}
+{{- end -}}
+{{- $repository := required "migration.workerImage.repository must be provided" .Values.migration.workerImage.repository -}}
 {{- $registry := ((.Values.global | default dict).registry) | default "" -}}
 {{- if $registry -}}
-{{- printf "%s/%s" (trimSuffix "/" $registry) $image -}}
-{{- else -}}
-{{- $image -}}
+{{- $repository = printf "%s/%s" (trimSuffix "/" $registry) $repository -}}
 {{- end -}}
+{{- printf "%s:%s" $repository (.Values.migration.workerImage.tag | default .Chart.AppVersion) -}}
 {{- end }}
 
 {{/*
