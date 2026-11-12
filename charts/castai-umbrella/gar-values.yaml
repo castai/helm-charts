@@ -79,7 +79,8 @@ autoscaler:
     image:
       repository: us-docker.pkg.dev/castai-hub/library/storage-autoscaler
     migration:
-      rsyncWorkerPodImage: us-docker.pkg.dev/castai-hub/library/storage-migration-worker:v0.5.0
+      workerImage:
+        repository: us-docker.pkg.dev/castai-hub/library/storage-migration-worker
 
 autoscaler-anywhere:
   castai-agent:
@@ -191,4 +192,5 @@ kent:
     image:
       repository: us-docker.pkg.dev/castai-hub/library/storage-autoscaler
     migration:
-      rsyncWorkerPodImage: us-docker.pkg.dev/castai-hub/library/storage-migration-worker:v0.5.0
+      workerImage:
+        repository: us-docker.pkg.dev/castai-hub/library/storage-migration-worker
