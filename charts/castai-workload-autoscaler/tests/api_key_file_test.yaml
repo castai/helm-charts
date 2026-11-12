@@ -1,0 +1,112 @@
+suite: workload-autoscaler API key file delivery (castai.useAPIKeyFile)
+templates:
+  - templates/deployment.yaml
+capabilities:
+  majorVersion: 1
+  minorVersion: 21
+  apiVersions:
+    - admissionregistration.k8s.io/v1
+tests:
+  - it: injects the API key via envFrom by default
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+    asserts:
+      - notContains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: API_KEY_FILE
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: workload-autoscaler
+      - notContains:
+          path: spec.template.spec.volumes
+          content:
+            name: api-key
+
+  - it: delivers the API key as a mounted file and skips envFrom when useAPIKeyFile is enabled
+    set:
+      castai.clusterID: test
+      castai.apiKey: test
+      castai.useAPIKeyFile: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: API_KEY_FILE
+            value: /var/run/castai-secrets/API_KEY
+      - notContains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: workload-autoscaler
+      - contains:
+          path: spec.template.spec.containers[0].volumeMounts
+          content:
+            mountPath: /var/run/castai-secrets
+            name: api-key
+            readOnly: true
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: api-key
+            secret:
+              defaultMode: 0440
+              secretName: workload-autoscaler
+
+  - it: mounts the referenced secret when useAPIKeyFile is used with apiKeySecretRef
+    set:
+      castai.clusterID: test
+      castai.apiKeySecretRef: customer-secret
+      castai.useAPIKeyFile: true
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].env
+          content:
+            name: API_KEY_FILE
+            value: /var/run/castai-secrets/API_KEY
+      - notContains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: customer-secret
+      - contains:
+          path: spec.template.spec.volumes
+          content:
+            name: api-key
+            secret:
+              defaultMode: 0440
+              secretName: customer-secret
+
+  - it: fails to render when useAPIKeyFile is enabled without an API key source
+    set:
+      castai.clusterID: test
+      castai.useAPIKeyFile: true
+    asserts:
+      - failedTemplate:
+          errorPattern: castai.apiKey, castai.apiKeySecretRef or global.castai.apiKeySecretRef must be provided
+
+  - it: keeps custom envFrom entries when useAPIKeyFile is enabled
+    set:
+      castai.clusterID: test
+      castai.apiKeySecretRef: customer-secret
+      castai.useAPIKeyFile: true
+      envFrom[0].configMapRef.name: custom-config
+    asserts:
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: workload-autoscaler
+      - contains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            configMapRef:
+              name: custom-config
+      - notContains:
+          path: spec.template.spec.containers[0].envFrom
+          content:
+            secretRef:
+              name: customer-secret

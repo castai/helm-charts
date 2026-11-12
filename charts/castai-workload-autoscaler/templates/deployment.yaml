@@ -92,6 +92,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.serviceAccountName
+            {{- if .Values.castai.useAPIKeyFile }}
+            - name: API_KEY_FILE
+              value: /var/run/castai-secrets/API_KEY
+            {{- end }}
             - name: WEBHOOK_NAME
               value: {{ include "workload-autoscaler.webhookName" . }}
             - name: SERVICE_NAME
@@ -249,7 +253,8 @@ spec:
             - secretRef:
                 name: {{ .Values.trustedCACertSecretRef -}}
             {{- end }}
-              {{- if or .Values.castai.apiKey $resolvedSecretRef }}
+          {{- if not .Values.castai.useAPIKeyFile }}
+            {{- if or .Values.castai.apiKey $resolvedSecretRef }}
             - secretRef:
                 {{- if .Values.castai.apiKey }}
                   {{- if ne $resolvedSecretRef "" }}
@@ -262,6 +267,7 @@ spec:
               {{- else if not .Values.envFrom -}}
               {{- fail "castai.apiKey, castai.apiKeySecretRef or envFrom must be provided" }}
               {{- end }}
+            {{- end }}
             - configMapRef:
                 {{- if .Values.castai.configMapRef}}
                 name: {{ .Values.castai.configMapRef }}
@@ -287,6 +293,11 @@ spec:
             - mountPath: /certs
               name: certs
               readOnly: true
+            {{- if .Values.castai.useAPIKeyFile }}
+            - mountPath: /var/run/castai-secrets
+              name: api-key
+              readOnly: true
+            {{- end }}
             {{- with .Values.extraVolumeMounts }}
             {{ toYaml . | nindent 12 }}
             {{- end }}
@@ -315,6 +326,16 @@ spec:
           secret:
             defaultMode: 420
             secretName: {{ include "workload-autoscaler.certsSecretName" . }}
+        {{- if .Values.castai.useAPIKeyFile }}
+        - name: api-key
+          secret:
+            defaultMode: 0440
+            {{- if .Values.castai.apiKey }}
+            secretName: workload-autoscaler
+            {{- else }}
+            secretName: {{ required "castai.apiKey, castai.apiKeySecretRef or global.castai.apiKeySecretRef must be provided" $resolvedSecretRef }}
+            {{- end }}
+        {{- end }}
         {{- with .Values.extraVolumes }}
         {{ toYaml . | nindent 8 }}
         {{- end }}

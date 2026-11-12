@@ -232,6 +232,11 @@ castai:
   configMapRef: ""
   # apiKey -- Token to be used for authorizing agent access to the API.
   apiKey: ""
+  # useAPIKeyFile -- Whether to deliver the API key to the pod as a mounted file instead of an environment variable.
+  # The credentials Secret (from castai.apiKey or castai.apiKeySecretRef) is mounted read-only at /var/run/castai-secrets
+  # and the Workload Autoscaler reads the key via the API_KEY_FILE env var. The pod needs podSecurityContext.fsGroup set
+  # (1005 by default), otherwise the non-root container cannot read the mounted key file.
+  useAPIKeyFile: false
   # apiURL -- URL of the CAST AI API.
   apiURL: "https://api.cast.ai"
   # -- Deprecated, use `castai.apiURL` instead (using this value will override `castai.apiURL`).
