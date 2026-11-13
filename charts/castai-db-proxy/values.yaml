@@ -352,9 +352,22 @@ pooling:
       cpu: "1"
       memoryRequest: "1Gi"
       memoryLimit: "1Gi"
-    # -- Name of an existing Secret containing the upstream DB credentials.
-    # The Secret must contain exactly these data keys, referenced via
-    # secretKeyRef: DATABASE_USERNAME and DATABASE_PASSWORD.
+    # -- Name of an existing Secret listing the upstream DB users that clients may log in to ProxySQL as.
+    # ProxySQL authenticates client connections against these users and opens backend connections with the
+    # same credentials, so every application user connecting through the pooler must be listed. The Secret
+    # must have a `users.json` key holding a JSON array of `{"username": ..., "password": ...}` objects.
+    # Pooler pods read it at startup: run `kubectl rollout restart deployment/<release>-pooler` after
+    # changing it. Example:
+    #   cat > users.json <<'EOF'
+    #   [
+    #     {"username": "orders_app", "password": "<password>"},
+    #     {"username": "billing_app", "password": "<password>"}
+    #   ]
+    #   EOF
+    #   kubectl create secret generic db-proxy-users --from-file=users.json
+    usersSecretRef: ""
+    # -- Deprecated: use `usersSecretRef`. Name of an existing Secret holding a single user's credentials in
+    # the DATABASE_USERNAME and DATABASE_PASSWORD data keys. May be combined with `usersSecretRef`.
     userSecretRef: ""
     config:
       # Number of ProxySQL worker threads.

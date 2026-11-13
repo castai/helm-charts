@@ -2,6 +2,9 @@
 {{- $pgdogEnabled := and .Values.pooling.pgdog  (eq .Values.protocol "PostgreSQL") -}}
 {{- $proxySqlEnabled := and .Values.pooling.proxySql (eq .Values.protocol "MySQL") -}}
 {{- $appName := include "castai-db-proxy.name" . -}}
+{{- if and $proxySqlEnabled (not (or .Values.pooling.proxySql.usersSecretRef .Values.pooling.proxySql.userSecretRef)) }}
+{{- fail "pooling.proxySql.usersSecretRef must be provided" }}
+{{- end }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -73,6 +76,11 @@ spec:
             name: {{ include "castai-db-proxy.name" . }}-proxysql-config
         - name: proxysql-config-output
           emptyDir: {}
+        {{- with .Values.pooling.proxySql.usersSecretRef }}
+        - name: proxysql-users
+          secret:
+            secretName: {{ . | quote }}
+        {{- end }}
         {{- end }}
       {{- if or $pgdogEnabled $proxySqlEnabled }}
       initContainers:
@@ -123,16 +131,26 @@ spec:
           image: "{{ .Values.pooling.proxySql.image.repository }}:{{ include "castai-db-proxy.proxySqlImage" . }}"
           imagePullPolicy: {{ .Values.pooling.proxySql.image.pullPolicy }}
           env:
-            - name: USERNAME
+            {{- with .Values.pooling.proxySql.usersSecretRef }}
+            - name: USERS_FILE
+              value: /etc/proxysql-users/users.json
+            - name: USERS_SECRET
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with .Values.pooling.proxySql.userSecretRef }}
+            - name: LEGACY_SECRET
+              value: {{ . | quote }}
+            - name: LEGACY_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: {{ required "userSecretRef must be provided" .Values.pooling.proxySql.userSecretRef | quote }}
+                  name: {{ . | quote }}
                   key: DATABASE_USERNAME
-            - name: PASSWORD
+            - name: LEGACY_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ required "userSecretRef must be provided" .Values.pooling.proxySql.userSecretRef | quote }}
+                  name: {{ . | quote }}
                   key: DATABASE_PASSWORD
+            {{- end }}
           command:
             - /bin/sh
             - -c
@@ -141,31 +159,88 @@ spec:
 
               CNF_FILE="/etc/proxysql/proxysql.cnf"
 
-              config_escape() {
-                value=$1
+              entries=$(perl -MJSON::PP -e '
+                use strict;
+                use warnings;
 
-                printf '%s' "$value" | sed \
-                  -e 's/\\/\\\\/g' \
-                  -e 's/"/\\"/g'
-              }
+                sub fail { die "proxysql-users-init: @_\n" }
 
-              escaped_user=$(config_escape "$USERNAME")
-              escaped_pass=$(config_escape "$PASSWORD")
+                sub escape {
+                  my $v = shift;
+                  $v =~ s/\\/\\\\/g;
+                  $v =~ s/"/\\"/g;
+                  $v =~ s/\x27/\x27\x27/g;
+                  return $v;
+                }
 
-              {
-                echo ""
-                echo "mysql_users="
-                echo "("
-                printf \
-                  '  { username="%s" , password="%s" , default_hostgroup=0 , active=1 }\n' \
-                  "$escaped_user" \
-                  "$escaped_pass"
-                echo ")"
-              } >> "$CNF_FILE"
+                my (@entries, %seen);
+                sub add_user {
+                  my ($user, $pass, $source) = @_;
+                  fail("empty username in $source") if $user eq "";
+                  fail("username \"$user\" in $source contains a control character")
+                    if $user =~ /[\x00-\x1f\x7f]/;
+                  fail("password of \"$user\" in $source contains a control character")
+                    if $pass =~ /[\x00-\x1f\x7f]/;
+                  if (exists $seen{$user}) {
+                    fail("username \"$user\" is listed more than once in $source") if $seen{$user} eq $source;
+                    fail("username \"$user\" is defined in both $seen{$user} and $source");
+                  }
+                  $seen{$user} = $source;
+                  push @entries, sprintf(
+                    "  { username=\"%s\" , password=\"%s\" , default_hostgroup=0 , active=1 }",
+                    escape($user), escape($pass));
+                }
+
+                if (defined $ENV{USERS_FILE}) {
+                  my $src = "users.json of Secret $ENV{USERS_SECRET}";
+                  open(my $fh, "<:raw", $ENV{USERS_FILE})
+                    or fail("Secret $ENV{USERS_SECRET} has no users.json key");
+                  my $raw = do { local $/; <$fh> };
+                  my $users = eval { JSON::PP->new->utf8->decode($raw) };
+                  unless (defined $users) {
+                    (my $err = $@) =~ s/ at -e line \d+\.\s*$//;
+                    fail("$src is not valid JSON: $err");
+                  }
+                  fail("$src must be a JSON array of {\"username\": ..., \"password\": ...} objects")
+                    unless ref $users eq "ARRAY";
+                  fail("$src lists no users") unless @$users;
+                  for my $i (0 .. $#$users) {
+                    my $u = $users->[$i];
+                    fail("entry $i of $src must be an object with username and password")
+                      unless ref $u eq "HASH";
+                    for my $key (sort keys %$u) {
+                      fail("entry $i of $src has unknown field \"$key\" (expected username and password)")
+                        unless $key eq "username" || $key eq "password";
+                    }
+                    for my $key ("username", "password") {
+                      fail("entry $i of $src is missing \"$key\"") unless defined $u->{$key};
+                      fail("\"$key\" of entry $i of $src must be a string") if ref $u->{$key};
+                    }
+                    my ($user, $pass) = ($u->{username}, $u->{password});
+                    utf8::encode($user);
+                    utf8::encode($pass);
+                    add_user($user, $pass, $src);
+                  }
+                }
+
+                if (defined $ENV{LEGACY_SECRET}) {
+                  add_user($ENV{LEGACY_USERNAME}, $ENV{LEGACY_PASSWORD},
+                    "Secret $ENV{LEGACY_SECRET} (userSecretRef)");
+                }
+
+                print join(",\n", @entries);
+              ')
+
+              printf '\nmysql_users=\n(\n%s\n)\n' "$entries" >> "$CNF_FILE"
           volumeMounts:
             - name: proxysql-config-output
               mountPath: /etc/proxysql
               readOnly: false
+            {{- if .Values.pooling.proxySql.usersSecretRef }}
+            - name: proxysql-users
+              mountPath: /etc/proxysql-users
+              readOnly: true
+            {{- end }}
           securityContext:
             capabilities:
               drop:
