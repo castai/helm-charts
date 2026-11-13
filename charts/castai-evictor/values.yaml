@@ -280,11 +280,11 @@ additionalEnv: {}
 apiKeySecretRef: ""
 
 # clusterVPA -- Cluster proportional vertical autoscaler for the evictor deployment
-# https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler.
+# https://github.com/castai/cluster-proportional-vertical-autoscaler.
 clusterVPA:
   repository: "ghcr.io/castai/images/cpa/cpvpa"
   enabled: true
-  version: v0.8.16
+  version: v0.8.17
   pollPeriodSeconds: 300
   resources: {}
   # configOverride -- Override the default ClusterVPA calculation configuration.

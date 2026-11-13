@@ -23,7 +23,7 @@ Cluster utilization defragmentation tool
 | clusterIdConfigMapKeyRef.name | string | `""` | name and of the config map with cluster id |
 | clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
 | clusterIdSecretKeyRef.name | string | `""` |  |
-| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"ghcr.io/castai/images/cpa/cpvpa","resources":{},"version":"v0.8.16"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/kubernetes-sigs/cluster-proportional-vertical-autoscaler. |
+| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"ghcr.io/castai/images/cpa/cpvpa","resources":{},"version":"v0.8.17"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/castai/cluster-proportional-vertical-autoscaler. |
 | commonAnnotations | object | `{}` |  |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | configMapLabels | object | `{}` |  |
