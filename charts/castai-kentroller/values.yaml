@@ -171,7 +171,7 @@ castai:
     # castai.commitmentBudgets.drainMode -- Controls over-limit drain enforcement.
     # - off (default): no drain plans are created; over-limit pools emit warning events only.
     # - safe: over-limit budget NodePools get auto-executing RebalancePlans that respect
-    #   PDBs and NodePool disruption budgets; kube-system and StatefulSet pods are not evicted.
+    #   PDBs and NodePool disruption budgets; 
     # - aggressive: drain plans ignore blocking PDBs and zero NodePool disruption budgets
     #   and evict aggressively until the pool is back within its limits.
     drainMode: off
