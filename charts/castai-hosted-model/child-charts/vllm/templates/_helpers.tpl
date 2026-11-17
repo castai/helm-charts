@@ -499,11 +499,3 @@ Usage: {{ include "modelCacheCheckerEnvVars" . | nindent 12 }}
 - name: DESTINATION_LOCAL_DIR
   value: "/cache-ready"
 {{- end }}
-
-{{/* Optional registry credentials shared by model serving and copy jobs. */}}
-{{- define "vllm.imagePullSecrets" -}}
-{{- with .Values.global.imagePullSecrets }}
-imagePullSecrets:
-  {{- toYaml . | nindent 2 }}
-{{- end }}
-{{- end }}

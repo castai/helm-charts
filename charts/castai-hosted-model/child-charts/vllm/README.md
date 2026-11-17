@@ -19,7 +19,6 @@ CAST AI hosted model deployment chart for vLLM.
 | enableEager | bool | `false` |  |
 | env | list | `[]` | Additional environment variables to set in the vLLM container |
 | extraArgs | list | `[]` | Extra arbitrary arguments to pass to vLLM |
-| global.imagePullSecrets | list | `[]` | Optional image pull Secrets for vLLM and its model-cache copy Job. |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/vllm-openai"` |  |
 | image.tag | string | `"v0.11.2"` |  |
 | kvCacheDtype | string | `"auto"` |  |

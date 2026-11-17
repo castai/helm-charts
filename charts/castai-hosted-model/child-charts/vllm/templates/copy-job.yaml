@@ -16,7 +16,6 @@ spec:
         {{- include "vllm.selectorLabels" . | nindent 8 }}
     spec:
       restartPolicy: Never
-      {{- include "vllm.imagePullSecrets" . | nindent 6 }}
       containers:
         - name: model-cache-copier
           image: "{{ .Values.modelDownloader.image.repository }}:{{ .Values.modelDownloader.image.tag }}"

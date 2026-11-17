@@ -97,7 +97,6 @@ spec:
         - name: cache-ready
           emptyDir: {}
         {{- end }}
-      {{- include "vllm.imagePullSecrets" . | nindent 6 }}
       containers:
         - name: "vllm"
           image: "{{ required "Required value 'image.repository' must be defined" .Values.image.repository }}:{{ required "Required value 'image.tag' must be defined" .Values.image.tag }}"

@@ -1,7 +1,3 @@
-global:
-  # -- Optional image pull Secrets for vLLM and its model-cache copy Job.
-  imagePullSecrets: []
-
 image:
   repository: "us-docker.pkg.dev/castai-hub/library/vllm-openai"
   tag: "v0.11.2"
