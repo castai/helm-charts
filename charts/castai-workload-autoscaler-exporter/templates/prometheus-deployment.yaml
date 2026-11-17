@@ -50,6 +50,9 @@ spec:
           args:
             - "--config.file=/etc/prometheus/prometheus.yml"
             - "--storage.tsdb.path=/prometheus/data"
+            {{- with .Values.prometheus.logLevel }}
+            - "--log.level={{ . }}"
+            {{- end }}
           ports:
             - containerPort: 9090
           resources:

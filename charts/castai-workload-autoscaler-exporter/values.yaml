@@ -241,6 +241,9 @@ prometheus:
   # itself via the workloads.cast.ai/configuration annotation. "on" (default) optimizes it,
   # "off" disables vertical optimization.
   verticalOptimization: "on"
+  # logLevel -- Prometheus --log.level (debug, info, warn, error). Empty keeps the Prometheus
+  # default (info). "debug" logs every failed scrape with its target and error.
+  logLevel: ""
   serviceAccount:
     # Specifies whether a service account should be created
     create: true
