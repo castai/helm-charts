@@ -70,6 +70,7 @@ spec:
       {{- if .Values.router.serviceDiscovery.enabled }}
       serviceAccountName: {{ include "sglang.router.fullname" . }}
       {{- end }}
+      {{- include "sglang.imagePullSecrets" . | nindent 6 }}
       containers:
         - name: router
           image: "{{ required "router.image.repository or image.repository must be set" $routerImageRepo }}:{{ required "router.image.tag or image.tag must be set" $routerImageTag }}"

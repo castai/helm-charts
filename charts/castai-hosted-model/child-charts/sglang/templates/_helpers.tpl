@@ -3,6 +3,16 @@ Expand the name of the chart.
 service.name is normally provided by the parent chart's per-model values. Fall
 back to a Release-derived name so resources never render with an empty name.
 */}}
+{{/* Optional registry credentials shared by all model workloads. Kept under
+     Helm's global namespace because standalone passes one set to every
+     component. Empty input emits nothing, preserving existing releases. */}}
+{{- define "sglang.imagePullSecrets" -}}
+{{- with .Values.global.imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
+
 {{- define "sglang.fullname" -}}
 {{ .Values.service.name | default (printf "%s-sglang" .Release.Name) | trunc 63 | trimSuffix "-" }}
 {{- end }}
