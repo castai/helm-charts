@@ -27,7 +27,7 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | castai-agent.apiKeySecretRef | string | `""` |  |
 | castai-agent.createNamespace | bool | `false` |  |
 | castai-agent.metadataStore.createConfigMap | bool | `true` |  |
-| castai-agent.replicaCount | int | `1` |  |
+| castai-agent.replicaCount | int | `2` |  |
 | castai-cluster-controller.aks.enabled | bool | `false` |  |
 | castai-cluster-controller.autoscaling.enabled | bool | `true` |  |
 | castai-cluster-controller.castai.apiKeySecretRef | string | `""` |  |
