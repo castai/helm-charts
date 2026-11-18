@@ -1,4 +1,110 @@
+{{- /*
+cpvpa RBAC. Rendered only when cpvpa itself is: without this guard the fallback
+Role below would grant patch on the evictor Deployment with no cpvpa deployed.
+*/}}
 {{- if .Values.clusterVPA.enabled }}
+{{- /* Opt-in dedicated cpvpa ServiceAccount; see the helper for when it applies. */}}
+{{- if eq (include "evictor.dedicatedCpvpaSA" .) "true" }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: {{ include "evictor.fullname" . }}-cpvpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  {{- with (include "evictor.annotations" . | fromYaml) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "evictor.fullname" . }}-cpvpa
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  {{- with (include "evictor.annotations" . | fromYaml) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+rules:
+  # cpvpa counts nodes once per poll to compute proportional resource requests
+  # for its target deployment. It only ever calls Nodes().List(), so no other
+  # node verb or node object access is granted
+  # (pkg/autoscaler/k8sclient/k8sclient.go: GetClusterSize).
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - list
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "evictor.fullname" . }}-cpvpa
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  {{- with (include "evictor.annotations" . | fromYaml) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "evictor.fullname" . }}-cpvpa
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "evictor.fullname" . }}-cpvpa
+    namespace: {{ .Release.Namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "evictor.fullname" . }}-cpvpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  {{- with (include "evictor.annotations" . | fromYaml) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+rules:
+  # ---
+  # Required for proportional vertical cluster autoscaler to adjust evictor requests/limits.
+  # ---
+  - apiGroups:
+      - "apps"
+    resources:
+      - deployments
+    resourceNames:
+      - {{ include "evictor.fullname" . }}
+    verbs:
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "evictor.fullname" . }}-cpvpa
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "evictor.labels" . | nindent 4 }}
+  {{- with (include "evictor.annotations" . | fromYaml) }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "evictor.fullname" . }}-cpvpa
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "evictor.fullname" . }}-cpvpa
+    namespace: {{ .Release.Namespace }}
+{{- else }}
+# cpvpa keeps the evictor ServiceAccount (the default, or RBAC managed outside
+# this chart), so it needs the patch permission on its own Deployment.
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
@@ -7,9 +113,9 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "evictor.labels" . | nindent 4 }}
-  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  {{- with (include "evictor.annotations" . | fromYaml) }}
   annotations:
-    {{- include "evictor.annotations" . | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 rules:
   # ---
@@ -31,9 +137,9 @@ metadata:
   labels:
     {{- include "evictor.labels" . | nindent 4 }}
   namespace: {{ .Release.Namespace }}
-  {{ if gt (len .Values.commonAnnotations) 0 -}}
+  {{- with (include "evictor.annotations" . | fromYaml) }}
   annotations:
-    {{- include "evictor.annotations" . | nindent 4 }}
+    {{- toYaml . | nindent 4 }}
   {{- end }}
 roleRef:
   apiGroup: rbac.authorization.k8s.io
@@ -43,4 +149,5 @@ subjects:
   - kind: ServiceAccount
     name: {{ include "evictor.serviceAccountName" . }}
     namespace: {{ .Release.Namespace }}
+{{- end }}
 {{- end }}

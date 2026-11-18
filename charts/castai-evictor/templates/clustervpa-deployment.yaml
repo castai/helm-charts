@@ -1,5 +1,6 @@
 {{- if .Values.clusterVPA.enabled }}
 apiVersion: apps/v1
+{{- $dedicatedCpvpaSA := eq (include "evictor.dedicatedCpvpaSA" .) "true" }}
 kind: Deployment
 metadata:
   name: {{ include "evictor.fullname" . }}-cpvpa
@@ -32,7 +33,11 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      {{- if $dedicatedCpvpaSA }}
+      serviceAccountName: {{ include "evictor.fullname" . }}-cpvpa
+      {{- else }}
       serviceAccountName: {{ include "evictor.serviceAccountName" . }}
+      {{- end }}
       automountServiceAccountToken: true
       {{- with include "evictor.tolerations" . }}
       tolerations:

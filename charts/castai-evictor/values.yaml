@@ -287,6 +287,12 @@ clusterVPA:
   version: v0.8.18
   pollPeriodSeconds: 300
   resources: {}
+  # clusterVPA.dedicatedServiceAccount.enabled -- Opt in to run cpvpa under a dedicated,
+  # least-privilege ServiceAccount (nodes list + patch of the evictor Deployment) instead of
+  # the evictor's ServiceAccount. Ignored when serviceAccount.create, rbac.enabled or
+  # global.rbac.clusterScoped.enabled is false.
+  dedicatedServiceAccount:
+    enabled: false
   # configOverride -- Override the default ClusterVPA calculation configuration.
   # configOverride: |-
   #   "requests": {
@@ -309,6 +315,7 @@ clusterVPA:
 # Container security context.
 # Ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
 containerSecurityContext:
+  runAsNonRoot: true
   allowPrivilegeEscalation: false
   readOnlyRootFilesystem: true
   capabilities:

@@ -136,3 +136,16 @@ Values are rendered as-is (original {enabled: bool} format).
   {{- end }}
 {{- end }}
 {{- end }}
+
+{{/*
+cpvpa runs under a dedicated least-privilege ServiceAccount only when opted in via
+clusterVPA.dedicatedServiceAccount.enabled (default off) and the chart manages the
+ServiceAccount and RBAC, including cluster-scoped RBAC (global.rbac.clusterScoped).
+Otherwise it keeps the evictor ServiceAccount, as before. Renders "true" or nothing.
+.Values is chartutil.Values, not a plain map, so dig() is given nested maps only.
+*/}}
+{{- define "evictor.dedicatedCpvpaSA" -}}
+{{- if and .Values.clusterVPA.enabled .Values.serviceAccount.create .Values.rbac.enabled (dig "rbac" "clusterScoped" "enabled" true (.Values.global | default dict)) (dig "dedicatedServiceAccount" "enabled" false (.Values.clusterVPA | default dict)) -}}
+true
+{{- end -}}
+{{- end }}

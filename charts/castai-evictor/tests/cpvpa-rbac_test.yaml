@@ -1,0 +1,138 @@
+suite: cpvpa RBAC gating
+templates:
+  - rbac.yaml
+
+tests:
+  # ── Default: cpvpa shares the evictor ServiceAccount (unchanged behaviour) ───
+
+  - it: keeps cpvpa on the evictor ServiceAccount by default
+    asserts:
+      # only the patch Role and its RoleBinding, as before
+      - hasDocuments:
+          count: 2
+
+  - it: grants the evictor ServiceAccount patch on its own Deployment by default
+    documentSelector:
+      path: kind
+      value: Role
+    asserts:
+      - equal:
+          path: metadata.name
+          value: castai-evictor
+      - equal:
+          path: rules[0].resourceNames[0]
+          value: castai-evictor
+      - equal:
+          path: rules[0].verbs[0]
+          value: patch
+
+  - it: binds the patch Role to the evictor ServiceAccount by default
+    documentSelector:
+      path: kind
+      value: RoleBinding
+    asserts:
+      - equal:
+          path: subjects[0].name
+          value: castai-evictor
+
+  # ── Opt-in: dedicated least-privilege identity ──────────────────────────────
+
+  - it: renders the dedicated cpvpa identity when opted in
+    set:
+      clusterVPA:
+        dedicatedServiceAccount:
+          enabled: true
+    asserts:
+      # ServiceAccount, ClusterRole, ClusterRoleBinding, Role, RoleBinding
+      - hasDocuments:
+          count: 5
+
+  - it: grants cpvpa only the node verb it actually uses
+    set:
+      clusterVPA:
+        dedicatedServiceAccount:
+          enabled: true
+    documentSelector:
+      path: kind
+      value: ClusterRole
+    asserts:
+      - equal:
+          path: metadata.name
+          value: castai-evictor-cpvpa
+      - equal:
+          path: rules[0].resources[0]
+          value: nodes
+      # cpvpa only calls Nodes().List() (pkg/autoscaler/k8sclient: GetClusterSize).
+      - equal:
+          path: rules[0].verbs
+          value:
+            - list
+
+  - it: scopes the cpvpa patch Role to the evictor Deployment only
+    set:
+      clusterVPA:
+        dedicatedServiceAccount:
+          enabled: true
+    documentSelector:
+      path: kind
+      value: Role
+    asserts:
+      - equal:
+          path: metadata.name
+          value: castai-evictor-cpvpa
+      - equal:
+          path: rules[0].resourceNames[0]
+          value: castai-evictor
+      - equal:
+          path: rules[0].verbs[0]
+          value: patch
+
+  # ── Opt-in ignored when the chart does not own the identity or RBAC ─────────
+  # cpvpa then keeps the evictor ServiceAccount and the patch Role, and no
+  # cluster-scoped object is created.
+
+  - it: ignores the opt-in when cluster-scoped RBAC is disabled
+    set:
+      clusterVPA:
+        dedicatedServiceAccount:
+          enabled: true
+      global:
+        rbac:
+          clusterScoped:
+            enabled: false
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  - it: ignores the opt-in when ServiceAccounts are managed outside the chart
+    set:
+      clusterVPA:
+        dedicatedServiceAccount:
+          enabled: true
+      serviceAccount:
+        create: false
+    asserts:
+      - hasDocuments:
+          count: 2
+
+  # ── clusterVPA disabled: no cpvpa RBAC at all ───────────────────────────────
+
+  - it: renders nothing when clusterVPA is disabled
+    set:
+      clusterVPA:
+        enabled: false
+    asserts:
+      - hasDocuments:
+          count: 0
+
+  # Regression: the fallback patch Role used to render with clusterVPA disabled
+  # whenever the dedicated SA could not be used, granting patch with no cpvpa.
+  - it: renders nothing when clusterVPA is disabled and ServiceAccounts are external
+    set:
+      clusterVPA:
+        enabled: false
+      serviceAccount:
+        create: false
+    asserts:
+      - hasDocuments:
+          count: 0

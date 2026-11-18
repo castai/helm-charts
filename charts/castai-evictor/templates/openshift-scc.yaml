@@ -6,6 +6,7 @@
 {{- if and .Values.securityContext .Values.containerSecurityContext }}
 {{- $sccEnabled := (.Values.openshift | default dict) | dig "scc" "enabled" true }}
 {{- $useRestrictedProfile := .Values.openshift.scc.useRestrictedProfile | default false }}
+{{- $dedicatedCpvpaSA := eq (include "evictor.dedicatedCpvpaSA" .) "true" }}
 {{- if $sccEnabled }}
 
 apiVersion: security.openshift.io/v1
@@ -17,6 +18,9 @@ metadata:
 # Scoped to the evictor service account only; other workloads must not match this SCC.
 users:
   - system:serviceaccount:{{ .Release.Namespace }}:{{ include "evictor.serviceAccountName" . }}
+  {{- if $dedicatedCpvpaSA }}
+  - system:serviceaccount:{{ .Release.Namespace }}:{{ include "evictor.fullname" . }}-cpvpa
+  {{- end }}
 groups: []
 allowHostDirVolumePlugin: false
 allowHostIPC: false
@@ -123,6 +127,11 @@ subjects:
 - kind: ServiceAccount
   name: {{ include "evictor.serviceAccountName" . }}
   namespace: {{ .Release.Namespace }}
+{{- if $dedicatedCpvpaSA }}
+- kind: ServiceAccount
+  name: {{ include "evictor.fullname" . }}-cpvpa
+  namespace: {{ .Release.Namespace }}
+{{- end }}
 roleRef:
   kind: ClusterRole
   name: {{ include "evictor.sccName" . }}-user

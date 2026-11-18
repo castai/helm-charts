@@ -43,20 +43,9 @@ tests:
 
   # ── SCC users ───────────────────────────────────────────────────────────────
 
-  - it: includes only the evictor SA when crdUpgrade is disabled
-    set:
-      crdUpgrade:
-        enabled: false
-    documentIndex: 0
-    asserts:
-      - lengthEqual:
-          path: users
-          count: 1
-      - equal:
-          path: users[0]
-          value: system:serviceaccount:NAMESPACE:castai-evictor
-
-  - it: includes only the evictor SA even when crdUpgrade is enabled
+  # Default: cpvpa shares the evictor ServiceAccount, the only user.
+  # CSU-6208: the crd-upgrade Job's SA is never a user, even when enabled.
+  - it: includes only the evictor SA by default, even when crdUpgrade is enabled
     set:
       crdUpgrade:
         enabled: true
@@ -68,6 +57,42 @@ tests:
       - equal:
           path: users[0]
           value: system:serviceaccount:NAMESPACE:castai-evictor
+
+  # Opted in: cpvpa runs under its own ServiceAccount but pins runAsUser/fsGroup
+  # to the values this SCC allows, so it has to be a user of it as well.
+  - it: includes the evictor and cpvpa SAs when the dedicated SA is enabled
+    set:
+      clusterVPA:
+        dedicatedServiceAccount:
+          enabled: true
+      crdUpgrade:
+        enabled: true
+    documentIndex: 0
+    asserts:
+      - lengthEqual:
+          path: users
+          count: 2
+      - equal:
+          path: users[0]
+          value: system:serviceaccount:NAMESPACE:castai-evictor
+      - equal:
+          path: users[1]
+          value: system:serviceaccount:NAMESPACE:castai-evictor-cpvpa
+      - notContains:
+          path: users
+          content: system:serviceaccount:NAMESPACE:castai-evictor-crd-upgrade
+
+  - it: includes only the evictor SA when opted in but clusterVPA is disabled
+    set:
+      clusterVPA:
+        enabled: false
+        dedicatedServiceAccount:
+          enabled: true
+    documentIndex: 0
+    asserts:
+      - lengthEqual:
+          path: users
+          count: 1
 
   # ── Default profile (useRestrictedProfile=false) ────────────────────────────
 

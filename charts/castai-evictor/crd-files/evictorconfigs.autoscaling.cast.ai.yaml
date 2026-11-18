@@ -70,6 +70,13 @@ spec:
                   snapshot sync in managed mode, applied as-is in self-managed mode.
                 - evictionRules: advanced per-workload/per-node eviction rules, always customer-managed.
             properties:
+              allowNodesWithoutCastNodeId:
+                description: |-
+                  AllowNodesWithoutCastNodeId permits draining nodes that do not carry the
+                  provisioner.cast.ai/node-id label. When false (default), such nodes are eliminated
+                  from drain candidacy. Set to true only for clusters without CAST AI node
+                  provisioning integration.
+                type: boolean
               config:
                 description: |-
                   Config holds all functional runtime configuration knobs.

@@ -23,13 +23,15 @@ Cluster utilization defragmentation tool
 | clusterIdConfigMapKeyRef.name | string | `""` | name and of the config map with cluster id |
 | clusterIdSecretKeyRef.key | string | `"CLUSTER_ID"` |  |
 | clusterIdSecretKeyRef.name | string | `""` |  |
-| clusterVPA | object | `{"enabled":true,"pollPeriodSeconds":300,"repository":"ghcr.io/castai/images/cpa/cpvpa","resources":{},"version":"v0.8.18"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/castai/cluster-proportional-vertical-autoscaler. |
+| clusterVPA | object | `{"dedicatedServiceAccount":{"enabled":false},"enabled":true,"pollPeriodSeconds":300,"repository":"ghcr.io/castai/images/cpa/cpvpa","resources":{},"version":"v0.8.18"}` | Cluster proportional vertical autoscaler for the evictor deployment https://github.com/castai/cluster-proportional-vertical-autoscaler. |
+| clusterVPA.dedicatedServiceAccount.enabled | bool | `false` | Opt in to run cpvpa under a dedicated, least-privilege ServiceAccount (nodes list + patch of the evictor Deployment) instead of the evictor's ServiceAccount. Ignored when serviceAccount.create, rbac.enabled or global.rbac.clusterScoped.enabled is false. |
 | commonAnnotations | object | `{}` |  |
 | commonLabels | object | `{}` | Labels to add to all resources. |
 | configMapLabels | object | `{}` |  |
 | containerSecurityContext.allowPrivilegeEscalation | bool | `false` |  |
 | containerSecurityContext.capabilities.drop[0] | string | `"ALL"` |  |
 | containerSecurityContext.readOnlyRootFilesystem | bool | `true` |  |
+| containerSecurityContext.runAsNonRoot | bool | `true` |  |
 | containerSecurityContext.seccompProfile.type | string | `"RuntimeDefault"` |  |
 | crdUpgrade | object | `{"activeDeadlineSeconds":240,"containerSecurityContext":{"allowPrivilegeEscalation":false,"capabilities":{"drop":["ALL"]},"readOnlyRootFilesystem":true},"enabled":true,"image":{"digest":"","pullPolicy":"IfNotPresent","repository":"registry.k8s.io/kubectl","tag":"v1.35.10"},"imagePullSecrets":[],"podAnnotations":{},"podLabels":{},"resources":{"limits":{"cpu":"200m","memory":"512Mi"},"requests":{"cpu":"100m","memory":"256Mi"}},"securityContext":{"fsGroup":1004,"runAsGroup":1004,"runAsNonRoot":true,"runAsUser":1004,"seccompProfile":{"type":"RuntimeDefault"}}}` | CRD upgrade configuration. Enables automatic CRD upgrade during helm install/upgrade operations via a pre-install/pre-upgrade hook Job. |
 | crdUpgrade.activeDeadlineSeconds | int | `240` | Overall deadline for the CRD upgrade Job. Bounds hook runtime so a stuck pod (e.g. image pull backoff) fails fast with a real error instead of Helm's generic timeout. Keep below the deploying pipeline's Helm --timeout (default 5m) so the Job fails first. |
