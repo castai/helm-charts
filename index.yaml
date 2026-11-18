@@ -64563,6 +64563,26 @@ entries:
         - name: Public Docs
           url: https://docs.cast.ai/docs/sec-kvisor-overview
     apiVersion: v2
+    appVersion: v2.0.0
+    created: "2026-11-18T09:14:17.447676768Z"
+    dependencies:
+    - alias: clickhouse-operator
+      condition: reliabilityMetrics.operator.enabled
+      name: altinity-clickhouse-operator
+      repository: https://docs.altinity.com/clickhouse-operator/
+      version: 0.27.0
+    description: CAST AI security and observability.
+    digest: 852a150f7abe820d716ef35954a732a28aad0e8fd07d45078104eb911afe6ce6
+    name: castai-kvisor
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-kvisor-2.0.0/castai-kvisor-2.0.0.tgz
+    version: 2.0.0
+  - annotations:
+      artifacthub.io/links: |
+        - name: Public Docs
+          url: https://docs.cast.ai/docs/sec-kvisor-overview
+    apiVersion: v2
     appVersion: v1.167.2
     created: "2026-11-11T13:49:52.306520374Z"
     dependencies:
@@ -91863,4 +91883,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-11-18T08:58:44.41727413Z"
+generated: "2026-11-18T09:14:17.452538633Z"
