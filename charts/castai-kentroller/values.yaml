@@ -175,6 +175,13 @@ castai:
     # - aggressive: drain plans ignore blocking PDBs and zero NodePool disruption budgets
     #   and evict aggressively until the pool is back within its limits.
     drainMode: off
+    # castai.commitmentBudgets.spFillEnabled -- Enables under-limit ComputeSP fill on
+    # top of the drain mode. Fill reuses the drain mode's semantics (safe or aggressive)
+    # and runs only while drainMode is not off.
+    # - false (default): no fill plans are created.
+    # - true: under-limit ComputeSP NodePools get auto-executing fill plans that migrate
+    #   source-pool workloads into the unused ComputeSP headroom.
+    spFillEnabled: false
   # castai.continuousRebalancing -- Continuous rebalancing feature configuration
   continuousRebalancing:
     # castai.continuousRebalancing.enabled -- Whether continuous rebalancing is enabled

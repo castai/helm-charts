@@ -105,6 +105,8 @@ spec:
               value: {{ .Values.castai.commitmentBudgets.nodePoolFilterMode | default "opt-out" | quote }}
             - name: COMMITMENT_BUDGETS_DRAIN_MODE
               value: {{ .Values.castai.commitmentBudgets.drainMode | default "off" | quote }}
+            - name: COMMITMENT_BUDGETS_SP_FILL_ENABLED
+              value: {{ .Values.castai.commitmentBudgets.spFillEnabled | quote }}
             - name: NODE_POOL_FILTER_MODE
               value: {{ .Values.nodePoolFilterMode | default "opt-out" | quote }}
             {{- if hasKey .Values.castai.rebalance "disruptGuard" }}
