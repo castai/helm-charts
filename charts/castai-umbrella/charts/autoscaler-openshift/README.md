@@ -8,7 +8,7 @@ Wrapper chart for CAST AI Autoscaler OpenShift profile.
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.164.2 |
+| https://castai.github.io/helm-charts | castai-agent | 0.164.5 |
 
 ## Values
 
@@ -25,7 +25,7 @@ Wrapper chart for CAST AI Autoscaler OpenShift profile.
 | castai-agent.openshift.scc.enabled | bool | `true` |  |
 | castai-agent.openshift.scc.useRestrictedProfile | bool | `true` |  |
 | castai-agent.provider | string | `"openshift"` |  |
-| castai-agent.replicaCount | int | `1` |  |
+| castai-agent.replicaCount | int | `2` |  |
 | castai-agent.securityContext.fsGroup | string | `nil` |  |
 | castai-agent.securityContext.runAsGroup | string | `nil` |  |
 | castai-agent.securityContext.runAsNonRoot | bool | `true` |  |
