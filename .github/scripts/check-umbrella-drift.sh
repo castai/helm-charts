@@ -93,6 +93,11 @@ configure_component() {
       COMPONENT_PATH="services/pod-mutator/chart"
       TAG_PREFIX="pod-mutator/v"
       ;;
+    castai-config-sync)
+      REPO_CLONE_DIR="kubecast"
+      COMPONENT_PATH="services/castai-config-sync/chart"
+      TAG_PREFIX="castai-config-sync/v"
+      ;;
     castai-spot-handler)
       REPO_CLONE_DIR="kubecast"
       COMPONENT_PATH="services/spot-handler/charts/castai-spot-handler"
