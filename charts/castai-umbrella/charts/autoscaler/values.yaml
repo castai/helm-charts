@@ -63,9 +63,8 @@ castai-cluster-controller:
 
 castai-evictor:
   # evictorEnabled -- Top-level kill-switch for the evictor.
-  # Required: install/upgrade fails if it is not set explicitly (the castai-evictor
-  # subchart's values.schema.json enforces this). When false, no evictions or
-  # node drains are performed regardless of other settings.
+  # Required when the evictor is enabled (castai-evictor.enabled=true or tags
+  # node-autoscaler/workload-autoscaler); enforced by the wrapper's values.schema.json.
   evictorEnabled: null
   replicaCount: 1
   aggressiveMode: false

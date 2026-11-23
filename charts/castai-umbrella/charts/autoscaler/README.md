@@ -8,13 +8,13 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://castai.github.io/helm-charts | castai-agent | 0.164.5 |
+| https://castai.github.io/helm-charts | castai-agent | 0.164.6 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.25 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.159 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.160 |
 | https://castai.github.io/helm-charts | castai-kvisor | 2.0.0 |
 | https://castai.github.io/helm-charts | castai-live | 0.149.0 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.17.14 |
-| https://castai.github.io/helm-charts | castai-pod-pinner | 1.15.1 |
+| https://castai.github.io/helm-charts | castai-pod-pinner | 1.15.2 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.17 |
 | https://castai.github.io/helm-charts | castai-storage-autoscaler | 0.6.0 |
 | https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.22.1 |
@@ -34,6 +34,7 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | castai-cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
 | castai-evictor.aggressiveMode | bool | `false` |  |
 | castai-evictor.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-evictor.evictorEnabled | string | `nil` |  |
 | castai-evictor.overrideEnvFrom | bool | `false` |  |
 | castai-evictor.replicaCount | int | `1` |  |
 | castai-kvisor.agent.gpu.enabled | bool | `true` |  |

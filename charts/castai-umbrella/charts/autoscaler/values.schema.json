@@ -2,6 +2,21 @@
   "$schema": "https://json-schema.org/draft-07/schema#",
   "title": "CAST AI autoscaler wrapper chart values",
   "type": "object",
+  "definitions": {
+    "evictorEnabledRequired": {
+      "properties": {
+        "castai-evictor": {
+          "type": "object",
+          "properties": {
+            "evictorEnabled": {
+              "type": "boolean"
+            }
+          },
+          "required": ["evictorEnabled"]
+        }
+      }
+    }
+  },
   "allOf": [
     {
       "description": "castai-evictor rule: when the evictor is explicitly enabled, evictorEnabled must be a set boolean.",
@@ -20,23 +35,23 @@
         "required": ["castai-evictor"]
       },
       "then": {
+        "$ref": "#/definitions/evictorEnabledRequired"
+      }
+    },
+    {
+      "description": "castai-evictor rule: when enablement comes from tags (node-autoscaler or workload-autoscaler) and the evictor is not explicitly disabled, evictorEnabled must be a set boolean.",
+      "if": {
         "properties": {
           "castai-evictor": {
             "type": "object",
             "properties": {
-              "evictorEnabled": {
-                "type": "boolean"
+              "enabled": {
+                "not": {
+                  "const": false
+                }
               }
-            },
-            "required": ["evictorEnabled"]
-          }
-        }
-      }
-    },
-    {
-      "description": "castai-evictor rule: when enablement comes from tags (node-autoscaler or workload-autoscaler), evictorEnabled must be a set boolean.",
-      "if": {
-        "properties": {
+            }
+          },
           "tags": {
             "type": "object",
             "anyOf": [
@@ -54,17 +69,7 @@
         "required": ["tags"]
       },
       "then": {
-        "properties": {
-          "castai-evictor": {
-            "type": "object",
-            "properties": {
-              "evictorEnabled": {
-                "type": "boolean"
-              }
-            },
-            "required": ["evictorEnabled"]
-          }
-        }
+        "$ref": "#/definitions/evictorEnabledRequired"
       }
     }
   ]
