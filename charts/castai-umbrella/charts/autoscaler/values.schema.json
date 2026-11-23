@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "title": "CAST AI autoscaler wrapper chart values",
+  "type": "object",
+  "allOf": [
+    {
+      "description": "castai-evictor rule: when the evictor is explicitly enabled, evictorEnabled must be a set boolean.",
+      "if": {
+        "properties": {
+          "castai-evictor": {
+            "type": "object",
+            "properties": {
+              "enabled": {
+                "const": true
+              }
+            },
+            "required": ["enabled"]
+          }
+        },
+        "required": ["castai-evictor"]
+      },
+      "then": {
+        "properties": {
+          "castai-evictor": {
+            "type": "object",
+            "properties": {
+              "evictorEnabled": {
+                "type": "boolean"
+              }
+            },
+            "required": ["evictorEnabled"]
+          }
+        }
+      }
+    },
+    {
+      "description": "castai-evictor rule: when enablement comes from tags (node-autoscaler or workload-autoscaler), evictorEnabled must be a set boolean.",
+      "if": {
+        "properties": {
+          "tags": {
+            "type": "object",
+            "anyOf": [
+              {
+                "properties": { "node-autoscaler": { "const": true } },
+                "required": ["node-autoscaler"]
+              },
+              {
+                "properties": { "workload-autoscaler": { "const": true } },
+                "required": ["workload-autoscaler"]
+              }
+            ]
+          }
+        },
+        "required": ["tags"]
+      },
+      "then": {
+        "properties": {
+          "castai-evictor": {
+            "type": "object",
+            "properties": {
+              "evictorEnabled": {
+                "type": "boolean"
+              }
+            },
+            "required": ["evictorEnabled"]
+          }
+        }
+      }
+    }
+  ]
+}
