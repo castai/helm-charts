@@ -130,6 +130,9 @@ autoscaler-openshift:
       repository: us-docker.pkg.dev/castai-hub/library/cpa/cpvpa
 
 kent:
+  preflight:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/bitnami/kubectl
   castai-agent:
     image:
       repository: us-docker.pkg.dev/castai-hub/library/agent

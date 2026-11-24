@@ -65,7 +65,7 @@ spec:
       containers:
         - name: preflight
           # kubectl v1.37.2
-          image: ghcr.io/castai/images/bitnami/kubectl@sha256:0b3b0999468fedb305078508c51b2aa3394314aea1d2d6758c12a56fb72d4973
+          image: {{ .Values.kent.preflight.image.repository }}@{{ .Values.kent.preflight.image.digest }}
           {{- with (dig "preflight" "resources" dict .Values.kent) }}
           resources:
             {{- toYaml . | nindent 12 }}
