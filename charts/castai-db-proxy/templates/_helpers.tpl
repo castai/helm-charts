@@ -101,6 +101,35 @@ one worker thread per available core.
 {{- default (include "castai-db-proxy.defaultProxySqlVersion" .) .Values.pooling.proxySql.image.tag }}
 {{- end }}
 
+{{- define "castai-db-proxy.cloudSqlProxyImage" -}}
+{{- default (include "castai-db-proxy.defaultCloudSqlProxyVersion" .) .Values.cloudSqlProxyImage.tag }}
+{{- end }}
+
+{{/*
+Exracts the host part of an endpoints[] address: everything before the trailing ":port".
+With cloudSqlProxy enabled the host is the Cloud SQL instance connection
+name (project:region:instance), which itself contains colons — hence only
+the last colon splits the port.
+*/}}
+{{- define "castai-db-proxy.endpointHost" -}}
+{{- $port := splitList ":" . | last -}}
+{{- trimSuffix (printf ":%s" $port) . -}}
+{{- end }}
+
+{{/*
+Whether the Cloud SQL Proxy sidecar should run in the proxy pod
+*/}}
+{{- define "castai-db-proxy.cloudSqlProxyInProxyPod" -}}
+{{- and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled (or (not .Values.pooling.enabled) (include "castai-db-proxy.directConnect" . | eq "true")) -}}
+{{- end }}
+
+{{/*
+Whether the Cloud SQL Proxy sidecar should run in the pooler pod
+*/}}
+{{- define "castai-db-proxy.cloudSqlProxyInPoolerPod" -}}
+{{- and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled .Values.pooling.enabled (eq .Values.protocol "PostgreSQL") -}}
+{{- end }}
+
 {{/*
 Name of the dedicated read-only service fronting the proxy. The base name is
 truncated to 60 characters before appending the "-ro" suffix so the final

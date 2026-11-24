@@ -308,6 +308,61 @@
     "image": {
       "$ref": "#/definitions/image"
     },
+    "cloudSqlProxy": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Cloud SQL Auth Proxy sidecar for GCP Cloud SQL connections. When enabled, the host part of each endpoints[] address is the Cloud SQL instance connection name (project:region:instance); the sidecar tunnels the instance to 127.0.0.1:basePort+index on the pod.",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections."
+        },
+        "basePort": {
+          "$ref": "#/definitions/port",
+          "description": "Starting number from which unique ports are sequentially assigned to each upstream Cloud SQL instance."
+        },
+        "privateIp": {
+          "type": "boolean",
+          "description": "Have the proxy connect over private IP if connecting from a VPC-native GKE cluster."
+        },
+        "autoIamAuthn": {
+          "type": "boolean",
+          "description": "Have the proxy connect with Automatic IAM authentication."
+        },
+        "resources": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "requests": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "cpu": {
+                  "description": "CPU request for the sidecar, e.g. \"1\" or \"500m\".",
+                  "anyOf": [
+                    {
+                      "type": "string",
+                      "pattern": "^[0-9]+(\\.[0-9]+)?m?$"
+                    },
+                    {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  ]
+                },
+                "memory": {
+                  "$ref": "#/definitions/memoryQuantity",
+                  "description": "Memory request for the sidecar."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "cloudSqlProxyImage": {
+      "$ref": "#/definitions/image"
+    },
     "serviceAccountName": {
       "type": "string"
     },

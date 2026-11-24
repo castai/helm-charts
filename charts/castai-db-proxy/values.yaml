@@ -107,6 +107,26 @@ image:
   # -- Overrides the image tag. Defaults to Chart.appVersion.
   tag: ""
 
+cloudSqlProxy:
+  # -- Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections.
+  enabled: false
+  # -- Starting number from which unique ports are sequentially assigned to each upstream Cloud SQL instance.
+  basePort: 10000
+  # -- Have the proxy connect over private IP if connecting from a VPC-native GKE cluster.
+  privateIp: false
+  # -- Have the proxy connect with Automatic IAM authentication.
+  autoIamAuthn: false
+  resources:
+    requests:
+      cpu: "1"
+      memory: "2Gi"
+
+cloudSqlProxyImage:
+  repository: gcr.io/cloud-sql-connectors/cloud-sql-proxy
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag. Defaults to the chart's default Cloud SQL Proxy version.
+  tag: ""
+
 # -- The name of the service account to be used by the pod.
 serviceAccountName: ""
 

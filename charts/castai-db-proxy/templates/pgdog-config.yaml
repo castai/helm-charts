@@ -49,16 +49,22 @@ data:
     password = {{ .Values.pooling.pgdog.admin.password | quote }}
 
     {{- $databases := .Values.pooling.databases | default (list "postgres") }}
+    {{- $cloudSql := include "castai-db-proxy.cloudSqlProxyInPoolerPod" . | eq "true" }}
     {{- range $database := $databases }}
-    {{- range $.Values.endpoints }}
+    {{- range $index, $endpoint := $.Values.endpoints }}
 
     [[databases]]
     name = {{ $database | quote }}
-    {{- $port := splitList ":" .address | last }}
-    {{- $host := trimSuffix (printf ":%s" $port) .address }}
+    {{- if $cloudSql }}
+    host = "127.0.0.1"
+    port = {{ add $.Values.cloudSqlProxy.basePort $index }}
+    {{- else }}
+    {{- $port := splitList ":" $endpoint.address | last }}
+    {{- $host := trimSuffix (printf ":%s" $port) $endpoint.address }}
     host = {{ $host | quote }}
     port = {{ $port }}
-    role = {{ ternary "replica" "primary" .readonly | quote }}
+    {{- end }}
+    role = {{ ternary "replica" "primary" $endpoint.readonly | quote }}
     {{- end }}
     {{- end }}
 {{- end }}
