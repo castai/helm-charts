@@ -455,8 +455,8 @@ spec:
             - "--auto-iam-authn"
             {{- end }}
             - "--structured-logs"
-            # Keep tunnels open for pgdog's shutdown_timeout plus its 5s margin.
-            - "--max-sigterm-delay=65s"
+            # Keep tunnels open through preStop and pgdog's shutdown_timeout plus its 5s margin.
+            - "--max-sigterm-delay={{ add .Values.connection_draining.pre_stop_sleep_seconds 65 }}s"
             {{- range $index, $endpoint := .Values.endpoints }}
             - "{{ include "castai-db-proxy.endpointHost" $endpoint.address }}?port={{ add $.Values.cloudSqlProxy.basePort $index }}"
             {{- end }}
