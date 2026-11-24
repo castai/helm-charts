@@ -1,6 +1,6 @@
 # castai-db-proxy
 
-![Version: 0.38.0](https://img.shields.io/badge/Version-0.38.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
+![Version: 0.39.0](https://img.shields.io/badge/Version-0.39.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square)
 
 CAST AI database proxy cache deployment.
 
@@ -14,6 +14,15 @@ CAST AI database proxy cache deployment.
 | apiURL | string | `"api-grpc.cast.ai"` | URL to the CAST AI gRPC API server. |
 | cache.analysisMemoMiB | int | `512` | Memory in MiB each proxy pod may use to remember how it analyzed each SQL statement, so repeated statements skip parsing. Also caps the largest statement it can remember. Raise it if the pod has spare memory and the workload sends many distinct or very large statements. |
 | cache.defaultTTLSecs | int | `300` | Default TTL for cached results in seconds. |
+| cloudSqlProxy.autoIamAuthn | bool | `false` | Have the proxy connect with Automatic IAM authentication. |
+| cloudSqlProxy.basePort | int | `10000` | Starting number from which unique ports are sequentially assigned to each upstream Cloud SQL instance. |
+| cloudSqlProxy.enabled | bool | `false` | Enable Cloud SQL Proxy sidecar for GCP Cloud SQL connections. |
+| cloudSqlProxy.privateIp | bool | `false` | Have the proxy connect over private IP if connecting from a VPC-native GKE cluster. |
+| cloudSqlProxy.resources.requests.cpu | string | `"1"` |  |
+| cloudSqlProxy.resources.requests.memory | string | `"2Gi"` |  |
+| cloudSqlProxyImage.pullPolicy | string | `"IfNotPresent"` |  |
+| cloudSqlProxyImage.repository | string | `"gcr.io/cloud-sql-connectors/cloud-sql-proxy"` |  |
+| cloudSqlProxyImage.tag | string | `""` | Overrides the image tag. Defaults to the chart's default Cloud SQL Proxy version. |
 | cluster.connectionsPerPeer | string | `""` | Connections each pod opens to every peer. Leave empty to use one per worker thread (see serverThreads), which lets peer traffic grow with resources.cpu. Set explicitly only to override that. |
 | cluster.enabled | bool | `true` | Enable distributed cache cluster mode. |
 | cluster.refresh_interval_seconds | int | `10` | Refresh interval of DNS for peer discovery in seconds. |
