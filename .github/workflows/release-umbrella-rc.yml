@@ -107,6 +107,7 @@ jobs:
             castai-chart-upgrader
             castai-watchdog
             castai-config-sync
+            castai-storage-autoscaler
           )
 
           for name in "${TRACKED[@]}"; do
@@ -239,6 +240,7 @@ jobs:
           declare -A IMAGE_TAG_PATHS=(
             [castai-workload-autoscaler-exporter]='.autoscaler."castai-workload-autoscaler-exporter".exporter.image.tag'
             [castai-live]='.autoscaler."castai-live".daemon.image.tag .autoscaler."castai-live".controller.image.tag .autoscaler."castai-live".tc.image.tag'
+            [castai-storage-autoscaler]='.autoscaler."castai-storage-autoscaler".image.tag .autoscaler."castai-storage-autoscaler".migration.workerImage.tag'
           )
           YQ_PATHS_STR="${IMAGE_TAG_PATHS[$COMPONENT]:-".autoscaler.\"${COMPONENT}\".image.tag"}"
           read -ra YQ_PATHS <<< "$YQ_PATHS_STR"
