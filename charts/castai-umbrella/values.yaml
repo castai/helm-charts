@@ -24,6 +24,11 @@ kent:
   managedKarpenter: false
   preflight:
     enabled: true
+    image:
+      # kent.preflight.image.repository -- KENT preflight kubectl image repository.
+      repository: ghcr.io/castai/images/bitnami/kubectl
+      # kent.preflight.image.digest -- KENT preflight kubectl image digest.
+      digest: sha256:0b3b0999468fedb305078508c51b2aa3394314aea1d2d6758c12a56fb72d4973
   # castai-storage-autoscaler is opt-in (EKS and GKE only), disabled by default:
   #   --set kent.castai-storage-autoscaler.enabled=true
   castai-storage-autoscaler:

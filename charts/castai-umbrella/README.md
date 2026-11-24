@@ -310,6 +310,8 @@ managed by the chart, so it is safe to keep across chart upgrades.
 | kent.enabled | bool | `false` |  |
 | kent.managedKarpenter | bool | `false` | Set true when the Karpenter controller is cloud-managed out-of-band (e.g. AKS NAP); the preflight hook will skip the in-cluster controller lookup instead of warning. |
 | kent.preflight.enabled | bool | `true` |  |
+| kent.preflight.image.digest | string | `"sha256:0b3b0999468fedb305078508c51b2aa3394314aea1d2d6758c12a56fb72d4973"` | KENT preflight kubectl image digest. |
+| kent.preflight.image.repository | string | `"ghcr.io/castai/images/bitnami/kubectl"` | KENT preflight kubectl image repository. |
 | tags | object | `{"autoscaler-anywhere":false,"autoscaler-openshift":false,"full":false,"node-autoscaler":false,"readonly":false,"workload-autoscaler":false}` | Profile mode selection (mutually exclusive — pick one). Component overrides are stable across all mode upgrades with --reuse-values:   --set autoscaler.castai-kvisor.enabled=false |
 
 ----------------------------------------------
