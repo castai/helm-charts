@@ -307,7 +307,6 @@ managed by the chart, so it is safe to keep across chart upgrades.
 | global.imagePullSecrets | list | `[]` |  |
 | global.registry | string | `""` |  |
 | global.tolerations | list | `[]` |  |
-| kent.castai-config-sync | object | `{"enabled":false}` | config-sync-operator wires the dedicated operator token at install time. |
 | kent.castai-storage-autoscaler.enabled | bool | `false` |  |
 | kent.enabled | bool | `false` |  |
 | kent.managedKarpenter | bool | `false` | Set true when the Karpenter controller is cloud-managed out-of-band (e.g. AKS NAP); the preflight hook will skip the in-cluster controller lookup instead of warning. |
