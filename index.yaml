@@ -34164,6 +34164,21 @@ entries:
     version: 0.0.2
   castai-ai-optimizer-proxy:
   - apiVersion: v2
+    appVersion: v1.2.41
+    created: "2026-11-25T11:02:01.666081915Z"
+    dependencies:
+    - condition: aibrix.enabled
+      name: aibrix
+      repository: file://child-charts/aibrix
+      version: 0.1.2
+    description: AI Optimizer Proxy deployment chart.
+    digest: 4c312aedbcdedccea7a124781d5c93ede7e429f84ea96f34595c327834c222b0
+    name: castai-ai-optimizer-proxy
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-ai-optimizer-proxy-0.0.275/castai-ai-optimizer-proxy-0.0.275.tgz
+    version: 0.0.275
+  - apiVersion: v2
     appVersion: v1.2.40
     created: "2026-11-24T16:08:59.889484969Z"
     dependencies:
@@ -92816,4 +92831,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-11-24T16:08:59.898262924Z"
+generated: "2026-11-25T11:02:01.672450298Z"
