@@ -20,6 +20,11 @@ global:
 
 kent:
   enabled: false
+  # castai-config-sync is opt-in, disabled by default via the umbrella root
+  # (kent.castai-config-sync.enabled=false). castctl cluster connect
+  # --config-sync-operator wires the dedicated operator token at install time.
+  castai-config-sync:
+    enabled: false
   # kent.managedKarpenter -- Set true when the Karpenter controller is cloud-managed out-of-band (e.g. AKS NAP); the preflight hook will skip the in-cluster controller lookup instead of warning.
   managedKarpenter: false
   preflight:
@@ -50,6 +55,13 @@ autoscaler:
   # in every mode so the mode tags never activate it:
   #   --set autoscaler.castai-storage-autoscaler.enabled=true
   castai-storage-autoscaler:
+    enabled: false
+  # castai-config-sync is opt-in, disabled by default in every mode so the mode
+  # tags never activate it:
+  #   --set autoscaler.castai-config-sync.enabled=true
+  # castctl cluster connect --config-sync-operator wires the dedicated operator
+  # token (Secret castai-config-sync-operator-token, key API_KEY) at install time.
+  castai-config-sync:
     enabled: false
 
 # extraObjects -- List of extra Kubernetes objects to render with the chart.

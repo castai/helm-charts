@@ -54,3 +54,9 @@ dependencies:
     version: "0.6.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-storage-autoscaler.enabled
+  # ── opt-in (disabled by default via kent.castai-config-sync.enabled=false) ───
+  # Enable with --set kent.castai-config-sync.enabled=true.
+  - name: castai-config-sync
+    version: "0.1.0-rc.1"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-config-sync.enabled
