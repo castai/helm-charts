@@ -13,7 +13,7 @@ Wrapper chart for CAST AI Kent profile.
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.25 |
 | https://castai.github.io/helm-charts | castai-kentroller | 0.39.0 |
 | https://castai.github.io/helm-charts | castai-kvisor | 2.0.0 |
-| https://castai.github.io/helm-charts | castai-live | 0.150.1 |
+| https://castai.github.io/helm-charts | castai-live | 0.150.2 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.17.14 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.17 |
 | https://castai.github.io/helm-charts | castai-storage-autoscaler | 0.6.0 |
