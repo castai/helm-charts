@@ -1,6 +1,10 @@
 suite: OpenShift SCC rendering
 templates:
   - openshift-scc.yaml
+
+# evictorEnabled is required when the evictor renders.
+set:
+  evictorEnabled: false
 capabilities:
   apiVersions:
     - security.openshift.io/v1
