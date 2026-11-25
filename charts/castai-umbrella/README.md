@@ -296,6 +296,7 @@ managed by the chart, so it is safe to keep across chart upgrades.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| autoscaler.castai-config-sync.enabled | bool | `false` |  |
 | autoscaler.castai-storage-autoscaler.enabled | bool | `false` |  |
 | extraObjects | list | `[]` | List of extra Kubernetes objects to render with the chart. Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella. Each item must be a valid Kubernetes manifest (apiVersion, kind, metadata, spec). |
 | global.castai.apiKey | string | `""` |  |
@@ -306,6 +307,7 @@ managed by the chart, so it is safe to keep across chart upgrades.
 | global.imagePullSecrets | list | `[]` |  |
 | global.registry | string | `""` |  |
 | global.tolerations | list | `[]` |  |
+| kent.castai-config-sync | object | `{"enabled":false}` | config-sync-operator wires the dedicated operator token at install time. |
 | kent.castai-storage-autoscaler.enabled | bool | `false` |  |
 | kent.enabled | bool | `false` |  |
 | kent.managedKarpenter | bool | `false` | Set true when the Karpenter controller is cloud-managed out-of-band (e.g. AKS NAP); the preflight hook will skip the in-cluster controller lookup instead of warning. |
