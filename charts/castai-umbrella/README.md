@@ -296,6 +296,7 @@ managed by the chart, so it is safe to keep across chart upgrades.
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
+| autoscaler.castai-config-sync.enabled | bool | `false` |  |
 | autoscaler.castai-storage-autoscaler.enabled | bool | `false` |  |
 | extraObjects | list | `[]` | List of extra Kubernetes objects to render with the chart. Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella. Each item must be a valid Kubernetes manifest (apiVersion, kind, metadata, spec). |
 | global.castai.apiKey | string | `""` |  |

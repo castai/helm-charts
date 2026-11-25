@@ -75,6 +75,9 @@ autoscaler:
   castai-live:
     # castai-live resolves images as "<imageRegistry>/<image>"
     imageRegistry: us-docker.pkg.dev/castai-hub/library
+  castai-config-sync:
+    image:
+      repository: us-docker.pkg.dev/castai-hub/library/castai-config-sync
   castai-storage-autoscaler:
     image:
       repository: us-docker.pkg.dev/castai-hub/library/storage-autoscaler

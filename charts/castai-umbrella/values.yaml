@@ -51,6 +51,13 @@ autoscaler:
   #   --set autoscaler.castai-storage-autoscaler.enabled=true
   castai-storage-autoscaler:
     enabled: false
+  # castai-config-sync is opt-in, disabled by default in every mode so the mode
+  # tags never activate it:
+  #   --set autoscaler.castai-config-sync.enabled=true
+  # castctl cluster connect --config-sync-operator wires the dedicated operator
+  # token (Secret castai-config-sync-operator-token, key API_KEY) at install time.
+  castai-config-sync:
+    enabled: false
 
 # extraObjects -- List of extra Kubernetes objects to render with the chart.
 # Useful for deploying supporting resources such as ExternalSecrets alongside the umbrella.
