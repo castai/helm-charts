@@ -2,6 +2,11 @@ suite: ConfigMap rendering
 templates:
   - configmap-static.yaml
 
+# evictorEnabled is required by values.schema.json; suite-wide default mirrors
+# the pre-change implicit default so tests stay focused on their own fixtures.
+set:
+  evictorEnabled: false
+
 tests:
   - it: renders empty config.yaml when customConfig is default empty map
     asserts:
