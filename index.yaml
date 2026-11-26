@@ -61795,6 +61795,27 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/castai-hosted-model-0.0.2/castai-hosted-model-0.0.2.tgz
     version: 0.0.2
+  castai-karpenter:
+  - annotations:
+      cast.ai/karpenter-version: 1.14.0
+    apiVersion: v2
+    appVersion: v0.1.0
+    created: "2026-11-26T13:53:11.303634391Z"
+    dependencies:
+    - name: karpenter
+      repository: oci://public.ecr.aws/karpenter
+      version: 1.14.0
+    - name: karpenter-crd
+      repository: oci://public.ecr.aws/karpenter
+      version: 1.14.0
+    description: Karpenter for EKS, installed and upgraded by the CAST AI castware
+      operator. Wraps the upstream karpenter and karpenter-crd charts at pinned versions.
+    digest: 9863d4a8caf2096d36ef45a76d3b5962d777a43ed1ea6413fdcc3bec3f3605fc
+    name: castai-karpenter
+    type: application
+    urls:
+    - https://github.com/castai/helm-charts/releases/download/castai-karpenter-0.1.0/castai-karpenter-0.1.0.tgz
+    version: 0.1.0
   castai-kentroller:
   - apiVersion: v2
     appVersion: v0.39.1
@@ -93175,4 +93196,4 @@ entries:
     urls:
     - https://github.com/castai/helm-charts/releases/download/temporal-0.54.1/temporal-0.54.1.tgz
     version: 0.54.1
-generated: "2026-11-26T05:44:04.404522495Z"
+generated: "2026-11-26T13:53:11.310274772Z"
