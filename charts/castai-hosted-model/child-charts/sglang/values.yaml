@@ -1,3 +1,7 @@
+global:
+  # -- Optional image pull Secrets for all SGLang workers and routers.
+  imagePullSecrets: []
+
 # -- Specifies if the SGLang model should be deployed. Controlled by the parent chart condition.
 enabled: false
 

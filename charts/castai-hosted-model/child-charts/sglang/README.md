@@ -21,6 +21,7 @@ CAST AI hosted model deployment chart for SGLang.
 | extraArgs | list | `[]` | Extra arbitrary arguments passed verbatim to `sglang.launch_server`. Use this for everything beyond the hardcoded --model-path/--served-model-name/--host/--port/--tp-size flags (e.g. --context-length, --dtype, --quantization, --mem-fraction-static, --reasoning-parser, --tool-call-parser). |
 | extraVolumeMounts | list | `[]` | Extra volumeMounts appended to the SGLang container (verbatim mount list). |
 | extraVolumes | list | `[]` | Extra volumes appended to the pod (verbatim volume list). |
+| global.imagePullSecrets | list | `[]` | Optional image pull Secrets for all SGLang workers and routers. |
 | image.repository | string | `"us-docker.pkg.dev/castai-hub/library/sglang"` |  |
 | image.tag | string | `"v0.5.13"` |  |
 | initContainers | list | `[]` | Init containers to run before the SGLang server (verbatim pod-spec list). Used e.g. to pre-compile GPU JIT kernels once (single-writer) into a shared cache so the TP ranks don't race to compile them at first forward. |
