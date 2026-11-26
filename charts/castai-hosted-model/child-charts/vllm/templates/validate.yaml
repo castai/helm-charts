@@ -1,0 +1,20 @@
+{{/*
+The parent chart supplies both values per model. Without service.name every
+object this chart renders (Deployment, Service, ConfigMap, registry Secrets) gets
+an empty metadata.name, which the API server rejects. Without model.name the
+workload is structurally valid but unusable: MODEL_PATH is /models/, SOURCE_MODEL
+is s3://, and the server starts with --model="".
+
+Fail the render on either, so a release that enables the engine but was never
+configured fails at build/deploy time instead of shipping broken manifests.
+`default dict` keeps an explicitly null `service`/`model` block from turning the
+guard into a nil pointer error.
+*/}}
+{{- $service := .Values.service | default dict -}}
+{{- $model := .Values.model | default dict -}}
+{{- if not $service.name -}}
+{{- fail "vllm.service.name is required (set it in the parent chart's per-model values)" -}}
+{{- end -}}
+{{- if not $model.name -}}
+{{- fail "vllm.model.name is required (set it in the parent chart's per-model values)" -}}
+{{- end -}}
