@@ -1,0 +1,79 @@
+## Extend CastAI Cluster controller to do more with Edges and Clusters
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "omni-agent.fullname" . }}-cluster-controller
+  labels:
+    {{- include "omni-agent.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+rules:
+  - apiGroups:
+      - omni.cast.ai
+    resources:
+      - clusters
+      - edges
+      - schedulingpolicies
+      - edgeclusters
+      - edgenodes
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - omni.cast.ai
+    resources:
+      - clusters/finalizers
+      - edges/finalizers
+      - schedulingpolicies/finalizers
+      - edgeclusters/finalizers
+      - edgenodes/finalizers
+    verbs:
+      - update
+  - apiGroups:
+      - omni.cast.ai
+    resources:
+      - clusters/status
+      - edges/status
+      - schedulingpolicies/status
+      - edgeclusters/status
+      - edgenodes/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - namespaces
+      - secrets
+    verbs:
+      - create
+      - get
+      - list
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "omni-agent.fullname" . }}-cluster-controller
+  labels:
+    {{- include "omni-agent.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ include "omni-agent.fullname" . }}-cluster-controller
+subjects:
+  - kind: ServiceAccount
+    name: castai-cluster-controller
+    namespace: castai-agent

@@ -1,0 +1,124 @@
+---
+{{- $fabricConfig := (merge (dict "name" "fabric" "module" "networking" "version" .Values.networking.fabric.image.version ) .) -}}
+
+{{- if .Values.networking.enabled }}
+
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    {{- include "liqo.labels" $fabricConfig | nindent 4 }}
+  name: {{ include "liqo.prefixedName" $fabricConfig }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "liqo.selectorLabels" $fabricConfig | nindent 6 }}
+  template:
+    metadata:
+    {{- if .Values.networking.fabric.pod.annotations }}
+      annotations:
+        {{- toYaml .Values.networking.fabric.pod.annotations | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "liqo.selectorLabels" $fabricConfig | nindent 8 }}
+        networking.liqo.io/component: fabric
+        {{- if .Values.networking.fabric.pod.labels }}
+          {{- toYaml .Values.networking.fabric.pod.labels | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.networking.fabric.nodeSelector }}
+      nodeSelector:
+      {{- toYaml .Values.networking.fabric.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if .Values.networking.fabric.affinity }}
+      affinity:
+      {{- toYaml .Values.networking.fabric.affinity | nindent 8 }}
+      {{- end }}
+      tolerations:
+        - key: CriticalAddonsOnly
+          operator: Exists
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/master
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/infra
+        - effect: NoSchedule
+          key: node-role.kubernetes.io/control-plane
+        {{- if .Values.networking.fabric.tolerations }}
+        {{- toYaml .Values.networking.fabric.tolerations | nindent 8 }}
+        {{- end }}
+      serviceAccountName: {{ include "liqo.prefixedName" $fabricConfig }}
+      {{- include "liqo.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - image: {{ .Values.networking.fabric.image.name }}{{ include "liqo.suffix" $fabricConfig }}:{{ include "liqo.version" $fabricConfig }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          name: {{ $fabricConfig.name }}
+          command: ["/usr/bin/fabric"]
+          args:
+          - --podname=$(POD_NAME)
+          - --nodename=$(NODE_NAME)
+          - --geneve-port={{ .Values.networking.genevePort }}
+          - --health-probe-bind-address=:{{ .Values.networking.fabric.config.healthProbeBindAddressPort}}
+          - --metrics-address=:{{ .Values.networking.fabric.config.metricsAddressPort}}
+          - --ping-enabled=true
+          - --ping-port=54321
+          - --ping-loss-threshold={{ .Values.networking.fabric.config.ping.lossThreshold }}
+          - --ping-interval={{ .Values.networking.fabric.config.ping.interval }}
+          - --ping-update-status-interval={{ .Values.networking.fabric.config.ping.updateStatusInterval }}
+          {{- if not .Values.requirements.kernel.enabled }}
+          - --disable-kernel-version-check
+          {{- end }}
+          - --enable-nft-monitor={{ .Values.networking.fabric.config.nftablesMonitor }}
+          - --enable-route-monitor={{ .Values.networking.fabric.config.routeMonitor }}
+          - --enable-multipath-hash-policy={{ .Values.networking.fabric.config.multipathHashPolicy }}
+          {{- if .Values.common.globalAnnotations }}
+          {{- $d := dict "commandName" "--global-annotations" "dictionary" .Values.common.globalAnnotations -}}
+          {{- include "liqo.concatenateMap" $d | nindent 10 }}
+          {{- end }}
+          {{- if .Values.common.globalLabels }}
+          {{- $d := dict "commandName" "--global-labels" "dictionary" .Values.common.globalLabels -}}
+          {{- include "liqo.concatenateMap" $d | nindent 10 }}
+          {{- end }}
+          {{- if .Values.common.extraArgs }}
+          {{- toYaml .Values.common.extraArgs | nindent 10 }}
+          {{- end }}
+          {{- if .Values.networking.fabric.pod.extraArgs }}
+          {{- toYaml .Values.networking.fabric.pod.extraArgs | nindent 10 }}
+          {{- end }}
+          resources: {{- toYaml .Values.networking.fabric.pod.resources | nindent 12 }}
+          securityContext:
+            privileged: true
+            capabilities:
+              add:
+              - NET_ADMIN
+              - NET_RAW
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          {{- if or (and .Values.networking.fabric.config.healthProbeBindAddressPort (ne .Values.networking.fabric.config.healthProbeBindAddressPort "0")) .Values.metrics.enabled }}
+          ports:
+          {{- if .Values.metrics.enabled }}
+          - containerPort: {{ .Values.networking.fabric.config.metricsAddressPort }}
+            name: fabric-metrics
+            protocol: TCP
+          {{- end }}
+          {{- if and .Values.networking.fabric.config.healthProbeBindAddressPort (ne .Values.networking.fabric.config.healthProbeBindAddressPort "0") }}
+          - containerPort: {{ .Values.networking.fabric.config.healthProbeBindAddressPort }}
+            name: healthz
+            protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: healthz
+          {{- end }}
+          {{- end }}
+      hostNetwork: true
+      {{- if .Values.networking.fabric.pod.priorityClassName }}
+      priorityClassName: {{ .Values.networking.fabric.pod.priorityClassName }}
+      {{- end }}
+{{- end }}

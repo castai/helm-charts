@@ -1,0 +1,130 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.20.1
+  name: identities.authentication.liqo.io
+spec:
+  group: authentication.liqo.io
+  names:
+    categories:
+    - liqo
+    kind: Identity
+    listKind: IdentityList
+    plural: identities
+    shortNames:
+    - id
+    singular: identity
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.type
+      name: Type
+      type: string
+    - jsonPath: .status.kubeconfigSecretRef.name
+      name: KubeconfigSecret
+      priority: 1
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: Identity contains the information to operate in a remote cluster.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: IdentitySpec defines the desired state of Identity.
+            properties:
+              authParams:
+                description: AuthParams contains the parameters to create an Identity
+                  to use in the provider cluster.
+                properties:
+                  apiServer:
+                    type: string
+                  awsConfig:
+                    description: AwsConfig contains the AWS configuration and access
+                      key for the Liqo user and the current EKS cluster.
+                    properties:
+                      awsAccessKeyID:
+                        type: string
+                      awsClusterName:
+                        type: string
+                      awsRegion:
+                        type: string
+                      awsSecretAccessKey:
+                        type: string
+                      awsUserArn:
+                        type: string
+                    required:
+                    - awsAccessKeyID
+                    - awsClusterName
+                    - awsRegion
+                    - awsSecretAccessKey
+                    - awsUserArn
+                    type: object
+                  ca:
+                    format: byte
+                    type: string
+                  proxyURL:
+                    type: string
+                  signedCRT:
+                    format: byte
+                    type: string
+                type: object
+              clusterID:
+                description: ClusterID is the identity of the provider cluster.
+                pattern: ^[a-z0-9]([-a-z0-9]*[a-z0-9])?$
+                type: string
+              namespace:
+                description: Namespace is the namespace where to use the identity.
+                type: string
+              type:
+                description: Type is the type of the identity.
+                enum:
+                - ControlPlane
+                - ResourceSlice
+                type: string
+            type: object
+          status:
+            description: IdentityStatus defines the observed state of Identity.
+            properties:
+              kubeconfigSecretRef:
+                description: KubeconfigSecretRef contains the reference to the secret
+                  containing the kubeconfig to access the provider cluster.
+                properties:
+                  name:
+                    default: ""
+                    description: |-
+                      Name of the referent.
+                      This field is effectively required, but due to backwards compatibility is
+                      allowed to be empty. Instances of this type with an empty value here are
+                      almost certainly wrong.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    type: string
+                type: object
+                x-kubernetes-map-type: atomic
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

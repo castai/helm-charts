@@ -1,0 +1,19 @@
+{{- if .Values.flowcontrol.enabled }}
+apiVersion: flowcontrol.apiserver.k8s.io/v1
+kind: PriorityLevelConfiguration
+metadata:
+  name: omni-edgecluster-workload-high
+  labels:
+    {{- include "omni-agent.labels" . | nindent 4 }}
+spec:
+  type: Limited
+  limited:
+    nominalConcurrencyShares: {{ .Values.flowcontrol.nominalConcurrencyShares }}
+    lendablePercent: {{ .Values.flowcontrol.lendablePercent }}
+    limitResponse:
+      type: Queue
+      queuing:
+        queues: {{ .Values.flowcontrol.queues }}
+        handSize: {{ .Values.flowcontrol.handSize }}
+        queueLengthLimit: {{ .Values.flowcontrol.queueLengthLimit }}
+{{- end }}

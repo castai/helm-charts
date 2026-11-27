@@ -1,0 +1,122 @@
+{{- if and .Values.edgeMode.enabled .Values.peering.enabled }}
+{{- $externalCIDR := required ".Values.peering.externalCIDR is required when edgeMode.enabled=true" .Values.peering.externalCIDR }}
+{{- $podCIDRs := required ".Values.peering.podCIDRs is required when edgeMode.enabled=true" .Values.peering.podCIDRs }}
+{{- $wgProviderPrivateKey := required ".Values.peering.wireguardProviderPrivateKeyBase64 is required when edgeMode.enabled=true" .Values.peering.wireguardProviderPrivateKeyBase64 }}
+{{- $wgProviderPublicKey := required ".Values.peering.wireguardProviderPublicKeyBase64 is required when edgeMode.enabled=true" .Values.peering.wireguardProviderPublicKeyBase64 }}
+{{- $wgConsumerPublicKey := required ".Values.peering.wireguardConsumerPublicKeyBase64 is required when edgeMode.enabled=true" .Values.peering.wireguardConsumerPublicKeyBase64 }}
+apiVersion: networking.liqo.io/v1beta1
+kind: Configuration
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+  name: {{ .Values.castai.clusterName }}
+  namespace: default
+spec:
+  remote:
+    cidr:
+      external:
+        - {{ $externalCIDR }}
+      pod:
+        {{- range $podCIDRs }}
+        - {{ . }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+    liqo.io/tenant-namespace: 'true'
+  name: omni-{{ .Values.castai.clusterName }}
+spec: {}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+    networking.liqo.io/gateway-resource: 'true'
+  name: gw-keys
+  namespace: omni-{{ .Values.castai.clusterName }}
+type: Opaque
+data:
+  privateKey: {{ $wgProviderPrivateKey }}
+  publicKey: {{ $wgProviderPublicKey }}
+---
+apiVersion: networking.liqo.io/v1beta1
+kind: PublicKey
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+    networking.liqo.io/gateway-resource: 'true'
+  name: gw-publickey
+  namespace: omni-{{ .Values.castai.clusterName }}
+spec:
+  publicKey: {{ $wgConsumerPublicKey }}
+---
+apiVersion: networking.liqo.io/v1beta1
+kind: GatewayServer
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+  name: server
+  namespace: omni-{{ .Values.castai.clusterName }}
+spec:
+  endpoint:
+    port: 51840
+    serviceType: LoadBalancer
+  mtu: 1340
+  secretRef:
+    name: ''
+  serverTemplateRef:
+    apiVersion: networking.liqo.io/v1beta1
+    kind: WgGatewayServerTemplate
+    name: wireguard-server
+    namespace: liqo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+  name: liqo-binding-liqo-remote-controlplane
+  namespace: omni-{{ .Values.castai.clusterName }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: liqo-remote-controlplane
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: default
+---
+apiVersion: authentication.liqo.io/v1beta1
+kind: Tenant
+metadata:
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook-weight": "5"
+  labels:
+    liqo.io/remote-cluster-id: {{ .Values.castai.clusterName }}
+  name: {{ .Values.castai.clusterName }}
+  namespace: omni-{{ .Values.castai.clusterName }}
+spec:
+  clusterID: {{ .Values.castai.clusterName }}
+  authzPolicy: TolerateNoHandshake
+  tenantCondition: Active
+{{- end }}

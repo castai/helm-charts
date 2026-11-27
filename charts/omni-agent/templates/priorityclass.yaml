@@ -1,0 +1,11 @@
+apiVersion: scheduling.k8s.io/v1
+kind: PriorityClass
+metadata:
+  name: omni-critical
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "omni-agent.labels" . | nindent 4 }}
+value: 1000000000
+globalDefault: false
+preemptionPolicy: PreemptLowerPriority
+description: "Priority class for OMNI critical components pods, scheduled after system-node-critical pods"

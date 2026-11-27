@@ -1,0 +1,370 @@
+---
+# -- Replica count for the omni-agent deployment.
+replicaCount: 1
+
+# -- Chart versions for managed Helm releases installed on edge clusters.
+# Leave empty to use the addon catalog's preferred versions (keyed by the
+# edge cluster's Kubernetes version); set to override them.
+# System addons
+gpuOperatorChartVersion: ""
+gpuOperatorChartValues: {}
+spotHandlerChartVersion: "0.31.0"
+spotHandlerChartValues: {}
+# -- Use the pre-release Helm repository for the omni-agent addon.
+omniAgentPreReleaseRepo: false
+# -- Use the local Helm chart for the omni-agent addon.
+omniAgentLocalChart: false
+# Non-system addons
+nvidiaDRADriverChartVersion: ""
+networkOperatorChartVersion: ""
+# -- Override the RDMA shared device plugin image name (default: k8s-rdma-shared-dev-plugin)
+networkOperatorRdmaImage: "k8s-rdma-shared-dev-plugin"
+# -- Override the RDMA shared device plugin repository (default: nvcr.io/nvidia/mellanox)
+networkOperatorRdmaRepository: "nvcr.io/nvidia/mellanox"
+
+# -- Image settings for the omni-agent container.
+image:
+  # -- The image repository to use.
+  repository: ghcr.io/castai/images/omni-agent
+  # -- The image pull policy.
+  pullPolicy: IfNotPresent
+  # -- Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+# -- Image pull secrets to use for the omni-agent pod.
+imagePullSecrets: []
+
+# commonLabels -- Labels to add to all resources.
+commonLabels: {}
+
+# commonAnnotations -- Annotations to add to all resources.
+commonAnnotations: {}
+
+# -- Extra annotations to add to the pod.
+podAnnotations: {}
+
+# -- Extra labels to add to the pod.
+podLabels: {}
+
+# -- Pod security context.
+podSecurityContext:
+  fsGroup: 1000
+  runAsGroup: 1000
+  runAsNonRoot: true
+  runAsUser: 1000
+
+# -- Security context for the omni-agent container.
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+
+# -- Omni-agent container resources.
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
+# -- Node selector for the omni-agent pod.
+nodeSelector: {}
+
+# -- Tolerations for the omni-agent pod.
+tolerations: []
+
+# -- Affinity for the omni-agent pod.
+affinity: {}
+
+serviceAccount:
+  # serviceAccount.create -- Specifies whether a service account should be created.
+  create: true
+  # serviceAccount.annotations -- Annotations to add to the service account.
+  annotations: {}
+  # serviceAccount.name -- The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template.
+  name: "omni-agent"
+
+# -- Port configuration for the omni-agent container.
+ports:
+  metrics: 8080
+  healthz: 8081
+  pprof: 8082
+
+# -- Metrics configuration for the omni-agent.
+metrics:
+  podMonitor:
+    # -- Enable/Disable the creation of a Prometheus PodMonitor for the omni-agent metrics endpoint.
+    enabled: false
+    # -- Labels for the PodMonitor resource.
+    labels: {}
+    # -- Scrape interval. If empty, Prometheus uses the global scrape interval.
+    interval: ""
+    # -- Scrape timeout. If empty, Prometheus uses the global scrape timeout.
+    scrapeTimeout: ""
+
+# -- Deployment settings
+deployment:
+  progressDeadlineSeconds: 600
+  revisionHistoryLimit: 10
+  extraArgs: {}
+  extraEnv: {}
+
+# -- Edge mode configuration.
+edgeMode:
+  # -- Enable edge mode
+  enabled: false
+  # -- Priority class name for edge mode (only applied if edgeMode.enabled is true)
+  priorityClassName: system-cluster-critical
+
+# -- CAST AI settings for the omni-agent.
+castai:
+  # -- URL of the CAST AI API.
+  apiUrl: "https://api.cast.ai"
+  # -- CASTAI gRPC public API address.
+  # -- Note: If your cluster is in the EU region, update the grpcAddr to: kvisor.prod-eu.cast.ai:443
+  grpcAddr: "kvisor.prod-master.cast.ai:443"
+  # -- Token to be used for authorizing agent access to the API.
+  apiKey: ""
+  # -- Name of secret with Token to be used for authorizing agent access to the API
+  # apiKey and apiKeySecretRef are mutually exclusive
+  # The referenced secret must provide the token in .data["CASTAI_AGENT_TOKEN"].
+  apiKeySecretRef: ""
+  # -- ID of the organization
+  organizationID: ""
+  # -- ID of the master cluster
+  clusterID: ""
+  # -- Name of the master cluster
+  clusterName: ""
+  # -- Logging level used by the agent
+  logLevel: "info"
+  # -- Edge ID (only used when edgeMode.enabled is true)
+  edgeID: ""
+
+k0smotron:
+  # -- Image settings for the k0smotron controller pod.
+  image: "quay.io/k0sproject/k0smotron:v1.10.4"
+
+# -- Edge cluster configuration.
+edgeCluster:
+  # -- k0s configuration.
+  k0s:
+    # -- Image repository for the k0s control plane pod.
+    # -- Note: do not set tag, as it is derived from the control plane version.
+    repo: "quay.io/k0sproject/k0s"
+  # -- PodDisruptionBudgets for edge cluster control plane and etcd pods.
+  pdb:
+    # -- Enable PodDisruptionBudgets for pods.
+    enabled: true
+    # -- Maximum number of unavailable pods per PDB.
+    maxUnavailable: 1
+  # -- Resource requests for the control plane pods.
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "1Gi"
+  # -- Etcd configuration.
+  etcd:
+    # -- Image for the etcd container.
+    image: "quay.io/k0sproject/etcd:v3.5.13"
+    # -- Resource requests for the etcd pods.
+    resources:
+      requests:
+        cpu: "100m"
+        memory: "128Mi"
+    # -- Etcd defragmentation job configuration.
+    defrag:
+      # -- Enable etcd defragmentation job.
+      enabled: true
+      # -- Cron schedule for the defrag job.
+      schedule: "0 2 * * *"
+      # -- Image for the etcd defrag job.
+      image: "ghcr.io/ahrtr/etcd-defrag:v0.16.0"
+      # -- Rule for triggering defragmentation.
+      rule: "dbQuotaUsage > 0.8 || dbSize - dbSizeInUse > 200*1024*1024"
+  # -- LoadBalancer provider ("nlb" or "external" for EKS, "gke" for GKE, "aks" for AKS). Leave empty to use the default one.
+  loadBalancerProvider: ""
+  # -- Storage provider (e.g. "gp3" for EKS, "premium-rwo" for GKE). Leave empty to use the default one.
+  storageProvider: ""
+
+# -- Bootstrap configuration for initial cluster setup
+bootstrap:
+  # -- Enable creation of Cluster and SchedulingPolicy CRs
+  enabled: true
+
+# -- Peering configuration for declarative peering used in edge mode
+peering:
+  # -- Enable peering configuration. Applicable only when edgeMode.enabled=true
+  enabled: true
+  # -- External CIDR for peering
+  externalCIDR: ""
+  # -- Pod CIDRs for peering
+  podCIDRs: []
+  # -- Wireguard provider private key
+  # -- Important note: MUST BE encoded based64 to support possibility to add by using helm ... --set <key value> option
+  wireguardProviderPrivateKeyBase64: ""
+  # -- Wireguard provider public key
+  # -- Important note: MUST BE encoded based64 to support possibility to add by using helm ... --set <key value> option
+  wireguardProviderPublicKeyBase64: ""
+  # -- Wireguard consumer public key
+  # -- Important note: MUST BE encoded based64 to support possibility to add by using helm ... --set <key value> option
+  wireguardConsumerPublicKeyBase64: ""
+
+# -- CRD upgrade hook configuration
+# -- Automatically upgrades CRDs during helm upgrade
+upgradecrds:
+  # -- Enable the CRD upgrade hook
+  enabled: true
+  image:
+    # -- Image repository for kubectl
+    repository: alpine/k8s
+    # -- Image tag for kubectl
+    tag: "1.31.3"
+    # -- Image pull policy
+    pullPolicy: IfNotPresent
+
+# -- Liqo subchart configuration
+# -- See https://github.com/castai/liqo for available values
+liqo:
+  # -- Enable the liqo subchart
+  enabled: true
+  liqo-crds:
+    crdUpgrade:
+      enabled: true
+      keepResources: false
+  telemetry:
+    enabled: false
+  offloading:
+    reflection:
+      customResources: []
+  common:
+    tolerations:
+      - key: "node.kubernetes.io/not-ready"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 30
+      - key: "node.kubernetes.io/unreachable"
+        operator: "Exists"
+        effect: "NoExecute"
+        tolerationSeconds: 30
+  controllerManager:
+    pod:
+      extraArgs:
+        - --foreign-cluster-ping-interval=0
+      resources:
+        requests:
+          cpu: 100m
+          memory: 512Mi
+  networking:
+    gatewayTemplates:
+      ping:
+        interval: 3s
+        lossThreshold: 10
+        updateStatusInterval: 30s
+      nftablesMonitor: false
+      routeMonitor: false
+      pod:
+        priorityClassName: omni-critical
+        tolerations:
+          - key: "node.kubernetes.io/not-ready"
+            operator: "Exists"
+            effect: "NoExecute"
+            tolerationSeconds: 30
+          - key: "node.kubernetes.io/unreachable"
+            operator: "Exists"
+            effect: "NoExecute"
+            tolerationSeconds: 30
+        affinity:
+          podAntiAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 80
+                podAffinityTerm:
+                  labelSelector:
+                    matchLabels:
+                      networking.liqo.io/component: gateway
+                  namespaceSelector:
+                    matchLabels:
+                      liqo.io/tenant-namespace: "true"
+                  topologyKey: kubernetes.io/hostname
+      container:
+        gateway:
+          resources:
+            requests:
+              cpu: 500m
+              memory: 128Mi
+        wireguard:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 32Mi
+        geneve:
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+    fabric:
+      pod:
+        priorityClassName: omni-critical
+        resources:
+          requests:
+            cpu: 10m
+            memory: 64Mi
+      config:
+        nftablesMonitor: false
+        routeMonitor: true
+        healthProbeBindAddressPort: "7071"
+        metricsAddressPort: "7072"
+      tolerations:
+        - operator: "Exists"
+          effect: "NoSchedule"
+        - operator: "Exists"
+          effect: "NoExecute"
+  proxy:
+    enabled: false
+  virtualKubelet:
+    extra:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+        limits:
+          cpu: 100m
+          memory: 384Mi
+      tolerations:
+        - key: "node.kubernetes.io/not-ready"
+          operator: "Exists"
+          effect: "NoExecute"
+          tolerationSeconds: 30
+        - key: "node.kubernetes.io/unreachable"
+          operator: "Exists"
+          effect: "NoExecute"
+          tolerationSeconds: 30
+  webhook:
+    pod:
+      resources:
+        requests:
+          cpu: 50m
+          memory: 128Mi
+  ipam:
+    internal:
+      pod:
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+  crdReplicator:
+    pod:
+      resources:
+        requests:
+          cpu: 10m
+          memory: 64Mi
+
+# -- k8s priority and fairness parameters for Omni tenant namespaces. The default
+# parameters mirror the built-in 'workload-high' priority level with a reduced
+# share that fits the GKE flowcontrol-guardrails budget for user-owned priority
+# levels. Other managed k8s providers have no such cap.
+flowcontrol:
+  enabled: true
+  nominalConcurrencyShares: 20
+  lendablePercent: 50
+  queues: 128
+  handSize: 6
+  queueLengthLimit: 50
+  matchingPrecedence: 8000

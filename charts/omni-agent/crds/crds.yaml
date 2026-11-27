@@ -1,0 +1,1683 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  name: clusters.omni.cast.ai
+spec:
+  group: omni.cast.ai
+  names:
+    categories:
+    - omni
+    kind: Cluster
+    listKind: ClusterList
+    plural: clusters
+    singular: cluster
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Cluster is the Schema for the edge clusters API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterSpec defines the desired state of Cluster.
+            properties:
+              provider:
+                description: Provider is provider specific configuration.
+                properties:
+                  kind:
+                    description: ProviderKind defines the type of the provider.
+                    type: string
+                  liqo:
+                    description: LiqoManagementProvider is the provider specific configuration
+                      for management cluster.
+                    properties:
+                      clusterID:
+                        description: ClusterID liqo cluster ID.
+                        type: string
+                    type: object
+                type: object
+            type: object
+          status:
+            description: ClusterStatus defines the observed state of Cluster.
+            properties:
+              conditions:
+                description: Current processing state of the Cluster proxy.
+                items:
+                  description: Condition defines an observation of a object operational
+                    state.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        Last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed. If that is not known, then using the time when
+                        the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A human readable message indicating details about the transition.
+                        This field may be empty.
+                      type: string
+                    reason:
+                      description: |-
+                        The reason for the condition's last transition in CamelCase.
+                        The specific API may choose whether or not this field is considered a guaranteed API.
+                        This field may not be empty.
+                      type: string
+                    severity:
+                      description: |-
+                        Severity provides an explicit classification of Reason code, so the users or machines can immediately
+                        understand the current situation and act accordingly.
+                        The Severity field MUST be set only when Status=False.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: |-
+                        Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions
+                        can be useful (see .node.status.conditions), the ability to deconflict is important.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+              deadManSwitch:
+                description: |-
+                  DeadManSwitch is the time when the cluster proxy was last seen.
+                  It will drive to report each 5 minutes when lapses.
+                format: date-time
+                type: string
+              network:
+                description: Network contains observed network configuration from
+                  liqo IPAM.
+                properties:
+                  externalCIDR:
+                    description: ExternalCIDR is the external CIDR for the cluster,
+                      discovered from liqo IPAM.
+                    type: string
+                  podCIDR:
+                    description: PodCIDR is the CIDR for the pods in the cluster.
+                    type: string
+                type: object
+              phase:
+                default: Creating
+                description: Phase of the cluster proxy (Creating, Ready, Failed,
+                  Deleting, Deleted).
+                enum:
+                - Creating
+                - Ready
+                - Failed
+                - Unknown
+                - Deleting
+                - Deleted
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  name: edgeclusters.omni.cast.ai
+spec:
+  group: omni.cast.ai
+  names:
+    categories:
+    - omni
+    kind: EdgeCluster
+    listKind: EdgeClusterList
+    plural: edgeclusters
+    singular: edgecluster
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.edgeLocation.provider.kind
+      name: CloudProvider
+      type: string
+    - jsonPath: .spec.edgeLocation.provider.region
+      name: Region
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='ClusterReady')].status
+      name: Provisioned
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: EdgeCluster is the Schema for the edgecluster API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: EdgeClusterSpec defines the desired state of EdgeCluster.
+            properties:
+              addons:
+                description: Addons configures addons installed on the edge cluster.
+                items:
+                  description: Addon defines configuration for addon installed in
+                    edge cluster.
+                  properties:
+                    name:
+                      description: Name is the addon identifier.
+                      enum:
+                      - nvidia-gpu-operator
+                      - nvidia-dra
+                      - nvidia-network-operator
+                      - oci-csi
+                      type: string
+                    values:
+                      description: |-
+                        Values are user-supplied Helm values for the addon, deep-merged over the chart's
+                        template defaults (spec values take precedence).
+                      x-kubernetes-preserve-unknown-fields: true
+                    version:
+                      description: |-
+                        Version is the Helm chart version to use for this addon.
+                        When empty, the controller's default chart version is used.
+                      type: string
+                  required:
+                  - name
+                  type: object
+                type: array
+              controlPlane:
+                description: ControlPlane represents the configuration of the control
+                  plane.
+                properties:
+                  apiServerPort:
+                    default: 8443
+                    description: APIServerPort is the port for the Kubernetes API
+                      server.
+                    format: int32
+                    type: integer
+                  endpointAccess:
+                    default: Public
+                    description: |-
+                      EndpointAccess defines how the edge cluster control plane is exposed.
+                      Public uses external load balancer, Private uses internal load balancer.
+                      Defaults to Public when not set.
+                    enum:
+                    - Public
+                    - Private
+                    type: string
+                  externalAddress:
+                    description: |-
+                      ExternalAddress allow to override API server IP if you are behind a LoadBalancer
+                      This will configure all cluster components to connect to this address and also configures this address to be used when joining new nodes into the cluster.
+                    type: string
+                  konnectivityPort:
+                    default: 8132
+                    description: KonnectivityPort is the port for the konnectivity
+                      server.
+                    format: int32
+                    type: integer
+                  kubernetesVersion:
+                    description: |-
+                      KubernetesVersion is the Kubernetes version of the hosted control plane.
+                      Version should match k0s semantic versioning, e.g., "v1.34.0-k0s.0".
+                    minLength: 1
+                    type: string
+                  replicas:
+                    default: 1
+                    description: Replicas is the number of control plane replicas.
+                    format: int32
+                    maximum: 5
+                    minimum: 1
+                    type: integer
+                  serviceAnnotations:
+                    additionalProperties:
+                      type: string
+                    description: ServiceAnnotations are custom annotations to apply
+                      to the control plane service.
+                    type: object
+                  serviceType:
+                    default: LoadBalancer
+                    description: ServiceType is the type of the service for the API
+                      server.
+                    enum:
+                    - LoadBalancer
+                    - NodePort
+                    - ClusterIP
+                    type: string
+                required:
+                - apiServerPort
+                - konnectivityPort
+                - kubernetesVersion
+                - replicas
+                - serviceType
+                type: object
+              edgeLocation:
+                description: EdgeLocation contains location info for the edge.
+                properties:
+                  id:
+                    description: ID is the unique identifier of the edge location.
+                    type: string
+                  name:
+                    description: Name is the descriptive name of the edge location.
+                    type: string
+                  networkCIDR:
+                    description: NetworkCIDR is cidr block for edge location network.
+                    type: string
+                  provider:
+                    description: Provider is the provider of the edge location.
+                    properties:
+                      aws:
+                        description: AWSEdgeLocationProvider is the provider specific
+                          configuration for AWS.
+                        properties:
+                          accountID:
+                            type: string
+                        type: object
+                      gcp:
+                        description: GCPEdgeLocationProvider is the provider specific
+                          configuration for GCP.
+                        properties:
+                          projectID:
+                            type: string
+                        type: object
+                      kind:
+                        description: EdgeLocationProviderKind defines the type of
+                          the provider.
+                        type: string
+                      nebius:
+                        description: NebiusEdgeLocationProvider is the provider specific
+                          configuration for Nebius.
+                        properties:
+                          networkID:
+                            type: string
+                          parentID:
+                            type: string
+                          securityGroupID:
+                            type: string
+                          serviceAccountID:
+                            type: string
+                          subnetID:
+                            type: string
+                        type: object
+                      oci:
+                        description: OCIEdgeLocationProvider is the provider specific
+                          configuration for OCI.
+                        properties:
+                          availabilityDomainWithPrefix:
+                            type: string
+                          compartmentID:
+                            type: string
+                          mountTargetID:
+                            type: string
+                          tenancyID:
+                            type: string
+                          vcnID:
+                            type: string
+                        type: object
+                      region:
+                        type: string
+                      zone:
+                        type: string
+                    type: object
+                type: object
+              liqo:
+                description: LiqoSpec represents the Liqo configuration of the peered
+                  clusters.
+                properties:
+                  consumer:
+                    description: Consumer represents the configuration for the consumer
+                      (i.e., main cluster).
+                    properties:
+                      clusterID:
+                        description: ClusterID is the liqo cluster ID of a cluster.
+                        type: string
+                      peeringKeysSecretRef:
+                        description: |-
+                          PeeringKeysSecretRef references the secret containing the WireGuard peering keys.
+                          If not set, keys will be auto-generated.
+                        properties:
+                          apiVersion:
+                            description: API version of the referent.
+                            type: string
+                          fieldPath:
+                            description: |-
+                              If referring to a piece of an object instead of an entire object, this string
+                              should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
+                              For example, if the object reference is to a container within a pod, this would take on a value like:
+                              "spec.containers{name}" (where "name" refers to the name of the container that triggered
+                              the event) or if no container name is specified "spec.containers[2]" (container with
+                              index 2 in this pod). This syntax is chosen only to have some well-defined way of
+                              referencing a part of an object.
+                            type: string
+                          kind:
+                            description: |-
+                              Kind of the referent.
+                              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                            type: string
+                          name:
+                            description: |-
+                              Name of the referent.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            type: string
+                          namespace:
+                            description: |-
+                              Namespace of the referent.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+                            type: string
+                          resourceVersion:
+                            description: |-
+                              Specific resourceVersion to which this reference is made, if any.
+                              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+                            type: string
+                          uid:
+                            description: |-
+                              UID of the referent.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+                            type: string
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      podCIDR:
+                        description: PodCIDR is the pod CIDR to be used by the cluster.
+                        type: string
+                    required:
+                    - clusterID
+                    - podCIDR
+                    type: object
+                  gatewayReplicas:
+                    default: 1
+                    description: GatewayReplicas is the number of active replicas
+                      for the Liqo gateway servers and clients.
+                    format: int32
+                    type: integer
+                  gatewayServerConfig:
+                    description: GatewayServerConfig contains configuration overrides
+                      for the Liqo gateway server.
+                    properties:
+                      externalAddress:
+                        description: ExternalAddress is the IP address or hostname
+                          used to reach the Liqo gateway server from outside the cluster.
+                        type: string
+                      externalPort:
+                        description: ExternalPort is the port used to reach the Liqo
+                          gateway server from outside the cluster.
+                        format: int32
+                        type: integer
+                      serviceAnnotations:
+                        additionalProperties:
+                          type: string
+                        description: ServiceAnnotations are custom annotations to
+                          apply to the Liqo gateway service.
+                        type: object
+                      serviceLabels:
+                        additionalProperties:
+                          type: string
+                        description: ServiceLabels are custom labels to apply to the
+                          Liqo gateway service.
+                        type: object
+                    type: object
+                  gatewayServerLocation:
+                    description: GatewayServerLocation is the location of the Liqo
+                      gateway server.
+                    enum:
+                    - Consumer
+                    type: string
+                  provider:
+                    description: Provider represents the configuration for the provider
+                      (i.e., edge cluster).
+                    properties:
+                      clusterID:
+                        description: ClusterID is the liqo cluster ID of a cluster.
+                        type: string
+                      peeringKeysSecretRef:
+                        description: |-
+                          PeeringKeysSecretRef references the secret containing the WireGuard peering keys.
+                          If not set, keys will be auto-generated.
+                        properties:
+                          apiVersion:
+                            description: API version of the referent.
+                            type: string
+                          fieldPath:
+                            description: |-
+                              If referring to a piece of an object instead of an entire object, this string
+                              should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
+                              For example, if the object reference is to a container within a pod, this would take on a value like:
+                              "spec.containers{name}" (where "name" refers to the name of the container that triggered
+                              the event) or if no container name is specified "spec.containers[2]" (container with
+                              index 2 in this pod). This syntax is chosen only to have some well-defined way of
+                              referencing a part of an object.
+                            type: string
+                          kind:
+                            description: |-
+                              Kind of the referent.
+                              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                            type: string
+                          name:
+                            description: |-
+                              Name of the referent.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                            type: string
+                          namespace:
+                            description: |-
+                              Namespace of the referent.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+                            type: string
+                          resourceVersion:
+                            description: |-
+                              Specific resourceVersion to which this reference is made, if any.
+                              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+                            type: string
+                          uid:
+                            description: |-
+                              UID of the referent.
+                              More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+                            type: string
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      podCIDR:
+                        description: PodCIDR is the pod CIDR to be used by the cluster.
+                        type: string
+                    required:
+                    - clusterID
+                    - podCIDR
+                    type: object
+                required:
+                - consumer
+                - gatewayServerLocation
+                - provider
+                type: object
+              networking:
+                description: Networking configuration
+                properties:
+                  cni:
+                    description: CNI configures kube-router CNI settings for the edge
+                      cluster.
+                    properties:
+                      overlay:
+                        description: |-
+                          Overlay configures kube-router pod-to-pod overlay encapsulation.
+                          Valid values: off, subnet, full.
+                        enum:
+                        - "off"
+                        - subnet
+                        - full
+                        type: string
+                      overlayEncap:
+                        description: |-
+                          OverlayEncap specifies the encapsulation protocol used when the overlay is enabled.
+                          Valid values: ipip, fou.
+                        enum:
+                        - ipip
+                        - fou
+                        type: string
+                    required:
+                    - overlay
+                    - overlayEncap
+                    type: object
+                  externalCIDR:
+                    description: |-
+                      ExternalCIDR is the external CIDR used by Liqo on the edge cluster. When
+                      omitted, Liqo's default is kept. Immutable after creation.
+                    type: string
+                    x-kubernetes-validations:
+                    - message: External CIDR must be an IPv4 CIDR at least as large
+                        as a /24
+                      rule: self == '' || (isCIDR(self) && cidr(self).ip().family()
+                        == 4 && cidr(self).prefixLength() <= 24)
+                  podCIDR:
+                    description: |-
+                      PodCIDR is the pod network range of the edge cluster. When omitted, the
+                      k0s default is used. Immutable after creation.
+                      The rule requires an IPv4 CIDR at least as large as a /24, since k0s assigns
+                      a /24 to each node.
+                    type: string
+                    x-kubernetes-validations:
+                    - message: Pod CIDR must be an IPv4 CIDR at least as large as
+                        a /24
+                      rule: self == '' || (isCIDR(self) && cidr(self).ip().family()
+                        == 4 && cidr(self).prefixLength() <= 24)
+                  serviceCIDR:
+                    description: |-
+                      ServiceCIDR is the service network range of the edge cluster. When omitted,
+                      the k0s default is used. Immutable after creation.
+                      The rule requires an IPv4 CIDR with at least eight addresses, as required by
+                      the kube-apiserver.
+                    type: string
+                    x-kubernetes-validations:
+                    - message: Service CIDR must be an IPv4 CIDR with at least eight
+                        addresses (/29 or larger)
+                      rule: self == '' || (isCIDR(self) && cidr(self).ip().family()
+                        == 4 && cidr(self).prefixLength() <= 29)
+                  tunneledCIDRs:
+                    description: |-
+                      TunneledCIDRs is a list of destination CIDR blocks whose traffic
+                      should be routed through the main cluster instead of directly from the
+                      edge cluster. When specified, the edge cluster will forward packets
+                      destined to these CIDRs over the liqo peering tunnel to the main
+                      cluster, which then routes them on to their final destination.
+                      Each entry must be a valid IPv4 CIDR notation (e.g., "10.0.0.0/16").
+                    items:
+                      format: cidr
+                      type: string
+                    type: array
+                type: object
+            required:
+            - controlPlane
+            - edgeLocation
+            - liqo
+            type: object
+            x-kubernetes-validations:
+            - message: Pod CIDR is immutable
+              rule: 'has(self.networking) && has(self.networking.podCIDR) ? has(oldSelf.networking)
+                && has(oldSelf.networking.podCIDR) && self.networking.podCIDR == oldSelf.networking.podCIDR
+                : !has(oldSelf.networking) || !has(oldSelf.networking.podCIDR)'
+            - message: Service CIDR is immutable
+              rule: 'has(self.networking) && has(self.networking.serviceCIDR) ? has(oldSelf.networking)
+                && has(oldSelf.networking.serviceCIDR) && self.networking.serviceCIDR
+                == oldSelf.networking.serviceCIDR : !has(oldSelf.networking) || !has(oldSelf.networking.serviceCIDR)'
+            - message: External CIDR is immutable
+              rule: 'has(self.networking) && has(self.networking.externalCIDR) ? has(oldSelf.networking)
+                && has(oldSelf.networking.externalCIDR) && self.networking.externalCIDR
+                == oldSelf.networking.externalCIDR : !has(oldSelf.networking) || !has(oldSelf.networking.externalCIDR)'
+          status:
+            description: EdgeClusterStatus defines the observed state of EdgeCluster.
+            properties:
+              addons:
+                description: Addons contains the readiness status of each installed
+                  addon, derived from its HelmRelease.
+                items:
+                  description: AddonStatus represents the readiness status of a single
+                    addon installed on the edge cluster.
+                  properties:
+                    message:
+                      description: Message explains why the addon is not ready, if
+                        applicable.
+                      type: string
+                    name:
+                      description: Name is the addon identifier.
+                      type: string
+                    ready:
+                      description: Ready indicates whether the addon's helm release
+                        is ready.
+                      type: boolean
+                  required:
+                  - name
+                  - ready
+                  type: object
+                type: array
+              apiServerURL:
+                description: APIServerURL is the URL of the edge cluster API server.
+                type: string
+              apiServerURLInternalDNS:
+                description: |-
+                  APIServerURLInternalDNS is the internal DNS URL of the edge cluster API server.
+                  The endpoint is used by components running in the same cluster like the omni-agent and liqo components.
+                type: string
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              deadManSwitch:
+                description: DeadManSwitch is the time when the edge cluster status
+                  was last reported.
+                format: date-time
+                type: string
+              kubeconfigSecretRef:
+                description: KubeconfigSecretRef references the secret containing
+                  the kubeconfig for the edge cluster.
+                properties:
+                  apiVersion:
+                    description: API version of the referent.
+                    type: string
+                  fieldPath:
+                    description: |-
+                      If referring to a piece of an object instead of an entire object, this string
+                      should contain a valid JSON/Go field access statement, such as desiredState.manifest.containers[2].
+                      For example, if the object reference is to a container within a pod, this would take on a value like:
+                      "spec.containers{name}" (where "name" refers to the name of the container that triggered
+                      the event) or if no container name is specified "spec.containers[2]" (container with
+                      index 2 in this pod). This syntax is chosen only to have some well-defined way of
+                      referencing a part of an object.
+                    type: string
+                  kind:
+                    description: |-
+                      Kind of the referent.
+                      More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+                    type: string
+                  name:
+                    description: |-
+                      Name of the referent.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                    type: string
+                  namespace:
+                    description: |-
+                      Namespace of the referent.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/
+                    type: string
+                  resourceVersion:
+                    description: |-
+                      Specific resourceVersion to which this reference is made, if any.
+                      More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency
+                    type: string
+                  uid:
+                    description: |-
+                      UID of the referent.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#uids
+                    type: string
+                type: object
+                x-kubernetes-map-type: atomic
+              liqo:
+                description: Liqo contains the information about the liqo peering
+                  status.
+                properties:
+                  consumer:
+                    description: Consumer contains networks to peer with the provider
+                      (e.g., edge cluster).
+                    properties:
+                      externalCIDR:
+                        description: ExternalCIDR is the external CIDR to be passed
+                          to the other cluster for peering.
+                        type: string
+                    required:
+                    - externalCIDR
+                    type: object
+                  gatewayServerEndpoint:
+                    description: |-
+                      GatewayServerEndpoint is the endpoint of the gateway server that the other cluster can use to connect to this cluster.
+                      Deprecated: use GatewayServerEndpoints instead. Retained for backward compatibility; holds the first replica's endpoint.
+                    properties:
+                      addresses:
+                        description: Addresses specifies the addresses of the endpoint.
+                        items:
+                          type: string
+                        type: array
+                      port:
+                        description: |-
+                          Deprecated: use Ports instead
+                          Port specifies the port of the endpoint.
+                        format: int32
+                        type: integer
+                      ports:
+                        description: Ports specifies the ports of the endpoint.
+                        items:
+                          format: int32
+                          type: integer
+                        maxItems: 64
+                        type: array
+                      protocol:
+                        description: Protocol specifies the protocol of the endpoint.
+                        enum:
+                        - TCP
+                        - UDP
+                        type: string
+                    type: object
+                    x-kubernetes-validations:
+                    - message: port and ports are mutually exclusive
+                      rule: '!(has(self.port) && has(self.ports))'
+                    - message: at least one of port or ports must be set
+                      rule: has(self.port) || (has(self.ports) && size(self.ports)
+                        > 0)
+                    - message: ports must not contain duplicates
+                      rule: '!(has(self.ports)) || self.ports.all(p, self.ports.filter(q,
+                        q == p).size() == 1)'
+                  gatewayServerEndpoints:
+                    description: GatewayServerEndpoints contains the endpoints of
+                      all gateway server replicas.
+                    items:
+                      description: EndpointStatus defines the observed state of the
+                        endpoint.
+                      properties:
+                        addresses:
+                          description: Addresses specifies the addresses of the endpoint.
+                          items:
+                            type: string
+                          type: array
+                        port:
+                          description: |-
+                            Deprecated: use Ports instead
+                            Port specifies the port of the endpoint.
+                          format: int32
+                          type: integer
+                        ports:
+                          description: Ports specifies the ports of the endpoint.
+                          items:
+                            format: int32
+                            type: integer
+                          maxItems: 64
+                          type: array
+                        protocol:
+                          description: Protocol specifies the protocol of the endpoint.
+                          enum:
+                          - TCP
+                          - UDP
+                          type: string
+                      type: object
+                      x-kubernetes-validations:
+                      - message: port and ports are mutually exclusive
+                        rule: '!(has(self.port) && has(self.ports))'
+                      - message: at least one of port or ports must be set
+                        rule: has(self.port) || (has(self.ports) && size(self.ports)
+                          > 0)
+                      - message: ports must not contain duplicates
+                        rule: '!(has(self.ports)) || self.ports.all(p, self.ports.filter(q,
+                          q == p).size() == 1)'
+                    maxItems: 64
+                    type: array
+                  provider:
+                    description: Provider contains networks to peer with the consumer
+                      (e.g., main cluster).
+                    properties:
+                      externalCIDR:
+                        description: ExternalCIDR is the external CIDR to be passed
+                          to the other cluster for peering.
+                        type: string
+                    required:
+                    - externalCIDR
+                    type: object
+                type: object
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  name: edgenodes.omni.cast.ai
+spec:
+  group: omni.cast.ai
+  names:
+    categories:
+    - omni
+    kind: EdgeNode
+    listKind: EdgeNodeList
+    plural: edgenodes
+    singular: edgenode
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.clusterName
+      name: Cluster
+      type: string
+    - jsonPath: .spec.edgeID
+      name: EdgeID
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].status
+      name: Ready
+      type: string
+    - jsonPath: .status.conditions[?(@.type=='Ready')].reason
+      name: Reason
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: EdgeNode is the Schema for the edgenode API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: EdgeNodeSpec defines the desired state of EdgeNode.
+            properties:
+              clusterName:
+                description: Name of edge node cluster.
+                type: string
+              edgeID:
+                description: EdgeID is the unique identifier of the edge on Cast AI.
+                type: string
+              labels:
+                additionalProperties:
+                  type: string
+                description: Labels are the labels to be added to the edge node.
+                type: object
+              providerID:
+                description: ProviderID is the provider ID to be added to the edge
+                  node.
+                type: string
+              resources:
+                additionalProperties:
+                  anyOf:
+                  - type: integer
+                  - type: string
+                  pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                  x-kubernetes-int-or-string: true
+                description: Resources are extended/scalar resources to advertise
+                  on the virtual node.
+                type: object
+              taints:
+                description: Taints are the taints to be added to the edge node.
+                items:
+                  description: |-
+                    The node this Taint is attached to has the "effect" on
+                    any pod that does not tolerate the Taint.
+                  properties:
+                    effect:
+                      description: |-
+                        Required. The effect of the taint on pods
+                        that do not tolerate the taint.
+                        Valid effects are NoSchedule, PreferNoSchedule and NoExecute.
+                      type: string
+                    key:
+                      description: Required. The taint key to be applied to a node.
+                      type: string
+                    timeAdded:
+                      description: TimeAdded represents the time at which the taint
+                        was added.
+                      format: date-time
+                      type: string
+                    value:
+                      description: The taint value corresponding to the taint key.
+                      type: string
+                  required:
+                  - effect
+                  - key
+                  type: object
+                type: array
+            required:
+            - clusterName
+            - edgeID
+            type: object
+          status:
+            description: EdgeNodeStatus defines the observed state of EdgeNode.
+            properties:
+              conditions:
+                description: Conditions the latest available observations of a resource's
+                  current state.
+                items:
+                  description: Condition contains details for one aspect of the current
+                    state of this API Resource.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        lastTransitionTime is the last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        message is a human readable message indicating details about the transition.
+                        This may be an empty string.
+                      maxLength: 32768
+                      type: string
+                    observedGeneration:
+                      description: |-
+                        observedGeneration represents the .metadata.generation that the condition was set based upon.
+                        For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                        with respect to the current state of the instance.
+                      format: int64
+                      minimum: 0
+                      type: integer
+                    reason:
+                      description: |-
+                        reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                        Producers of specific condition types may define expected values and meanings for this field,
+                        and whether the values are considered a guaranteed API.
+                        The value should be a CamelCase string.
+                        This field may not be empty.
+                      maxLength: 1024
+                      minLength: 1
+                      pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                      type: string
+                    status:
+                      description: status of the condition, one of True, False, Unknown.
+                      enum:
+                      - "True"
+                      - "False"
+                      - Unknown
+                      type: string
+                    type:
+                      description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                      maxLength: 316
+                      pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - message
+                  - reason
+                  - status
+                  - type
+                  type: object
+                type: array
+              deadManSwitch:
+                description: DeadManSwitch is the time when the edge node status was
+                  last reported.
+                format: date-time
+                type: string
+              nodeInfo:
+                description: |-
+                  Set of ids/uuids to uniquely identify the node.
+                  More info: https://kubernetes.io/docs/reference/node/node-status/#info
+                properties:
+                  architecture:
+                    description: The Architecture reported by the node
+                    type: string
+                  bootID:
+                    description: Boot ID reported by the node.
+                    type: string
+                  containerRuntimeVersion:
+                    description: ContainerRuntime Version reported by the node through
+                      runtime remote API (e.g. containerd://1.4.2).
+                    type: string
+                  kernelVersion:
+                    description: Kernel Version reported by the node from 'uname -r'
+                      (e.g. 3.16.0-0.bpo.4-amd64).
+                    type: string
+                  kubeProxyVersion:
+                    description: 'Deprecated: KubeProxy Version reported by the node.'
+                    type: string
+                  kubeletVersion:
+                    description: Kubelet Version reported by the node.
+                    type: string
+                  machineID:
+                    description: |-
+                      MachineID reported by the node. For unique machine identification
+                      in the cluster this field is preferred. Learn more from man(5)
+                      machine-id: http://man7.org/linux/man-pages/man5/machine-id.5.html
+                    type: string
+                  operatingSystem:
+                    description: The Operating System reported by the node
+                    type: string
+                  osImage:
+                    description: OS Image reported by the node from /etc/os-release
+                      (e.g. Debian GNU/Linux 7 (wheezy)).
+                    type: string
+                  swap:
+                    description: Swap Info reported by the node.
+                    properties:
+                      capacity:
+                        description: Total amount of swap memory in bytes.
+                        format: int64
+                        type: integer
+                    type: object
+                  systemUUID:
+                    description: |-
+                      SystemUUID reported by the node. For unique machine identification
+                      MachineID is preferred. This field is specific to Red Hat hosts
+                      https://access.redhat.com/documentation/en-us/red_hat_subscription_management/1/html/rhsm/uuid
+                    type: string
+                required:
+                - architecture
+                - bootID
+                - containerRuntimeVersion
+                - kernelVersion
+                - kubeProxyVersion
+                - kubeletVersion
+                - machineID
+                - operatingSystem
+                - osImage
+                - systemUUID
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  name: edges.omni.cast.ai
+spec:
+  group: omni.cast.ai
+  names:
+    categories:
+    - omni
+    kind: Edge
+    listKind: EdgeList
+    plural: edges
+    singular: edge
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.edgeID
+      name: ID
+      type: string
+    - jsonPath: .spec.location.provider.kind
+      name: CloudProvider
+      type: string
+    - jsonPath: .spec.location.provider.region
+      name: Region
+      type: string
+    - jsonPath: .spec.location.provider.zone
+      name: Zone
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    - jsonPath: .status.phase
+      name: Phase
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: Edge is the Schema for the edge API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: EdgeSpec defines the desired state of Edge.
+            properties:
+              edgeID:
+                description: EdgeID is the unique identifier of the edge on Cast AI.
+                type: string
+              labels:
+                additionalProperties:
+                  type: string
+                description: Labels are the labels to be added to the edge node.
+                type: object
+              location:
+                description: Location contains location info for the edge.
+                properties:
+                  id:
+                    description: ID is the unique identifier of the edge location.
+                    type: string
+                  name:
+                    description: Name is the descriptive name of the edge location.
+                    type: string
+                  networkCIDR:
+                    description: NetworkCIDR is cidr block for edge location network.
+                    type: string
+                  provider:
+                    description: Provider is the provider of the edge location.
+                    properties:
+                      aws:
+                        description: AWSEdgeLocationProvider is the provider specific
+                          configuration for AWS.
+                        properties:
+                          accountID:
+                            type: string
+                        type: object
+                      gcp:
+                        description: GCPEdgeLocationProvider is the provider specific
+                          configuration for GCP.
+                        properties:
+                          projectID:
+                            type: string
+                        type: object
+                      kind:
+                        description: EdgeLocationProviderKind defines the type of
+                          the provider.
+                        type: string
+                      nebius:
+                        description: NebiusEdgeLocationProvider is the provider specific
+                          configuration for Nebius.
+                        properties:
+                          networkID:
+                            type: string
+                          parentID:
+                            type: string
+                          securityGroupID:
+                            type: string
+                          serviceAccountID:
+                            type: string
+                          subnetID:
+                            type: string
+                        type: object
+                      oci:
+                        description: OCIEdgeLocationProvider is the provider specific
+                          configuration for OCI.
+                        properties:
+                          availabilityDomainWithPrefix:
+                            type: string
+                          compartmentID:
+                            type: string
+                          mountTargetID:
+                            type: string
+                          tenancyID:
+                            type: string
+                          vcnID:
+                            type: string
+                        type: object
+                      region:
+                        type: string
+                      zone:
+                        type: string
+                    type: object
+                type: object
+              provider:
+                description: Provider is provider specific configuration.
+                properties:
+                  liqo:
+                    description: LiqoEdgeProvider is the provider specific configuration
+                      for edge.
+                    properties:
+                      clusterID:
+                        description: ClusterID liqo cluster ID.
+                        type: string
+                      edgePublicKey:
+                        description: EdgePublicKey is the public key of the edge.
+                        format: byte
+                        type: string
+                      externalIP:
+                        description: ExternalIP is the external IP of the edge.
+                        type: string
+                    type: object
+                  providerKind:
+                    description: ProviderKind defines the type of the provider.
+                    type: string
+                type: object
+              taints:
+                description: Taints are the taints to be added to the edge node.
+                items:
+                  description: |-
+                    The node this Taint is attached to has the "effect" on
+                    any pod that does not tolerate the Taint.
+                  properties:
+                    effect:
+                      description: |-
+                        Required. The effect of the taint on pods
+                        that do not tolerate the taint.
+                        Valid effects are NoSchedule, PreferNoSchedule and NoExecute.
+                      type: string
+                    key:
+                      description: Required. The taint key to be applied to a node.
+                      type: string
+                    timeAdded:
+                      description: TimeAdded represents the time at which the taint
+                        was added.
+                      format: date-time
+                      type: string
+                    value:
+                      description: The taint value corresponding to the taint key.
+                      type: string
+                  required:
+                  - effect
+                  - key
+                  type: object
+                type: array
+              type:
+                description: Type of the edge.
+                type: string
+            type: object
+          status:
+            description: EdgeStatus defines the observed state of Edge.
+            properties:
+              conditions:
+                description: Current processing state of the Cluster proxy.
+                items:
+                  description: Condition defines an observation of a object operational
+                    state.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        Last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed. If that is not known, then using the time when
+                        the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A human readable message indicating details about the transition.
+                        This field may be empty.
+                      type: string
+                    reason:
+                      description: |-
+                        The reason for the condition's last transition in CamelCase.
+                        The specific API may choose whether or not this field is considered a guaranteed API.
+                        This field may not be empty.
+                      type: string
+                    severity:
+                      description: |-
+                        Severity provides an explicit classification of Reason code, so the users or machines can immediately
+                        understand the current situation and act accordingly.
+                        The Severity field MUST be set only when Status=False.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: |-
+                        Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions
+                        can be useful (see .node.status.conditions), the ability to deconflict is important.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+              deadManSwitch:
+                description: |-
+                  DeadManSwitch is the time when the edge was last seen.
+                  It will drive to report each 5 minutes when lapses.
+                format: date-time
+                type: string
+              phase:
+                default: Creating
+                description: Phase of the edge object (Creating, Ready, Failed, Deleting,
+                  Deleted, Unknown).
+                enum:
+                - Creating
+                - Ready
+                - Failed
+                - Unknown
+                - Deleting
+                - Deleted
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.16.4
+  name: schedulingpolicies.omni.cast.ai
+spec:
+  group: omni.cast.ai
+  names:
+    categories:
+    - omni
+    kind: SchedulingPolicy
+    listKind: SchedulingPolicyList
+    plural: schedulingpolicies
+    singular: schedulingpolicy
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: SchedulingPolicy is the Schema for the scheduling policy API.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: SchedulingPolicy defines the desired scheduling policy for
+              the cluster.
+            properties:
+              provider:
+                properties:
+                  kind:
+                    description: ProviderKind defines the type of the provider.
+                    type: string
+                  liqo:
+                    properties:
+                      namespacePolicy:
+                        properties:
+                          namespaceSelector:
+                            description: NamespaceSelector defines the selector for
+                              namespaces to which this policy applies.
+                            properties:
+                              matchExpressions:
+                                description: matchExpressions is a list of label selector
+                                  requirements. The requirements are ANDed.
+                                items:
+                                  description: |-
+                                    A label selector requirement is a selector that contains values, a key, and an operator that
+                                    relates the key and values.
+                                  properties:
+                                    key:
+                                      description: key is the label key that the selector
+                                        applies to.
+                                      type: string
+                                    operator:
+                                      description: |-
+                                        operator represents a key's relationship to a set of values.
+                                        Valid operators are In, NotIn, Exists and DoesNotExist.
+                                      type: string
+                                    values:
+                                      description: |-
+                                        values is an array of string values. If the operator is In or NotIn,
+                                        the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                        the values array must be empty. This array is replaced during a strategic
+                                        merge patch.
+                                      items:
+                                        type: string
+                                      type: array
+                                      x-kubernetes-list-type: atomic
+                                  required:
+                                  - key
+                                  - operator
+                                  type: object
+                                type: array
+                                x-kubernetes-list-type: atomic
+                              matchLabels:
+                                additionalProperties:
+                                  type: string
+                                description: |-
+                                  matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                                  map is equivalent to an element of matchExpressions, whose key field is "key", the
+                                  operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                type: object
+                            type: object
+                            x-kubernetes-map-type: atomic
+                          nodeSelector:
+                            description: NodeSelector defines the selector for nodes
+                              to which this policy applies.
+                            properties:
+                              nodeSelectorTerms:
+                                description: Required. A list of node selector terms.
+                                  The terms are ORed.
+                                items:
+                                  description: |-
+                                    A null or empty node selector term matches no objects. The requirements of
+                                    them are ANDed.
+                                    The TopologySelectorTerm type implements a subset of the NodeSelectorTerm.
+                                  properties:
+                                    matchExpressions:
+                                      description: A list of node selector requirements
+                                        by node's labels.
+                                      items:
+                                        description: |-
+                                          A node selector requirement is a selector that contains values, a key, and an operator
+                                          that relates the key and values.
+                                        properties:
+                                          key:
+                                            description: The label key that the selector
+                                              applies to.
+                                            type: string
+                                          operator:
+                                            description: |-
+                                              Represents a key's relationship to a set of values.
+                                              Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+                                            type: string
+                                          values:
+                                            description: |-
+                                              An array of string values. If the operator is In or NotIn,
+                                              the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                              the values array must be empty. If the operator is Gt or Lt, the values
+                                              array must have a single element, which will be interpreted as an integer.
+                                              This array is replaced during a strategic merge patch.
+                                            items:
+                                              type: string
+                                            type: array
+                                            x-kubernetes-list-type: atomic
+                                        required:
+                                        - key
+                                        - operator
+                                        type: object
+                                      type: array
+                                      x-kubernetes-list-type: atomic
+                                    matchFields:
+                                      description: A list of node selector requirements
+                                        by node's fields.
+                                      items:
+                                        description: |-
+                                          A node selector requirement is a selector that contains values, a key, and an operator
+                                          that relates the key and values.
+                                        properties:
+                                          key:
+                                            description: The label key that the selector
+                                              applies to.
+                                            type: string
+                                          operator:
+                                            description: |-
+                                              Represents a key's relationship to a set of values.
+                                              Valid operators are In, NotIn, Exists, DoesNotExist. Gt, and Lt.
+                                            type: string
+                                          values:
+                                            description: |-
+                                              An array of string values. If the operator is In or NotIn,
+                                              the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                              the values array must be empty. If the operator is Gt or Lt, the values
+                                              array must have a single element, which will be interpreted as an integer.
+                                              This array is replaced during a strategic merge patch.
+                                            items:
+                                              type: string
+                                            type: array
+                                            x-kubernetes-list-type: atomic
+                                        required:
+                                        - key
+                                        - operator
+                                        type: object
+                                      type: array
+                                      x-kubernetes-list-type: atomic
+                                  type: object
+                                  x-kubernetes-map-type: atomic
+                                type: array
+                                x-kubernetes-list-type: atomic
+                            required:
+                            - nodeSelectorTerms
+                            type: object
+                            x-kubernetes-map-type: atomic
+                          type:
+                            description: Type defines the remote namespace mapping
+                              strategy type.
+                            enum:
+                            - EnforceSameName
+                            - DefaultName
+                            type: string
+                            x-kubernetes-validations:
+                            - message: Type of NamespacePolicy is immutable
+                              rule: self == oldSelf
+                        type: object
+                      podPolicy:
+                        properties:
+                          type:
+                            description: Type defines the pod offloading strategy
+                              type.
+                            enum:
+                            - Local
+                            - Remote
+                            - LocalAndRemote
+                            type: string
+                        type: object
+                    type: object
+                type: object
+            type: object
+          status:
+            description: SchedulingPolicyStatus defines the observed state of Scheduling
+              policy.
+            properties:
+              conditions:
+                description: Current processing state of the Cluster proxy.
+                items:
+                  description: Condition defines an observation of a object operational
+                    state.
+                  properties:
+                    lastTransitionTime:
+                      description: |-
+                        Last time the condition transitioned from one status to another.
+                        This should be when the underlying condition changed. If that is not known, then using the time when
+                        the API field changed is acceptable.
+                      format: date-time
+                      type: string
+                    message:
+                      description: |-
+                        A human readable message indicating details about the transition.
+                        This field may be empty.
+                      type: string
+                    reason:
+                      description: |-
+                        The reason for the condition's last transition in CamelCase.
+                        The specific API may choose whether or not this field is considered a guaranteed API.
+                        This field may not be empty.
+                      type: string
+                    severity:
+                      description: |-
+                        Severity provides an explicit classification of Reason code, so the users or machines can immediately
+                        understand the current situation and act accordingly.
+                        The Severity field MUST be set only when Status=False.
+                      type: string
+                    status:
+                      description: Status of the condition, one of True, False, Unknown.
+                      type: string
+                    type:
+                      description: |-
+                        Type of condition in CamelCase or in foo.example.com/CamelCase.
+                        Many .condition.type values are consistent across resources like Available, but because arbitrary conditions
+                        can be useful (see .node.status.conditions), the ability to deconflict is important.
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - status
+                  - type
+                  type: object
+                type: array
+              phase:
+                default: Creating
+                description: Phase of the cluster proxy (Creating, Ready, Failed,
+                  Deleting, Deleted).
+                enum:
+                - Creating
+                - Ready
+                - Failed
+                - Unknown
+                - Deleting
+                - Deleted
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -1,0 +1,224 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: omni-agent-role
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  - namespaces
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - events
+  verbs:
+  - create
+  - patch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - '*'
+  - get
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes/status
+  - pods
+  - pods/log
+  - services
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - authentication.liqo.io
+  resources:
+  - '*'
+  - identities
+  - resourceslices
+  - resourceslices/status
+  verbs:
+  - '*'
+- apiGroups:
+  - core.liqo.io
+  resources:
+  - '*'
+  - foreignclusters
+  verbs:
+  - '*'
+- apiGroups:
+  - flowcontrol.apiserver.k8s.io
+  resources:
+  - flowschemas
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - ipam.liqo.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+  - get
+  - list
+  - watch
+- apiGroups:
+  - k0smotron.io
+  resources:
+  - clusters
+  - jointokenrequests
+  verbs:
+  - '*'
+- apiGroups:
+  - networking.liqo.io
+  resources:
+  - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - offloading.liqo.io
+  resources:
+  - namespacemaps
+  - namespaceoffloadings
+  - virtualnodes
+  verbs:
+  - '*'
+- apiGroups:
+  - omni.cast.ai
+  resources:
+  - clusters
+  - clusters/finalizers
+  - clusters/status
+  - edgeclusters/finalizers
+  - edgeclusters/status
+  - edgenodes
+  - edgenodes/finalizers
+  - edgenodes/status
+  - edges
+  - edges/finalizers
+  - edges/status
+  - schedulingpolicies
+  - schedulingpolicies/finalizers
+  - schedulingpolicies/status
+  verbs:
+  - '*'
+- apiGroups:
+  - omni.cast.ai
+  resources:
+  - edgeclusters
+  verbs:
+  - '*'
+  - get
+  - list
+  - watch
+- apiGroups:
+  - policy
+  resources:
+  - poddisruptionbudgets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - storage.k8s.io
+  resources:
+  - storageclasses
+  verbs:
+  - create
+  - get
+  - list
+  - patch
+  - update
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ include "omni-agent.fullname" . }}
+  labels:
+    {{- include "omni-agent.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: omni-agent-role
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "omni-agent.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}
+---
+# Use a dedicated Role for leader election to limit permissions to the agent's own lease in its namespace.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: {{ include "omni-agent.fullname" . }}-leader-election
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "omni-agent.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+rules:
+  - apiGroups:
+      - coordination.k8s.io
+    resources:
+      - leases
+    verbs:
+      - create
+      - get
+      - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: {{ include "omni-agent.fullname" . }}-leader-election
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "omni-agent.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ include "omni-agent.fullname" . }}-leader-election
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "omni-agent.serviceAccountName" . }}
+    namespace: {{ .Release.Namespace }}

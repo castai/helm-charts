@@ -1,0 +1,69 @@
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - services
+  verbs:
+  - get
+- apiGroups:
+  - ""
+  resources:
+  - secrets
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  verbs:
+  - get
+- apiGroups:
+  - authentication.liqo.io
+  resources:
+  - tenants
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+- apiGroups:
+  - ipam.liqo.io
+  resources:
+  - ips
+  verbs:
+  - create
+  - delete
+  - get
+  - update
+- apiGroups:
+  - networking.liqo.io
+  resources:
+  - configurations
+  - gatewayclients
+  - gatewayservers
+  - publickeies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - update
+- apiGroups:
+  - networking.liqo.io
+  resources:
+  - connections
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - networking.liqo.io
+  resources:
+  - gatewayclients/status
+  - gatewayservers/status
+  verbs:
+  - get

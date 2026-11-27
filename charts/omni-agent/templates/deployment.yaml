@@ -1,0 +1,222 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "omni-agent.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "omni-agent.labels" . | nindent 4 }}
+  {{- with .Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  progressDeadlineSeconds: {{ .Values.deployment.progressDeadlineSeconds }}
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: {{ .Values.deployment.revisionHistoryLimit }}
+  selector:
+    matchLabels:
+      {{- include "omni-agent.selectorLabels" . | nindent 6 }}
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        {{- include "omni-agent.labels" . | nindent 8 }}
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      containers:
+        - env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: CHART_VERSION
+              value: {{ .Chart.Version | quote }}
+            {{- if .Values.omniAgentPreReleaseRepo }}
+            - name: OMNI_AGENT_PRE_RELEASE_REPO
+              value: "true"
+            {{- end }}
+            {{- if .Values.omniAgentLocalChart }}
+            - name: OMNI_AGENT_LOCAL_CHART
+              value: "true"
+            {{- end }}
+            {{- if .Values.image.repository }}
+            - name: OMNI_AGENT_IMAGE_REPO
+              value: {{ .Values.image.repository | quote }}
+            {{- end }}
+            {{- if .Values.image.tag }}
+            - name: OMNI_AGENT_IMAGE_TAG
+              value: {{ .Values.image.tag | quote }}
+            {{- end }}
+            {{- if .Values.gpuOperatorChartVersion }}
+            - name: GPU_OPERATOR_CHART_VERSION
+              value: {{ .Values.gpuOperatorChartVersion | quote }}
+            {{- end }}
+            {{- if .Values.gpuOperatorChartValues }}
+            - name: GPU_OPERATOR_CHART_VALUES
+              value: {{ .Values.gpuOperatorChartValues | toYaml | b64enc | quote }}
+            {{- end }}
+            {{- if .Values.nvidiaDRADriverChartVersion }}
+            - name: NVIDIA_DRA_DRIVER_CHART_VERSION
+              value: {{ .Values.nvidiaDRADriverChartVersion | quote }}
+            {{- end }}
+            - name: SPOT_HANDLER_CHART_VERSION
+              value: {{ .Values.spotHandlerChartVersion | quote }}
+            {{- if .Values.spotHandlerChartValues }}
+            - name: SPOT_HANDLER_CHART_VALUES
+              value: {{ .Values.spotHandlerChartValues | toYaml | b64enc | quote }}
+            {{- end }}
+            {{- if .Values.networkOperatorChartVersion }}
+            - name: NETWORK_OPERATOR_CHART_VERSION
+              value: {{ .Values.networkOperatorChartVersion | quote }}
+            {{- end }}
+            {{- if .Values.networkOperatorRdmaImage }}
+            - name: NETWORK_OPERATOR_RDMA_IMAGE
+              value: {{ .Values.networkOperatorRdmaImage | quote }}
+            {{- end }}
+            {{- if .Values.networkOperatorRdmaRepository }}
+            - name: NETWORK_OPERATOR_RDMA_REPOSITORY
+              value: {{ .Values.networkOperatorRdmaRepository | quote }}
+            {{- end }}
+            - name: FLOWCONTROL_ENABLED
+              value: {{ .Values.flowcontrol.enabled | quote }}
+            - name: FLOWCONTROL_MATCHING_PRECEDENCE
+              value: {{ .Values.flowcontrol.matchingPrecedence | quote }}
+            - name: CASTAI_AGENT_NAMESPACE
+              value: {{ .Release.Namespace | quote }}
+            - name: CASTAI_API_URL
+              value: {{ .Values.castai.apiUrl | quote }}
+            - name: CASTAI_API_GRPC_URL
+              value: {{ .Values.castai.grpcAddr | quote }}
+            - name: CASTAI_CLUSTER_NAME
+              value: {{ .Values.castai.clusterName | quote }}
+            - name: CASTAI_CLUSTER_ID
+              value: {{ .Values.castai.clusterID | quote }}
+            - name: CASTAI_ORGANIZATION_ID
+              value: {{ .Values.castai.organizationID | quote }}
+            {{- if .Values.castai.logLevel }}
+            - name: LOG_LEVEL
+              value: {{ .Values.castai.logLevel | quote }}
+            {{- end }}
+            - name: KUBERNETES_METRICS_BIND_ADDRESS
+              value: ":{{ .Values.ports.metrics }}"
+            - name: KUBERNETES_HEALTH_PROBE_BIND_ADDRESS
+              value: ":{{ .Values.ports.healthz }}"
+            - name: KUBERNETES_PPROF_BIND_ADDRESS
+              value: ":{{ .Values.ports.pprof }}"
+            {{- if not .Values.edgeMode.enabled }}
+            - name: CASTAI_EDGE_MODE
+              value: "false"
+            {{- else }}
+            - name: CASTAI_EDGE_MODE
+              value: "true"
+            {{- if .Values.castai.edgeID }}
+            - name: CASTAI_EDGE_ID
+              value: {{ .Values.castai.edgeID | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.edgeCluster.loadBalancerProvider }}
+            - name: EDGECLUSTER_LOADBALANCER_PROVIDER
+              value: {{ .Values.edgeCluster.loadBalancerProvider }}
+            {{- end }}
+            {{- if .Values.edgeCluster.storageProvider }}
+            - name: EDGECLUSTER_STORAGE_PROVIDER
+              value: {{ .Values.edgeCluster.storageProvider }}
+            {{- end }}
+            {{- include "omni-agent.validateResources" (dict "quantities" .Values.edgeCluster.resources.requests "path" "edgeCluster.resources.requests") }}
+            {{- with .Values.edgeCluster.resources }}
+            {{- if or .requests.cpu .requests.memory }}
+            - name: EDGECLUSTER_RESOURCES_REQUESTS_CPU
+              value: {{ .requests.cpu | quote }}
+            - name: EDGECLUSTER_RESOURCES_REQUESTS_MEMORY
+              value: {{ .requests.memory | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if .Values.edgeCluster.k0s.repo }}
+            - name: EDGECLUSTER_K0S_REPO
+              value: {{ .Values.edgeCluster.k0s.repo | quote }}
+            {{- end }}
+            {{- if .Values.edgeCluster.etcd.image }}
+            - name: EDGECLUSTER_ETCD_IMAGE
+              value: {{ .Values.edgeCluster.etcd.image | quote }}
+            {{- end }}
+            {{- include "omni-agent.validateResources" (dict "quantities" .Values.edgeCluster.etcd.resources.requests "path" "edgeCluster.etcd.resources.requests") }}
+            {{- with .Values.edgeCluster.etcd.resources }}
+            {{- if or .requests.cpu .requests.memory }}
+            - name: EDGECLUSTER_ETCD_RESOURCES_REQUESTS_CPU
+              value: {{ .requests.cpu | quote }}
+            - name: EDGECLUSTER_ETCD_RESOURCES_REQUESTS_MEMORY
+              value: {{ .requests.memory | quote }}
+            {{- end }}
+            {{- end }}
+            {{- with .Values.edgeCluster.etcd.defrag }}
+            - name: EDGECLUSTER_ETCD_DEFRAG_ENABLED
+              value: {{ .enabled | quote }}
+            - name: EDGECLUSTER_ETCD_DEFRAG_SCHEDULE
+              value: {{ .schedule | quote }}
+            - name: EDGECLUSTER_ETCD_DEFRAG_IMAGE
+              value: {{ .image | quote }}
+            - name: EDGECLUSTER_ETCD_DEFRAG_RULE
+              value: {{ .rule | quote }}
+            {{- end }}
+            {{- with .Values.liqo.offloading.reflection.customResources }}
+            - name: EDGECLUSTER_LIQO_REFLECTION_CUSTOM_RESOURCES
+              value: {{ toJson . | quote }}
+            {{- end }}
+          {{- range $key, $value := .Values.deployment.extraEnv }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+          {{- end }}
+          envFrom:
+            {{- if .Values.castai.apiKey }}
+            - secretRef:
+                name: {{ include "omni-agent.fullname" . }}
+            {{- else if .Values.castai.apiKeySecretRef }}
+            - secretRef:
+                name: {{ .Values.castai.apiKeySecretRef }}
+            {{- else }}
+            {{- fail "castai.apiKey or castai.apiKeySecretRef must be provided" }}
+            {{- end }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          name: omni-agent
+          command:
+            - "/usr/local/bin/castai-omni-agent"
+          args:
+            - "controller"
+          {{- range $key, $value := .Values.deployment.extraArgs }}
+            - "--{{ $key }}={{ $value }}"
+          {{- end }}
+          ports:
+            - containerPort: {{ .Values.ports.metrics }}
+              name: metrics
+              protocol: TCP
+            - containerPort: {{ .Values.ports.healthz }}
+              name: healthz
+              protocol: TCP
+            - containerPort: {{ .Values.ports.pprof }}
+              name: pprof
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      {{- if .Values.edgeMode.enabled }}
+      priorityClassName: {{ .Values.edgeMode.priorityClassName }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "omni-agent.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 30

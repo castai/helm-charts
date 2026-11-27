@@ -1,0 +1,10 @@
+{{- if .Values.storage.enabled -}}
+
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ .Values.storage.virtualStorageClassName }}
+provisioner: liqo.io/storage
+volumeBindingMode: WaitForFirstConsumer
+
+{{- end -}}

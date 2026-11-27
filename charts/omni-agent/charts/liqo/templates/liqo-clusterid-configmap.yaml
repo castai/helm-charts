@@ -1,0 +1,24 @@
+{{- $clusterIdConfig := (merge (dict "name" "clusterid-configmap" "module" "clusterid-configmap") .) -}}
+{{- $name := include "liqo.prefixedName" $clusterIdConfig -}}
+{{- $oldObject := (lookup "v1" "ConfigMap" .Release.Namespace $name) -}}
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "liqo.labels" $clusterIdConfig | nindent 4 }}
+  name: {{ include "liqo.prefixedName" $clusterIdConfig }}
+data:
+  {{- if $oldObject }}
+  {{- if and (.Values.discovery.config.clusterID) (ne $oldObject.data.CLUSTER_ID .Values.discovery.config.clusterID) }}
+    {{ fail "Changing the cluster ID by providing a different .discovery.config.clusterID value is not allowed." }}
+  {{- end}}
+  CLUSTER_ID: {{ $oldObject.data.CLUSTER_ID }}
+  {{- else if .Values.discovery.config.clusterID }}
+    {{- if not (regexMatch "^([a-z0-9]([-a-z0-9]*[a-z0-9])?)$" .Values.discovery.config.clusterID) }}
+      {{ fail "Provided cluster ID must be a valid DNS-compatible name." }}
+    {{- end}}
+  CLUSTER_ID: {{ .Values.discovery.config.clusterID }}
+  {{- else }}
+  CLUSTER_ID: {{ uuidv4 }}
+  {{- end }}

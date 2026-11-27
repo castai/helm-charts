@@ -1,0 +1,104 @@
+---
+{{- $metricConfig := (merge (dict "name" "metric-agent" "module" "metrics" "version" .Values.metricAgent.image.version) .) -}}
+{{- $certConfig := (merge (dict "name" "cert-creator" "module" "metrics" "version" .Values.metricAgent.initContainer.image.version) .) -}}
+
+{{- if .Values.metricAgent.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "liqo.prefixedName" $metricConfig }}
+  labels:
+    {{- include "liqo.labels" $metricConfig | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "liqo.selectorLabels" $metricConfig | nindent 6 }}
+      {{- include "liqo.metricAgentServiceLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "liqo.selectorLabels" $metricConfig | nindent 8 }}
+        {{- include "liqo.metricAgentServiceLabels" . | nindent 8 }}
+      {{- if .Values.metricAgent.pod.labels }}
+        {{- toYaml .Values.metricAgent.pod.labels | nindent 8 }}
+      {{- end }}
+      {{- if .Values.metricAgent.pod.annotations }}
+      annotations:
+        {{- toYaml .Values.metricAgent.pod.annotations | nindent 8 }}
+      {{- end }}
+    spec:
+      securityContext:
+        {{- include "liqo.podSecurityContext" . | nindent 8 }}
+      serviceAccountName: {{ include "liqo.prefixedName" $metricConfig }}
+      {{- include "liqo.imagePullSecrets" . | nindent 6 }}
+      initContainers:
+        - name: {{ $certConfig.name }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          securityContext:
+            {{- include "liqo.containerSecurityContext" . | nindent 12 }}
+          image: {{ .Values.metricAgent.initContainer.image.name }}{{ include "liqo.suffix" $certConfig }}:{{ include "liqo.version" $certConfig }}
+          volumeMounts:
+            - mountPath: '/certs'
+              name: certs
+          command: [ "/usr/bin/openssl" ]
+          args:
+            - req
+            - -x509
+            - -subj
+            - /C=IT/ST=Turin/O=Liqo
+            - -nodes
+            - -days
+            - "365"
+            - -newkey
+            - rsa:4096
+            - -keyout
+            - /certs/key.pem
+            - -out
+            - /certs/cert.pem
+            - -addext
+            - subjectAltName = DNS:{{ include "liqo.prefixedName" $metricConfig }}.{{ .Release.Namespace }}.svc
+          resources: {{- toYaml .Values.metricAgent.pod.resources | nindent 12 }}
+      containers:
+        - image: {{ .Values.metricAgent.image.name }}{{ include "liqo.suffix" $metricConfig }}:{{ include "liqo.version" $metricConfig }}
+          securityContext:
+            {{- include "liqo.containerSecurityContext" . | nindent 12 }}
+          name: {{ $metricConfig.name }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          command: ["/usr/bin/metric-agent"]
+          args:
+          - --key-path=/certs/key.pem
+          - --cert-path=/certs/cert.pem
+          - --read-timeout={{ .Values.metricAgent.config.timeout.read }}
+          - --write-timeout={{ .Values.metricAgent.config.timeout.write }}
+          - --client-qps={{ .Values.metricAgent.config.clientSideRateLimit.qps }}
+          - --client-max-burst={{ .Values.metricAgent.config.clientSideRateLimit.burst }}
+          {{- if .Values.common.extraArgs }}
+          {{- toYaml .Values.common.extraArgs | nindent 10 }}
+          {{- end }}
+          {{- if .Values.metricAgent.pod.extraArgs }}
+          {{- toYaml .Values.metricAgent.pod.extraArgs | nindent 10 }}
+          {{- end }}
+          resources: {{- toYaml .Values.metricAgent.pod.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: '/certs'
+              name: certs
+      volumes:
+        - name: certs
+          emptyDir: {}
+      {{- if ((.Values.common).nodeSelector) }}
+      nodeSelector:
+      {{- toYaml .Values.common.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if ((.Values.common).tolerations) }}
+      tolerations:
+      {{- toYaml .Values.common.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if ((.Values.common).affinity) }}
+      affinity:
+      {{- toYaml .Values.common.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.metricAgent.pod.priorityClassName }}
+      priorityClassName: {{ .Values.metricAgent.pod.priorityClassName }}
+      {{- end }}
+{{- end }}

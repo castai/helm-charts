@@ -1,0 +1,49 @@
+{{- if .Values.bootstrap.enabled }}
+apiVersion: omni.cast.ai/v1alpha1
+kind: SchedulingPolicy
+metadata:
+  name: default
+spec:
+  provider:
+    kind: Liqo
+    liqo:
+      namespacePolicy:
+        type: EnforceSameName
+        namespaceSelector:
+          matchLabels:
+            omni.cast.ai/enable-scheduling: "true"
+        nodeSelector:
+          nodeSelectorTerms: []
+      podPolicy:
+        type: LocalAndRemote
+---
+apiVersion: omni.cast.ai/v1alpha1
+kind: SchedulingPolicy
+metadata:
+  name: local-only
+spec:
+  provider:
+    kind: Liqo
+    liqo:
+      namespacePolicy:
+        type: EnforceSameName
+        namespaceSelector:
+          matchLabels:
+            omni.cast.ai/enable-scheduling-local-only: "true"
+        nodeSelector:
+          nodeSelectorTerms: []
+      podPolicy:
+        type: Local
+---
+{{- if .Values.castai.clusterID }}
+apiVersion: omni.cast.ai/v1alpha1
+kind: Cluster
+metadata:
+  name: cluster
+spec:
+  provider:
+    kind: Liqo
+    liqo:
+      clusterID: {{ .Values.castai.clusterID | quote }}
+{{- end }}
+{{- end }}

@@ -1,0 +1,69 @@
+{{- $proxyConfig := (merge (dict "name" "proxy" "module" "networking"  "version" .Values.proxy.image.version) .) -}}
+
+{{- if .Values.proxy.enabled }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "liqo.labels" $proxyConfig | nindent 4 }}
+  name: {{ include "liqo.prefixedName" $proxyConfig }}
+spec:
+  replicas: {{ .Values.proxy.replicas }}
+  selector:
+    matchLabels:
+      {{- include "liqo.selectorLabels" $proxyConfig | nindent 6 }}
+  template:
+    metadata:
+    {{- if .Values.proxy.pod.annotations }}
+      annotations:
+      {{- toYaml .Values.proxy.pod.annotations | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "liqo.labels" $proxyConfig | nindent 8 }}
+        {{- if .Values.proxy.pod.labels }}
+          {{- toYaml .Values.proxy.pod.labels | nindent 8 }}
+        {{- end }}
+    spec:
+      securityContext:
+        {{- include "liqo.podSecurityContext" . | nindent 8 }}
+      {{- include "liqo.imagePullSecrets" . | nindent 6 }}
+      containers:
+        - image: {{ .Values.proxy.image.name }}{{ include "liqo.suffix" $proxyConfig }}:{{ include "liqo.version" $proxyConfig }}
+          imagePullPolicy: {{ .Values.pullPolicy }}
+          name: {{ $proxyConfig.name }}
+          securityContext:
+            {{- include "liqo.containerSecurityContext" . | nindent 12 }}
+          ports:
+          - containerPort: {{ .Values.proxy.config.listeningPort }}
+          resources: {{- toYaml .Values.proxy.pod.resources | nindent 12 }}
+          args:
+          - --port={{ .Values.proxy.config.listeningPort }}
+          - --force-host=kubernetes.default.svc:443
+          {{- if or .Values.common.extraArgs .Values.proxy.pod.extraArgs }}
+          {{- if .Values.common.extraArgs }}
+          {{- toYaml .Values.common.extraArgs | nindent 10 }}
+          {{- end }}
+          {{- if .Values.proxy.pod.extraArgs }}
+          {{- toYaml .Values.proxy.pod.extraArgs | nindent 10 }}
+          {{- end }}
+          {{- end }}
+          command:
+          - /usr/bin/proxy
+      {{- if ((.Values.common).nodeSelector) }}
+      nodeSelector:
+      {{- toYaml .Values.common.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if ((.Values.common).tolerations) }}
+      tolerations:
+      {{- toYaml .Values.common.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if ((.Values.common).affinity) }}
+      affinity:
+      {{- toYaml .Values.common.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.proxy.pod.priorityClassName }}
+      priorityClassName: {{ .Values.proxy.pod.priorityClassName }}
+      {{- end }}
+      
+{{- end }}

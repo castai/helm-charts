@@ -1,0 +1,30 @@
+{{- if .Values.edgeCluster.pdb.enabled }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "omni-agent.fullname" . }}-controlplane
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "omni-agent.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: {{ .Values.edgeCluster.pdb.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: k0smotron
+      component: cluster
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "omni-agent.fullname" . }}-etcd
+  namespace: {{ .Release.Namespace }}
+  labels:
+  {{- include "omni-agent.labels" . | nindent 4 }}
+spec:
+  maxUnavailable: {{ .Values.edgeCluster.pdb.maxUnavailable }}
+  selector:
+    matchLabels:
+      app: k0smotron
+      component: etcd
+      app.kubernetes.io/component: etcd
+{{- end }}

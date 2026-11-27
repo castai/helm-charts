@@ -1,0 +1,217 @@
+{{- $ctrlManagerConfig := (merge (dict "name" "controller-manager" "module" "controller-manager" "version" .Values.controllerManager.image.version) .) -}}
+{{- $ipamConfig := (merge (dict "name" "ipam" "module" "ipam") .) -}}
+{{- $awsConfig := (merge (dict "name" "aws-config" "module" "aws-config") .) -}}
+{{- $kubeletConfig := (dict "name" "virtual-kubelet") -}}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "liqo.labels" $ctrlManagerConfig | nindent 4 }}
+  name: {{ include "liqo.prefixedName" $ctrlManagerConfig }}
+spec:
+  replicas: {{ .Values.controllerManager.replicas }}
+  selector:
+    matchLabels:
+      {{- include "liqo.selectorLabels" $ctrlManagerConfig | nindent 6 }}
+  template:
+    metadata:
+    {{- if .Values.controllerManager.pod.annotations }}
+      annotations:
+      {{- toYaml .Values.controllerManager.pod.annotations | nindent 8 }}
+    {{- end }}
+      labels:
+        {{- include "liqo.labels" $ctrlManagerConfig | nindent 8 }}
+      {{- if .Values.controllerManager.pod.labels }}
+        {{- toYaml .Values.controllerManager.pod.labels | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- if gt .Values.controllerManager.replicas 1.0 }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchLabels:
+                  {{- include "liqo.selectorLabels" $ctrlManagerConfig | nindent 18 }}
+              topologyKey: kubernetes.io/hostname
+      {{- end }}
+      securityContext:
+        {{- include "liqo.podSecurityContext" . | nindent 8 }}
+      serviceAccountName: {{ include "liqo.prefixedName" $ctrlManagerConfig }}
+      {{- include "liqo.imagePullSecrets" . | nindent 6 }}
+      containers:
+      - image: {{ .Values.controllerManager.image.name }}{{ include "liqo.suffix" $ctrlManagerConfig }}:{{ include "liqo.version" $ctrlManagerConfig }}
+        imagePullPolicy: {{ .Values.pullPolicy }}
+        securityContext:
+          {{- include "liqo.containerSecurityContext" . | nindent 10 }}
+        name: {{ $ctrlManagerConfig.name }}
+        command: ["/usr/bin/liqo-controller-manager"]
+        args:
+          - --cluster-id=$(CLUSTER_ID)
+          - --liqo-namespace=$(POD_NAMESPACE)
+          - --networking-enabled={{ .Values.networking.enabled }}
+          - --authentication-enabled={{ .Values.authentication.enabled }}
+          - --tls-compatibility-mode={{ .Values.authentication.tlsCompatibilityMode }}
+          - --default-resource-slice-class-enabled={{ .Values.authentication.defaultResourceSliceClassEnabled }}
+          {{- if .Values.authentication.defaultResourceSliceClass }}
+          - --default-resource-slice-class={{ .Values.authentication.defaultResourceSliceClass }}
+          {{- end }}
+          - --offloading-enabled={{ .Values.offloading.enabled }}
+          {{- if .Values.ipam.podCIDRs }}
+          {{- range $cidr := .Values.ipam.podCIDRs }}
+          - --podcidr={{ $cidr }}
+          {{- end }}
+          {{- else if .Values.ipam.podCIDR }}
+          - --podcidr={{ .Values.ipam.podCIDR }}
+          {{- end }}
+          - --vk-options-default-template={{ .Release.Namespace }}/{{ printf "%s-default" $kubeletConfig.name }}
+          - --default-limits-enforcement={{ .Values.controllerManager.config.defaultLimitsEnforcement }}
+          {{- $d := dict "commandName" "--default-node-resources" "dictionary" .Values.offloading.defaultNodeResources -}}
+          {{- include "liqo.concatenateMap" $d | nindent 10 }}
+          {{- if .Values.common.globalAnnotations }}
+          {{- $d := dict "commandName" "--global-annotations" "dictionary" .Values.common.globalAnnotations -}}
+          {{- include "liqo.concatenateMap" $d | nindent 10 }}
+          {{- end }}
+          {{- if .Values.common.globalLabels }}
+          {{- $d := dict "commandName" "--global-labels" "dictionary" .Values.common.globalLabels -}}
+          {{- include "liqo.concatenateMap" $d | nindent 10 }}
+          {{- end }}
+          {{- if .Values.authentication.awsConfig.accessKeyId }}
+          - --aws-access-key-id=$(ACCESS_KEY_ID)
+          {{- end }}
+          {{- if .Values.authentication.awsConfig.secretAccessKey }}
+          - --aws-secret-access-key=$(SECRET_ACCESS_KEY)
+          {{- end }}
+          {{- if .Values.authentication.awsConfig.region }}
+          - --aws-region={{ .Values.authentication.awsConfig.region }}
+          {{- end }}
+          {{- if .Values.authentication.awsConfig.clusterName }}
+          - --aws-cluster-name={{ .Values.authentication.awsConfig.clusterName }}
+          {{- end }}
+          {{- if .Values.apiServer.address }}
+          - --api-server-address-override={{ .Values.apiServer.address }}
+          {{- end }}
+          {{- if .Values.apiServer.ca }}
+          - --ca-override={{ .Values.apiServer.ca }}
+          {{- end }}
+          {{- if .Values.apiServer.trustedCA }}
+          - --trusted-ca
+          {{- end }}
+          - --fabric-route-rule-priority={{ .Values.networking.fabric.config.routeConfigurationRulePriority }}
+          - --fabric-full-masquerade-enabled={{ .Values.networking.fabric.config.fullMasquerade }}
+          - --gateway-masquerade-bypass-enabled={{ .Values.networking.fabric.config.gatewayMasqueradeBypass }}
+          - --gateway-template-watch-enabled={{ .Values.networking.gateway.gatewayTemplateWatchEnabled }}
+          - --geneve-port={{ .Values.networking.genevePort }}
+          {{- $d := dict "commandName" "--gateway-server-resources" "list" .Values.networking.serverResources }}
+          {{- include "liqo.concatenateGroupVersionResources" $d | nindent 10 }}
+          {{- $d := dict "commandName" "--gateway-client-resources" "list" .Values.networking.clientResources }}
+          {{- include "liqo.concatenateGroupVersionResources" $d | nindent 10 }}
+          {{- if .Values.networking.enabled }}
+          {{- if .Values.ipam.external.enabled }}
+          - --ipam-server={{ .Values.ipam.external.url }}
+          {{- else }}
+          - --ipam-server={{ include "liqo.prefixedName" $ipamConfig }}.{{ .Release.Namespace }}:6000
+          {{- end }}
+          {{- end }}
+          - --enable-storage={{ .Values.storage.enabled }}
+          - --webhook-port={{ .Values.webhook.port }}
+          {{- if .Values.storage.enabled }}
+          - --virtual-storage-class-name={{ .Values.storage.virtualStorageClassName }}
+          - --real-storage-class-name={{ .Values.storage.realStorageClassName }}
+          - --storage-namespace={{ .Values.storage.storageNamespace }}
+          {{- end }}
+          {{- $d := dict "commandName" "--ingress-classes" "list" .Values.offloading.reflection.ingress.ingressClasses }}
+          {{- include "liqo.concatenateListDefault" $d | nindent 10 }}
+          {{- $d := dict "commandName" "--load-balancer-classes" "list" .Values.offloading.reflection.service.loadBalancerClasses }}
+          {{- include "liqo.concatenateListDefault" $d | nindent 10 }}
+          {{- if .Values.controllerManager.config.enableNodeFailureController }}
+          - --enable-node-failure-controller
+          {{- end }}
+          {{- if .Values.networking.denyDirectConnections }}
+          - --deny-direct-connections
+          {{- end }}
+          {{- if .Values.common.extraArgs }}
+          {{- toYaml .Values.common.extraArgs | nindent 10 }}
+          {{- end }}
+          {{- if .Values.controllerManager.pod.extraArgs }}
+          {{- toYaml .Values.controllerManager.pod.extraArgs | nindent 10 }}
+          {{- end }}
+          {{- if .Values.discovery.config.clusterLabels }}
+          {{- $d := dict "commandName" "--cluster-labels" "dictionary" .Values.discovery.config.clusterLabels }}
+          {{- include "liqo.concatenateMap" $d | nindent 10 }}
+          {{- end }}
+          {{- if gt .Values.controllerManager.replicas 1.0 }}
+          - --enable-leader-election=true
+          {{- end }}
+          - --enable-api-server-proxy-ip-remapping={{ .Values.proxy.enabled }}
+          {{- if .Values.networking.apiServerAccessThroughEndpointSlices }}
+          - --api-server-ip-use-endpointslices=true
+          {{- end }}
+        env:
+          - name: CLUSTER_ID
+            valueFrom:
+              configMapKeyRef:
+                name: {{ include "liqo.clusterIdConfig" . }}
+                key: CLUSTER_ID
+          - name: POD_NAMESPACE
+            valueFrom:
+             fieldRef:
+               fieldPath: metadata.namespace
+          {{- if .Values.authentication.awsConfig.accessKeyId }}
+          - name: ACCESS_KEY_ID
+            valueFrom:
+              {{- if .Values.authentication.awsConfig.useExistingSecret }}
+              secretKeyRef:
+                name: {{ .Values.authentication.awsConfig.accessKeyId.secretKeyRef.name }}
+                key: {{ .Values.authentication.awsConfig.accessKeyId.secretKeyRef.key }}
+              {{- else }}
+              secretKeyRef:
+                name: {{ include "liqo.prefixedName" $awsConfig }}
+                key: ACCESS_KEY_ID
+              {{- end }}
+          {{- end }}
+          {{- if .Values.authentication.awsConfig.secretAccessKey }}
+          - name: SECRET_ACCESS_KEY
+            valueFrom:
+              {{- if .Values.authentication.awsConfig.useExistingSecret }}
+              secretKeyRef:
+                name: {{ .Values.authentication.awsConfig.secretAccessKey.secretKeyRef.name }}
+                key: {{ .Values.authentication.awsConfig.secretAccessKey.secretKeyRef.key }}
+              {{- else }}
+              secretKeyRef:
+                name: {{ include "liqo.prefixedName" $awsConfig }}
+                key: SECRET_ACCESS_KEY
+              {{- end }}
+          {{- end }}
+        resources: {{- toYaml .Values.controllerManager.pod.resources | nindent 10 }}
+        ports:
+        - name: webhook
+          containerPort: {{ .Values.webhook.port }}
+          protocol: TCP
+        - name: healthz
+          containerPort: 8081
+          protocol: TCP
+        - name: metrics
+          containerPort: 8082
+          protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: healthz
+      {{- if ((.Values.common).nodeSelector) }}
+      nodeSelector:
+      {{- toYaml .Values.common.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if ((.Values.common).tolerations) }}
+      tolerations:
+      {{- toYaml .Values.common.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if ((.Values.common).affinity) }}
+      affinity:
+      {{- toYaml .Values.common.affinity | nindent 8 }}
+      {{- end }}
+      {{- if .Values.controllerManager.pod.priorityClassName }}
+      priorityClassName: {{ .Values.controllerManager.pod.priorityClassName }}
+      {{- end }}

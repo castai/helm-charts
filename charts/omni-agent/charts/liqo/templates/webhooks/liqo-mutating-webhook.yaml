@@ -1,0 +1,113 @@
+{{- $webhookConfig := (merge (dict "name" "webhook" "module" "webhook") .) -}}
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: {{ include "liqo.prefixedName" $webhookConfig }}
+  labels:
+    {{- include "liqo.labels" $webhookConfig | nindent 4 }}
+    liqo.io/webhook: "true"
+webhooks:
+  - name: pod.mutate.liqo.io
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: {{ include "liqo.prefixedName" $webhookConfig }}
+        namespace: {{ .Release.Namespace }}
+        path: "/mutate/pod"
+        port: {{ .Values.webhook.port }}
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    sideEffects: None
+    failurePolicy: {{ .Values.webhook.failurePolicy }}
+    namespaceSelector:
+      matchLabels:
+        liqo.io/scheduling-enabled: "true"
+  - name: shadowpod.mutate.liqo.io
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: {{ include "liqo.prefixedName" $webhookConfig }}
+        namespace: {{ .Release.Namespace }}
+        path: "/mutate/shadowpods"
+        port: {{ .Values.webhook.port }}
+    rules:
+      - operations: ["CREATE", "UPDATE", "DELETE"]
+        apiGroups: ["offloading.liqo.io"]
+        apiVersions: ["v1beta1"]
+        resources: ["shadowpods"]
+    sideEffects: None
+    failurePolicy: {{ .Values.webhook.failurePolicy }}
+  - name: fc.mutate.liqo.io
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: {{ include "liqo.prefixedName" $webhookConfig }}
+        namespace: {{ .Release.Namespace }}
+        path: "/mutate/foreign-cluster"
+        port: {{ .Values.webhook.port }}
+    rules:
+      - operations: ["CREATE","UPDATE"]
+        apiGroups: ["core.liqo.io"]
+        apiVersions: ["v1beta1"]
+        resources: ["foreignclusters"]
+    sideEffects: None
+    failurePolicy: {{ .Values.webhook.failurePolicy }}
+    objectSelector:
+      matchExpressions:
+        - key: liqo.io/webhook-skip
+          operator: NotIn
+          values: ["true"]
+  - name: firewallconfiguration.mutate.liqo.io
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: {{ include "liqo.prefixedName" $webhookConfig }}
+        namespace: {{ .Release.Namespace }}
+        path: "/mutate/firewallconfigurations"
+        port: {{ .Values.webhook.port }}
+    rules:
+      - operations: ["CREATE","UPDATE"]
+        apiGroups: ["networking.liqo.io"]
+        apiVersions: ["v1beta1"]
+        resources: ["firewallconfigurations"]
+    sideEffects: None
+    failurePolicy: {{ .Values.webhook.failurePolicy }}
+    objectSelector:
+      matchExpressions:
+        - key: liqo.io/webhook-skip
+          operator: NotIn
+          values: ["true"]
+  - name: tenant.validate.liqo.io
+    admissionReviewVersions:
+      - v1
+      - v1beta1
+    clientConfig:
+      service:
+        name: {{ include "liqo.prefixedName" $webhookConfig }}
+        namespace: {{ .Release.Namespace }}
+        path: "/mutate/tenants"
+        port: {{ .Values.webhook.port }}
+    rules:
+      - operations: ["CREATE", "UPDATE"]
+        apiGroups: ["authentication.liqo.io"]
+        apiVersions: ["v1beta1"]
+        resources: ["tenants"]
+    sideEffects: None
+    failurePolicy: {{ .Values.webhook.failurePolicy }}
+    objectSelector:
+      matchExpressions:
+        - key: liqo.io/webhook-skip
+          operator: NotIn
+          values: ["true"]

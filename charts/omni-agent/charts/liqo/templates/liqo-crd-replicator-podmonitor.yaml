@@ -1,0 +1,27 @@
+{{- $crdReplicatorConfig := (merge (dict "name" "crd-replicator" "module" "dispatcher") .) -}}
+{{- if .Values.crdReplicator.metrics.podMonitor.enabled }}
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "liqo.prefixedName" $crdReplicatorConfig }}
+  labels:
+    {{- include "liqo.labels" $crdReplicatorConfig | nindent 4 }}
+    {{- if .Values.crdReplicator.metrics.podMonitor.labels }}
+      {{- toYaml .Values.crdReplicator.metrics.podMonitor.labels | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "liqo.selectorLabels" $crdReplicatorConfig | nindent 6 }}
+  podMetricsEndpoints:
+  - port: metrics
+    {{- with .Values.crdReplicator.metrics.podMonitor.interval }}
+    interval: {{ . }}
+    {{- end }}
+    {{- with .Values.crdReplicator.metrics.podMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ . }}
+    {{- end }}
+{{- end }}
+

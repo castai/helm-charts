@@ -1,0 +1,29 @@
+{{- $kubeletMetricsConfig := (merge (dict "name" "virtual-kubelet" "module" "virtual-kubelet") .) -}}
+
+{{- if and (.Values.offloading.enabled) (.Values.metrics.enabled) (.Values.metrics.prometheusOperator.enabled) }}
+
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: {{ include "liqo.prefixedName" $kubeletMetricsConfig }}
+  labels:
+    {{- include "liqo.labels" $kubeletMetricsConfig | nindent 4 }}
+    {{- if .Values.virtualKubelet.metrics.podMonitor.labels }}
+      {{- toYaml .Values.virtualKubelet.metrics.podMonitor.labels | nindent 4 }}
+    {{- end }}
+spec:
+  namespaceSelector:
+    any: true
+  selector:
+    matchLabels: 
+      offloading.liqo.io/component: virtual-kubelet
+  podMetricsEndpoints:
+  - port: metrics
+    {{- with .Values.virtualKubelet.metrics.podMonitor.interval }}
+    interval: {{ . }}
+    {{- end }}
+    {{- with .Values.virtualKubelet.metrics.podMonitor.scrapeTimeout }}
+    scrapeTimeout: {{ . }}
+    {{- end }}
+{{- end }}
+

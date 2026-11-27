@@ -1,0 +1,41 @@
+{{- $virtualKubeletConfig := (merge (dict "name" "virtual-kubelet-local" "module" "virtualkubelet") .) -}}
+
+# to be enabled with the creation of the Tenant Namespace,
+# this ClusterRole has the basic permissions to give to a remote cluster
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: {{ include "liqo.prefixedName" $virtualKubeletConfig }}
+  labels:
+    {{- include "liqo.labels" $virtualKubeletConfig | nindent 4 }}
+{{ .Files.Get (include "liqo.cluster-role-filename" (dict "prefix" ( include "liqo.prefixedName" $virtualKubeletConfig))) }}
+{{- range .Values.offloading.reflection.customResources }}
+- apiGroups:
+  - {{ .group | quote }}
+  resources:
+  - {{ .resource }}
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - {{ .group | quote }}
+  resources:
+  - {{ printf "%s/status" .resource }}
+  verbs:
+  - get
+  - patch
+  - update
+{{- end }}
+{{- if and (.Values.openshiftConfig.enabled) (gt (len .Values.openshiftConfig.virtualKubeletSCCs) 0) -}}
+- apiGroups:
+  - security.openshift.io
+  resourceNames:
+{{- range $scc := .Values.openshiftConfig.virtualKubeletSCCs }}
+  - {{ $scc }}
+{{- end }}
+  resources:
+  - securitycontextconstraints
+  verbs:
+  - use
+{{- end }}

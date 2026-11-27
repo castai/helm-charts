@@ -1,0 +1,98 @@
+{{- $ipamConfig := (merge (dict "name" "ipam" "module" "ipam") .) -}}
+{{- $externalCIDR := .Values.ipam.externalCIDR | default "10.70.0.0/16" -}}
+{{- $internalCIDR := .Values.ipam.internalCIDR | default "10.80.0.0/16" -}}
+{{- if .Values.ipam.podCIDRs }}
+{{- range $cidr := .Values.ipam.podCIDRs }}
+---
+apiVersion: ipam.liqo.io/v1alpha1
+kind: Network
+metadata:
+  name: pod-cidr-{{ $cidr | replace "/" "-" | replace "." "-" }}
+  labels:
+    {{- include "liqo.labels" $ipamConfig | nindent 4 }}
+    ipam.liqo.io/network-type: pod-cidr
+    ipam.liqo.io/network-not-remapped: "true"
+    ipam.liqo.io/network-shared: "true"
+  annotations:
+    liqo.io/preinstalled: "true"
+spec:
+  cidr: {{ $cidr }}
+{{- end }}
+{{- else if .Values.ipam.podCIDR }}
+---
+apiVersion: ipam.liqo.io/v1alpha1
+kind: Network
+metadata:
+  name: pod-cidr
+  labels:
+    {{- include "liqo.labels" $ipamConfig | nindent 4 }}
+    ipam.liqo.io/network-type: pod-cidr
+    ipam.liqo.io/network-not-remapped: "true"
+    ipam.liqo.io/network-shared: "true"
+  annotations:
+    liqo.io/preinstalled: "true"
+spec:
+  cidr: {{ .Values.ipam.podCIDR }}
+{{- end }}
+---
+apiVersion: ipam.liqo.io/v1alpha1
+kind: Network
+metadata:
+  name: service-cidr
+  labels:
+    {{- include "liqo.labels" $ipamConfig | nindent 4 }}
+    ipam.liqo.io/network-type: service-cidr
+    ipam.liqo.io/network-not-remapped: "true"
+    ipam.liqo.io/network-shared: "true"
+  annotations:
+    liqo.io/preinstalled: "true"
+spec:
+  cidr: {{ .Values.ipam.serviceCIDR }}
+---
+apiVersion: ipam.liqo.io/v1alpha1
+kind: Network
+metadata:
+  name: external-cidr
+  labels:
+    {{- include "liqo.labels" $ipamConfig | nindent 4 }}
+    ipam.liqo.io/network-type: external-cidr
+    {{- if .Values.ipam.externalCIDR }}
+    ipam.liqo.io/network-not-remapped: "true"
+    {{- end }}
+  annotations:
+    liqo.io/preinstalled: "true"
+spec:
+  cidr: {{ $externalCIDR }}
+  preAllocated: 1 # the first IP of the external CIDR is reserved for the unknown source traffic
+---
+apiVersion: ipam.liqo.io/v1alpha1
+kind: Network
+metadata:
+  name: internal-cidr
+  labels:
+    {{- include "liqo.labels" $ipamConfig | nindent 4 }}
+    ipam.liqo.io/network-type: internal-cidr
+    {{- if .Values.ipam.internalCIDR }}
+    ipam.liqo.io/network-not-remapped: "true"
+    {{- end }}
+  annotations:
+    liqo.io/preinstalled: "true"
+spec:
+  cidr: {{ $internalCIDR }}
+---
+{{- range $i, $value := .Values.ipam.reservedSubnets }}
+apiVersion: ipam.liqo.io/v1alpha1
+kind: Network
+metadata:
+  name: reserved-{{ $value | replace "/" "-" | replace "." "-" | replace ":" "-" }}
+  labels:
+    {{- include "liqo.labels" $ipamConfig | nindent 4 }}
+    ipam.liqo.io/network-type: reserved
+    ipam.liqo.io/network-not-remapped: "true"
+    ipam.liqo.io/network-shared: "true"
+  annotations:
+    liqo.io/preinstalled: "true"
+spec:
+  cidr: {{ $value }}
+---
+{{- end }}
