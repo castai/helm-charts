@@ -64,7 +64,8 @@ spec:
       {{- end }}
       containers:
         - name: preflight
-          image: bitnami/kubectl:latest
+          # kubectl v1.37.2
+          image: {{ .Values.kent.preflight.image.repository }}@{{ .Values.kent.preflight.image.digest }}
           {{- with (dig "preflight" "resources" dict .Values.kent) }}
           resources:
             {{- toYaml . | nindent 12 }}

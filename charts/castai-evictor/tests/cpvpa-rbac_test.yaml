@@ -2,6 +2,9 @@ suite: cpvpa RBAC gating
 templates:
   - rbac.yaml
 
+set:
+  evictorEnabled: false
+
 tests:
   # ── Default: cpvpa shares the evictor ServiceAccount (unchanged behaviour) ───
 

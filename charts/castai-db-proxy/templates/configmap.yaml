@@ -34,11 +34,12 @@ data:
     metrics = {{ .Values.ports.metrics }}
 
     {{- if not .Values.endpoints }}{{ fail "endpoints must contain at least one endpoint" }}{{ end }}
-    {{- range .Values.endpoints }}
+    {{- $cloudSql := include "castai-db-proxy.cloudSqlProxyInProxyPod" . | eq "true" }}
+    {{- range $index, $endpoint := .Values.endpoints }}
 
     [[endpoints]]
-    address = {{ .address | quote }}
-    readonly = {{ .readonly }}
+    address = {{ if $cloudSql }}{{ printf "127.0.0.1:%d" (add $.Values.cloudSqlProxy.basePort $index) | quote }}{{ else }}{{ $endpoint.address | quote }}{{ end }}
+    readonly = {{ $endpoint.readonly }}
     {{- end }}
 
     [api]

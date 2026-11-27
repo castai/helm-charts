@@ -1,4 +1,7 @@
 {{- if and .Values.pooling.enabled .Values.pooling.proxySql (eq .Values.protocol "MySQL") }}
+{{- if and .Values.cloudSqlProxy .Values.cloudSqlProxy.enabled }}
+{{- fail "cloudSqlProxy is not supported with MySQL pooling (ProxySQL) yet" }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:

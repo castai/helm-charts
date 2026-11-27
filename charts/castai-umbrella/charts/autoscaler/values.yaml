@@ -138,3 +138,16 @@ castai-storage-autoscaler:
     orgIDConfigMapRef:
       name: castai-agent-metadata
       key: ORGANIZATION_ID
+
+# Config-sync operator is opt-in, disabled by default via the umbrella root
+# (autoscaler.castai-config-sync.enabled=false, see charts/castai-umbrella/values.yaml).
+# castctl cluster connect --config-sync-operator wires the dedicated operator
+# token (Secret castai-config-sync-operator-token, key API_KEY) at install time.
+castai-config-sync:
+  fullnameOverride: castai-config-sync
+  clusterIDConfigMap:
+    name: castai-agent-metadata
+    key: CLUSTER_ID
+  apiURLConfigMap:
+    name: castai-agent-metadata
+    key: API_URL

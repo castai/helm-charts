@@ -10,11 +10,12 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 |------------|------|---------|
 | https://castai.github.io/helm-charts | castai-agent | 0.164.6 |
 | https://castai.github.io/helm-charts | castai-cluster-controller | 0.92.25 |
-| https://castai.github.io/helm-charts | castai-evictor | 0.35.160 |
+| https://castai.github.io/helm-charts | castai-config-sync | 0.1.0-rc.1 |
+| https://castai.github.io/helm-charts | castai-evictor | 0.35.161 |
 | https://castai.github.io/helm-charts | castai-kvisor | 2.0.0 |
-| https://castai.github.io/helm-charts | castai-live | 0.149.0 |
+| https://castai.github.io/helm-charts | castai-live | 0.150.2 |
 | https://castai.github.io/helm-charts | castai-pod-mutator | 0.17.14 |
-| https://castai.github.io/helm-charts | castai-pod-pinner | 1.15.2 |
+| https://castai.github.io/helm-charts | castai-pod-pinner | 1.15.3 |
 | https://castai.github.io/helm-charts | castai-spot-handler | 0.35.17 |
 | https://castai.github.io/helm-charts | castai-storage-autoscaler | 0.6.0 |
 | https://castai.github.io/helm-charts | castai-workload-autoscaler | 1.22.1 |
@@ -32,6 +33,11 @@ CAST AI autoscaler modes — readonly, node-autoscaler, workload-autoscaler, ful
 | castai-cluster-controller.autoscaling.enabled | bool | `true` |  |
 | castai-cluster-controller.castai.apiKeySecretRef | string | `""` |  |
 | castai-cluster-controller.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
+| castai-config-sync.apiURLConfigMap.key | string | `"API_URL"` |  |
+| castai-config-sync.apiURLConfigMap.name | string | `"castai-agent-metadata"` |  |
+| castai-config-sync.clusterIDConfigMap.key | string | `"CLUSTER_ID"` |  |
+| castai-config-sync.clusterIDConfigMap.name | string | `"castai-agent-metadata"` |  |
+| castai-config-sync.fullnameOverride | string | `"castai-config-sync"` |  |
 | castai-evictor.aggressiveMode | bool | `false` |  |
 | castai-evictor.envFrom[0].configMapRef.name | string | `"castai-agent-metadata"` |  |
 | castai-evictor.evictorEnabled | string | `nil` |  |

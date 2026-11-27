@@ -18,6 +18,43 @@ tests:
       - hasDocuments:
           count: 0
 
+  # ── ClusterRole ─────────────────────────────────────────────────────────────
+
+  - it: grants only the required evictorconfigs CRD permissions
+    set:
+      crdUpgrade:
+        enabled: true
+    template: crd-upgrade-job.yaml
+    documentIndex: 1
+    asserts:
+      - equal:
+          path: kind
+          value: ClusterRole
+      - lengthEqual:
+          path: rules
+          count: 2
+      - equal:
+          path: rules[0].apiGroups[0]
+          value: apiextensions.k8s.io
+      - equal:
+          path: rules[0].resourceNames[0]
+          value: evictorconfigs.autoscaling.cast.ai
+      - equal:
+          path: rules[0].resources[0]
+          value: customresourcedefinitions
+      - equal:
+          path: rules[0].verbs
+          value:
+            - create
+            - get
+            - list
+            - watch
+            - patch
+            - update
+      - notContains:
+          path: rules[1].verbs
+          content: watch
+
   # ── EvictorConfig CR: evictionRules placement ──────────────────────────────
 
   - it: renders evictionRules as a sibling of config (slice form)

@@ -42,7 +42,7 @@ dependencies:
       - workload-autoscaler
       - full
   - name: castai-evictor
-    version: "0.35.160"
+    version: "0.35.161"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-evictor.enabled
     tags:
@@ -59,14 +59,14 @@ dependencies:
       - full
   # ── node-autoscaler + full ────────────────────────────────────────────────────
   - name: castai-pod-pinner
-    version: "1.15.2"
+    version: "1.15.3"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-pod-pinner.enabled
     tags:
       - node-autoscaler
       - full
   - name: castai-live
-    version: "0.149.0"
+    version: "0.151.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-live.enabled
     tags:
@@ -97,3 +97,9 @@ dependencies:
       - node-autoscaler
       - workload-autoscaler
       - full
+  # ── opt-in (disabled by default via castai-config-sync.enabled=false) ────────
+  # Enable in any mode with --set autoscaler.castai-config-sync.enabled=true.
+  - name: castai-config-sync
+    version: "0.1.0-rc.1"
+    repository: "https://castai.github.io/helm-charts"
+    condition: castai-config-sync.enabled
