@@ -62,6 +62,10 @@ castai-cluster-controller:
     enabled: false
 
 castai-evictor:
+  # evictorEnabled -- Top-level kill-switch for the evictor.
+  # Required when the evictor is enabled (castai-evictor.enabled=true or tags
+  # node-autoscaler/workload-autoscaler); enforced by the wrapper's values.schema.json.
+  evictorEnabled: null
   replicaCount: 1
   aggressiveMode: false
   overrideEnvFrom: false
