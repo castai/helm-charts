@@ -100,6 +100,6 @@ dependencies:
   # ── opt-in (disabled by default via castai-config-sync.enabled=false) ────────
   # Enable in any mode with --set autoscaler.castai-config-sync.enabled=true.
   - name: castai-config-sync
-    version: "0.1.0-rc.1"
+    version: "0.1.0"
     repository: "https://castai.github.io/helm-charts"
     condition: castai-config-sync.enabled
